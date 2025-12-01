@@ -12,7 +12,7 @@ class tbl_unit extends Model
     protected $fillable = [
         'kode_unit',
         'nama_unit',
-        'deskripsi',
+        'deskripsi_unit',
         'status_unit'
     ];
 }

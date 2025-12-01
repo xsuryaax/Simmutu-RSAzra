@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode_unit')->unique();
             $table->string('nama_unit');
-            $table->text('deskripsi')->nullable();
+            $table->text('deskripsi_unit')->nullable();
             $table->enum('status_unit', ['aktif', 'non-aktif']);
             $table->timestamps();
         });

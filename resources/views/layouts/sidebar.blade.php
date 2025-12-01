@@ -51,63 +51,63 @@
                         <ul class="submenu">
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('master-indikator.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-list-check"></i>
                                     <span>Master Indikator</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{route('cakupan-data.index')}}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-bounding-box"></i>
                                     <span>Cakupan Data</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('dimensi-mutu.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-star"></i>
                                     <span>Dimensi Mutu</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('frekuensi-analisis-data.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-bar-chart"></i>
                                     <span>Frekuensi Analisa Data</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('frekuensi-pengumpulan-data.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-calendar-check"></i>
                                     <span>Frekuensi Pengumpulan Data</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('interpretasi-data.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-lightbulb"></i>
                                     <span>Interpretasi Data</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('metodologi-analisis-data.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-pie-chart"></i>
                                     <span>Metodologi Analisa Data</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('metodologi-pengumpulan-data.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-clipboard-data"></i>
                                     <span>Metodologi Pengumpulan Data</span>
                                 </a>
                             </li>
 
                             <li class="submenu-item">
-                                <a href="#" class="d-flex align-items-center gap-2">
+                                <a href="{{ route('publikasi-data.index') }}" class="d-flex align-items-center gap-2">
                                     <i class="bi bi-cloud-arrow-up"></i>
                                     <span>Publikasi Data</span>
                                 </a>
@@ -146,7 +146,7 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="index.html" class='sidebar-link'>
+                <a href="{{ route('manajemen-unit.index') }}" class='sidebar-link'>
                     <i class="bi-diagram-3-fill"></i>
                     <span>Manajemen Unit</span>
                 </a>
