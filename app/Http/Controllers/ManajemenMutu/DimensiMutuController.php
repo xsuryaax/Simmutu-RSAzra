@@ -14,7 +14,7 @@ class DimensiMutuController extends Controller
     public function index()
     {
         $dimensimutu = tbl_dimensi_mutu::all();
-        return view('ManajemenMutu.dimensi-mutu.index', compact('dimensimutu'));
+        return view('menu.ManajemenMutu.dimensi-mutu.index', compact('dimensimutu'));
     }
 
     /**
@@ -22,7 +22,7 @@ class DimensiMutuController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.dimensi-mutu.create');
+        return view('menu.ManajemenMutu.dimensi-mutu.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class DimensiMutuController extends Controller
     public function edit(string $id)
     {
         $dimensimutu = tbl_dimensi_mutu::findOrFail($id);
-        return view('ManajemenMutu.dimensi-mutu.edit', compact('dimensimutu'));
+        return view('menu.ManajemenMutu.dimensi-mutu.edit', compact('dimensimutu'));
     }
 
     /**

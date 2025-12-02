@@ -28,7 +28,7 @@ class ManajemenUserController extends Controller
             ->orderBy('users.id', 'ASC')
             ->get();
 
-        return view('ManajemenUser.index', compact('users', 'roles', 'units'));
+        return view('menu.ManajemenUser.index', compact('users', 'roles', 'units'));
     }
 
     public function store(Request $request)

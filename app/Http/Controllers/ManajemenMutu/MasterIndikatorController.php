@@ -22,7 +22,7 @@ class MasterIndikatorController extends Controller
             ->orderBy('tbl_indikator.created_at', 'DESC')
             ->get();
 
-        return view('ManajemenMutu.master-indikator.index', compact('indikators'));
+        return view('menu.ManajemenMutu.master-indikator.index', compact('indikators'));
     }
 
     /**
@@ -34,7 +34,7 @@ class MasterIndikatorController extends Controller
             ->orderBy('nama_unit', 'ASC')
             ->get();
 
-        return view('ManajemenMutu.master-indikator.create', compact('units'));
+        return view('menu.ManajemenMutu.master-indikator.create', compact('units'));
     }
 
     /**
@@ -82,7 +82,7 @@ class MasterIndikatorController extends Controller
 
         $units = DB::table('tbl_unit')->get();
 
-        return view('ManajemenMutu.master-indikator.edit', compact('indikator', 'units'));
+        return view('menu.ManajemenMutu.master-indikator.edit', compact('indikator', 'units'));
     }
 
 

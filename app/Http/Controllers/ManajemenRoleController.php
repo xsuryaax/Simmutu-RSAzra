@@ -30,7 +30,7 @@ class ManajemenRoleController extends Controller
         $role_aktif = $roles->where('total_user', '>', 0)->count();
         $role_nonaktif = $roles->where('total_user', '=', 0)->count();
 
-        return view('ManajemenRole.index', compact(
+        return view('menu.ManajemenRole.index', compact(
             'roles',
             'total_role',
             'role_aktif',

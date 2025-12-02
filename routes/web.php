@@ -36,11 +36,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
 
     Route::get('/', function () {
-        return view('dashboard');
+        return view('admin.dashboard');
     })->name('dashboard');
 
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return view('admin.dashboard');
     });
 
     Route::resource('master-indikator', MasterIndikatorController::class);

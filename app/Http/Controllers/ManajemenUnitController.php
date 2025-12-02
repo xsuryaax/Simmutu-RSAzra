@@ -17,7 +17,7 @@ class ManajemenUnitController extends Controller
         $unitAktif = tbl_unit::where('status_unit', 'aktif')->count();
         $unitNonAktif = tbl_unit::where('status_unit', 'non-aktif')->count();
 
-        return view('ManajemenUnit.index', compact('units', 'totalUnit', 'unitAktif', 'unitNonAktif'));
+        return view('menu.ManajemenUnit.index', compact('units', 'totalUnit', 'unitAktif', 'unitNonAktif'));
     }
 
     public function create()
@@ -33,7 +33,7 @@ class ManajemenUnitController extends Controller
             $kode = 'UNIT' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
         }
 
-        return view('ManajemenUnit.create', compact('kode'));
+        return view('menu.ManajemenUnit.create', compact('kode'));
     }
 
 
@@ -65,7 +65,7 @@ class ManajemenUnitController extends Controller
     {
         $unit = tbl_unit::findOrFail($id);
 
-        return view('ManajemenUnit.edit', compact('unit'));
+        return view('menu.ManajemenUnit.edit', compact('unit'));
     }
 
     public function update(Request $request, $id)

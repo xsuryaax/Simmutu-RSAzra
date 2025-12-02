@@ -14,7 +14,7 @@ class FrekuensiAnalisisDataController extends Controller
     public function index()
     {
         $frekuensiAnalisisData = tbl_frekuensi_analisis_data::all();
-        return view('ManajemenMutu.frekuensi-analisis-data.index', compact('frekuensiAnalisisData'));
+        return view('menu.ManajemenMutu.frekuensi-analisis-data.index', compact('frekuensiAnalisisData'));
     }
 
     /**
@@ -22,7 +22,7 @@ class FrekuensiAnalisisDataController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.frekuensi-analisis-data.create');
+        return view('menu.ManajemenMutu.frekuensi-analisis-data.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class FrekuensiAnalisisDataController extends Controller
     public function edit(string $id)
     {
         $frekuensiAnalisisData = tbl_frekuensi_analisis_data::findOrFail($id);
-        return view('ManajemenMutu.frekuensi-analisis-data.edit', compact('frekuensiAnalisisData'));
+        return view('menu.ManajemenMutu.frekuensi-analisis-data.edit', compact('frekuensiAnalisisData'));
     }
 
     /**

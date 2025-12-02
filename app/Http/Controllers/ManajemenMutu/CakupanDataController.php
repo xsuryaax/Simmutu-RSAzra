@@ -15,7 +15,7 @@ class CakupanDataController extends Controller
     public function index()
     {
         $cakupanData = tbl_cakupan_data::all();
-        return view('ManajemenMutu.cakupan-data.index', compact('cakupanData'));
+        return view('menu.ManajemenMutu.cakupan-data.index', compact('cakupanData'));
     }
 
     /**
@@ -23,7 +23,7 @@ class CakupanDataController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.cakupan-data.create');
+        return view('menu.ManajemenMutu.cakupan-data.create');
     }
 
     /**
@@ -49,7 +49,7 @@ class CakupanDataController extends Controller
     public function edit($id)
     {
         $cakupanData = tbl_cakupan_data::findOrFail($id);
-        return view('ManajemenMutu.cakupan-data.edit', compact('cakupanData'));
+        return view('menu.ManajemenMutu.cakupan-data.edit', compact('cakupanData'));
     }
 
     /**

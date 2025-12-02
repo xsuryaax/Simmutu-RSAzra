@@ -14,7 +14,7 @@ class InterpretasiDataController extends Controller
     public function index()
     {
         $interpretasiData = tbl_interpretasi_data::all();
-        return view('ManajemenMutu.interpretasi-data.index', compact('interpretasiData'));
+        return view('menu.ManajemenMutu.interpretasi-data.index', compact('interpretasiData'));
     }
 
     /**
@@ -23,7 +23,7 @@ class InterpretasiDataController extends Controller
     public function create()
     {
         $interpretasiData = tbl_interpretasi_data::all();
-        return view('ManajemenMutu.interpretasi-data.create', compact('interpretasiData'));
+        return view('menu.ManajemenMutu.interpretasi-data.create', compact('interpretasiData'));
     }
 
     /**
@@ -49,7 +49,7 @@ class InterpretasiDataController extends Controller
     public function edit(string $id)
     {
         $interpretasiData = tbl_interpretasi_data::findOrFail($id);
-        return view('ManajemenMutu.interpretasi-data.edit', compact('interpretasiData'));
+        return view('menu.ManajemenMutu.interpretasi-data.edit', compact('interpretasiData'));
     }
 
     /**

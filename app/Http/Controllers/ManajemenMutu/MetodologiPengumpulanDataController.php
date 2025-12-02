@@ -14,7 +14,7 @@ class MetodologiPengumpulanDataController extends Controller
     public function index()
     {
         $metodologiPengumpulanData = tbl_metodologi_pengumpulan_data::all();
-        return view('ManajemenMutu.metodologi-pengumpulan-data.index', compact('metodologiPengumpulanData'));
+        return view('menu.ManajemenMutu.metodologi-pengumpulan-data.index', compact('metodologiPengumpulanData'));
     }
 
     /**
@@ -22,7 +22,7 @@ class MetodologiPengumpulanDataController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.metodologi-pengumpulan-data.create');
+        return view('menu.ManajemenMutu.metodologi-pengumpulan-data.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class MetodologiPengumpulanDataController extends Controller
     public function edit(string $id)
     {
         $metodologiPengumpulanData = tbl_metodologi_pengumpulan_data::findOrFail($id);
-        return view('ManajemenMutu.metodologi-pengumpulan-data.edit', compact('metodologiPengumpulanData'));
+        return view('menu.ManajemenMutu.metodologi-pengumpulan-data.edit', compact('metodologiPengumpulanData'));
     }
 
     /**

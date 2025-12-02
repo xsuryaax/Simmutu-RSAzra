@@ -14,7 +14,7 @@ class PublikasiDataController extends Controller
     public function index()
     {
         $publikasiData = tbl_publikasi_data::all();
-        return view('ManajemenMutu.publikasi-data.index', compact('publikasiData'));
+        return view('menu.ManajemenMutu.publikasi-data.index', compact('publikasiData'));
     }
 
     /**
@@ -22,7 +22,7 @@ class PublikasiDataController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.publikasi-data.create');
+        return view('menu.ManajemenMutu.publikasi-data.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class PublikasiDataController extends Controller
     public function edit(string $id)
     {
         $publikasiData = tbl_publikasi_data::findOrFail($id);
-        return view('ManajemenMutu.publikasi-data.edit', compact('publikasiData'));
+        return view('menu.ManajemenMutu.publikasi-data.edit', compact('publikasiData'));
     }
 
     /**

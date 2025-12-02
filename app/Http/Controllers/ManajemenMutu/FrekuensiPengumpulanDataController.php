@@ -14,7 +14,7 @@ class FrekuensiPengumpulanDataController extends Controller
     public function index()
     {
         $frekuensiPengumpulanData = tbl_frekuensi_pengumpulan_data::all();
-        return view('ManajemenMutu.frekuensi-pengumpulan-data.index', compact('frekuensiPengumpulanData'));
+        return view('menu.ManajemenMutu.frekuensi-pengumpulan-data.index', compact('frekuensiPengumpulanData'));
     }
 
     /**
@@ -22,7 +22,7 @@ class FrekuensiPengumpulanDataController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.frekuensi-pengumpulan-data.create');
+        return view('menu.ManajemenMutu.frekuensi-pengumpulan-data.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class FrekuensiPengumpulanDataController extends Controller
     public function edit(string $id)
     {
         $frekuensiPengumpulanData = tbl_frekuensi_pengumpulan_data::findOrFail($id);
-        return view('ManajemenMutu.frekuensi-pengumpulan-data.edit', compact('frekuensiPengumpulanData'));
+        return view('menu.ManajemenMutu.frekuensi-pengumpulan-data.edit', compact('frekuensiPengumpulanData'));
     }
 
     /**

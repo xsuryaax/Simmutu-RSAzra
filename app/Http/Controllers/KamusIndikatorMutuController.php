@@ -38,7 +38,7 @@ class KamusIndikatorMutuController extends Controller
             ->orderBy('tbl_kamus_indikator_mutu.id', 'asc')
             ->get();
 
-        return view('KamusIndikatorMutu.index', compact('mutu'));
+        return view('menu.KamusIndikatorMutu.index', compact('mutu'));
     }
 
     /**
@@ -149,7 +149,7 @@ class KamusIndikatorMutuController extends Controller
         $interpretasi = DB::table('tbl_interpretasi_data')->get();
         $publikasi = DB::table('tbl_publikasi_data')->get();
 
-        return view('KamusIndikatorMutu.edit', compact(
+        return view('menu.KamusIndikatorMutu.edit', compact(
             'data',
             'indikator',
             'dimensi',

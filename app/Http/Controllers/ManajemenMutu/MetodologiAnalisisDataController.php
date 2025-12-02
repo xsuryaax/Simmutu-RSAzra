@@ -14,7 +14,7 @@ class MetodologiAnalisisDataController extends Controller
     public function index()
     {
         $metodologiAnalisisData = tbl_metodologi_analisis_data::all(); // Ganti dengan logika pengambilan data yang sesuai
-        return view('ManajemenMutu.metodologi-analisis-data.index', compact('metodologiAnalisisData'));
+        return view('menu.ManajemenMutu.metodologi-analisis-data.index', compact('metodologiAnalisisData'));
     }
 
     /**
@@ -22,7 +22,7 @@ class MetodologiAnalisisDataController extends Controller
      */
     public function create()
     {
-        return view('ManajemenMutu.metodologi-analisis-data.create');
+        return view('menu.ManajemenMutu.metodologi-analisis-data.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class MetodologiAnalisisDataController extends Controller
     public function edit(string $id)
     {
         $metodologiAnalisisData = tbl_metodologi_analisis_data::findOrFail($id);
-        return view('ManajemenMutu.metodologi-analisis-data.edit', compact('metodologiAnalisisData'));
+        return view('menu.ManajemenMutu.metodologi-analisis-data.edit', compact('metodologiAnalisisData'));
     }
 
     /**
