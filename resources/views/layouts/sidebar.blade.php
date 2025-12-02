@@ -28,7 +28,7 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="index.html" class='sidebar-link'>
+                <a href="{{ route('kamus-indikator-mutu.index') }}" class='sidebar-link'>
                     <i class="bi-book-fill"></i>
                     <span>Kamus Indikator Mutu</span>
                 </a>
@@ -134,13 +134,13 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="index.html" class='sidebar-link'>
+                <a href="{{ route('manajemen-user.index') }}" class='sidebar-link'>
                     <i class="bi-people-fill"></i>
                     <span>Manajemen User</span>
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="index.html" class='sidebar-link'>
+                <a href="{{ route('manajemen-role.index') }}" class='sidebar-link'>
                     <i class="bi-shield-lock-fill"></i>
                     <span>Manajemen Role</span>
                 </a>

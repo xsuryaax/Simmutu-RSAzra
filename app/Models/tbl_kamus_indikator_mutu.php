@@ -20,7 +20,7 @@ class tbl_kamus_indikator_mutu extends Model
         'penanggung_jawab',
         'indikator_id',
         'dimensi_mutu_id',
-        'metode_pengumpulan_data_id',
+        'metodologi_pengumpulan_data_id',
         'cakupan_data_id',
         'frekuensi_pengumpulan_data_id',
         'frekuensi_analisis_data_id',

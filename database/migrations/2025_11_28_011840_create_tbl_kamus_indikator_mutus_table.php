@@ -23,7 +23,7 @@ return new class extends Migration
             $table->text('penanggung_jawab');
             $table->integer('indikator_id');
             $table->integer('dimensi_mutu_id');
-            $table->integer('metode_pengumpulan_data_id');
+            $table->integer('metodologi_pengumpulan_data_id');
             $table->integer('cakupan_data_id');
             $table->integer('frekuensi_pengumpulan_data_id');
             $table->integer('frekuensi_analisis_data_id');

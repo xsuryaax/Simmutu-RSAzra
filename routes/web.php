@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\KamusIndikatorMutuController;
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiAnalisisDataController;
@@ -10,7 +11,9 @@ use App\Http\Controllers\ManajemenMutu\MasterIndikatorController;
 use App\Http\Controllers\ManajemenMutu\MetodologiAnalisisDataController;
 use App\Http\Controllers\ManajemenMutu\MetodologiPengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\PublikasiDataController;
+use App\Http\Controllers\ManajemenRoleController;
 use App\Http\Controllers\ManajemenUnitController;
+use App\Http\Controllers\ManajemenUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -50,4 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('metodologi-pengumpulan-data', MetodologiPengumpulanDataController::class);
     Route::resource('metodologi-analisis-data', MetodologiAnalisisDataController::class);
     Route::resource('publikasi-data', PublikasiDataController::class);
+    Route::resource('manajemen-role', ManajemenRoleController::class);
+    Route::resource('manajemen-user', ManajemenUserController::class);
+    Route::resource('kamus-indikator-mutu', KamusIndikatorMutuController::class);
 });
