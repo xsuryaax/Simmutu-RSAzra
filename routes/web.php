@@ -23,3 +23,6 @@ Route::get('manajemenUnit', function () {
 Route::get('hakAkses', function () {
     return view('menu/hakAkses');
 });
+Route::get('dashboard', function () {
+    return view('admin.dashboard');
+});
