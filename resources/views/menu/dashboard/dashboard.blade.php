@@ -10,7 +10,7 @@
             <h3>Profile Statistics</h3>
             <form method="POST" action="/logout">
                 @csrf
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary logout-btn">
                     <i class="bi bi-box-arrow-right"></i>
                     Logout
                 </button>

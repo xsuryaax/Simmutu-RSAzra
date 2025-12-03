@@ -3,7 +3,8 @@
         <div class="d-flex justify-content-between">
             <div class="logo">
                 <a href="index.html" class="text-decoration-none">
-                    <h4 class="m-0 fw-bold" style="color: #25396f;">SIMMUTU RS AZRA</h4>
+                    <i class="bi bi-heart-pulse-fill"></i>
+                    <h4 class="m-0 fw-bold" style="color: #25396f;">SIMUTU RS AZRA</h4>
                 </a>
             </div>
             <div class="toggler">

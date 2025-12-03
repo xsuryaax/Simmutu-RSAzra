@@ -9,16 +9,16 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Kamus Indikator Mutu</h3>
+                    <h3>Metodologi Analisa Data</h3>
                     <p class="text-subtitle text-muted">
-                        Data indikator mutu per unit di rumah sakit Azra
+                        Halaman untuk mengelola Metodologi Analisa Data mutu RS Azra.
                     </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <div class="justify-content-end d-flex">
                         <form method="POST" action="/logout">
                             @csrf
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary logout-btn">
                                 <i class="bi bi-box-arrow-right"></i>
                                 Logout
                             </button>
@@ -31,7 +31,7 @@
                                     <a href="{{ url('/') }}">Dashboard</a>
                                 </li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    Kamus Indikator Mutu
+                                    Metodologi Analisa Data
                                 </li>
                             </ol>
                         </nav>
@@ -39,51 +39,43 @@
                 </div>
             </div>
         </div>
-    @endsection
+    </div>
+@endsection
 
-    {{-- Bagian Konten Utama --}}
-    @section('content')
-        <section class="section">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title">Kamus Indikator Mutu</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped" id="table1">
+{{-- Bagian Konten Utama --}}
+@section('content')
+    <section class="section">
+        <div class="card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="card-title">Metodologi Analisa Data</h5>
+                <a href="metodologi-analisa-data/create" class="btn btn-primary float-end">
+                    <i class="bi bi-plus-circle"></i> Tambah Metodologi Analisa Data
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table" id="table1">
                         <thead>
                             <tr>
                                 <th>NO</th>
-                                <th>INDIKATOR</th>
-                                <th>PERIODE</th>
-                                <th>UNIT</th>
-                                <th>TARGET</th>
-                                <th>NILAI</th>
-                                <th>PENCAPAIAN</th>
-                                <th>STATUS PERIODE</th>
-                                <th>STATUS</th>
-                                <th>FILE</th>
+                                <th>NAMA</th>
                                 <th>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>1</td>
-                                <td>Respon time permintaan perbaikan</td>
-                                <td>Desember 2025</td>
-                                <td>SIMRS</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>BELUM ADA DATA</td>
-                                <td>AKTIF</td>
-                                <td>-</td>
-                                <td>-</td>
+                                <td></td>
+                                <td></td>
                                 <td>
-                                    <span class="badge bg-success">+ Input Data</span>
+                                    <a href="{{ url('/metodologi-analisa-data/edit') }}" class="btn btn-edit"><i
+                                            class="bi bi-pencil-square"></i></a>
+                                    <span class="btn btn-danger"><i class="bi bi-trash3-fill"></i></span>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </section>
-    @endsection
+        </div>
+    </section>
+@endsection

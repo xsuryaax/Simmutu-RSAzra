@@ -9,16 +9,16 @@
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Manajemen Unit</h3>
+                    <h3>Manajemen Role</h3>
                     <p class="text-subtitle text-muted">
-                        Halaman untuk mengelola unit dalam sistem.
+                        Halaman untuk mengelola role dalam sistem.
                     </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
                     <div class="justify-content-end d-flex">
                         <form method="POST" action="/logout">
                             @csrf
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary logout-btn">
                                 <i class="bi bi-box-arrow-right"></i>
                                 Logout
                             </button>
@@ -31,7 +31,7 @@
                                     <a href="{{ url('/') }}">Dashboard</a>
                                 </li>
                                 <li class="breadcrumb-item active" aria-current="page">
-                                    Manajemen Unit
+                                    Manajemen Role
                                 </li>
                             </ol>
                         </nav>
@@ -47,54 +47,71 @@
     <section class="section">
         {{-- total role, user, etc --}}
         <div class="row">
-            <div class="col-6 col-lg-4 col-md-6">
+            <div class="col-6 col-lg-3 col-md-6">
                 <div class="card">
                     <div class="card-body px-4 py-4-5">
                         <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                <div class="stats-icon purple mb-2">
+                                    <i class="bi bi-shield-lock"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                 <h6 class="text-muted font-semibold">
                                     Total Role
                                 </h6>
                                 <h6 class="font-extrabold mb-0">112.000</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon purple mb-2">
-                                    <i class="bi bi-buildings"></i>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-lg-4 col-md-6">
+            <div class="col-6 col-lg-3 col-md-6">
                 <div class="card">
                     <div class="card-body px-4 py-4-5">
                         <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                <div class="stats-icon green mb-2">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                 <h6 class="text-muted font-semibold">Role Aktif</h6>
                                 <h6 class="font-extrabold mb-0">183.000</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon green mb-2">
-                                    <i class="bi bi-building-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                <div class="stats-icon blue mb-2">
+                                    <i class="bi bi-shield-x"></i>
                                 </div>
+                            </div>
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                                <h6 class="text-muted font-semibold">Role Terpakai</h6>
+                                <h6 class="font-extrabold mb-0">80.000</h6>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-lg-4 col-md-6">
+            <div class="col-6 col-lg-3 col-md-6">
                 <div class="card">
                     <div class="card-body px-4 py-4-5">
                         <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                <div class="stats-icon red mb-2">
+                                    <i class="bi bi-shield-slash"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                 <h6 class="text-muted font-semibold">Role Tidak Aktif</h6>
                                 <h6 class="font-extrabold mb-0">112</h6>
-                            </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon red mb-2">
-                                    <i class="bi bi-building-x"></i>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -106,7 +123,7 @@
             <div class="col-md-4 col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Tambah Unit Baru</h4>
+                        <h4 class="card-title">Tambah User Baru</h4>
                     </div>
                     <div class="card-content">
                         <div class="card-body">
@@ -115,24 +132,12 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="first-name-icon">Kode Unit</label>
+                                                <label for="first-name-icon">Nama Role</label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control"
-                                                        placeholder="Masukkan kode unit" id="first-name-icon" />
+                                                        placeholder="Masukkan nama role" id="first-name-icon" />
                                                     <div class="form-control-icon">
-                                                        <i class="bi bi-upc"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group has-icon-left">
-                                                <label for="first-name-icon">Nama Unit</label>
-                                                <div class="position-relative">
-                                                    <input type="text" class="form-control"
-                                                        placeholder="Masukkan nama unit" id="first-name-icon" />
-                                                    <div class="form-control-icon">
-                                                        <i class="bi bi-building"></i>
+                                                        <i class="bi bi-shield-lock-fill"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -145,15 +150,6 @@
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-card-text"></i>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-check">
-                                                <div class="checkbox mt-2">
-                                                    <input type="checkbox" id="remember-me-v" class="form-check-input"
-                                                        checked />
-                                                    <label for="remember-me-v">User Aktif</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -175,31 +171,35 @@
             <div class="col-md-8 col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title">Daftar Unit</h5>
+                        <h5 class="card-title">Daftar Role</h5>
                     </div>
                     <div class="card-body">
-                        <table class="table table-striped" id="table1">
-                            <thead>
-                                <tr>
-                                    <th>Kode Unit</th>
-                                    <th>Nama Unit</th>
-                                    <th>Deskripsi</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>
-                                        <span class="badge bg-success">+ Input Data</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table" id="table1">
+                                <thead>
+                                    <tr>
+                                        <th>Nama & Ussername</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Unit</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>
+                                            <span class="btn btn-primary">+ Input Data</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

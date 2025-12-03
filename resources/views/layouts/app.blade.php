@@ -23,10 +23,10 @@
     @endif
 
     @production
-        {{-- Di mode produksi, gunakan Vite::asset() untuk mendapatkan path ter-hash --}}
+        {{-- Untuk produksi, gunakan Vite::asset() untuk mendapatkan path ter-hash --}}
         <link rel="stylesheet" href="{{ Vite::asset('resources/css/app-dark.css') }}" media="(prefers-color-scheme: dark)">
     @else
-        {{-- Di mode development, gunakan @vite array tunggal agar Vite hot-reload tetap berfungsi --}}
+        {{-- Untuks development, gunakan @vite array tunggal agar Vite hot-reload tetap berfungsi --}}
         @vite(['resources/css/app-dark.css'], 'resources/css/app-dark.css', 'css/app-dark.css', ['media' => '(prefers-color-scheme: dark)'])
     @endproduction
 
@@ -59,7 +59,7 @@
             </div>
 
             {{-- Footer --}}
-            {{-- @include('layouts.includes.footer') --}}
+            @include('layouts.includes.footer')
 
         </div>
     </div>

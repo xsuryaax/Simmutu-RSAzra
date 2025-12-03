@@ -18,7 +18,7 @@
                     <div class="justify-content-end d-flex">
                         <form method="POST" action="/logout">
                             @csrf
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary logout-btn">
                                 <i class="bi bi-box-arrow-right"></i>
                                 Logout
                             </button>
@@ -50,40 +50,42 @@
                 <h5 class="card-title">Laporan dan Analisis</h5>
             </div>
             <div class="card-body">
-                <table class="table table-striped" id="table1">
-                    <thead>
-                        <tr>
-                            <th>NO</th>
-                            <th>INDIKATOR</th>
-                            <th>PERIODE</th>
-                            <th>UNIT</th>
-                            <th>TARGET</th>
-                            <th>NILAI</th>
-                            <th>PENCAPAIAN</th>
-                            <th>STATUS PERIODE</th>
-                            <th>STATUS</th>
-                            <th>FILE</th>
-                            <th>AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Respon time permintaan perbaikan</td>
-                            <td>Desember 2025</td>
-                            <td>SIMRS</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>BELUM ADA DATA</td>
-                            <td>AKTIF</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>
-                                <span class="badge bg-success">+ Input Data</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table" id="table1">
+                        <thead>
+                            <tr>
+                                <th>NO</th>
+                                <th>INDIKATOR</th>
+                                <th>PERIODE</th>
+                                <th>UNIT</th>
+                                <th>TARGET</th>
+                                <th>NILAI</th>
+                                <th>PENCAPAIAN</th>
+                                <th>STATUS PERIODE</th>
+                                <th>STATUS</th>
+                                <th>FILE</th>
+                                <th>AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Respon time permintaan perbaikan</td>
+                                <td>Desember 2025</td>
+                                <td>SIMRS</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>BELUM ADA DATA</td>
+                                <td>AKTIF</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>
+                                    <span class="btn btn-primary">+ Input Data</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </section>
