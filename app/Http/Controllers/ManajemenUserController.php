@@ -42,6 +42,8 @@ class ManajemenUserController extends Controller
             'unit_id' => 'nullable',
         ]);
 
+        $status = $request->status_user ? 'aktif' : 'non-aktif';
+
         User::create([
             'nama_lengkap' => $request->nama_lengkap,
             'username' => $request->username,
@@ -49,7 +51,7 @@ class ManajemenUserController extends Controller
             'password' => bcrypt($request->password),
             'role_id' => $request->role_id,
             'unit_id' => $request->unit_id,
-            'status_user' => $request->status_user ?? 'aktif',
+            'status_user' => $status,
         ]);
 
         return redirect()->back()->with('success', 'User berhasil ditambahkan!');

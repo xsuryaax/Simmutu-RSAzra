@@ -60,7 +60,7 @@ class KamusIndikatorMutuController extends Controller
         $interpretasi = DB::table('tbl_interpretasi_data')->get();
         $publikasi = DB::table('tbl_publikasi_data')->get();
 
-        return view('KamusIndikatorMutu.create', compact(
+        return view('menu.KamusIndikatorMutu.create', compact(
             'indikator',
             'dimensi',
             'metodologiPengumpulan',
@@ -115,8 +115,6 @@ class KamusIndikatorMutuController extends Controller
             'cakupan_data_id' => $request->cakupan_data_id,
             'frekuensi_pengumpulan_data_id' => $request->frekuensi_pengumpulan_data_id,
             'frekuensi_analisis_data_id' => $request->frekuensi_analisis_data_id,
-
-            // FIX: sebelumnya salah → metode_analisis_data_id
             'metodologi_analisis_data_id' => $request->metodologi_analisis_data_id,
 
             'interpretasi_data_id' => $request->interpretasi_data_id,
@@ -129,9 +127,6 @@ class KamusIndikatorMutuController extends Controller
             ->with('success', 'Kamus Indikator Mutu berhasil ditambahkan.');
     }
 
-
-
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -141,11 +136,11 @@ class KamusIndikatorMutuController extends Controller
 
         $indikator = DB::table('tbl_indikator')->get();
         $dimensi = DB::table('tbl_dimensi_mutu')->get();
-        $metodologi = DB::table('tbl_metodologi_pengumpulan_data')->get();
+        $metodologiPengumpulan = DB::table('tbl_metodologi_pengumpulan_data')->get();
         $cakupan = DB::table('tbl_cakupan_data')->get();
         $frekuensiPengumpulan = DB::table('tbl_frekuensi_pengumpulan_data')->get();
         $frekuensiAnalisis = DB::table('tbl_frekuensi_analisis_data')->get();
-        $metodeAnalisis = DB::table('tbl_metode_analisis_data')->get();
+        $metodologiAnalisis = DB::table('tbl_metodologi_analisis_data')->get();
         $interpretasi = DB::table('tbl_interpretasi_data')->get();
         $publikasi = DB::table('tbl_publikasi_data')->get();
 
@@ -153,11 +148,11 @@ class KamusIndikatorMutuController extends Controller
             'data',
             'indikator',
             'dimensi',
-            'metodologi',
+            'metodologiPengumpulan',
             'cakupan',
             'frekuensiPengumpulan',
             'frekuensiAnalisis',
-            'metodeAnalisis',
+            'metodologiAnalisis',
             'interpretasi',
             'publikasi'
         ));
@@ -175,7 +170,7 @@ class KamusIndikatorMutuController extends Controller
             'cakupan_data_id' => $request->cakupan_data_id,
             'frekuensi_pengumpulan_data_id' => $request->frekuensi_pengumpulan_data_id,
             'frekuensi_analisis_data_id' => $request->frekuensi_analisis_data_id,
-            'metode_analisis_data_id' => $request->metode_analisis_data_id,
+            'metodologi_analisis_data_id' => $request->metodologi_analisis_data_id,
             'interpretasi_data_id' => $request->interpretasi_data_id,
             'publikasi_data_id' => $request->publikasi_data_id,
         ]);

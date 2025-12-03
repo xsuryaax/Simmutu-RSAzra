@@ -55,14 +55,12 @@ class Sidebar {
 
 
     const toggleSubmenu = (el) => {
-      if (el.classList.contains("submenu-open")) {
-        el.classList.remove('submenu-open')
-        el.classList.add('submenu-closed')
+      if (el.classList.contains("active")) {
+        el.classList.remove('active'); 
       } else {
-        el.classList.remove("submenu-closed")
-        el.classList.add("submenu-open")
+        el.classList.add('active');
       }
-    }
+    };
 
     let sidebarItems = document.querySelectorAll(".sidebar-item.has-sub")
     for (var i = 0; i < sidebarItems.length; i++) {
@@ -78,17 +76,20 @@ class Sidebar {
 
 
       // If submenu has submenu
-      const submenuItems = sidebarItem.querySelectorAll('.submenu-item.has-sub')
+      const submenuItems = sidebarItem.querySelectorAll('.submenu-item.has-sub');
       submenuItems.forEach(item => {
-        item.addEventListener('click', () => {
-          const submenuLevelTwo = item.querySelector('.submenu')
-          toggleSubmenu(submenuLevelTwo)
-
-          // Pass second .submenu
-          const height = calculateChildrenHeight(item.parentElement, true)
-
-        })
-      })
+        const link = item.querySelector('a.submenu-link');  // Attach ke <a>
+        if (link) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const submenuLevelTwo = item.querySelector('.submenu');
+            if (submenuLevelTwo) {
+              toggleSubmenu(submenuLevelTwo);
+              const height = calculateChildrenHeight(item.parentElement, true);
+            }
+          });
+        }
+      });
     }
 
     // Perfect Scrollbar Init

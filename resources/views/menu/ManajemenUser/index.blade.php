@@ -3,165 +3,224 @@
 {{-- Bagian Title Halaman --}}
 @section('title', 'Default Layout')
 
+{{-- Bagian Breadcrumb dan Halaman Title --}}
 @section('page-title')
     <div class="page-heading">
         <div class="page-title">
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Manajemen User</h3>
-                    <p class="text-subtitle text-muted">Pengaturan seluruh user aplikasi</p>
+                    <p class="text-subtitle text-muted">
+                        Halaman untuk mengelola user dalam sistem.
+                    </p>
                 </div>
-
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Manajemen User</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Manajemen User
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+@endsection
 
-        <section class="section">
-            <div class="row">
-
-                {{-- ====================== CARD TAMBAH USER ======================= --}}
-                <div class="col-md-4 col-12">
-                    <div class="card shadow-sm" id="cardTambah">
-                        <div class="card-header">
-                            <h6 class="mb-0">Tambah User</h6>
-                        </div>
-
+{{-- Bagian Konten Utama --}}
+@section('content')
+    <section class="section">
+        <div class="row">
+            <div class="col-md-4 col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Tambah User Baru</h4>
+                    </div>
+                    <div class="card-content">
                         <div class="card-body">
                             <form action="{{ route('manajemen-user.store') }}" method="POST">
                                 @csrf
-
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" name="nama_lengkap" class="form-control" required>
+                                <div class="form-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="nama_lengkap">Nama Lengkap</label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control" name="nama_lengkap"
+                                                        placeholder="Masukkan nama lengkap" id="nama_lengkap" />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="username">Username</label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control" name="username"
+                                                        placeholder="Masukkan username" id="username" />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="email">Email</label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control" name="email"
+                                                        placeholder="Masukkan alamat email" id="email" />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-envelope"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="password">Password</label>
+                                                <div class="position-relative">
+                                                    <input type="password" class="form-control" name="password"
+                                                        placeholder="Masukkan password" id="password" />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-lock"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="role">Role</label>
+                                                <div class="position-relative">
+                                                    <fieldset class="form-group">
+                                                        <select class="form-select" id="role_id" name="role_id">
+                                                            @foreach ($roles as $r)
+                                                                <option value="{{ $r->id }}">{{ $r->nama_role }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="unit">Unit</label>
+                                                <div class="position-relative">
+                                                    <fieldset class="form-group">
+                                                        <select class="form-select" id="unit_id" name="unit_id">
+                                                            @foreach ($units as $u)
+                                                                <option value="{{ $u->id }}">{{ $u->nama_unit }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                <div class="checkbox mt-2">
+                                                    <input type="checkbox" id="status_user" name="status_user" value="aktif"
+                                                        class="form-check-input" />
+                                                    <label for="status_user">User Aktif</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary me-1 mb-1">
+                                                Simpan
+                                            </button>
+                                            <button type="reset" class="btn btn-light-secondary me-1 mb-1">
+                                                Batal
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Username</label>
-                                    <input type="text" name="username" class="form-control" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <input type="email" name="email" class="form-control" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Password</label>
-                                    <input type="password" name="password" class="form-control" required>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Role</label>
-                                    <select name="role_id" class="form-control" required>
-                                        @foreach ($roles as $r)
-                                            <option value="{{ $r->id }}">{{ $r->nama_role }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Unit</label>
-                                    <select name="unit_id" class="form-control">
-                                        <option value="">Tidak Ada</option>
-                                        @foreach ($units as $u)
-                                            <option value="{{ $u->id }}">{{ $u->nama_unit }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Status User</label>
-                                    <select name="status_user" class="form-control">
-                                        <option value="aktif">Aktif</option>
-                                        <option value="non-aktif">Non-Aktif</option>
-                                    </select>
-                                </div>
-
-                                <button class="btn btn-primary w-100">
-                                    <i class="bi bi-plus-circle"></i> Simpan User
-                                </button>
                             </form>
                         </div>
                     </div>
                 </div>
-
-                {{-- ====================== TABLE USER ======================= --}}
-                <div class="col-md-8 col-12">
-                    <div class="card shadow-sm">
-                        <div class="card-header">Data User</div>
-
-                        <div class="card-body">
-                            <table class="table table-striped" id="table1">
-                                <thead>
+            </div>
+            <div class="col-md-8 col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Daftar User</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped" id="table1">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Unit</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($users as $u)
                                     <tr>
-                                        <th>No</th>
-                                        <th>Nama</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Unit</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
+                                        <td>{{ $loop->iteration }}</td>
 
-                                <tbody>
-                                    @foreach ($users as $u)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                        <td>
+                                            <strong>{{ $u->nama_lengkap }}</strong><br>
+                                            <small class="text-muted">{{ $u->username }}</small>
+                                        </td>
 
-                                            <td>
-                                                <strong>{{ $u->nama_lengkap }}</strong><br>
-                                                <small class="text-muted">{{ $u->username }}</small>
-                                            </td>
+                                        <td>{{ $u->email }}</td>
+                                        <td>{{ $u->nama_role }}</td>
+                                        <td>{{ $u->nama_unit ?? '-' }}</td>
 
-                                            <td>{{ $u->email }}</td>
-                                            <td>{{ $u->nama_role }}</td>
-                                            <td>{{ $u->nama_unit ?? '-' }}</td>
+                                        <td>
+                                            @if ($u->status_user == 'aktif')
+                                                <span class="badge bg-success">Aktif</span>
+                                            @else
+                                                <span class="badge bg-secondary">Non-Aktif</span>
+                                            @endif
+                                        </td>
 
-                                            <td>
-                                                @if ($u->status_user == 'aktif')
-                                                    <span class="badge bg-success">Aktif</span>
-                                                @else
-                                                    <span class="badge bg-secondary">Non-Aktif</span>
-                                                @endif
-                                            </td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm" onclick='openEditModal(@json($u))'>
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
 
-                                            <td>
-                                                <button class="btn btn-warning btn-sm" onclick='openEditModal(@json($u))'>
-                                                    <i class="bi bi-pencil"></i>
+                                            <form action="{{ route('manajemen-user.destroy', $u->id) }}" method="POST"
+                                                class="d-inline" onsubmit="return confirm('Hapus user ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-danger btn-sm">
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
+                                            </form>
+                                        </td>
+                                    </tr>
 
-                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}" method="POST"
-                                                    class="d-inline" onsubmit="return confirm('Hapus user ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-danger btn-sm">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-
-                                    @endforeach
-                                </tbody>
-
-                            </table>
-                        </div>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
             </div>
-        </section>
-
-    </div>
-
+        </div>
+    </section>
     {{-- ====================== MODAL EDIT USER ======================= --}}
     <div class="modal fade" id="modalEditUser" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -251,42 +310,8 @@
     </div>
 @endsection
 
-@push('scripts')
-    <style>
-        .dataTable-wrapper .dataTable-pagination a {
-            padding: 3px 6px !important;
-            font-size: 11px !important;
-            min-width: 28px !important;
-        }
-
-        .dataTable-wrapper .dataTable-selector {
-            width: 60px !important;
-            padding: 4px 6px !important;
-            font-size: 12px !important;
-        }
-
-        .dataTable-wrapper .dataTable-input {
-            padding: 4px 8px !important;
-            font-size: 12px !important;
-            height: 32px !important;
-        }
-
-        .dataTable-top {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .dataTable-dropdown,
-        .dataTable-search {
-            margin: 0 !important;
-        }
-    </style>
+@push('js')
     <script>
-        let dt = new simpleDatatables.DataTable("#table1");
-
         // ============== OPEN EDIT MODAL DAN ISI DATA ==============
         function openEditModal(user) {
 
@@ -304,4 +329,5 @@
             new bootstrap.Modal(document.getElementById('modalEditUser')).show();
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

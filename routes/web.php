@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KamusIndikatorMutuController;
+use App\Http\Controllers\LaporanAnalisisController;
+use App\Http\Controllers\LaporanDanAnalisController;
+use App\Http\Controllers\LaporanDanAnalisisController;
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiAnalisisDataController;
@@ -56,4 +59,5 @@ Route::middleware('auth')->group(function () {
     Route::resource('manajemen-role', ManajemenRoleController::class);
     Route::resource('manajemen-user', ManajemenUserController::class);
     Route::resource('kamus-indikator-mutu', KamusIndikatorMutuController::class);
+    Route::resource('laporan-analisis', LaporanAnalisisController::class);
 });

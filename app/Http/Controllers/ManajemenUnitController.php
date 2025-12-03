@@ -17,23 +17,18 @@ class ManajemenUnitController extends Controller
         $unitAktif = tbl_unit::where('status_unit', 'aktif')->count();
         $unitNonAktif = tbl_unit::where('status_unit', 'non-aktif')->count();
 
-        return view('menu.ManajemenUnit.index', compact('units', 'totalUnit', 'unitAktif', 'unitNonAktif'));
-    }
-
-    public function create()
-    {
-        // Ambil kode terakhir
+        // Generate kode otomatis untuk form create di index
         $last = tbl_unit::orderBy('id', 'DESC')->first();
+        $num = $last ? (int) substr($last->kode_unit, 4) + 1 : 1;
+        $kode = 'UNIT' . str_pad($num, 3, '0', STR_PAD_LEFT);
 
-        if (!$last) {
-            $kode = 'UNIT001';
-        } else {
-            // Ambil angka di belakang UNIT
-            $num = (int) substr($last->kode_unit, 4);
-            $kode = 'UNIT' . str_pad($num + 1, 3, '0', STR_PAD_LEFT);
-        }
-
-        return view('menu.ManajemenUnit.create', compact('kode'));
+        return view('menu.ManajemenUnit.index', compact(
+            'units',
+            'totalUnit',
+            'unitAktif',
+            'unitNonAktif',
+            'kode'
+        ));
     }
 
 
@@ -42,8 +37,10 @@ class ManajemenUnitController extends Controller
         $request->validate([
             'nama_unit' => 'required',
             'deskripsi_unit' => 'nullable',
-            'status_unit' => 'required|in:aktif,non-aktif',
+            'status_unit' => 'nullable',
         ]);
+
+        $status = $request->status_unit ? 'aktif' : 'non-aktif';
 
         // Generate kode otomatis
         $last = tbl_unit::orderBy('id', 'DESC')->first();
@@ -54,7 +51,7 @@ class ManajemenUnitController extends Controller
             'kode_unit' => $kode,
             'nama_unit' => $request->nama_unit,
             'deskripsi_unit' => $request->deskripsi_unit,
-            'status_unit' => $request->status_unit,
+            'status_unit' => $status,
         ]);
 
         return redirect()->route('manajemen-unit.index')

@@ -50,8 +50,8 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li class="sidebar-item {{ Request::is('laporanAnalisis') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
+                <li class="sidebar-item {{ Request::is('laporan-analisis') ? 'active' : '' }}">
+                    <a href="{{ route('laporan-analisis.index') }}" class='sidebar-link'>
                         <i class="bi bi-file-earmark-bar-graph-fill"></i>
                         <span>Laporan & Analisis</span>
                     </a>
@@ -63,94 +63,60 @@
                     </a>
                 </li>
 
-                {{-- Lanjutkan item menu lainnya di sini... --}}
-
                 <li class="sidebar-title">Menu</li>
-                <li class="sidebar-item has-sub">
-                    <a href="#" class='sidebar-link d-flex align-items-center gap-2'>
-                        <i class="bi bi-bar-chart-fill"></i>
+
+                <li
+                    class="sidebar-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') ? 'active' : '' }}">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-stack"></i>
                         <span>Manajemen Data Mutu</span>
                     </a>
-
                     <ul class="submenu">
-                        <li class="sidebar-item has-sub">
-                            <a href="#" class='sidebar-link d-flex align-items-center gap-2'>
-                                <i class="bi bi-folder-fill"></i>
-                                <span>Master Indikator Mutu</span>
-                            </a>
-
-                            <ul class="submenu">
-
-                                <li class="submenu-item">
-                                    <a href="{{ route('master-indikator.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-list-check"></i>
-                                        <span>Master Indikator</span>
-                                    </a>
+                        <li
+                            class="submenu-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') ? 'active' : '' }}">
+                            <a href="#" class="submenu-link">Master Indikator Mutu</a>
+                            <ul class="submenu submenu-level-2">
+                                <li class="submenu-item {{ request()->is('master-indikator') ? 'active' : '' }}">
+                                    <a href="{{ route('master-indikator.index') }}" class="submenu-link">Master
+                                        Indikator</a>
                                 </li>
-
-                                <li class="submenu-item">
-                                    <a href="{{route('cakupan-data.index')}}" class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-bounding-box"></i>
-                                        <span>Cakupan Data</span>
-                                    </a>
+                                <li class="submenu-item {{ request()->is('cakupan-data') ? 'active' : '' }}">
+                                    <a href="{{ route('cakupan-data.index') }}" class="submenu-link ">Cakupan
+                                        Data</a>
                                 </li>
-
                                 <li class="submenu-item">
-                                    <a href="{{ route('dimensi-mutu.index') }}" class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-star"></i>
-                                        <span>Dimensi Mutu</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('dimensi-mutu.index') }}" class="submenu-link">Dimensi Mutu</a>
+                                </li>
                                 <li class="submenu-item">
-                                    <a href="{{ route('frekuensi-analisis-data.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-bar-chart"></i>
-                                        <span>Frekuensi Analisa Data</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('frekuensi-analisis-data.index') }}" class="submenu-link">Frekuensi
+                                        Analisa Data</a>
+                                </li>
                                 <li class="submenu-item">
-                                    <a href="{{ route('frekuensi-pengumpulan-data.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-calendar-check"></i>
-                                        <span>Frekuensi Pengumpulan Data</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('frekuensi-pengumpulan-data.index') }}" class="submenu-link">Frekuensi
+                                        Pengumpulan Data</a>
+                                </li>
                                 <li class="submenu-item">
-                                    <a href="{{ route('interpretasi-data.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-lightbulb"></i>
-                                        <span>Interpretasi Data</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('interpretasi-data.index') }}" class="submenu-link">Interpretasi
+                                        Data</a>
+                                </li>
                                 <li class="submenu-item">
-                                    <a href="{{ route('metodologi-analisis-data.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-pie-chart"></i>
-                                        <span>Metodologi Analisa Data</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('metodologi-analisis-data.index') }}" class="submenu-link">Metodologi
+                                        Analisis Data</a>
+                                </li>
                                 <li class="submenu-item">
-                                    <a href="{{ route('metodologi-pengumpulan-data.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-clipboard-data"></i>
-                                        <span>Metodologi Pengumpulan Data</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('metodologi-pengumpulan-data.index') }}" class="submenu-link">Metodologi
+                                        Pengumpulan Data</a>
+                                </li>
                                 <li class="submenu-item">
-                                    <a href="{{ route('publikasi-data.index') }}"
-                                        class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-cloud-arrow-up"></i>
-                                        <span>Publikasi Data</span>
-                                    </a>
-                                </li>
 
+                                    <a href="{{ route('publikasi-data.index') }}" class="submenu-link">Publikasi Data</a>
+                                </li>
                             </ul>
                         </li>
                     </ul>
