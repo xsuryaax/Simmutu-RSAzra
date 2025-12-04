@@ -46,7 +46,7 @@ class MasterIndikatorController extends Controller
             'nama_indikator' => 'required',
             'unit_id' => 'required|exists:tbl_unit,id',
             'target_indikator' => 'required|numeric',
-            'tipe_indikator' => 'required|in:lokal, nasional',
+            'tipe_indikator' => 'required|in:lokal,nasional',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status_periode' => 'required|in:aktif,non-aktif',

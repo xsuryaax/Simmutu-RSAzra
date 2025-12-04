@@ -10,7 +10,6 @@ class LaporanAnalisisController extends Controller
     // Menampilkan halaman index
     public function index(Request $request)
     {
-        // Filter bulan & tahun
         $bulan = $request->bulan ?? date('m');
         $tahun = $request->tahun ?? date('Y');
 
@@ -20,20 +19,23 @@ class LaporanAnalisisController extends Controller
                     ->whereMonth('tbl_laporan_dan_analis.created_at', $bulan)
                     ->whereYear('tbl_laporan_dan_analis.created_at', $tahun);
             })
-            ->leftJoin('tbl_kamus_indikator_mutu', 'tbl_kamus_indikator_mutu.indikator_id', '=', 'tbl_indikator.id')
+            ->leftJoin('tbl_pdsa', 'tbl_pdsa.laporan_analisis_id', '=', 'tbl_laporan_dan_analis.id')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
             ->select(
                 'tbl_indikator.*',
                 'tbl_unit.nama_unit',
+                'tbl_laporan_dan_analis.id as laporan_id',
                 'tbl_laporan_dan_analis.nilai',
                 'tbl_laporan_dan_analis.pencapaian',
-                'tbl_laporan_dan_analis.file_laporan'
+                'tbl_laporan_dan_analis.file_laporan',
+                'tbl_pdsa.id as pdsa_id'
             )
             ->orderBy('tbl_indikator.id', 'DESC')
             ->get();
 
         return view('menu.LaporanAnalisis.index', compact('data', 'bulan', 'tahun'));
     }
+
 
     public function store(Request $request)
     {
@@ -82,14 +84,6 @@ class LaporanAnalisisController extends Controller
         ]);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.

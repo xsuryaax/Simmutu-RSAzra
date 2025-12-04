@@ -57,10 +57,9 @@
 
             <div class="card-body">
 
-                {{-- Filter Bulan/Tahun --}}
-                <form class="row g-3 mb-4" method="GET" action="">
-                    <div class="col-md-3">
-                        <label>Bulan</label>
+                <form class="row g-2 align-items-end mb-4" method="GET" action="">
+                    <div class="col-md-2">
+                        <label class="form-label">Bulan</label>
                         <select name="bulan" class="form-control">
                             @foreach (range(1, 12) as $b)
                                 <option value="{{ $b }}" {{ $bulan == $b ? 'selected' : '' }}>
@@ -70,8 +69,8 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3">
-                        <label>Tahun</label>
+                    <div class="col-md-2">
+                        <label class="form-label">Tahun</label>
                         <select name="tahun" class="form-control">
                             @foreach (range(date('Y') - 5, date('Y') + 2) as $t)
                                 <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>
@@ -81,7 +80,7 @@
                         </select>
                     </div>
 
-                    <div class="col-md-3 d-flex align-items-end">
+                    <div class="col-md-2">
                         <button class="btn btn-success w-100">
                             <i class="bi bi-funnel"></i> Filter
                         </button>
@@ -126,15 +125,15 @@
 
                                     <td>
                                         @if($row->nilai !== null)
-                                                                @php
-                                                                    $nilai = rtrim(rtrim($row->nilai, '0'), '.');
-                                                                    $target = $row->target_indikator;
-                                                                @endphp
-                                                                <span @class([
-                                                                    'bg-warning px-1 rounded' => $nilai < $target
-                                                                ])>
-                                            {{ $nilai }}
-                                                                </span>
+                                            @php
+                                                $nilai = rtrim(rtrim($row->nilai, '0'), '.');
+                                                $target = $row->target_indikator;
+                                            @endphp
+                                            <span @class([
+                                                'bg-warning px-1 rounded' => $nilai < $target
+                                            ])>
+                                                {{ $nilai }}
+                                            </span>
                                         @else
                                             -
                                         @endif
@@ -177,15 +176,33 @@
                                     </td>
 
                                     <td>
+                                        {{-- Belum input nilai --}}
                                         @if (is_null($row->nilai))
                                             <button onclick="openInputModal({{ $row->id }}, {{ $row->unit_id }})"
                                                 class="btn btn-success btn-sm">
                                                 + Input Data
                                             </button>
                                         @else
-                                            <span class="badge bg-info">✓ Sudah Diinput</span>
+                                            {{-- Nilai sudah ada --}}
+                                            @if ($row->pencapaian === 'tidak-tercapai')
+
+                                                {{-- Belum input PDSA --}}
+                                                @if (is_null($row->pdsa_id))
+                                                    <button onclick="openPDSAModal({{ $row->laporan_id }})" class="btn btn-warning btn-sm">
+                                                        + Input PDSA
+                                                    </button>
+                                                @else
+                                                    <span class="badge bg-info">
+                                                        ✓ PDSA Sudah Diinput
+                                                    </span>
+                                                @endif
+
+                                            @else
+                                                <span class="badge bg-info">✓ Sudah Diinput</span>
+                                            @endif
                                         @endif
                                     </td>
+
 
                                 </tr>
                             @endforeach
@@ -291,6 +308,59 @@
             </div>
         </div>
 
+        <div class="modal fade" id="pdsaModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+
+                    <form action="{{ route('pdsa.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+
+                        <input type="hidden" name="laporan_analisis_id" id="laporan_analisis_id">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Input PDSA</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <div class="mb-3">
+                                <label>Plan</label>
+                                <textarea name="plan" class="form-control" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Do</label>
+                                <textarea name="do" class="form-control" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Study</label>
+                                <textarea name="study" class="form-control" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Act</label>
+                                <textarea name="act" class="form-control" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>File PDSA (Opsional)</label>
+                                <input type="file" name="file_pdsa" class="form-control">
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" type="submit">Simpan</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
     </section>
 @endsection
 
@@ -332,6 +402,12 @@
             let fileName = this.files.length > 0 ? this.files[0].name : '';
             document.getElementById('selected-file').textContent = fileName;
         });
+
+        function openPDSAModal(laporanID) {
+            document.getElementById('laporan_analisis_id').value = laporanID;
+            var modal = new bootstrap.Modal(document.getElementById('pdsaModal'));
+            modal.show();
+        }
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

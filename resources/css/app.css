@@ -1,3 +1,15 @@
+:root {
+  --primary-color: #007774;
+  --primary-dark: #006663;
+  --primary-light: #008885;
+  --secondary-color: #e2e8f0;
+  --text-color: #1b1b18;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 .alert {
   border: none;
 }
@@ -1284,6 +1296,8 @@ a {
 .logout-btn{
   margin-bottom: 7px;
 }
+
+/* login */
 .login-container{
   width: 100%;
   max-width: 400px;
@@ -1296,6 +1310,18 @@ a {
   text-align: center;
   margin-bottom: 2rem;
 }
+.hospital-logo {
+  width: 64px;
+  height: 64px;
+  background: var(--primary-color);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  margin: 0 auto 1rem;
+}
 .login-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -1305,6 +1331,44 @@ a {
 .login-subtitle {
   color: #64748b;
   font-size: 0.875rem;
+}
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--secondary-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 119, 116, 0.1);
+}
+
+.input-icon-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  cursor: pointer;
 }
 .login-btn {
   width: 100%;
@@ -1324,4 +1388,31 @@ a {
 }
 .login-btn:hover {
   background: var(--primary-dark);
+}
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.success-message {
+  background: #f0fdf4;
+  border: 1px solid #dcfce7;
+  color: var(--primary-color);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+@media (max-width: 480px) {
+  .login-container {
+      padding: 1.5rem;
+  }
 }

@@ -1,10 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\HakAksesController;
 use App\Http\Controllers\KamusIndikatorMutuController;
 use App\Http\Controllers\LaporanAnalisisController;
-use App\Http\Controllers\LaporanDanAnalisController;
-use App\Http\Controllers\LaporanDanAnalisisController;
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiAnalisisDataController;
@@ -17,6 +16,7 @@ use App\Http\Controllers\ManajemenMutu\PublikasiDataController;
 use App\Http\Controllers\ManajemenRoleController;
 use App\Http\Controllers\ManajemenUnitController;
 use App\Http\Controllers\ManajemenUserController;
+use App\Http\Controllers\PDSAController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +29,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/unauthorized', function () {
+    return view('errors.unauthorized');
+})->name('unauthorized');
 
 
 /*
@@ -46,18 +50,49 @@ Route::middleware('auth')->group(function () {
         return view('admin.dashboard');
     });
 
-    Route::resource('master-indikator', MasterIndikatorController::class);
-    Route::resource('manajemen-unit', ManajemenUnitController::class);
-    Route::resource('cakupan-data', CakupanDataController::class);
-    Route::resource('dimensi-mutu', DimensiMutuController::class);
-    Route::resource('frekuensi-analisis-data', FrekuensiAnalisisDataController::class);
-    Route::resource('frekuensi-pengumpulan-data', FrekuensiPengumpulanDataController::class);
-    Route::resource('interpretasi-data', InterpretasiDataController::class);
-    Route::resource('metodologi-pengumpulan-data', MetodologiPengumpulanDataController::class);
-    Route::resource('metodologi-analisis-data', MetodologiAnalisisDataController::class);
-    Route::resource('publikasi-data', PublikasiDataController::class);
-    Route::resource('manajemen-role', ManajemenRoleController::class);
-    Route::resource('manajemen-user', ManajemenUserController::class);
-    Route::resource('kamus-indikator-mutu', KamusIndikatorMutuController::class);
-    Route::resource('laporan-analisis', LaporanAnalisisController::class);
+    // Menu Manajemen Mutu
+    Route::resource('master-indikator', MasterIndikatorController::class)
+        ->middleware('check.role:master_indikator');
+    Route::resource('cakupan-data', CakupanDataController::class)
+        ->middleware('check.role:cakupan_data');
+    Route::resource('dimensi-mutu', DimensiMutuController::class)
+        ->middleware('check.role:dimensi_mutu');
+    Route::resource('frekuensi-analisis-data', FrekuensiAnalisisDataController::class)
+        ->middleware('check.role:frekuensi_analisis_data');
+    Route::resource('frekuensi-pengumpulan-data', FrekuensiPengumpulanDataController::class)
+        ->middleware('check.role:frekuensi_pengumpulan_data');
+    Route::resource('interpretasi-data', InterpretasiDataController::class)
+        ->middleware('check.role:interpretasi_data');
+    Route::resource('metodologi-pengumpulan-data', MetodologiPengumpulanDataController::class)
+        ->middleware('check.role:metodologi_pengumpulan_data');
+    Route::resource('metodologi-analisis-data', MetodologiAnalisisDataController::class)
+        ->middleware('check.role:metodologi_analisis_data');
+    Route::resource('publikasi-data', PublikasiDataController::class)
+        ->middleware('check.role:publikasi_data');
+
+    // Manajemen Role, User, Unit
+    Route::resource('manajemen-role', ManajemenRoleController::class)
+        ->middleware('check.role:manage_role');
+    Route::resource('manajemen-user', ManajemenUserController::class)
+        ->middleware('check.role:manajemen_user');
+    Route::resource('manajemen-unit', ManajemenUnitController::class)
+        ->middleware('check.role:manajemen_unit');
+
+    // Kamus & Laporan
+    Route::resource('kamus-indikator-mutu', KamusIndikatorMutuController::class)
+        ->middleware('check.role:kamus_indikator_mutu');
+    Route::resource('laporan-analisis', LaporanAnalisisController::class)
+        ->middleware('check.role:laporan_analisis');
+
+    // Hak akses
+    Route::get('hak-akses', [HakAksesController::class, 'index'])
+        ->name('hak-akses.index')
+        ->middleware('check.role:hak_akses');
+    Route::put('hak-akses/update/{role}', [HakAksesController::class, 'update'])
+        ->name('hak-akses.update')
+        ->middleware('check.role:hak_akses');
+
+    // PDSA
+    Route::resource('pdsa', PDSAController::class)
+        ->middleware('check.role:pdsa');
 });

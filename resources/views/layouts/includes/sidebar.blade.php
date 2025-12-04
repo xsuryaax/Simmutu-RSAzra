@@ -155,7 +155,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item {{ Request::is('hak-akses') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
+                    <a href="{{ route('hak-akses.index') }}" class='sidebar-link'>
                         <i class="bi bi-key-fill"></i>
                         <span>Hak Akses</span>
                     </a>
