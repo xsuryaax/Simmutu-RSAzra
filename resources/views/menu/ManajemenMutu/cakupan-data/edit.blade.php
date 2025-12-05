@@ -9,20 +9,38 @@
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Edit Cakupan Data</h3>
-                    <p class="text-subtitle text-muted">Silakan ubah data cakupan data</p>
+                    <p class="text-subtitle text-muted">
+                        Form edit cakupan data pada kamus indikator mutu.
+                    </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('cakupan-data.index') }}">Cakupan Data</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Edit Cakupan Data</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Edit Cakupan Data
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
+@endsection
 
+    @section('content')
         <section id="basic-vertical-layouts">
             <div class="row match-height">
                 <div class="col-md-6 col-6">
@@ -66,5 +84,4 @@
                 </div>
             </div>
         </section>
-    </div>
-@endsection
+    @endsection

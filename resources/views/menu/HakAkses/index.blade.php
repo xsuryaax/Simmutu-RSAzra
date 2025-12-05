@@ -2,37 +2,66 @@
 
 @section('title', 'Manajemen Hak Akses')
 
-@section('content')
+@section('page-title')
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Manajemen Hak Akses</h3>
+                    <p class="text-subtitle text-muted">
+                        Data hak akses per role di rumah sakit Azra
+                    </p>
+                </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Manajemen Hak Akses
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+@endsection
 
-<div class="page-heading">
-    <h3>Manajemen Hak Akses</h3>
-</div>
 
-<div class="card">
-    <div class="card-body">
-
-        {{-- PILIH ROLE --}}
-        <form method="GET" action="">
-            <div class="mb-3">
-                <label>Pilih Role</label>
-                <select name="role_id" class="form-control" onchange="this.form.submit()">
-                    @foreach($roles as $r)
+    @section('content')
+    <div class="card">
+        <div class="card-body">
+            {{-- PILIH ROLE --}}
+            <form method="GET" action="">
+                <div class="mb-3">
+                    <label>Pilih Role</label>
+                    <select name="role_id" class="form-control" onchange="this.form.submit()">
+                        @foreach($roles as $r)
                         <option value="{{ $r->id }}" {{ $selectedRole == $r->id ? 'selected' : '' }}>
                             {{ $r->nama_role }}
                         </option>
-                    @endforeach
-                </select>
-            </div>
-        </form>
-
-        <form method="POST" action="{{ route('hak-akses.update', $selectedRole) }}">
-            @csrf
-            @method('PUT')
-
-            <input type="hidden" name="role_id" value="{{ $selectedRole }}">
-
-            @foreach($menuStructure as $groupKey => $group)
-
+                        @endforeach
+                    </select>
+                </div>
+            </form>
+            
+            <form method="POST" action="{{ route('hak-akses.update', $selectedRole) }}">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="role_id" value="{{ $selectedRole }}">
+                @foreach($menuStructure as $groupKey => $group)
                 <h5 class="mt-4">{{ $group['title'] }}</h5>
                 <table class="table table-bordered">
                     <thead>
@@ -43,7 +72,6 @@
                         </tr>
                     </thead>
                     <tbody>
-
                         @foreach($group['menus'] as $menu)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
@@ -58,17 +86,11 @@
                                 </td>
                             </tr>
                         @endforeach
-
                     </tbody>
                 </table>
-
-            @endforeach
-
-            <button class="btn btn-primary mt-3">Simpan Perubahan</button>
-
-        </form>
-
+                @endforeach
+                <button class="btn btn-primary mt-3">Simpan Perubahan</button>
+            </form>
+        </div>
     </div>
-</div>
-
-@endsection
+    @endsection

@@ -9,39 +9,51 @@
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Tambah Publikasi Data</h3>
-                    <p class="text-subtitle text-muted">Silakan isi data publikasi data baru</p>
+                    <p class="text-subtitle text-muted">
+                        Form tambah data publikasi rumah sakit Azra
+                    </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('publikasi-data.index') }}">Publikasi Data</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Tambah Publikasi Data</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Tambah Publikasi Data
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
-
             </div>
         </div>
+@endsection
 
+    @section('content')
         <section id="basic-vertical-layouts">
             <div class="row match-height">
-
                 <div class="col-md-6 col-6">
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title">Form Tambah Publikasi Data</h4>
                         </div>
-
                         <div class="card-content">
                             <div class="card-body">
-
                                 <form action="{{ route('publikasi-data.store') }}" method="POST" class="form form-vertical">
                                     @csrf
-
                                     <div class="form-body">
                                         <div class="row">
-
                                             <div class="col-md-12 mb-3">
                                                 <label for="nama_publikasi_data">Nama Publikasi Data</label>
                                                 <input type="text" id="nama_publikasi_data" name="nama_publikasi_data"
@@ -72,9 +84,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
-
-    </div>
-@endsection
+    @endsection

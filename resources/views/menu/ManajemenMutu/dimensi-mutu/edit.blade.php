@@ -9,21 +9,38 @@
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Edit Dimensi Mutu</h3>
-                    <p class="text-subtitle text-muted">Silakan ubah data dimensi mutu</p>
+                    <p class="text-subtitle text-muted">
+                        Form untuk mengedit data dimensi mutu pada rumah sakit Azra
+                    </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('dimensi-mutu.index') }}">Dimensi Mutu</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Edit Dimensi Mutu</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Edit Dimensi Mutu
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
-
             </div>
         </div>
+@endsection
 
+    @section('content')
         <section id="basic-vertical-layouts">
             <div class="row match-height">
 
@@ -73,8 +90,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
-    </div>
-@endsection
+    @endsection

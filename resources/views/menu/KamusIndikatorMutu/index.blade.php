@@ -58,7 +58,7 @@
                             <thead>
                                 <tr>
                                     <th>NO</th>
-                                    <th>INDIKATOR</th>
+                                    <th style="width: 300px;">INDIKATOR</th>
                                     <th>DIMENSI MUTU</th>
                                     <th>METODOLOGI PENGUMPULAN</th>
                                     <th>CAKUPAN DATA</th>

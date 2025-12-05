@@ -9,21 +9,39 @@
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Dimensi Mutu</h3>
-                    <p class="text-subtitle text-muted">Daftar seluruh dimensi mutu</p>
+                    <p class="text-subtitle text-muted">
+                        Data Dimensi mutu pada rumah sakit Azra
+                    </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Dimensi Mutu</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Dimensi Mutu
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </div>
+@endsection
 
+    @section('content')
         <section class="section">
-
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>Dimensi Mutu</span>
@@ -67,50 +85,47 @@
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
             </div>
-
         </section>
-    </div>
-@endsection
+    @endsection
 
-@push('scripts')
-    <style>
-        .dataTable-wrapper .dataTable-pagination a {
-            padding: 3px 6px !important;
-            font-size: 11px !important;
-            min-width: 28px !important;
-        }
+    @push('scripts')
+        <style>
+            .dataTable-wrapper .dataTable-pagination a {
+                padding: 3px 6px !important;
+                font-size: 11px !important;
+                min-width: 28px !important;
+            }
 
-        .dataTable-wrapper .dataTable-selector {
-            width: 60px !important;
-            padding: 4px 6px !important;
-            font-size: 12px !important;
-        }
+            .dataTable-wrapper .dataTable-selector {
+                width: 60px !important;
+                padding: 4px 6px !important;
+                font-size: 12px !important;
+            }
 
-        .dataTable-wrapper .dataTable-input {
-            padding: 4px 8px !important;
-            font-size: 12px !important;
-            height: 32px !important;
-        }
+            .dataTable-wrapper .dataTable-input {
+                padding: 4px 8px !important;
+                font-size: 12px !important;
+                height: 32px !important;
+            }
 
-        .dataTable-top {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+            .dataTable-top {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
 
-        .dataTable-dropdown,
-        .dataTable-search {
-            margin: 0 !important;
-        }
-    </style>
-    <script>
-        let indikatorTable = document.querySelector('#tableIndikator');
-        let dataIndikator = new simpleDatatables.DataTable(indikatorTable);
-    </script>
-@endpush
+            .dataTable-dropdown,
+            .dataTable-search {
+                margin: 0 !important;
+            }
+        </style>
+        <script>
+            let indikatorTable = document.querySelector('#tableIndikator');
+            let dataIndikator = new simpleDatatables.DataTable(indikatorTable);
+        </script>
+    @endpush

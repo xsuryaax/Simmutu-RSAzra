@@ -241,6 +241,7 @@
                                         {{ DateTime::createFromFormat('!m', $bulan)->format('F') }}
                                     </option>
                                 </select>
+                                <input type="hidden" name="bulan" value="{{ $bulan }}">
                             </div>
 
                             {{-- Tahun --}}
@@ -250,25 +251,26 @@
                                     readonly disabled>
                                     <option value="{{ $tahun }}">{{ $tahun }}</option>
                                 </select>
+                                <input type="hidden" name="tahun" value="{{ $tahun }}">
                             </div>
 
                             {{-- Numerator --}}
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Numerator</label>
+                                <label class="form-label fw-semibold">Numerator <span style="color: red">*</span></label>
                                 <input type="number" name="numerator" class="form-control" placeholder="Masukkan numerator"
-                                    style="border-radius: 8px;">
+                                    style="border-radius: 8px;" required>
                             </div>
 
                             {{-- Denominator --}}
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Denominator</label>
+                                <label class="form-label fw-semibold">Denominator <span style="color: red">*</span></label>
                                 <input type="number" name="denominator" class="form-control"
-                                    placeholder="Masukkan denominator" style="border-radius: 8px;">
+                                    placeholder="Masukkan denominator" style="border-radius: 8px;" required>
                             </div>
 
                             {{-- Upload File --}}
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Unggah File</label>
+                                <label class="form-label fw-semibold">Unggah File <span style="color: red">*</span></label>
 
                                 <div class="p-4 text-center rounded"
                                     style="border: 2px dashed #c4d3de; background: #f8fafc;">
@@ -278,7 +280,7 @@
                                         Pilih file untuk diunggah
                                     </label>
                                     <input type="file" id="file_laporan" name="file_laporan" class="d-none"
-                                        accept=".pdf,.doc,.docx,.xls,.xlsx">
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx" required>
                                     <small class="text-muted d-block mt-2">
                                         Format diizinkan: PDF, DOC, DOCX, XLS, XLSX (Maks. 5MB)
                                     </small>
@@ -325,28 +327,28 @@
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label>Plan</label>
+                                <label>Plan <span style="color: red">*</span></label>
                                 <textarea name="plan" class="form-control" required></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label>Do</label>
+                                <label>Do <span style="color: red">*</span></label>
                                 <textarea name="do" class="form-control" required></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label>Study</label>
+                                <label>Study <span style="color: red">*</span></label>
                                 <textarea name="study" class="form-control" required></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label>Act</label>
+                                <label>Act <span style="color: red">*</span></label>
                                 <textarea name="act" class="form-control" required></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label>File PDSA (Opsional)</label>
-                                <input type="file" name="file_pdsa" class="form-control">
+                                <label>File PDSA <span style="color: red">*</span></label>
+                                <input type="file" name="file_pdsa" class="form-control" required>
                             </div>
 
                         </div>

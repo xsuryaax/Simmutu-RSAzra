@@ -26,10 +26,10 @@ class HakAksesController extends Controller
                 ['key' => 'master_indikator', 'label' => 'Master Indikator'],
                 ['key' => 'cakupan_data', 'label' => 'Cakupan Data'],
                 ['key' => 'dimensi_mutu', 'label' => 'Dimensi Mutu'],
-                ['key' => 'frekuensi_analisa_data', 'label' => 'Frekuensi Analisa Data'],
+                ['key' => 'frekuensi_analisis_data', 'label' => 'Frekuensi Analisis Data'],
                 ['key' => 'frekuensi_pengumpulan_data', 'label' => 'Frekuensi Pengumpulan Data'],
                 ['key' => 'interpretasi_data', 'label' => 'Interpretasi Data'],
-                ['key' => 'metodologi_analisa_data', 'label' => 'Metodologi Analisa Data'],
+                ['key' => 'metodologi_analisis_data', 'label' => 'Metodologi Analisis Data'],
                 ['key' => 'metodologi_pengumpulan_data', 'label' => 'Metodologi Pengumpulan Data'],
                 ['key' => 'publikasi_data', 'label' => 'Publikasi Data'],
             ]

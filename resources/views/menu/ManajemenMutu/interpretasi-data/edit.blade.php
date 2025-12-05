@@ -9,21 +9,38 @@
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Edit Interpretasi Data</h3>
-                    <p class="text-subtitle text-muted">Silakan ubah data interpretasi data</p>
+                    <p class="text-subtitle text-muted">
+                        Edit data interpretasi data rumah sakit Azra
+                    </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('interpretasi-data.index') }}">Interpretasi Data</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Edit Interpretasi Data</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Edit Interpretasi Data
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
-
             </div>
         </div>
+@endsection
 
+    @section('content')
         <section id="basic-vertical-layouts">
             <div class="row match-height">
 
@@ -66,15 +83,11 @@
 
                                         </div>
                                     </div>
-
                                 </form>
-
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
-    </div>
-@endsection
+    @endsection

@@ -9,21 +9,38 @@
             <div class="row">
                 <div class="col-12 col-md-6 order-md-1 order-last">
                     <h3>Tambah Frekuensi Analisis Data</h3>
-                    <p class="text-subtitle text-muted">Silakan isi data frekuensi analisis data baru</p>
+                    <p class="text-subtitle text-muted">
+                        Form untuk menambahkan data frekuensi analisis data pada rumah sakit Azra
+                    </p>
                 </div>
                 <div class="col-12 col-md-6 order-md-2 order-first">
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('frekuensi-analisis-data.index') }}">Frekuensi Analisis Data</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Tambah Frekuensi Analisis Data</li>
-                        </ol>
-                    </nav>
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Tambah Frekuensi Analisis Data
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
                 </div>
-
             </div>
         </div>
+@endsection
 
+    @section('content')
         <section id="basic-vertical-layouts">
             <div class="row match-height">
 
@@ -36,15 +53,18 @@
                         <div class="card-content">
                             <div class="card-body">
 
-                                <form action="{{ route('frekuensi-analisis-data.store') }}" method="POST" class="form form-vertical">
+                                <form action="{{ route('frekuensi-analisis-data.store') }}" method="POST"
+                                    class="form form-vertical">
                                     @csrf
 
                                     <div class="form-body">
                                         <div class="row">
 
                                             <div class="col-md-12 mb-3">
-                                                <label for="nama_frekuensi_analisis_data">Nama Frekuensi Analisis Data</label>
-                                                <input type="text" id="nama_frekuensi_analisis_data" name="nama_frekuensi_analisis_data"
+                                                <label for="nama_frekuensi_analisis_data">Nama Frekuensi Analisis
+                                                    Data</label>
+                                                <input type="text" id="nama_frekuensi_analisis_data"
+                                                    name="nama_frekuensi_analisis_data"
                                                     class="form-control @error('nama_frekuensi_analisis_data') is-invalid @enderror"
                                                     value="{{ old('nama_frekuensi_analisis_data') }}"
                                                     placeholder="Masukkan nama frekuensi analisis data" required>
@@ -62,19 +82,13 @@
                                                     <i class="bi bi-check-circle"></i> Simpan
                                                 </button>
                                             </div>
-
                                         </div>
                                     </div>
-
                                 </form>
-
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
-
-    </div>
-@endsection
+    @endsection

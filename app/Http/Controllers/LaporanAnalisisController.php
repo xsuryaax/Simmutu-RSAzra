@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 
@@ -44,7 +45,10 @@ class LaporanAnalisisController extends Controller
             'unit_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
-            'file_laporan' => 'nullable|mimes:pdf,doc,docx,xls,xlsx,jpg,png|max:5120'
+            'file_laporan' => 'nullable|mimes:pdf,doc,docx,xls,xlsx,jpg,png|max:5120',
+            // optional: validate bulan/tahun jika dikirim
+            'bulan' => 'nullable|integer|min:1|max:12',
+            'tahun' => 'nullable|integer|min:1900',
         ]);
 
         // Hitung nilai
@@ -64,48 +68,37 @@ class LaporanAnalisisController extends Controller
             $filePath = $request->file('file_laporan')->store('laporan', 'public');
         }
 
+        // Ambil bulan/tahun dari request (jika ada), kalau tidak pakai sekarang
+        $bulan = $request->bulan ?? date('m');
+        $tahun = $request->tahun ?? date('Y');
+
+        // Tentukan hari yang valid (hindari tanggal > jumlah hari di bulan tersebut)
+        $day = date('d'); // gunakan hari sekarang
+        $daysInMonth = Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth();
+        if ($day > $daysInMonth) {
+            $day = $daysInMonth;
+        }
+
+        // Buat timestamp created_at sesuai bulan & tahun pilihan
+        $createdAt = Carbon::createFromDate($tahun, $bulan, $day)->setTime(
+            now()->hour,
+            now()->minute,
+            now()->second
+        );
+
         DB::table('tbl_laporan_dan_analis')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id,
             'nilai' => $nilai,
             'pencapaian' => $pencapaian,
             'file_laporan' => $filePath,
-            'created_at' => now(),
+            'created_at' => $createdAt->toDateTimeString(),
             'updated_at' => now(),
         ]);
 
-        // Kembalikan data dalam bentuk JSON untuk debugging
-        return response()->json([
-            'request_input' => $request->all(),
-            'nilai_hitung' => $nilai,
-            'target' => $target,
-            'pencapaian' => $pencapaian,
-            'uploaded_file_path' => $filePath,
-        ]);
-    }
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // Redirect kembali ke index dengan mempertahankan filter bulan/tahun
+        return redirect()
+            ->route('laporan-analisis.index', ['bulan' => $bulan, 'tahun' => $tahun])
+            ->with('success', 'Laporan berhasil disimpan!');
     }
 }

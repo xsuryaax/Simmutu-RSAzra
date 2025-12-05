@@ -3,29 +3,44 @@
 @section('title', 'Edit Kamus Indikator Mutu')
 
 @section('page-title')
-<div class="page-heading">
-    <div class="page-title">
-        <div class="row">
-
-            <div class="col-12 col-md-6 order-md-1 order-last">
-                <h3>Edit Kamus Indikator Mutu</h3>
-                <p class="text-subtitle text-muted">Perbarui data kamus indikator mutu</p>
+    <div class="page-heading">
+        <div class="page-title">
+            <div class="row">
+                <div class="col-12 col-md-6 order-md-1 order-last">
+                    <h3>Edit Kamus Indikator Mutu</h3>
+                    <p class="text-subtitle text-muted">
+                        Form edit data indikator mutu per unit di rumah sakit Azra
+                    </p>
+                </div>
+                <div class="col-12 col-md-6 order-md-2 order-first">
+                    <div class="justify-content-end d-flex">
+                        <form method="POST" action="/logout">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ url('/') }}">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    Edit Kamus Indikator Mutu
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-12 col-md-6 order-md-2 order-first">
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ route('kamus-indikator-mutu.index') }}">Kamus Indikator Mutu</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Edit Data</li>
-                    </ol>
-                </nav>
-            </div>
-
         </div>
-    </div>
+@endsection
 
-    <section id="basic-vertical-layouts">
+@section('content')
+<section id="basic-vertical-layouts">
         <div class="row match-height">
 
             <div class="col-md-12 col-12">
@@ -317,5 +332,4 @@
 
         </div>
     </section>
-</div>
 @endsection
