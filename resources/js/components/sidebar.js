@@ -41,11 +41,17 @@ class Sidebar {
 
 
     const toggleSubmenu = (el) => {
-      if (el.classList.contains("active")) {
-        el.classList.remove('active'); 
+      if (el.classList.contains("submenu-open")) {
+        el.classList.remove('submenu-open');
+        el.classList.add('submenu-closed');
+        el.classList.remove('active');
       } else {
+        el.classList.add('submenu-open');
+        el.classList.remove('submenu-closed');
         el.classList.add('active');
       }
+
+      calculateChildrenHeight(el, true);
     };
 
     let sidebarItems = document.querySelectorAll(".sidebar-item.has-sub")
@@ -72,7 +78,6 @@ class Sidebar {
           let submenu = parentItem.querySelector(":scope > .submenu")
 
           toggleSubmenu(submenu)
-          calculateChildrenHeight(parentItem.parentElement, true)
         })
       })
 

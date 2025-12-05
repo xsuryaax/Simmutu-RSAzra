@@ -327,6 +327,27 @@
 .card .card-img-overlay .card-title {
   color: #fff;
 }
+.page-header {
+  padding: 1rem 1rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+.page-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem; 
+}
+.page-header-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 .pricing .card {
   box-shadow: none;
   border-right: 1px solid #e9ecef;
@@ -887,12 +908,10 @@
     display: block !important;
     max-height: 999px !important;
 }
-
 .submenu.submenu-closed {
     display: none !important;
     max-height: 0 !important;
 }
-
 
 @media screen and (max-width: 1199px) {
   .sidebar-wrapper {
@@ -1195,12 +1214,6 @@
 #main #main-content {
   padding: 2rem;
 }
-.page-heading {
-  margin: 0 0 2rem;
-}
-.page-heading h3 {
-  font-weight: 700;
-}
 .page-title-headings {
   display: flex;
   align-items: center;
@@ -1314,6 +1327,8 @@ a {
   vertical-align: middle;
 }
 .logout-btn{
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 7px;
 }
 

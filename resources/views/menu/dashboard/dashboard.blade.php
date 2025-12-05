@@ -5,9 +5,11 @@
 
 {{-- Bagian Konten Utama --}}
 @section('content')
-    <div class="page-heading">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="page-header mb-10">
+        <div class="page-header-left">
             <h3>Profile Statistics</h3>
+        </div>
+        <div class="page-header-right">
             <form method="POST" action="/logout">
                 @csrf
                 <button type="submit" class="btn btn-primary logout-btn">

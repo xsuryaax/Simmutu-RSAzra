@@ -66,52 +66,62 @@
                 <li class="sidebar-title">Menu</li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisa-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisa-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-stack"></i>
                         <span>Manajemen Data Mutu</span>
                     </a>
                     <ul class="submenu">
                         <li
-                            class="submenu-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') ? 'active' : '' }}">
-                            <a href="#" class="submenu-link">Master Indikator Mutu</a>
+                            class="submenu-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisa-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisa-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
+                            <a href="#" class="submenu-link" style="text-decoration: none;">Master Indikator
+                                Mutu</a>
                             <ul class="submenu submenu-level-2">
                                 <li class="submenu-item {{ request()->is('master-indikator') ? 'active' : '' }}">
-                                    <a href="{{ url('/master-indikator') }}" class="submenu-link">Master
+                                    <a href="{{ url('/master-indikator') }}" class="submenu-link"
+                                        style="text-decoration: none;">Master
                                         Indikator</a>
                                 </li>
                                 <li class="submenu-item {{ request()->is('cakupan-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/cakupan-data') }}" class="submenu-link ">Cakupan
+                                    <a href="{{ url('/cakupan-data') }}" class="submenu-link "
+                                        style="text-decoration: none;">Cakupan
                                         Data</a>
                                 </li>
                                 <li class="submenu-item {{ request()->is('dimensi-mutu') ? 'active' : '' }}">
-                                    <a href="{{ url('/dimensi-mutu') }}" class="submenu-link">Dimensi Mutu</a>
+                                    <a href="{{ url('/dimensi-mutu') }}" class="submenu-link"
+                                        style="text-decoration: none;">Dimensi Mutu</a>
                                 </li>
                                 <li class="submenu-item {{ request()->is('frekuensi-analisa-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/frekuensi-analisa-data') }}" class="submenu-link">Frekuensi
+                                    <a href="{{ url('/frekuensi-analisa-data') }}" class="submenu-link"
+                                        style="text-decoration: none;">Frekuensi
                                         Analisa Data</a>
                                 </li>
                                 <li
                                     class="submenu-item {{ request()->is('frekuensi-pengumpulan-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/frekuensi-pengumpulan-data') }}" class="submenu-link">Frekuensi
+                                    <a href="{{ url('/frekuensi-pengumpulan-data') }}" class="submenu-link"
+                                        style="text-decoration: none;">Frekuensi
                                         Pengumpulan Data</a>
                                 </li>
                                 <li class="submenu-item {{ request()->is('interpretasi-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/interpretasi-data') }}" class="submenu-link">Interpretasi
+                                    <a href="{{ url('/interpretasi-data') }}" class="submenu-link"
+                                        style="text-decoration: none;">Interpretasi
                                         Data</a>
                                 </li>
                                 <li
                                     class="submenu-item {{ request()->is('metodologi-analisa-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/metodologi-analisa-data') }}" class="submenu-link">Metodologi
+                                    <a href="{{ url('/metodologi-analisa-data') }}" class="submenu-link"
+                                        style="text-decoration: none;">Metodologi
                                         Analisa Data</a>
                                 </li>
                                 <li
                                     class="submenu-item {{ request()->is('metodologi-pengumpulan-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/metodologi-pengumpulan-data') }}" class="submenu-link">Metodologi
+                                    <a href="{{ url('/metodologi-pengumpulan-data') }}" class="submenu-link"
+                                        style="text-decoration: none;">Metodologi
                                         Pengumpulan Data</a>
                                 </li>
                                 <li class="submenu-item {{ request()->is('publikasi-data') ? 'active' : '' }}">
-                                    <a href="{{ url('/publikasi-data') }}" class="submenu-link">Publikasi Data</a>
+                                    <a href="{{ url('/publikasi-data') }}" class="submenu-link"
+                                        style="text-decoration: none;">Publikasi Data</a>
                                 </li>
                             </ul>
                         </li>

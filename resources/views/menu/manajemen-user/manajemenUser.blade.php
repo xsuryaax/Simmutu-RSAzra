@@ -5,38 +5,34 @@
 
 {{-- Bagian Breadcrumb dan Halaman Title --}}
 @section('page-title')
-    <div class="page-heading">
-        <div class="page-title">
-            <div class="row">
-                <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Manajemen User</h3>
-                    <p class="text-subtitle text-muted">
-                        Halaman untuk mengelola user dalam sistem.
-                    </p>
-                </div>
-                <div class="col-12 col-md-6 order-md-2 order-first">
-                    <div class="justify-content-end d-flex">
-                        <form method="POST" action="/logout">
-                            @csrf
-                            <button type="submit" class="btn btn-primary logout-btn">
-                                <i class="bi bi-box-arrow-right"></i>
-                                Logout
-                            </button>
-                        </form>
-                    </div>
-                    <div>
-                        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="{{ url('/') }}">Dashboard</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Manajemen User
-                                </li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
+    <div class="page-header">
+        <div class="page-header-left">
+            <h3>Manajemen User</h3>
+            <p class="text-subtitle text-muted">
+                Halaman untuk mengelola user dalam sistem.
+            </p>
+        </div>
+        <div class="page-header-right">
+            <div class="justify-content-end d-flex">
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button type="submit" class="btn btn-primary logout-btn">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Manajemen User
+                        </li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>
