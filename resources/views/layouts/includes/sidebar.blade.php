@@ -62,8 +62,6 @@
                     </a>
                 </li>
 
-                {{-- Lanjutkan item menu lainnya di sini... --}}
-
                 {{-- Contoh Item Menu Lainnya --}}
                 <li class="sidebar-title">Menu</li>
 
@@ -86,37 +84,33 @@
                                     <a href="{{ url('/cakupan-data') }}" class="submenu-link ">Cakupan
                                         Data</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li class="submenu-item {{ request()->is('dimensi-mutu') ? 'active' : '' }}">
                                     <a href="{{ url('/dimensi-mutu') }}" class="submenu-link">Dimensi Mutu</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li class="submenu-item {{ request()->is('frekuensi-analisa-data') ? 'active' : '' }}">
                                     <a href="{{ url('/frekuensi-analisa-data') }}" class="submenu-link">Frekuensi
                                         Analisa Data</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li
+                                    class="submenu-item {{ request()->is('frekuensi-pengumpulan-data') ? 'active' : '' }}">
                                     <a href="{{ url('/frekuensi-pengumpulan-data') }}" class="submenu-link">Frekuensi
                                         Pengumpulan Data</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li class="submenu-item {{ request()->is('interpretasi-data') ? 'active' : '' }}">
                                     <a href="{{ url('/interpretasi-data') }}" class="submenu-link">Interpretasi
                                         Data</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li
+                                    class="submenu-item {{ request()->is('metodologi-analisa-data') ? 'active' : '' }}">
                                     <a href="{{ url('/metodologi-analisa-data') }}" class="submenu-link">Metodologi
                                         Analisa Data</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li
+                                    class="submenu-item {{ request()->is('metodologi-pengumpulan-data') ? 'active' : '' }}">
                                     <a href="{{ url('/metodologi-pengumpulan-data') }}" class="submenu-link">Metodologi
                                         Pengumpulan Data</a>
                                 </li>
-                                <li class="submenu-item">
-
+                                <li class="submenu-item {{ request()->is('publikasi-data') ? 'active' : '' }}">
                                     <a href="{{ url('/publikasi-data') }}" class="submenu-link">Publikasi Data</a>
                                 </li>
                             </ul>

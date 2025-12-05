@@ -1,10 +1,5 @@
 import isDesktop from './isDesktop'
 
-
-/**
- * Calculate nested children height in sidebar menu
-* @param {HTMLElement} el 
-*/
 const calculateChildrenHeight = (el, deep = false) => {
   const children = el.children
 
@@ -28,11 +23,6 @@ const calculateChildrenHeight = (el, deep = false) => {
   return height
 }
 
-/**
- * a Sidebar component
- * @param  {HTMLElement} el - sidebar element
- * @param  {object} options={} - options
- */
 class Sidebar {
   constructor(el, options = {}) {
     this.sidebarEL = el instanceof HTMLElement ? el : document.querySelector(el)
@@ -40,11 +30,7 @@ class Sidebar {
     this.init()
   }
 
-  /**
-   * initialize the sidebar
-   */
   init() {
-    // add event listener to sidebar
     document
       .querySelectorAll(".burger-btn")
       .forEach((el) => el.addEventListener("click", this.toggle.bind(this)))
@@ -67,32 +53,30 @@ class Sidebar {
       let sidebarItem = sidebarItems[i]
 
       sidebarItems[i]
-        .querySelector(".sidebar-link")
-        .addEventListener("click", (e) => {
-          e.preventDefault()
-          let submenu = sidebarItem.querySelector(".submenu")
-          toggleSubmenu(submenu)
-        })
+      .querySelector(".sidebar-link")
+      .addEventListener("click", function (e) {
+        e.preventDefault()
+        let parentItem = this.closest(".sidebar-item.has-sub")
+        let submenu = parentItem.querySelector(":scope > .submenu")
+        toggleSubmenu(submenu)
+      })
 
-
-      // If submenu has submenu
       const submenuItems = sidebarItem.querySelectorAll('.submenu-item.has-sub');
       submenuItems.forEach(item => {
-        const link = item.querySelector('a.submenu-link');  // Attach ke <a>
-        if (link) {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const submenuLevelTwo = item.querySelector('.submenu');
-            if (submenuLevelTwo) {
-              toggleSubmenu(submenuLevelTwo);
-              const height = calculateChildrenHeight(item.parentElement, true);
-            }
-          });
-        }
-      });
-    }
+        const link = item.querySelector(':scope > a.submenu-link');
 
-    // Perfect Scrollbar Init
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+
+          let parentItem = this.closest(".submenu-item.has-sub")
+          let submenu = parentItem.querySelector(":scope > .submenu")
+
+          toggleSubmenu(submenu)
+          calculateChildrenHeight(parentItem.parentElement, true)
+        })
+      })
+
+    }
     if (typeof PerfectScrollbar == "function") {
       const container = document.querySelector(".sidebar-wrapper")
       const ps = new PerfectScrollbar(container, {
@@ -100,7 +84,6 @@ class Sidebar {
       })
     }
 
-    // Scroll into active sidebar
     setTimeout(() => {
       const activeSidebarItem = document.querySelector(".sidebar-item.active");
       if (activeSidebarItem) {
@@ -115,9 +98,6 @@ class Sidebar {
 
   }
 
-  /**
-   * On Sidebar Rezise Event
-   */
   onResize() {
     if (isDesktop(window)) {
       this.sidebarEL.classList.add("active")
@@ -131,9 +111,6 @@ class Sidebar {
     this.toggleOverflowBody(true)
   }
 
-  /**
-   * Toggle Sidebar
-   */
   toggle() {
     const sidebarState = this.sidebarEL.classList.contains("active")
     if (sidebarState) {
@@ -143,9 +120,6 @@ class Sidebar {
     }
   }
 
-  /**
-   * Show Sidebar
-   */
   show() {
     this.sidebarEL.classList.add("active")
     this.sidebarEL.classList.remove("inactive")
@@ -153,9 +127,6 @@ class Sidebar {
     this.toggleOverflowBody()
   }
 
-  /**
-   * Hide Sidebar
-   */
   hide() {
     this.sidebarEL.classList.remove("active")
     this.sidebarEL.classList.add("inactive")
@@ -163,9 +134,6 @@ class Sidebar {
     this.toggleOverflowBody()
   }
 
-  /**
-   * Create Sidebar Backdrop
-   */
   createBackdrop() {
     if (isDesktop(window)) return
     this.deleteBackdrop()
@@ -175,9 +143,6 @@ class Sidebar {
     document.body.appendChild(backdrop)
   }
 
-  /**
-   * Delete Sidebar Backdrop
-   */
   deleteBackdrop() {
     const backdrop = document.querySelector(".sidebar-backdrop")
     if (backdrop) {
@@ -185,9 +150,6 @@ class Sidebar {
     }
   }
 
-  /**
-   * Toggle Overflow Body
-   */
   toggleOverflowBody(active) {
     if (isDesktop(window)) return;
     const sidebarState = this.sidebarEL.classList.contains("active")
@@ -222,9 +184,6 @@ class Sidebar {
 
 let sidebarEl = document.getElementById("sidebar")
 
-/**
-   * On First Load
-   */
 const onFirstLoad = (sidebarEL) => {
   if (!sidebarEl) return
   if (isDesktop(window)) {
@@ -232,37 +191,46 @@ const onFirstLoad = (sidebarEL) => {
     sidebarEL.classList.add('sidebar-desktop')
   }
 
-  // Get submenus size
-  let submenus = document.querySelectorAll(".sidebar-item.has-sub .submenu")
-  for (var i = 0; i < submenus.length; i++) {
-    let submenu = submenus[i]
-    const sidebarItem = submenu.parentElement
-    const height = submenu.clientHeight
+  document.querySelectorAll('.submenu-item.active').forEach(activeItem => {
+    const parent = activeItem.closest('.submenu-item.has-sub');
+    if (parent) {
+        parent.classList.add('active');
+    }
+  });
 
-    if (sidebarItem.classList.contains('active')) submenu.classList.add('submenu-open')
-    else submenu.classList.add('submenu-closed')
+  let submenus = document.querySelectorAll(".has-sub > .submenu")
+  submenus.forEach(submenu => {
+    const parent = submenu.parentElement;
+
+    if (parent.classList.contains('active')) {
+      submenu.classList.add('submenu-open');
+    } else {
+      submenu.classList.add('submenu-closed');
+    }
+
     setTimeout(() => {
-      const height = calculateChildrenHeight(submenu, true)
+      calculateChildrenHeight(submenu, true);
     }, 50);
-  }
+  });
 }
 
 const reInit_SubMenuHeight = (sidebarEl) => {
   if (!sidebarEl) return
 
-  // Get submenus size
-  let submenus = document.querySelectorAll(".sidebar-item.has-sub .submenu")
-  for (var i = 0; i < submenus.length; i++) {
-    let submenu = submenus[i]
-    const sidebarItem = submenu.parentElement
-    const height = submenu.clientHeight
+  let submenus = document.querySelectorAll(".has-sub > .submenu")
+  submenus.forEach(submenu => {
+    const parent = submenu.parentElement;
 
-    if (sidebarItem.classList.contains('active')) submenu.classList.add('submenu-open')
-    else submenu.classList.add('submenu-closed')
+    if (parent.classList.contains('active')) {
+      submenu.classList.add('submenu-open');
+    } else {
+      submenu.classList.add('submenu-closed');
+    }
+
     setTimeout(() => {
-      const height = calculateChildrenHeight(submenu, true)
+      calculateChildrenHeight(submenu, true);
     }, 50);
-  }
+  });
 }
 
 
@@ -272,21 +240,8 @@ if (document.readyState !== 'loading') {
 else {
   window.addEventListener('DOMContentLoaded', () => onFirstLoad(sidebarEl))
 }
-/**
- * Create Sidebar Wrapper
- */
-
-// NOTE make Sidebar method as a global function
 window.Sidebar = Sidebar
 
 if (sidebarEl) {
-  // initialize
   const sidebar = new window.Sidebar(sidebarEl)
 }
-
-// NOTE use this to reinitialize sidebar with recalculate height
-// NOTE fixed dropdown smooth animation
-
-// const sidebar = new window.Sidebar(document.getElementById("sidebar"), {
-//   recalculateHeight: true
-// }) 
