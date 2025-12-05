@@ -54,45 +54,41 @@
                                 <div class="form-body">
                                     <div class="row">
                                         <div class="col-12">
-                                            <div class="form-group has-icon-left">
-                                                <label for="first-name-icon">Kode Unit</label>
+                                            <div class="form-group">
+                                                <i class="bi bi-person-badge"></i>
+                                                <label for="mobile-id-icon">Pilih Role</label>
                                                 <div class="position-relative">
-                                                    <input type="text" class="form-control"
-                                                        placeholder="Masukkan kode unit" id="first-name-icon" />
-                                                    <div class="form-control-icon">
-                                                        <i class="bi bi-upc"></i>
-                                                    </div>
+                                                    <fieldset class="form-group">
+                                                        <select class="form-select" id="basicSelect">
+                                                            <option>IT</option>
+                                                            <option>B</option>
+                                                            <option>C</option>
+                                                        </select>
+                                                    </fieldset>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="first-name-icon">Nama Unit</label>
-                                                <div class="position-relative">
-                                                    <input type="text" class="form-control"
-                                                        placeholder="Masukkan nama unit" id="first-name-icon" />
-                                                    <div class="form-control-icon">
-                                                        <i class="bi bi-building"></i>
-                                                    </div>
+                                                <i class="bi bi-menu-button-wide"></i>
+                                                <label for="first-name-icon">Menu Utama</label>
+                                                <div class="card position-relative">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="first-name-icon">Deskripsi</label>
-                                                <div class="position-relative">
-                                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
-                                                    <div class="form-control-icon">
-                                                        <i class="bi bi-card-text"></i>
-                                                    </div>
+                                                <i class="bi bi-bar-chart-line"></i>
+                                                <label for="first-name-icon">Manajemen Data Mutu</label>
+                                                <div class="card position-relative">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-12">
-                                            <div class="form-check">
-                                                <div class="checkbox mt-2">
-                                                    <input type="checkbox" id="remember-me-v" class="form-check-input" />
-                                                    <label for="remember-me-v">User Aktif</label>
+                                            <div class="form-group has-icon-left">
+                                                <i class="bi bi-gear"></i>
+                                                <label for="first-name-icon">Pengaturan</label>
+                                                <div class="card position-relative">
                                                 </div>
                                             </div>
                                         </div>
