@@ -45,16 +45,18 @@ class Sidebar {
             );
         window.addEventListener("resize", this.onResize.bind(this));
 
-        const toggleSubmenu = (submenu) => {
-            if (!submenu) return;
-
-            if (submenu.classList.contains("submenu-open")) {
-                submenu.classList.remove("submenu-open");
-                submenu.classList.add("submenu-closed");
+        const toggleSubmenu = (el) => {
+            if (el.classList.contains("submenu-open")) {
+                el.classList.remove("submenu-open");
+                el.classList.add("submenu-closed");
+                el.classList.remove("active");
             } else {
-                submenu.classList.remove("submenu-closed");
-                submenu.classList.add("submenu-open");
+                el.classList.add("submenu-open");
+                el.classList.remove("submenu-closed");
+                el.classList.add("active");
             }
+
+            calculateChildrenHeight(el, true);
         };
 
         let sidebarItems = document.querySelectorAll(".sidebar-item.has-sub");

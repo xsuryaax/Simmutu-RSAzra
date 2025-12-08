@@ -5,42 +5,34 @@
 
 {{-- Breadcrumb --}}
 @section('page-title')
-    <div class="page-heading">
-        <div class="page-title">
-            <div class="row">
-
-                {{-- Title Left --}}
-                <div class="col-12 col-md-6 order-md-1 order-last">
-                    <h3>Laporan dan Analisis</h3>
-                    <p class="text-subtitle text-muted">
-                        Hasil laporan dan analisis indikator mutu rumah sakit Azra
-                    </p>
-                </div>
-
-                {{-- Right --}}
-                <div class="col-12 col-md-6 order-md-2 order-first">
-                    <div class="justify-content-end d-flex mb-2">
-                        <form method="POST" action="/logout">
-                            @csrf
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </button>
-                        </form>
-                    </div>
-
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="{{ url('/') }}">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                Laporan dan Analisis
-                            </li>
-                        </ol>
-                    </nav>
-
-                </div>
-
+    <div class="page-header">
+        <div class="page-header-left">
+            <h3>Laporan dan Analisis</h3>
+            <p class="text-subtitle text-muted">
+                Halaman untuk mengelola laporan dan analisis dalam sistem.
+            </p>
+        </div>
+        <div class="page-header-right">
+            <div class="justify-content-end d-flex">
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button type="submit" class="btn btn-primary logout-btn">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Laporan dan Analisis
+                        </li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>

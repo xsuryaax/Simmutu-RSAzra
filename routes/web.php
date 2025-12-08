@@ -96,3 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('pdsa', PDSAController::class)
         ->middleware('check.role:pdsa');
 });
+
+Route::get('/hakakses', function () {
+    return view('hakakses');
+});
