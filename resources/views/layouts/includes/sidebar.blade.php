@@ -61,11 +61,17 @@
                         <span>Kamus Indikator Mutu</span>
                     </a>
                 </li>
+                <li class="sidebar-item {{ Request::is('master-indikator') ? 'active' : '' }}">
+                    <a href="{{ route('master-indikator.index') }}" class='sidebar-link'>
+                        <i class="bi bi-book-fill"></i>
+                        <span>Master Indikator</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-title">Menu</li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
 
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-stack"></i>
@@ -75,17 +81,12 @@
                     <ul class="submenu">
                         {{-- Level 1 Menu --}}
                         <li
-                            class="submenu-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
+                            class="submenu-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
 
                             <a href="#" class="submenu-link">Master Indikator Mutu</a>
 
                             {{-- Level 2 --}}
                             <ul class="submenu submenu-level-2">
-
-                                <li class="submenu-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
-                                    <a href="{{ route('master-indikator.index') }}" class="submenu-link">Master
-                                        Indikator</a>
-                                </li>
 
                                 <li class="submenu-item {{ request()->is('cakupan-data*') ? 'active' : '' }}">
                                     <a href="{{ route('cakupan-data.index') }}" class="submenu-link">Cakupan Data</a>
@@ -136,18 +137,6 @@
 
                 <li class="sidebar-title">Pengaturan</li>
 
-                <li class="sidebar-item {{ Request::is('database') ? 'active' : '' }}">
-                    <a href="#" class='sidebar-link'>
-                        <i class="bi bi-database-fill"></i>
-                        <span>Database</span>
-                    </a>
-                </li>
-                <li class="sidebar-item {{ Request::is('manajemen-unit') ? 'active' : '' }}">
-                    <a href="{{ route('manajemen-unit.index') }}" class='sidebar-link'>
-                        <i class="bi bi-buildings-fill"></i>
-                        <span>Unit</span>
-                    </a>
-                </li>
                 <li class="sidebar-item {{ Request::is('manajemen-user') ? 'active' : '' }}">
                     <a href="{{ route('manajemen-user.index') }}" class='sidebar-link'>
                         <i class="bi bi-person-fill-gear"></i>

@@ -37,57 +37,72 @@
 @endsection
 
 
-    @section('content')
-    <div class="card">
-        <div class="card-body">
-            {{-- PILIH ROLE --}}
-            <form method="GET" action="">
-                <div class="mb-3">
-                    <label>Pilih Role</label>
-                    <select name="role_id" class="form-control" onchange="this.form.submit()">
-                        @foreach($roles as $r)
+@section('content')
+    <div class="card shadow-sm p-4 rounded-4">
+
+        {{-- PILIH ROLE --}}
+        <form method="GET" action="">
+            <div class="mb-3">
+                <label class="fw-semibold">Pilih Role</label>
+                <select name="role_id" class="form-select" onchange="this.form.submit()">
+                    @foreach($roles as $r)
                         <option value="{{ $r->id }}" {{ $selectedRole == $r->id ? 'selected' : '' }}>
                             {{ $r->nama_role }}
                         </option>
-                        @endforeach
-                    </select>
+                    @endforeach
+                </select>
+            </div>
+        </form>
+
+        {{-- FORM HAK AKSES --}}
+        <form method="POST" action="{{ route('hak-akses.update', $selectedRole) }}">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="role_id" value="{{ $selectedRole }}">
+
+            @foreach($menuStructure as $groupKey => $group)
+
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                            @if($groupKey === 'main')
+                                <i class="bi bi-grid-fill"></i>
+                            @elseif($groupKey === 'manajemen')
+                                <i class="bi bi-layers-fill"></i>
+                            @else
+                                <i class="bi bi-folder-fill"></i>
+                            @endif
+                            {{ $group['title'] }}
+                        </h5>
+
+                        {{-- GRID MENU --}}
+                        <div class="row g-3">
+                            @foreach($group['menus'] as $menu)
+                                <div class="col-md-6">
+                                    <div class="border rounded-3 p-3 bg-light d-flex align-items-center">
+                                        <div class="form-check m-0">
+                                            <input class="form-check-input" type="checkbox" name="menu_key[]"
+                                                value="{{ $menu['key'] }}" {{ in_array($menu['key'], $hakAkses) ? 'checked' : '' }}>
+                                            <label class="form-check-label">
+                                                {{ $menu['label'] }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                    </div>
                 </div>
-            </form>
-            
-            <form method="POST" action="{{ route('hak-akses.update', $selectedRole) }}">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="role_id" value="{{ $selectedRole }}">
-                @foreach($menuStructure as $groupKey => $group)
-                <h5 class="mt-4">{{ $group['title'] }}</h5>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th style="width:50px">#</th>
-                            <th>Nama Menu</th>
-                            <th style="width:100px">Akses</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($group['menus'] as $menu)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $menu['label'] }}</td>
-                                <td>
-                                    <input 
-                                        type="checkbox" 
-                                        name="menu_key[]" 
-                                        value="{{ $menu['key'] }}"
-                                        {{ in_array($menu['key'], $hakAkses) ? 'checked' : '' }}
-                                    >
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                @endforeach
-                <button class="btn btn-primary mt-3">Simpan Perubahan</button>
-            </form>
-        </div>
+
+            @endforeach
+
+            <button class="btn btn-primary px-4 py-2">
+                Simpan Perubahan
+            </button>
+
+        </form>
+
     </div>
-    @endsection
+@endsection

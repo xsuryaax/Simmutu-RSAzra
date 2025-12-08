@@ -31,6 +31,7 @@ class LaporanAnalisisController extends Controller
                 'tbl_laporan_dan_analis.file_laporan',
                 'tbl_pdsa.id as pdsa_id'
             )
+            ->where('tbl_indikator.status_indikator', 'aktif')
             ->orderBy('tbl_indikator.id', 'DESC')
             ->get();
 

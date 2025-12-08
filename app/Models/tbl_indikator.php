@@ -13,6 +13,7 @@ class tbl_indikator extends Model
         'nama_indikator',
         'target_indikator',
         'tipe_indikator',
+        'periode_tahun',
         'tanggal_mulai',
         'tanggal_selesai',
         'status_periode',
