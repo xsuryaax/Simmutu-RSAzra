@@ -28,7 +28,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Frekuensi Analisis Data
+                            Frekuensi Analisa Data
                         </li>
                     </ol>
                 </nav>
@@ -45,7 +45,7 @@
                 <span>Frekuensi Analisis Data</span>
 
                 <a href="{{ route('frekuensi-analisis-data.create') }}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus"></i> Tambah Frekuensi Analisis Data
+                    <i class="bi bi-plus"></i> Tambah Frekuensi Analisa Data
                 </a>
             </div>
 
@@ -60,7 +60,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach($frekuensiAnalisisData as $i => $row)
+                        @foreach ($frekuensiAnalisisData as $i => $row)
                             <tr>
                                 <td>{{ $i + 1 }}</td>
 

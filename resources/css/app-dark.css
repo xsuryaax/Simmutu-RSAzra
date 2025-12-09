@@ -29,7 +29,7 @@ html.dark #sidebar .sidebar-menu ul.menu li.sidebar-item a,
 /* 4. Terapkan style untuk item menu yang aktif atau hover */
 html.dark #sidebar .sidebar-item.active > .sidebar-link,
 [data-bs-theme="dark"] #sidebar .sidebar-item.active > .sidebar-link {
-    background-color: #435ebea0; /* Warna highlight untuk item aktif */
+    background-color: #007774; /* Warna highlight untuk item aktif */
     color: #ffffff; /* Warna teks putih untuk item aktif */
 }
 

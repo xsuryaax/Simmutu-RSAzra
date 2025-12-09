@@ -50,7 +50,7 @@
                         </div>
                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
                             <div class="stats-icon purple mb-2">
-                                <i class="bi bi-buildings"></i>
+                                <i class="bi bi-shield-lock-fill"></i>
                             </div>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
                         </div>
                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
                             <div class="stats-icon green mb-2">
-                                <i class="bi bi-building-check"></i>
+                                <i class="bi bi-shield-check"></i>
                             </div>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                         </div>
                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
                             <div class="stats-icon red mb-2">
-                                <i class="bi bi-building-x"></i>
+                                <i class="bi bi-shield-x"></i>
                             </div>
                         </div>
                     </div>
@@ -130,8 +130,7 @@
                             <div class="form-group has-icon-left mb-3">
                                 <label>Deskripsi</label>
                                 <div class="position-relative">
-                                    <textarea name="deskripsi_role" class="form-control" rows="3"
-                                        placeholder="Deskripsi role">{{ old('deskripsi_role') }}</textarea>
+                                    <textarea name="deskripsi_role" class="form-control" rows="3" placeholder="Deskripsi role">{{ old('deskripsi_role') }}</textarea>
 
                                     <div class="form-control-icon">
                                         <i class="bi bi-card-text"></i>
@@ -144,7 +143,7 @@
                             </div>
 
                             <button class="btn btn-primary w-100">
-                                <i class="bi bi-plus-circle"></i> Simpan Role
+                                <i class="bi bi-floppy"></i> Simpan Role
                             </button>
                         </form>
                     </div>
@@ -177,7 +176,7 @@
                                         <td>{{ $role->nama_role }}</td>
                                         <td>{{ $role->deskripsi_role }}</td>
                                         <td>
-                                            @if($role->total_user > 0)
+                                            @if ($role->total_user > 0)
                                                 <span class="badge bg-success">{{ $role->total_user }}</span>
                                             @else
                                                 <span class="badge bg-secondary">0</span>
@@ -191,7 +190,8 @@
                                             </button>
 
                                             <form action="{{ route('manajemen-role.destroy', $role->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Yakin ingin menghapus role ini?')">
+                                                class="d-inline"
+                                                onsubmit="return confirm('Yakin ingin menghapus role ini?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="btn btn-danger btn-sm">
@@ -242,8 +242,7 @@
                         <div class="form-group has-icon-left mb-3">
                             <label>Deskripsi</label>
                             <div class="position-relative">
-                                <textarea id="editDeskripsiRole" name="deskripsi_role" class="form-control"
-                                    rows="3"></textarea>
+                                <textarea id="editDeskripsiRole" name="deskripsi_role" class="form-control" rows="3"></textarea>
                                 <div class="form-control-icon">
                                     <i class="bi bi-card-text"></i>
                                 </div>
