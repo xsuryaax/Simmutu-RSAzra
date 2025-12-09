@@ -18,7 +18,9 @@ return new class extends Migration
             $table->text('study');
             $table->text('act');
             $table->string('file_pdsa')->nullable();
-            $table->integer('laporan_analisis_id');
+            $table->integer('indikator_id');
+            $table->integer('triwulan');
+            $table->integer('tahun');
             $table->timestamps();
         });
     }

@@ -15,6 +15,8 @@ class tbl_pdsa extends Model
         'study',
         'act',
         'file_pdsa',
-        'laporan_analisis_id'
+        'triwulan',
+        'tahun',
+        'indikator_id'
     ];
 }

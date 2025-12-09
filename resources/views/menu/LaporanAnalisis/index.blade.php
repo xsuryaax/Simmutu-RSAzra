@@ -92,7 +92,7 @@
                                 <th>NILAI</th>
                                 <th>PENCAPAIAN</th>
                                 <th>STATUS PERIODE</th>
-                                <th>STATUS INDIKATOR</th>
+                                <th>STATUS</th>
                                 <th>FILE</th>
                                 <th>AKSI</th>
                             </tr>
@@ -118,7 +118,7 @@
                                     <td>
                                         @if($row->nilai !== null)
                                             @php
-                                                $nilai = rtrim(rtrim($row->nilai, '0'), '.');
+                                                $nilai = rtrim(rtrim($row->nilai, '0'), '.' . '%');
                                                 $target = $row->target_indikator;
                                             @endphp
                                             <span @class([
@@ -132,14 +132,13 @@
                                     </td>
 
                                     <td>
-                                        @if (is_null($row->nilai))
-                                            <span class="badge bg-secondary">BELUM ADA DATA</span>
+                                        @if($row->status_laporan === 'tercapai')
+                                            <span class="badge bg-success">TERCAPAI</span>
+                                        @elseif($row->status_laporan === 'tidak-tercapai')
+                                            <span class="badge bg-danger">TIDAK TERCAPAI</span>
+
                                         @else
-                                            @if ($row->pencapaian == 'tercapai')
-                                                <span class="badge bg-success">TERCAPAI</span>
-                                            @else
-                                                <span class="badge bg-danger">TIDAK TERCAPAI</span>
-                                            @endif
+                                            <span class="badge bg-secondary">BELUM LENGKAP</span>
                                         @endif
                                     </td>
 
@@ -151,8 +150,8 @@
 
                                     <td>
                                         <span
-                                            class="badge {{ $row->status_indikator == 'aktif' ? 'bg-success' : 'bg-danger' }}">
-                                            {{ strtoupper($row->status_indikator) }}
+                                            class="badge {{ $row->status_laporan == 'disetujui' ? 'bg-success' : ($row->status_laporan == 'ditolak' ? 'bg-danger' : ($row->status_laporan == 'pdsa' ? 'bg-warning' : 'bg-secondary')) }}">
+                                            {{ strtoupper($row->status_laporan) }}
                                         </span>
                                     </td>
 

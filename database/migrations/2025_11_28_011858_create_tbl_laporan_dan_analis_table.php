@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('unit_id');
             $table->decimal('nilai', 8, 2);
             $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);
+            $table->enum('status_laporan', ['menunggu', 'disetujui', 'ditolak', 'pdsa'])->default('menunggu');
             $table->string('file_laporan');
             $table->timestamps();
         });
