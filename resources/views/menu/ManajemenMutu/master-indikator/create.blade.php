@@ -113,6 +113,17 @@
                                                 @enderror
                                             </div>
 
+                                            {{-- Periode Tahun --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label for="periode_tahun">Periode Tahun</label>
+                                                <input type="number" id="periode_tahun" name="periode_tahun"
+                                                    class="form-control @error('periode_tahun') is-invalid @enderror"
+                                                    value="{{ old('periode_tahun') }}" placeholder="Masukkan periode tahun" required>
+                                                @error('periode_tahun')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+
                                             {{-- Tanggal Mulai --}}
                                             <div class="col-md-6 mb-3">
                                                 <label for="tanggal_mulai">Tanggal Mulai</label>

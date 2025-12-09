@@ -60,6 +60,7 @@
                             <th>Target</th>
                             <th>Tipe</th>
                             <th>Periode</th>
+                            <th>Rentang Waktu</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -78,6 +79,10 @@
 
                                 <td>
                                     <span class="badge bg-info">{{ ucfirst($row->tipe_indikator) }}</span>
+                                </td>
+
+                                <td>
+                                    {{ $row->periode_tahun }}
                                 </td>
 
                                 <td>

@@ -92,7 +92,7 @@
                                 <th>NILAI</th>
                                 <th>PENCAPAIAN</th>
                                 <th>STATUS PERIODE</th>
-                                <th>STATUS</th>
+                                <th>STATUS INDIKATOR</th>
                                 <th>FILE</th>
                                 <th>AKSI</th>
                             </tr>
