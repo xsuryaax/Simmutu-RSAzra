@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <button class="btn btn-success w-100">
+                        <button class="btn btn-primary w-100">
                             <i class="bi bi-funnel"></i> Filter
                         </button>
                     </div>
@@ -116,13 +116,13 @@
                                     </td>
 
                                     <td>
-                                        @if($row->nilai !== null)
+                                        @if ($row->nilai !== null)
                                             @php
                                                 $nilai = rtrim(rtrim($row->nilai, '0'), '.' . '%');
                                                 $target = $row->target_indikator;
                                             @endphp
                                             <span @class([
-                                                'bg-warning px-1 rounded' => $nilai < $target
+                                                'bg-warning px-1 rounded' => $nilai < $target,
                                             ])>
                                                 {{ $nilai }}
                                             </span>
@@ -143,7 +143,8 @@
                                     </td>
 
                                     <td>
-                                        <span class="badge {{ $row->status_periode == 'aktif' ? 'bg-success' : 'bg-danger' }}">
+                                        <span
+                                            class="badge {{ $row->status_periode == 'aktif' ? 'bg-success' : 'bg-danger' }}">
                                             {{ strtoupper($row->status_periode) }}
                                         </span>
                                     </td>
@@ -176,10 +177,10 @@
                                         @else
                                             {{-- Nilai sudah ada --}}
                                             @if ($row->pencapaian === 'tidak-tercapai')
-
                                                 {{-- Belum input PDSA --}}
                                                 @if (is_null($row->pdsa_id))
-                                                    <button onclick="openPDSAModal({{ $row->laporan_id }})" class="btn btn-warning btn-sm">
+                                                    <button onclick="openPDSAModal({{ $row->laporan_id }})"
+                                                        class="btn btn-warning btn-sm">
                                                         + Input PDSA
                                                     </button>
                                                 @else
@@ -187,7 +188,6 @@
                                                         ✓ PDSA Sudah Diinput
                                                     </span>
                                                 @endif
-
                                             @else
                                                 <span class="badge bg-info">✓ Sudah Diinput</span>
                                             @endif
@@ -254,14 +254,16 @@
 
                             {{-- Denominator --}}
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Denominator <span style="color: red">*</span></label>
+                                <label class="form-label fw-semibold">Denominator <span
+                                        style="color: red">*</span></label>
                                 <input type="number" name="denominator" class="form-control"
                                     placeholder="Masukkan denominator" style="border-radius: 8px;" required>
                             </div>
 
                             {{-- Upload File --}}
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Unggah File <span style="color: red">*</span></label>
+                                <label class="form-label fw-semibold">Unggah File <span
+                                        style="color: red">*</span></label>
 
                                 <div class="p-4 text-center rounded"
                                     style="border: 2px dashed #c4d3de; background: #f8fafc;">
@@ -289,7 +291,8 @@
                                 × Batal
                             </button>
 
-                            <button type="submit" class="btn btn-success" style="border-radius: 8px; padding: 8px 20px;">
+                            <button type="submit" class="btn btn-success"
+                                style="border-radius: 8px; padding: 8px 20px;">
                                 <i class="bi bi-check-circle me-1"></i> Simpan
                             </button>
 
@@ -391,7 +394,7 @@
         }
 
         // Preview nama file setelah dipilih
-        document.getElementById('file_laporan').addEventListener('change', function () {
+        document.getElementById('file_laporan').addEventListener('change', function() {
             let fileName = this.files.length > 0 ? this.files[0].name : '';
             document.getElementById('selected-file').textContent = fileName;
         });
@@ -401,7 +404,6 @@
             var modal = new bootstrap.Modal(document.getElementById('pdsaModal'));
             modal.show();
         }
-
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

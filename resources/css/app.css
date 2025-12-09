@@ -1336,6 +1336,13 @@ a {
 .icon-mid:before {
   vertical-align: middle;
 }
+.greeting-card{
+  padding: 0.467rem 0.6rem;
+  color: #a16102; 
+  border: 1px solid #a16102;
+  border-radius: 0.3rem;
+  margin-right: 15px;
+}
 .logout-btn{
   display: flex;
   justify-content: flex-end;

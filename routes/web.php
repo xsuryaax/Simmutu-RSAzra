@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 | AUTH (bebas diakses)
 |--------------------------------------------------------------------------
 */
+
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -48,6 +49,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
+    });
+    Route::get('/chart', function () {
+        return view('admin.chart');
     });
 
     // Menu Manajemen Mutu

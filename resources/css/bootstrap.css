@@ -2748,9 +2748,9 @@ fieldset:disabled .btn {
 .btn-check:focus + .btn-warning,
 .btn-warning:focus,
 .btn-warning:hover {
-  color: #000;
-  background-color: #ffca2c;
-  border-color: #ffc720;
+  color: #fff;
+  background-color: #c7980b;
+  border-color: #c7980b;
 }
 .btn-check:focus + .btn-warning,
 .btn-warning:focus {
@@ -2787,8 +2787,8 @@ fieldset:disabled .btn {
 .btn-danger:focus,
 .btn-danger:hover {
   color: #fff;
-  background-color: #bb2d3b;
-  border-color: #b02a37;
+  background-color: #a42633;
+  border-color: #a42633;
 }
 .btn-check:focus + .btn-danger,
 .btn-danger:focus {
