@@ -84,7 +84,8 @@ class ManajemenDataMutu extends Seeder
                         'tanggal_selesai' => '2025-12-31',
                         'status_periode' => 'aktif',
                         'status_indikator' => 'aktif',
-                        'unit_id' => 1
+                        'unit_id' => 1,
+                        'kamus_indikator_id' => 1
                     ],
                     [
                         'nama_indikator' => 'Waktu Tunggu Pelayanan Loket Pendaftaran',
@@ -95,7 +96,8 @@ class ManajemenDataMutu extends Seeder
                         'tanggal_selesai' => '2024-12-31',
                         'status_periode' => 'aktif',
                         'status_indikator' => 'aktif',
-                        'unit_id' => 2
+                        'unit_id' => 2,
+                        'kamus_indikator_id' => 3
                     ]
                 ]
             );

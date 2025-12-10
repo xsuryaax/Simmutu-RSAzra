@@ -2,201 +2,259 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class LaporanAnalisisController extends Controller
 {
-    // ---------------------------------------------------------------------
-    // INDEX LAPORAN & ANALISIS
-    // ---------------------------------------------------------------------
-
     public function index(Request $request)
     {
-        $bulan = str_pad($request->bulan ?? date('m'), 2, '0', STR_PAD_LEFT);
+        $bulan = $request->bulan ?? date('m');
         $tahun = $request->tahun ?? date('Y');
 
-        $data = DB::table('tbl_indikator')
-            ->leftJoin('tbl_laporan_dan_analis as laporan_bulan', function ($join) use ($bulan, $tahun) {
-                $join->on('laporan_bulan.indikator_id', '=', 'tbl_indikator.id')
-                    ->whereRaw("to_char(laporan_bulan.created_at, 'MM') = ?", [$bulan])
-                    ->whereRaw("to_char(laporan_bulan.created_at, 'YYYY') = ?", [$tahun]);
-            })
-            ->leftJoin('tbl_pdsa', 'tbl_pdsa.indikator_id', '=', 'tbl_indikator.id')
+        // ==============================
+        // AMBIL INDIKATOR + FREKUENSI
+        // ==============================
+        $indikators = DB::table('tbl_indikator')
+            ->leftJoin('tbl_kamus_indikator_mutu', 'tbl_kamus_indikator_mutu.id', '=', 'tbl_indikator.kamus_indikator_id')
+            ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_frekuensi_pengumpulan_data.id', '=', 'tbl_kamus_indikator_mutu.frekuensi_pengumpulan_data_id')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
             ->select(
                 'tbl_indikator.*',
-                'tbl_unit.nama_unit',
-                'laporan_bulan.id as laporan_id',
-                'laporan_bulan.nilai',
-                'laporan_bulan.pencapaian',
-                'laporan_bulan.file_laporan',
-                'laporan_bulan.status_laporan',
-                'tbl_pdsa.id as pdsa_id'
+                'tbl_kamus_indikator_mutu.frekuensi_pengumpulan_data_id as frekuensi_id',
+                'tbl_frekuensi_pengumpulan_data.nama_frekuensi_pengumpulan_data',
+                'tbl_unit.nama_unit'
             )
             ->where('tbl_indikator.status_indikator', 'aktif')
             ->orderBy('tbl_indikator.id', 'DESC')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | HITUNG STATUS TRIWULAN
-        |--------------------------------------------------------------------------
-        */
+        // ==============================
+        // AMBIL LAPORAN 3 BULAN TERAKHIR
+        // ==============================
+        $laporan3Bulan = DB::table('tbl_laporan_dan_analis')
+            ->where('tanggal_laporan', '>=', Carbon::now()->subMonths(3)->startOfMonth())
+            ->get();
 
-        $bulanInt = (int) $bulan; // penting!
+        $pdsaList = DB::table('tbl_pdsa')->select('id', 'indikator_id')->get();
 
-        foreach ($data as $row) {
+        // Map cepat lookup
+        $laporanByIndikator = [];
+        foreach ($laporan3Bulan as $lap) {
+            $laporanByIndikator[$lap->indikator_id][] = $lap;
+        }
 
-            // Triwulan aktif
-            $triwulan = ceil($bulanInt / 3);
+        $pdsaByIndikator = [];
+        foreach ($pdsaList as $p) {
+            $pdsaByIndikator[$p->indikator_id][] = $p;
+        }
 
-            // Range bulan triwulan
-            $startMonth = ($triwulan - 1) * 3 + 1;
-            $endMonth = $triwulan * 3;
+        $rows = [];
 
-            // Ambil nilai 3 bulan
-            $nilaiTriwulan = DB::table('tbl_laporan_dan_analis')
-                ->where('indikator_id', $row->id)
-                ->whereRaw("EXTRACT(MONTH FROM created_at) BETWEEN ? AND ?", [$startMonth, $endMonth])
-                ->whereRaw("EXTRACT(YEAR FROM created_at) = ?", [$tahun])
-                ->pluck('nilai');
+        // =====================================
+        // LOOP INDIKATOR SATU PER SATU
+        // =====================================
+        foreach ($indikators as $ind) {
 
-            // Tentukan status triwulan
-            if ($nilaiTriwulan->count() === 3) {
-                $rataRata = $nilaiTriwulan->avg();
+            // ==============================
+            // AMBIL SEMUA LAPORAN DI BULAN FILTER
+            // ==============================
+            $lapBulanIndikator = collect($laporan3Bulan)
+                ->where('indikator_id', $ind->id)
+                ->filter(function ($lap) use ($bulan, $tahun) {
+                    return Carbon::parse($lap->tanggal_laporan)->month == $bulan
+                        && Carbon::parse($lap->tanggal_laporan)->year == $tahun;
+                });
 
-                $row->status_laporan =
-                    $rataRata >= $row->target_indikator
-                    ? 'tercapai'
-                    : 'tidak-tercapai';
-            } else {
-                $row->status_laporan = 'belum-lengkap';
+            // ==============================
+            // TAMPILKAN SEMUA LAPORAN PER BULAN (FULL)
+            // ==============================
+            if ($lapBulanIndikator->count()) {
+                foreach ($lapBulanIndikator as $lap) {
+                    $rows[] = (object) [
+                        'id' => $ind->id,
+                        'nama_indikator' => $ind->nama_indikator,
+                        'unit_id' => $lap->unit_id,
+                        'nama_unit' => DB::table('tbl_unit')->where('id', $lap->unit_id)->value('nama_unit'),
+                        'frekuensi_id' => $ind->frekuensi_id,
+                        'nama_frekuensi' => $ind->nama_frekuensi_pengumpulan_data,
+                        'target_indikator' => $ind->target_indikator,
+                        'status_indikator' => $ind->status_indikator,
+                        'laporan_id' => $lap->id,
+                        'nilai' => $lap->nilai,
+                        'pencapaian' => $lap->pencapaian,
+                        'file_laporan' => $lap->file_laporan,
+                        'tanggal_laporan' => $lap->tanggal_laporan,
+                        'pdsa_exists' => isset($pdsaByIndikator[$ind->id]),
+                        'boleh_input' => false, // nanti di-update di bawah
+                        'alasan_tidak_boleh' => null,
+                    ];
+                }
+            }
+
+            // =============================================
+            // CEK APAKAH MASIH BOLEH INPUT DATA
+            // =============================================
+            $freq = (int) ($ind->frekuensi_id ?? 0);
+
+            // Ambil semua laporan indikator + unit di bulan ini
+            $lapBulanUnit = collect($laporan3Bulan)
+                ->where('indikator_id', $ind->id)
+                ->where('unit_id', $ind->unit_id)
+                ->filter(function ($lap) use ($bulan, $tahun) {
+                    return Carbon::parse($lap->tanggal_laporan)->month == $bulan &&
+                        Carbon::parse($lap->tanggal_laporan)->year == $tahun;
+                });
+
+            $bolehInput = true;
+            $alasanTidakBoleh = null;
+
+            // FREKUENSI HARIAN
+            if ($freq === 1) {
+                $hariIni = Carbon::now()->format('Y-m-d');
+
+                $foundTanggal = $lapBulanUnit->first(function ($l) use ($hariIni) {
+                    return Carbon::parse($l->tanggal_laporan)->format('Y-m-d') === $hariIni;
+                });
+
+                if ($foundTanggal) {
+                    $bolehInput = false;
+                    $alasanTidakBoleh = 'Sudah ada laporan hari ini';
+                }
+            }
+
+            // FREKUENSI MINGGUAN
+            if ($freq === 2) {
+                $currentWeek = Carbon::now()->isoWeek();
+                $foundWeek = $lapBulanUnit->first(function ($l) use ($currentWeek) {
+                    return Carbon::parse($l->tanggal_laporan)->isoWeek() == $currentWeek;
+                });
+
+                if ($foundWeek) {
+                    $bolehInput = false;
+                    $alasanTidakBoleh = 'Sudah ada laporan minggu ini';
+                }
+            }
+
+            // FREKUENSI BULANAN
+            if ($freq === 3 && $lapBulanUnit->count()) {
+                $bolehInput = false;
+                $alasanTidakBoleh = 'Sudah ada laporan bulan ini';
+            }
+
+            // Tambahkan 1 baris kosong utk input baru jika boleh
+            if ($bolehInput) {
+                $rows[] = (object) [
+                    'id' => $ind->id,
+                    'nama_indikator' => $ind->nama_indikator,
+                    'unit_id' => $ind->unit_id,
+                    'nama_unit' => $ind->nama_unit,
+                    'frekuensi_id' => $ind->frekuensi_id,
+                    'nama_frekuensi' => $ind->nama_frekuensi_pengumpulan_data,
+                    'target_indikator' => $ind->target_indikator,
+                    'status_indikator' => $ind->status_indikator,
+                    'laporan_id' => null,
+                    'nilai' => null,
+                    'pencapaian' => null,
+                    'file_laporan' => null,
+                    'tanggal_laporan' => null,
+                    'pdsa_exists' => isset($pdsaByIndikator[$ind->id]),
+                    'boleh_input' => true,
+                    'alasan_tidak_boleh' => null,
+                ];
             }
         }
 
-        return view('menu.LaporanAnalisis.index', compact('data', 'bulan', 'tahun'));
+        return view('menu.LaporanAnalisis.index', [
+            'data' => collect($rows),
+            'bulan' => (int) $bulan,
+            'tahun' => (int) $tahun,
+        ]);
     }
 
-    // ---------------------------------------------------------------------
-    // SIMPAN LAPORAN & OTOMATIS CEK PDSA
-    // ---------------------------------------------------------------------
+
     public function store(Request $request)
     {
+        // validasi tetap seperti sebelumnya
         $request->validate([
             'indikator_id' => 'required|integer',
             'unit_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
             'file_laporan' => 'nullable|mimes:pdf,doc,docx,xls,xlsx,jpg,png|max:5120',
-            'bulan' => 'nullable|integer|min:1|max:12',
-            'tahun' => 'nullable|integer|min:1900',
+            'tanggal_laporan' => 'required|integer|min:1|max:31',
+            'bulan' => 'required|integer|min:1|max:12',
+            'tahun' => 'required|integer|min:2000',
         ]);
 
-        // Hitung nilai
+        // frekuensi id dari kamus
+        $frekuensi = DB::table('tbl_kamus_indikator_mutu')
+            ->join('tbl_indikator', 'tbl_indikator.kamus_indikator_id', '=', 'tbl_kamus_indikator_mutu.id')
+            ->where('tbl_indikator.id', $request->indikator_id)
+            ->value('frekuensi_pengumpulan_data_id');
+
+        $tanggalLaporan = sprintf('%04d-%02d-%02d', $request->tahun, $request->bulan, $request->tanggal_laporan);
+
+        // cek frekuensi sebelum insert
+        if ($frekuensi == 1) { // harian
+            $exists = DB::table('tbl_laporan_dan_analis')
+                ->where('indikator_id', $request->indikator_id)
+                ->where('unit_id', $request->unit_id)
+                ->whereDate('tanggal_laporan', $tanggalLaporan)
+                ->exists();
+
+            if ($exists) {
+                return back()->with('error', 'Input harian sudah dilakukan untuk tanggal ini!');
+            }
+        } elseif ($frekuensi == 2) { // mingguan
+            $weekNumber = Carbon::parse($tanggalLaporan)->isoWeek();
+
+            $exists = DB::table('tbl_laporan_dan_analis')
+                ->where('indikator_id', $request->indikator_id)
+                ->where('unit_id', $request->unit_id)
+                ->whereYear('tanggal_laporan', $request->tahun)
+                ->whereRaw("EXTRACT(WEEK FROM tanggal_laporan) = ?", [$weekNumber])
+                ->exists();
+
+            if ($exists) {
+                return back()->with('error', 'Input mingguan sudah dilakukan pada minggu ini!');
+            }
+        } elseif ($frekuensi == 3) { // bulanan
+            $exists = DB::table('tbl_laporan_dan_analis')
+                ->where('indikator_id', $request->indikator_id)
+                ->where('unit_id', $request->unit_id)
+                ->whereMonth('tanggal_laporan', $request->bulan)
+                ->whereYear('tanggal_laporan', $request->tahun)
+                ->exists();
+
+            if ($exists) {
+                return back()->with('error', 'Input bulanan sudah dilakukan pada bulan ini!');
+            }
+        }
+
+        // hitung nilai & insert
         $nilai = ($request->numerator / $request->denominator) * 100;
-
-        // Ambil target
-        $target = DB::table('tbl_indikator')
-            ->where('id', $request->indikator_id)
-            ->value('target_indikator');
-
+        $target = DB::table('tbl_indikator')->where('id', $request->indikator_id)->value('target_indikator');
         $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
 
-        // Upload file
         $filePath = null;
         if ($request->hasFile('file_laporan')) {
             $filePath = $request->file('file_laporan')->store('laporan', 'public');
         }
 
-        // Atur tanggal sesuai bulan & tahun filter
-        $bulan = $request->bulan ?? date('m');
-        $tahun = $request->tahun ?? date('Y');
-
-        $day = date('d');
-        $maxDay = Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth();
-        if ($day > $maxDay)
-            $day = $maxDay;
-
-        $createdAt = Carbon::createFromDate($tahun, $bulan, $day)->setTime(
-            now()->hour,
-            now()->minute,
-            now()->second
-        );
-
-        // Simpan laporan
         DB::table('tbl_laporan_dan_analis')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id,
             'nilai' => $nilai,
             'pencapaian' => $pencapaian,
             'file_laporan' => $filePath,
-            'created_at' => $createdAt,
+            'tanggal_laporan' => $tanggalLaporan,
+            'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // ---------------------------------------------------------------------
-        // PDSA OTOMATIS SETIAP 3 BULAN (TRIWULAN)
-        // ---------------------------------------------------------------------
-        $triwulan = $this->getTriwulan((int) $bulan);
-
-        $startMonth = ($triwulan - 1) * 3 + 1; // contoh Q2 → bulan 4
-        $endMonth = $startMonth + 2;           // contoh Q2 → bulan 6
-
-        // Ambil nilai 3 bulan dalam triwulan yang sama
-        $nilaiTriwulan = DB::table('tbl_laporan_dan_analis')
-            ->where('indikator_id', $request->indikator_id)
-            ->whereBetween(DB::raw('EXTRACT(MONTH FROM created_at)'), [$startMonth, $endMonth])
-            ->whereYear('created_at', $tahun)
-            ->pluck('nilai');
-
-        if ($nilaiTriwulan->count() === 3) {
-
-            $rataRata = $nilaiTriwulan->avg();
-
-            if ($rataRata < $target) {
-
-                // cek apakah PDSA sudah ada
-                $sudahAda = DB::table('tbl_pdsa')
-                    ->where('indikator_id', $request->indikator_id)
-                    ->where('triwulan', $triwulan)
-                    ->where('tahun', $tahun)
-                    ->exists();
-
-                if (!$sudahAda) {
-                    DB::table('tbl_pdsa')->insert([
-                        'indikator_id' => $request->indikator_id,
-                        'triwulan' => $triwulan,
-                        'tahun' => $tahun,
-                        'plan' => null,
-                        'do' => null,
-                        'study' => null,
-                        'act' => null,
-                        'file_pdsa' => null,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
-            }
-        }
-
-        return redirect()
-            ->route('laporan-analisis.index', ['bulan' => $bulan, 'tahun' => $tahun])
+        return redirect()->route('laporan-analisis.index')
             ->with('success', 'Laporan berhasil disimpan!');
-    }
-
-    // ---------------------------------------------------------------------
-    // FUNGSI HITUNG TRIWULAN
-    // ---------------------------------------------------------------------
-    private function getTriwulan($bulan)
-    {
-        if ($bulan >= 1 && $bulan <= 3)
-            return 1;
-        if ($bulan >= 4 && $bulan <= 6)
-            return 2;
-        if ($bulan >= 7 && $bulan <= 9)
-            return 3;
-        return 4;
     }
 }

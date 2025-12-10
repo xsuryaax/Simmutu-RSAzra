@@ -18,6 +18,7 @@ class tbl_indikator extends Model
         'tanggal_selesai',
         'status_periode',
         'status_indikator',
-        'unit_id'
+        'unit_id',
+        'kamus_indikator_id',
     ];
 }

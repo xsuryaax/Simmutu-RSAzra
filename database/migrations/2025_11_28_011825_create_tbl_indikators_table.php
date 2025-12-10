@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('status_periode', ['aktif', 'non-aktif']);
             $table->enum('status_indikator', ['aktif', 'non-aktif']);
             $table->integer('unit_id');
+            $table->integer('kamus_indikator_id')->nullable();
             $table->timestamps();
         });
     }

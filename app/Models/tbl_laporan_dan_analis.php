@@ -10,6 +10,7 @@ class tbl_laporan_dan_analis extends Model
     use HasFactory;
     protected $table = 'tbl_laporan_dan_analis';
     protected $fillable = [
+        'tanggal_laporan',
         'indikator_id',
         'unit_id',
         'nilai',

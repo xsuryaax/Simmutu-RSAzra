@@ -46,7 +46,7 @@ class KamusIndikatorMutu extends Seeder
                 'metodologi_pengumpulan_data_id' => 2,
                 'cakupan_data_id' => 2,
                 'detail_pengukuran' => 'Memeriksa kepatuhan staf sesuai SOP keselamatan.',
-                'frekuensi_pengumpulan_data_id' => 2,
+                'frekuensi_pengumpulan_data_id' => 3,
                 'sumber_data' => 'Laporan audit internal dan pengamatan harian.',
                 'frekuensi_analisis_data_id' => 2,
                 'metodologi_analisis_data_id' => 2,

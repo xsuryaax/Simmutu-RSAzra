@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('tbl_laporan_dan_analis', function (Blueprint $table) {
             $table->id();
+            $table->date('tanggal_laporan')->nullable();
             $table->integer('indikator_id');
             $table->integer('unit_id');
             $table->decimal('nilai', 8, 2);
