@@ -2,6 +2,40 @@
 
 @section('title', 'Laporan dan Analisis')
 
+@section('page-title')
+    <div class="page-header">
+        <div class="page-header-left">
+            <h3>Laporan dan Analisis</h3>
+            <p class="text-subtitle text-muted">
+                Halaman untuk mengelola laporan dan analisis dalam sistem.
+            </p>
+        </div>
+        <div class="page-header-right">
+            <div class="justify-content-end d-flex">
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button type="submit" class="btn btn-primary logout-btn">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Laporan dan Analisis
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+@endsection
+
 @section('content')
     <section class="section">
         <div class="card">
@@ -71,7 +105,7 @@
                                     </td>
 
                                     <td>{{ $row->nama_unit }}</td>
-                                    <td>{{ $row->nama_frekuensi }}</td>
+                                    <td>{{ $row->nama_frekuensi_pengumpulan_data }}</td>
                                     <td>
                                         {{ $row->target_indikator !== null ? rtrim(rtrim($row->target_indikator, '0'), '.') . '%' : '-' }}
                                     </td>
@@ -98,18 +132,6 @@
                                                 onclick="openInputModal({{ $row->id }}, {{ $row->unit_id }})">
                                                 + Input Data
                                             </button>
-                                        @endif
-
-                                        {{-- PDSA --}}
-                                        @if($row->nilai !== null && $row->pencapaian === 'tidak-tercapai')
-                                            @if(!$row->pdsa_exists)
-                                                <button class="btn btn-warning btn-sm mt-1"
-                                                    onclick="openPDSAModal({{ $row->laporan_id }})">
-                                                    + Input PDSA
-                                                </button>
-                                            @else
-                                                <div class="mt-1"><span class="badge bg-info">✓ PDSA Sudah Diinput</span></div>
-                                            @endif
                                         @endif
                                     </td>
                                 </tr>
@@ -179,37 +201,6 @@
             </div>
         </div>
 
-        {{-- Modal PDSA --}}
-        <div class="modal fade" id="pdsaModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <form action="{{ route('pdsa.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="laporan_analisis_id" id="laporan_analisis_id">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Input PDSA</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3"><label>Plan *</label><textarea name="plan" class="form-control"
-                                    required></textarea></div>
-                            <div class="mb-3"><label>Do *</label><textarea name="do" class="form-control"
-                                    required></textarea></div>
-                            <div class="mb-3"><label>Study *</label><textarea name="study" class="form-control"
-                                    required></textarea></div>
-                            <div class="mb-3"><label>Act *</label><textarea name="act" class="form-control"
-                                    required></textarea></div>
-                            <div class="mb-3"><label>File PDSA *</label><input type="file" name="file_pdsa"
-                                    class="form-control" required></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-primary" type="submit">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
     </section>
 @endsection
 
@@ -221,11 +212,6 @@
             // reset form
             document.getElementById('formInputData').reset();
             new bootstrap.Modal(document.getElementById('modalInputData')).show();
-        }
-
-        function openPDSAModal(laporanId) {
-            document.getElementById('laporan_analisis_id').value = laporanId || '';
-            new bootstrap.Modal(document.getElementById('pdsaModal')).show();
         }
     </script>
 

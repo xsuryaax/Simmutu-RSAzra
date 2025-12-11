@@ -31,66 +31,48 @@ class LaporanAnalisisController extends Controller
             ->get();
 
         // ==============================
-        // AMBIL LAPORAN 3 BULAN TERAKHIR
+        // AMBIL LAPORAN BULAN & TAHUN INI
         // ==============================
-        $laporan3Bulan = DB::table('tbl_laporan_dan_analis')
-            ->where('tanggal_laporan', '>=', Carbon::now()->subMonths(3)->startOfMonth())
+        $laporan = DB::table('tbl_laporan_dan_analis')
+            ->whereMonth('tanggal_laporan', $bulan)
+            ->whereYear('tanggal_laporan', $tahun)
             ->get();
 
-        $pdsaList = DB::table('tbl_pdsa')->select('id', 'indikator_id')->get();
-
-        // Map cepat lookup
+        // Kelompokkan laporan berdasarkan indikator
         $laporanByIndikator = [];
-        foreach ($laporan3Bulan as $lap) {
+        foreach ($laporan as $lap) {
             $laporanByIndikator[$lap->indikator_id][] = $lap;
-        }
-
-        $pdsaByIndikator = [];
-        foreach ($pdsaList as $p) {
-            $pdsaByIndikator[$p->indikator_id][] = $p;
         }
 
         $rows = [];
 
         // =====================================
-        // LOOP INDIKATOR SATU PER SATU
+        // LOOP SETIAP INDIKATOR
         // =====================================
         foreach ($indikators as $ind) {
 
-            // ==============================
-            // AMBIL SEMUA LAPORAN DI BULAN FILTER
-            // ==============================
-            $lapBulanIndikator = collect($laporan3Bulan)
-                ->where('indikator_id', $ind->id)
-                ->filter(function ($lap) use ($bulan, $tahun) {
-                    return Carbon::parse($lap->tanggal_laporan)->month == $bulan
-                        && Carbon::parse($lap->tanggal_laporan)->year == $tahun;
-                });
+            // Ambil seluruh laporan indikator ini (sudah difilter bulan & tahun)
+            $laporanIndikator = collect($laporanByIndikator[$ind->id] ?? []);
 
-            // ==============================
-            // TAMPILKAN SEMUA LAPORAN PER BULAN (FULL)
-            // ==============================
-            if ($lapBulanIndikator->count()) {
-                foreach ($lapBulanIndikator as $lap) {
-                    $rows[] = (object) [
-                        'id' => $ind->id,
-                        'nama_indikator' => $ind->nama_indikator,
-                        'unit_id' => $lap->unit_id,
-                        'nama_unit' => DB::table('tbl_unit')->where('id', $lap->unit_id)->value('nama_unit'),
-                        'frekuensi_id' => $ind->frekuensi_id,
-                        'nama_frekuensi' => $ind->nama_frekuensi_pengumpulan_data,
-                        'target_indikator' => $ind->target_indikator,
-                        'status_indikator' => $ind->status_indikator,
-                        'laporan_id' => $lap->id,
-                        'nilai' => $lap->nilai,
-                        'pencapaian' => $lap->pencapaian,
-                        'file_laporan' => $lap->file_laporan,
-                        'tanggal_laporan' => $lap->tanggal_laporan,
-                        'pdsa_exists' => isset($pdsaByIndikator[$ind->id]),
-                        'boleh_input' => false, // nanti di-update di bawah
-                        'alasan_tidak_boleh' => null,
-                    ];
-                }
+            // TAMPILKAN LAPORAN YANG SUDAH ADA
+            foreach ($laporanIndikator as $lap) {
+                $rows[] = (object) [
+                    'id' => $ind->id,
+                    'nama_indikator' => $ind->nama_indikator,
+                    'unit_id' => $lap->unit_id,
+                    'nama_unit' => $ind->nama_unit,
+                    'frekuensi_id' => $ind->frekuensi_id,
+                    'nama_frekuensi_pengumpulan_data' => $ind->nama_frekuensi_pengumpulan_data,
+                    'target_indikator' => $ind->target_indikator,
+                    'status_indikator' => $ind->status_indikator,
+                    'laporan_id' => $lap->id,
+                    'nilai' => $lap->nilai,
+                    'pencapaian' => $lap->pencapaian,
+                    'file_laporan' => $lap->file_laporan,
+                    'tanggal_laporan' => $lap->tanggal_laporan,
+                    'boleh_input' => false,
+                    'alasan_tidak_boleh' => null,
+                ];
             }
 
             // =============================================
@@ -98,14 +80,8 @@ class LaporanAnalisisController extends Controller
             // =============================================
             $freq = (int) ($ind->frekuensi_id ?? 0);
 
-            // Ambil semua laporan indikator + unit di bulan ini
-            $lapBulanUnit = collect($laporan3Bulan)
-                ->where('indikator_id', $ind->id)
-                ->where('unit_id', $ind->unit_id)
-                ->filter(function ($lap) use ($bulan, $tahun) {
-                    return Carbon::parse($lap->tanggal_laporan)->month == $bulan &&
-                        Carbon::parse($lap->tanggal_laporan)->year == $tahun;
-                });
+            // Laporan indikator sesuai unit
+            $lapUnit = $laporanIndikator->where('unit_id', $ind->unit_id);
 
             $bolehInput = true;
             $alasanTidakBoleh = null;
@@ -114,11 +90,11 @@ class LaporanAnalisisController extends Controller
             if ($freq === 1) {
                 $hariIni = Carbon::now()->format('Y-m-d');
 
-                $foundTanggal = $lapBulanUnit->first(function ($l) use ($hariIni) {
+                $found = $lapUnit->first(function ($l) use ($hariIni) {
                     return Carbon::parse($l->tanggal_laporan)->format('Y-m-d') === $hariIni;
                 });
 
-                if ($foundTanggal) {
+                if ($found) {
                     $bolehInput = false;
                     $alasanTidakBoleh = 'Sudah ada laporan hari ini';
                 }
@@ -127,23 +103,24 @@ class LaporanAnalisisController extends Controller
             // FREKUENSI MINGGUAN
             if ($freq === 2) {
                 $currentWeek = Carbon::now()->isoWeek();
-                $foundWeek = $lapBulanUnit->first(function ($l) use ($currentWeek) {
+
+                $found = $lapUnit->first(function ($l) use ($currentWeek) {
                     return Carbon::parse($l->tanggal_laporan)->isoWeek() == $currentWeek;
                 });
 
-                if ($foundWeek) {
+                if ($found) {
                     $bolehInput = false;
                     $alasanTidakBoleh = 'Sudah ada laporan minggu ini';
                 }
             }
 
             // FREKUENSI BULANAN
-            if ($freq === 3 && $lapBulanUnit->count()) {
+            if ($freq === 3 && $lapUnit->count()) {
                 $bolehInput = false;
                 $alasanTidakBoleh = 'Sudah ada laporan bulan ini';
             }
 
-            // Tambahkan 1 baris kosong utk input baru jika boleh
+            // Jika boleh input → tambahkan baris kosong
             if ($bolehInput) {
                 $rows[] = (object) [
                     'id' => $ind->id,
@@ -151,7 +128,7 @@ class LaporanAnalisisController extends Controller
                     'unit_id' => $ind->unit_id,
                     'nama_unit' => $ind->nama_unit,
                     'frekuensi_id' => $ind->frekuensi_id,
-                    'nama_frekuensi' => $ind->nama_frekuensi_pengumpulan_data,
+                    'nama_frekuensi_pengumpulan_data' => $ind->nama_frekuensi_pengumpulan_data,
                     'target_indikator' => $ind->target_indikator,
                     'status_indikator' => $ind->status_indikator,
                     'laporan_id' => null,
@@ -159,7 +136,6 @@ class LaporanAnalisisController extends Controller
                     'pencapaian' => null,
                     'file_laporan' => null,
                     'tanggal_laporan' => null,
-                    'pdsa_exists' => isset($pdsaByIndikator[$ind->id]),
                     'boleh_input' => true,
                     'alasan_tidak_boleh' => null,
                 ];
@@ -172,7 +148,6 @@ class LaporanAnalisisController extends Controller
             'tahun' => (int) $tahun,
         ]);
     }
-
 
     public function store(Request $request)
     {

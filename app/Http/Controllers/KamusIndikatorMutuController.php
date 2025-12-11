@@ -99,7 +99,8 @@ class KamusIndikatorMutuController extends Controller
             'publikasi_data_id' => 'required',
         ]);
 
-        DB::table('tbl_kamus_indikator_mutu')->insert([
+        // 1️⃣ Insert & dapatkan ID kamus
+        $kamusId = DB::table('tbl_kamus_indikator_mutu')->insertGetId([
             'definisi_operasional' => $request->definisi_operasional,
             'tujuan' => $request->tujuan,
             'dasar_pemikiran' => $request->dasar_pemikiran,
@@ -123,9 +124,17 @@ class KamusIndikatorMutuController extends Controller
             'updated_at' => now(),
         ]);
 
+        // 2️⃣ Update tabel indikator -> isi kamus_indikator_id
+        DB::table('tbl_indikator')
+            ->where('id', $request->indikator_id)
+            ->update([
+                'kamus_indikator_id' => $kamusId,
+            ]);
+
         return redirect()->route('kamus-indikator-mutu.index')
             ->with('success', 'Kamus Indikator Mutu berhasil ditambahkan.');
     }
+
 
     /**
      * Show the form for editing the specified resource.

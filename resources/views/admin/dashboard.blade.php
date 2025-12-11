@@ -9,7 +9,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <h3>Profile Statistics</h3>
             <form method="POST" action="/logout">
-                <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->name }}</strong></span>
+                <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                 @csrf
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-box-arrow-right"></i>
@@ -35,7 +35,7 @@
                                         <h6 class="text-muted font-semibold">
                                             Total Unit
                                         </h6>
-                                        <h6 class="font-extrabold mb-0">112.000</h6>
+                                        <h6 class="font-extrabold mb-0">{{ $totalUnit }}</h6>
                                     </div>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                         <h6 class="text-muted font-semibold">Unit Sudah Mengisi Indikator</h6>
-                                        <h6 class="font-extrabold mb-0">80.000</h6>
+                                        <h6 class="font-extrabold mb-0">{{ $unitSudahIsi }}</h6>
                                     </div>
                                 </div>
                             </div>
@@ -69,7 +69,7 @@
                                     </div>
                                     <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                         <h6 class="text-muted font-semibold">Unit Belum Mengisi Indikator</h6>
-                                        <h6 class="font-extrabold mb-0">112</h6>
+                                        <h6 class="font-extrabold mb-0">{{ $unitBelumIsi }}</h6>
                                     </div>
                                 </div>
                             </div>
@@ -77,15 +77,25 @@
                     </div>
                 </div>
 
-                {{-- chart ditampilkan sesuai role login --}}
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4>Hasil Pelaksanaan Indikator Unit</h4>
+                                <h4>Hasil Indikator Unit</h4>
 
                                 <div class="d-flex gap-2">
+
+                                    {{-- FILTER INDIKATOR --}}
+                                    <select id="filterIndikator" class="form-select form-select-sm" style="width: 180px;">
+                                        @foreach ($indikators as $ind)
+                                            <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
+                                        @endforeach
+                                    </select>
+
                                     <select id="filterTahun" class="form-select form-select-sm" style="width: 100px;">
+                                        @foreach ($years as $th)
+                                            <option value="{{ $th }}">{{ $th }}</option>
+                                        @endforeach
                                     </select>
 
                                     <select id="filterPeriode" class="form-select form-select-sm" style="width: 170px;">
@@ -102,6 +112,7 @@
                                     </select>
                                 </div>
                             </div>
+
                             <div class="card-body">
                                 <canvas id="chart-line-indikator"></canvas>
                             </div>
@@ -111,136 +122,86 @@
                     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
                     <script>
-                        const allData = {
-                            '2024': {
-                                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                                target: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
-                                achievement: [12, 14, 18, 23, 32, 33, 38, 47, 49, 53, 58, 62]
-                            },
-                            '2023': {
-                                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                                target: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
-                                achievement: [6, 8, 14, 22, 28, 29, 36, 42, 44, 48, 52, 58]
-                            }
-                        };
-                        const availableYears = Object.keys(allData).reverse();
+                        const allData = {!! $allDataJson !!};
 
-                        const ctx1 = document.getElementById('chart-line-indikator');
+                        const ctx = document.getElementById('chart-line-indikator');
+
                         let myChart;
 
-                        const filterTahunEl = document.getElementById('filterTahun');
-                        const filterPeriodeEl = document.getElementById('filterPeriode');
-                        const filterTipeChartEl = document.getElementById('filterTipeChart');
+                        const filterIndikator = document.getElementById('filterIndikator');
+                        const filterTahun = document.getElementById('filterTahun');
+                        const filterPeriode = document.getElementById('filterPeriode');
+                        const filterTipe = document.getElementById('filterTipeChart');
 
-                        // Isi filter Tahun 
-                        availableYears.forEach(year => {
-                            const option = document.createElement('option');
-                            option.value = year;
-                            option.textContent = year;
-                            filterTahunEl.appendChild(option);
-                        });
-
-                        // Logika Pemrosesan Data Triwulan
                         function getQuarterData(data, quarter) {
-                            let start, end;
-                            switch (quarter) {
-                                case 'Q1':
-                                    start = 0;
-                                    end = 3;
-                                    break; // Jan, Feb, Mar (index 0, 1, 2)
-                                case 'Q2':
-                                    start = 3;
-                                    end = 6;
-                                    break; // Apr, Mei, Jun
-                                case 'Q3':
-                                    start = 6;
-                                    end = 9;
-                                    break; // Jul, Agu, Sep
-                                case 'Q4':
-                                    start = 9;
-                                    end = 12;
-                                    break; // Okt, Nov, Des
-                                case 'Tahun': // Tampilkan seluruh tahun
-                                default:
-                                    start = 0;
-                                    end = 12;
-                                    break;
-                            }
+                            let start = 0, end = 12;
 
-                            // Potong array data
+                            if (quarter === 'Q1') { start = 0; end = 3; }
+                            if (quarter === 'Q2') { start = 3; end = 6; }
+                            if (quarter === 'Q3') { start = 6; end = 9; }
+                            if (quarter === 'Q4') { start = 9; end = 12; }
+
                             return {
                                 labels: data.labels.slice(start, end),
                                 target: data.target.slice(start, end),
-                                achievement: data.achievement.slice(start, end)
+                                hasil: data.hasil.slice(start, end)
                             };
                         }
 
-                        // Filter untuk perubahan bentuk chart (line/bar)
                         function updateChart() {
-                            const selectedYear = filterTahunEl.value;
-                            const selectedPeriode = filterPeriodeEl.value;
-                            const selectedTipe = filterTipeChartEl.value;
 
-                            const baseData = allData[selectedYear];
+                            const id = filterIndikator.value;
+                            const thn = filterTahun.value;
+                            const periode = filterPeriode.value;
+                            const type = filterTipe.value;
 
-                            // Ambil data yang sudah difilter (sesuai tahun, periode, dll)
-                            const currentData = getQuarterData(baseData, selectedPeriode);
+                            const baseData = allData[id][thn];
+                            const viewData = getQuarterData(baseData, periode);
 
-                            // Hapus chart lama (kalau ada)
-                            if (myChart) {
-                                myChart.destroy();
-                            }
+                            if (myChart) myChart.destroy();
 
-                            // Buat Chart Baru
-                            myChart = new Chart(ctx1, {
-                                type: selectedTipe,
+                            myChart = new Chart(ctx, {
+                                type: type,
                                 data: {
-                                    labels: currentData.labels,
-                                    datasets: [{
-                                            label: 'Target',
-                                            data: currentData.target,
-                                            borderColor: 'rgba(255, 99, 132, 1)',
-                                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                                            fill: selectedTipe === 'line' ? false : true,
-                                            tension: 0.1
+                                    labels: viewData.labels,
+                                    datasets: [
+                                        {
+                                            label: "Target",
+                                            data: viewData.target,
+                                            borderColor: 'rgba(255,99,132,1)',
+                                            backgroundColor: 'rgba(255,99,132,0.6)',
+                                            tension: 0.2,
+                                            fill: type === 'bar'
                                         },
                                         {
-                                            label: 'Hasil',
-                                            data: currentData.achievement,
-                                            borderColor: 'rgba(54, 162, 235, 1)',
-                                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                                            fill: selectedTipe === 'line' ? false : true,
-                                            tension: 0.1
+                                            label: "Hasil",
+                                            data: viewData.hasil,
+                                            borderColor: 'rgba(54,162,235,1)',
+                                            backgroundColor: 'rgba(54,162,235,0.6)',
+                                            tension: 0.2,
+                                            fill: type === 'bar'
                                         }
                                     ]
                                 },
                                 options: {
-                                    responsive: true,
-                                    // label sumbu X merupakan periode (tahun) yang dipilih
                                     scales: {
-                                        x: {
-                                            title: {
-                                                display: true,
-                                                text: selectedPeriode === 'Tahun' ? `Bulan pada Tahun ${selectedYear}` :
-                                                    `${selectedPeriode} Tahun ${selectedYear}`
-                                            }
-                                        },
                                         y: {
-                                            beginAtZero: true
+                                            beginAtZero: true,
+                                            min: 0,
+                                            max: 120
                                         }
                                     }
                                 }
                             });
                         }
 
-                        filterTahunEl.addEventListener('change', updateChart);
-                        filterPeriodeEl.addEventListener('change', updateChart);
-                        filterTipeChartEl.addEventListener('change', updateChart);
+                        filterIndikator.addEventListener('change', updateChart);
+                        filterTahun.addEventListener('change', updateChart);
+                        filterPeriode.addEventListener('change', updateChart);
+                        filterTipe.addEventListener('change', updateChart);
 
                         updateChart();
                     </script>
-
-                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
                 </div>
             </div>
 
@@ -255,7 +216,7 @@
                             </div>
                             <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
                                 <h6 class="text-muted font-semibold">Total Indikator</h6>
-                                <h6 class="font-extrabold mb-0">127</h6>
+                                <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
                             </div>
                         </div>
                     </div>
@@ -265,24 +226,22 @@
                         <h4>Terakhir Mengisi</h4>
                     </div>
                     <div class="card-content pb-4">
-                        <div class="recent-message d-flex px-4 py-3">
-                            <div class="avatar avatar-lg">
-                                <img src="{{ asset('assets/faces/4.jpg') }}" />
+                        @foreach($recentIsi as $row)
+                            <div class="recent-message d-flex px-4 py-3">
+                                <div class="avatar avatar-lg">
+                                    @php
+                                        // Gunakan ID unit untuk menentukan gambar
+                                        $imgIndex = ($row->unit_id % 10) + 1; // hasil 1-10
+                                        $imgPath = asset("assets/faces/{$imgIndex}.jpg");
+                                    @endphp
+                                    <img src="{{ $imgPath }}" />
+                                </div>
+                                <div class="name ms-4">
+                                    <h5 class="mb-1">{{ $row->nama_unit }}</h5>
+                                    <h6 class="text-muted mb-0">{{ date('d F Y', strtotime($row->tanggal_laporan)) }}</h6>
+                                </div>
                             </div>
-                            <div class="name ms-4">
-                                <h5 class="mb-1">SIRS</h5>
-                                <h6 class="text-muted mb-0">08:12:2025 14:48</h6>
-                            </div>
-                        </div>
-                        <div class="recent-message d-flex px-4 py-3">
-                            <div class="avatar avatar-lg">
-                                <img src="{{ asset('assets/faces/5.jpg') }}" />
-                            </div>
-                            <div class="name ms-4">
-                                <h5 class="mb-1">Marketing</h5>
-                                <h6 class="text-muted mb-0">08:12:2025 13:39</h6>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
                 {{-- <div class="card">
@@ -306,6 +265,13 @@
                             <div class="d-flex gap-2">
                                 <select id="divisionFilter" class="form-select form-select-sm" style="width: 150px;">
                                     <option value="all" selected>-- Semua Unit --</option>
+                                </select>
+
+                                <select id="indicatorFilter" class="form-select form-select-sm" style="width: 200px;">
+                                    <option value="">-- Pilih Indikator --</option>
+                                    @foreach ($indikators as $ind)
+                                        <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
+                                    @endforeach
                                 </select>
 
                                 <select id="admFilterTahun" class="form-select form-select-sm" style="width: 100px;">
@@ -335,183 +301,143 @@
                 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
                 <script>
-                    // --- DATA DUMMY LENGKAP (Bulanan per Tahun per Unit) ---
-                    const allUnitData = {
-                        '2024': {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                            'IT': {
-                                targets: [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65],
-                                achievements: [12, 14, 18, 23, 32, 33, 38, 47, 49, 53, 58, 62]
-                            },
-                            'Marketing': {
-                                targets: [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75],
-                                achievements: [18, 27, 32, 33, 42, 43, 49, 57, 61, 63, 68, 70]
-                            }
-                        },
-                        '2023': {
-                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-                            'IT': {
-                                targets: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60],
-                                achievements: [6, 8, 14, 22, 28, 29, 36, 42, 44, 48, 52, 58]
-                            },
-                            'Marketing': {
-                                targets: [15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70],
-                                achievements: [14, 22, 24, 32, 36, 42, 43, 52, 53, 58, 62, 68]
-                            }
-                        }
-                    };
+                    // ==================== DATA =======================
+                    const allUnitData = @json($divisionData);
+
+                    // tahun tersedia
                     const adminAvailableYears = Object.keys(allUnitData).reverse();
-                    const unitNames = Object.keys(allUnitData['2024']).filter(key => key !== 'labels');
+                    const sampleYear = adminAvailableYears[0];
 
-                    const ctx2 = document.getElementById('chartDivisionAchievement');
-                    let divisionChart;
+                    // daftar unit (kecuali labels)
+                    const unitNames = Object.keys(allUnitData[sampleYear]).filter(u => u !== "labels");
 
-                    // Dapatkan elemen filter
-                    const unitFilterEl = document.getElementById('divisionFilter');
-                    const admFilterTahunEl = document.getElementById('admFilterTahun');
-                    const admFilterPeriodeEl = document.getElementById('admFilterPeriode');
-                    const admFilterTipeChartEl = document.getElementById('admFilterTipeChart');
+                    // ==================== ELEMENT =======================
+                    const unitFilterEl = document.getElementById("divisionFilter");
+                    const admFilterTahunEl = document.getElementById("admFilterTahun");
+                    const admFilterPeriodeEl = document.getElementById("admFilterPeriode");
+                    const admFilterTipeChartEl = document.getElementById("admFilterTipeChart");
+                    const indicatorFilterEl = document.getElementById("indicatorFilter");
 
-                    // Isi filter Unit dan Tahun secara dinamis
-                    unitNames.forEach(name => {
-                        const option = document.createElement('option');
-                        option.value = name;
-                        option.textContent = name;
-                        unitFilterEl.appendChild(option);
+                    // ==================== ISI FILTER =======================
+                    unitNames.forEach(unit => {
+                        const opt = document.createElement("option");
+                        opt.value = unit;
+                        opt.textContent = unit;
+                        unitFilterEl.appendChild(opt);
                     });
+
                     adminAvailableYears.forEach(year => {
-                        const option = document.createElement('option');
-                        option.value = year;
-                        option.textContent = year;
-                        admFilterTahunEl.appendChild(option);
+                        const opt = document.createElement("option");
+                        opt.value = year;
+                        opt.textContent = year;
+                        admFilterTahunEl.appendChild(opt);
                     });
 
-                    // --- Logika Pemotongan Data (Quarter/Tahun) ---
+                    // ==================== FUNGSI =======================
                     function getFilteredData(data, periode) {
-                        let start, end;
-                        switch (periode) {
-                            case 'Q1':
-                                start = 0;
-                                end = 3;
-                                break;
-                            case 'Q2':
-                                start = 3;
-                                end = 6;
-                                break;
-                            case 'Q3':
-                                start = 6;
-                                end = 9;
-                                break;
-                            case 'Q4':
-                                start = 9;
-                                end = 12;
-                                break;
-                            case 'Tahun':
-                            default:
-                                start = 0;
-                                end = 12;
-                                break;
-                        }
-
-                        // Ambil data bulanan yang sudah dipotong (slice)
-                        const filtered = {
-                            labels: data.labels.slice(start, end)
-                        };
-
-                        // Ambil data target/achievement per unit yang sudah dipotong
-                        unitNames.forEach(unit => {
-                            filtered[unit] = {
-                                targets: data[unit].targets.slice(start, end),
-                                achievements: data[unit].achievements.slice(start, end)
-                            };
-                        });
-                        return filtered;
+                        let start = 0, end = 12;
+                        if (periode === "Q1") end = 3;
+                        if (periode === "Q2") { start = 3; end = 6; }
+                        if (periode === "Q3") { start = 6; end = 9; }
+                        if (periode === "Q4") { start = 9; end = 12; }
+                        return data.slice(start, end);
                     }
 
+                    let divisionChart;
+                    const ctx2 = document.getElementById("chartDivisionAchievement");
 
-                    // Fungsi Utama untuk Membuat/Memperbarui Chart
-                    function updateDivisionChart() {
-                        const selectedUnit = unitFilterEl.value;
-                        const selectedYear = admFilterTahunEl.value;
-                        const selectedPeriode = admFilterPeriodeEl.value;
-                        const selectedTipe = admFilterTipeChartEl.value;
+                    function renderEmptyDivisionChart() {
+                        const tahun = admFilterTahunEl.value || adminAvailableYears[0];
+                        const labels = allUnitData[tahun].labels;
 
-                        const baseDataPerYear = allUnitData[selectedYear];
-
-                        // 1. Filter Data Berdasarkan Periode (Q1, Q2, Q3, Q4, atau Tahun)
-                        const currentData = getFilteredData(baseDataPerYear, selectedPeriode);
-
-                        // 2. Tentukan Datasets Berdasarkan Filter Unit
-                        let datasets = [];
-
-                        if (selectedUnit === 'all') {
-                            // Semua Unit (Hanya Hasil)
-                            unitNames.forEach((unit, index) => {
-                                datasets.push({
-                                    label: `Hasil ${unit}`,
-                                    data: currentData[unit].achievements,
-                                    borderColor: `hsl(${index * 60}, 70%, 50%)`,
-                                    backgroundColor: `hsla(${index * 60}, 70%, 50%, 0.7)`,
-                                    fill: selectedTipe === 'line' ? false : true,
-                                    tension: 0.1
-                                });
-                            });
-
-                        } else {
-                            // Unit Tertentu (Target & Hasil)
-                            const unitData = currentData[selectedUnit];
-                            datasets.push({
-                                label: 'Target Unit ' + selectedUnit,
-                                data: unitData.targets,
-                                borderColor: 'rgba(255, 159, 64, 1)',
-                                backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                                fill: selectedTipe === 'line' ? false : true,
-                                tension: 0.1
-                            });
-                            datasets.push({
-                                label: 'Hasil Unit ' + selectedUnit,
-                                data: unitData.achievements,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                                fill: selectedTipe === 'line' ? false : true,
-                                tension: 0.1
-                            });
-                        }
-
-                        // Hancurkan dan Buat Chart Baru
-                        if (divisionChart) {
-                            divisionChart.destroy();
-                        }
+                        if (divisionChart) divisionChart.destroy();
 
                         divisionChart = new Chart(ctx2, {
-                            type: selectedTipe,
+                            type: "bar",
                             data: {
-                                labels: currentData.labels,
-                                datasets: datasets,
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: "Tidak ada data",
+                                        data: new Array(labels.length).fill(null),
+                                        borderColor: "rgba(0,0,0,0)",
+                                        backgroundColor: "rgba(0,0,0,0)"
+                                    }
+                                ]
                             },
                             options: {
                                 responsive: true,
                                 scales: {
-                                    x: {
-                                        stacked: false,
-                                        title: {
-                                            display: true,
-                                            text: `${selectedPeriode} Tahun ${selectedYear}`
-                                        }
-                                    },
                                     y: {
-                                        stacked: false,
-                                        beginAtZero: true
+                                        beginAtZero: true,
+                                        min: 0,
+                                        max: 120
                                     }
                                 }
                             }
                         });
                     }
 
-                    unitFilterEl.addEventListener('change', updateDivisionChart);
-                    admFilterTahunEl.addEventListener('change', updateDivisionChart);
-                    admFilterPeriodeEl.addEventListener('change', updateDivisionChart);
-                    admFilterTipeChartEl.addEventListener('change', updateDivisionChart);
+
+                    function updateDivisionChart() {
+                        const unit = unitFilterEl.value;
+                        const tahun = admFilterTahunEl.value;
+                        const periode = admFilterPeriodeEl.value;
+                        const type = admFilterTipeChartEl.value;
+                        const indikatorId = indicatorFilterEl.value;
+
+                        if (!unit || !tahun || !indikatorId) {
+                            renderEmptyDivisionChart();
+                            return;
+                        }
+
+                        const unitData = allUnitData[tahun][unit]['indikators'][indikatorId];
+
+                        const labels = getFilteredData(allUnitData[tahun].labels, periode);
+
+                        const datasetTarget = getFilteredData(unitData.target, periode);
+                        const datasetHasil = getFilteredData(unitData.hasil, periode);
+
+                        if (divisionChart) divisionChart.destroy();
+
+                        divisionChart = new Chart(ctx2, {
+                            type: type,
+                            data: {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: "Target",
+                                        data: datasetTarget,
+                                        borderColor: "rgba(255, 159, 64, 1)",
+                                        backgroundColor: "rgba(255, 159, 64, 0.7)"
+                                    },
+                                    {
+                                        label: "Hasil",
+                                        data: datasetHasil,
+                                        borderColor: "rgba(75, 192, 192, 1)",
+                                        backgroundColor: "rgba(75, 192, 192, 0.7)"
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        min: 0,
+                                        max: 120
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    // EVENT
+                    unitFilterEl.addEventListener("change", updateDivisionChart);
+                    admFilterTahunEl.addEventListener("change", updateDivisionChart);
+                    admFilterPeriodeEl.addEventListener("change", updateDivisionChart);
+                    admFilterTipeChartEl.addEventListener("change", updateDivisionChart);
+                    indicatorFilterEl.addEventListener("change", updateDivisionChart);
 
                     updateDivisionChart();
                 </script>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HakAksesController;
 use App\Http\Controllers\KamusIndikatorMutuController;
 use App\Http\Controllers\LaporanAnalisisController;
@@ -43,13 +44,9 @@ Route::get('/unauthorized', function () {
 */
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    ;
 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    });
     Route::get('/chart', function () {
         return view('admin.chart');
     });
@@ -99,8 +96,7 @@ Route::middleware('auth')->group(function () {
     // PDSA
     Route::resource('pdsa', PDSAController::class)
         ->middleware('check.role:pdsa');
-});
 
-Route::get('/hakakses', function () {
-    return view('hakakses');
+    Route::resource('dashboard', DashboardController::class)
+        ->middleware('check.role:dashboard');
 });
