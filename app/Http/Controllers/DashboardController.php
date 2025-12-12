@@ -9,11 +9,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // HITUNG TOTAL INDIKATOR
         $totalIndikator = DB::table('tbl_indikator')->count();
 
-        // ===============================
         // AMBIL SEMUA INDIKATOR + FREKUENSI
-        // ===============================
         $indikators = DB::table('tbl_indikator')
             ->leftJoin('tbl_kamus_indikator_mutu', 'tbl_kamus_indikator_mutu.id', '=', 'tbl_indikator.kamus_indikator_id')
             ->select(
@@ -26,9 +25,7 @@ class DashboardController extends Controller
             ->orderBy('nama_indikator')
             ->get();
 
-        // ===============================
         // AMBIL TAHUN LAPORAN
-        // ===============================
         $years = DB::table('tbl_laporan_dan_analis')
             ->select(DB::raw('DISTINCT EXTRACT(YEAR FROM tanggal_laporan) AS tahun'))
             ->orderBy('tahun', 'desc')
@@ -37,9 +34,7 @@ class DashboardController extends Controller
         $allData = [];
         $labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-        // ===============================
-        // PROSES DATA PER INDIKATOR (UTAMA)
-        // ===============================
+        // PROSES DATA PER INDIKATOR
         foreach ($indikators as $ind) {
             foreach ($years as $thn) {
 
@@ -91,9 +86,7 @@ class DashboardController extends Controller
             }
         }
 
-        // ===========================================================
-        // DIVISION DATA — PER UNIT + PER INDIKATOR
-        // ===========================================================
+        // DATA — PER UNIT + PER INDIKATOR
         $units = DB::table('tbl_unit')->orderBy('nama_unit')->get();
         $divisionData = [];
 
@@ -166,10 +159,8 @@ class DashboardController extends Controller
                 }
             }
         }
-
-        // ===============================
-        // CARD UNIT BULAN INI
-        // ===============================
+        
+        // STATISTIK UNIT YANG SUDAH / BELUM ISI LAPORAN BULAN INI
         $bulanSekarang = date('m');
         $tahunSekarang = date('Y');
 

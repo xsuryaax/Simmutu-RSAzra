@@ -17,13 +17,14 @@ class HakAksesController extends Controller
                 ['key' => 'dashboard', 'label' => 'Dashboard'],
                 ['key' => 'laporan_analisis', 'label' => 'Laporan dan Analisis'],
                 ['key' => 'kamus_indikator_mutu', 'label' => 'Kamus Indikator Mutu'],
+                ['key' => 'master_indikator', 'label' => 'Master Indikator'],
             ]
         ],
         'manajemen_data_mutu' => [
             'title' => 'Manajemen Data Mutu',
             'icon' => 'ri-list-check-2',
             'menus' => [
-                ['key' => 'master_indikator', 'label' => 'Master Indikator'],
+                
                 ['key' => 'cakupan_data', 'label' => 'Cakupan Data'],
                 ['key' => 'dimensi_mutu', 'label' => 'Dimensi Mutu'],
                 ['key' => 'frekuensi_analisis_data', 'label' => 'Frekuensi Analisis Data'],

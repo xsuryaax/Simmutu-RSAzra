@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\ManajemenMutu;
 
 use App\Http\Controllers\Controller;
+use Auth;
 use DB;
 use Illuminate\Http\Request;
 
@@ -13,26 +14,41 @@ class MasterIndikatorController extends Controller
      */
     public function index()
     {
-        $indikators = DB::table('tbl_indikator')
+        $user = Auth::user(); // ambil user login
+
+        $query = DB::table('tbl_indikator')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
-            ->select(
-                'tbl_indikator.*',
-                'tbl_unit.nama_unit'
-            )
-            ->orderBy('tbl_indikator.created_at', 'DESC')
-            ->get();
+            ->select('tbl_indikator.*', 'tbl_unit.nama_unit')
+            ->orderBy('tbl_indikator.created_at', 'DESC');
+
+        // Filter hanya unit sendiri jika bukan admin atau unit_mutu
+        // Admin/unit_mutu: unit_id 1 dan 2 (ubah sesuai database)
+        if (!in_array($user->unit_id, [1, 2])) {
+            $query->where('tbl_indikator.unit_id', $user->unit_id);
+        }
+
+        $indikators = $query->get(); // ✅ ambil list semua
 
         return view('menu.ManajemenMutu.master-indikator.index', compact('indikators'));
     }
+
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $units = DB::table('tbl_unit')
-            ->orderBy('nama_unit', 'ASC')
-            ->get();
+        $user = Auth::user();
+
+        // Ambil unit
+        $queryUnits = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC');
+
+        // Jika bukan admin/unit_mutu, batasi hanya unit user sendiri
+        if (!in_array($user->unit_id, [1, 2])) {
+            $queryUnits->where('id', $user->unit_id);
+        }
+
+        $units = $queryUnits->get();
 
         return view('menu.ManajemenMutu.master-indikator.create', compact('units'));
     }
@@ -76,17 +92,24 @@ class MasterIndikatorController extends Controller
      */
     public function edit($id)
     {
+        $user = Auth::user();
+
         $indikator = DB::table('tbl_indikator')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
             ->select('tbl_indikator.*', 'tbl_unit.nama_unit')
             ->where('tbl_indikator.id', $id)
             ->first();
 
-        $units = DB::table('tbl_unit')->get();
+        // Ambil unit
+        $queryUnits = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC');
+        // Admin (1) atau Unit Mutu (2) boleh lihat semua
+        if (!in_array($user->unit_id, [1, 2])) {
+            $queryUnits->where('id', $user->unit_id);
+        }
+        $units = $queryUnits->get();
 
         return view('menu.ManajemenMutu.master-indikator.edit', compact('indikator', 'units'));
     }
-
 
     /**
      * Update the specified resource in storage.

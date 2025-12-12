@@ -130,7 +130,8 @@
                             <div class="form-group has-icon-left mb-3">
                                 <label>Deskripsi</label>
                                 <div class="position-relative">
-                                    <textarea name="deskripsi_role" class="form-control" rows="3" placeholder="Deskripsi role">{{ old('deskripsi_role') }}</textarea>
+                                    <textarea name="deskripsi_role" class="form-control" rows="3"
+                                        placeholder="Deskripsi role">{{ old('deskripsi_role') }}</textarea>
 
                                     <div class="form-control-icon">
                                         <i class="bi bi-card-text"></i>
@@ -190,8 +191,7 @@
                                             </button>
 
                                             <form action="{{ route('manajemen-role.destroy', $role->id) }}" method="POST"
-                                                class="d-inline"
-                                                onsubmit="return confirm('Yakin ingin menghapus role ini?')">
+                                                class="d-inline" onsubmit="return confirm('Yakin ingin menghapus role ini?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="btn btn-danger btn-sm">
@@ -242,7 +242,8 @@
                         <div class="form-group has-icon-left mb-3">
                             <label>Deskripsi</label>
                             <div class="position-relative">
-                                <textarea id="editDeskripsiRole" name="deskripsi_role" class="form-control" rows="3"></textarea>
+                                <textarea id="editDeskripsiRole" name="deskripsi_role" class="form-control"
+                                    rows="3"></textarea>
                                 <div class="form-control-icon">
                                     <i class="bi bi-card-text"></i>
                                 </div>
@@ -266,7 +267,9 @@
 
 @endsection
 
-@push('scripts')
+@push('js')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         // DataTable
         let table1 = document.querySelector('#table1');

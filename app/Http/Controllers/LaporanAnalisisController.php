@@ -10,13 +10,14 @@ class LaporanAnalisisController extends Controller
 {
     public function index(Request $request)
     {
+        $user = auth()->user(); // ambil user login
         $bulan = $request->bulan ?? date('m');
         $tahun = $request->tahun ?? date('Y');
 
         // ==============================
-        // AMBIL INDIKATOR + FREKUENSI
+        // AMBIL INDIKATOR + FREKUENSI + UNIT
         // ==============================
-        $indikators = DB::table('tbl_indikator')
+        $queryIndikator = DB::table('tbl_indikator')
             ->leftJoin('tbl_kamus_indikator_mutu', 'tbl_kamus_indikator_mutu.id', '=', 'tbl_indikator.kamus_indikator_id')
             ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_frekuensi_pengumpulan_data.id', '=', 'tbl_kamus_indikator_mutu.frekuensi_pengumpulan_data_id')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
@@ -26,17 +27,28 @@ class LaporanAnalisisController extends Controller
                 'tbl_frekuensi_pengumpulan_data.nama_frekuensi_pengumpulan_data',
                 'tbl_unit.nama_unit'
             )
-            ->where('tbl_indikator.status_indikator', 'aktif')
-            ->orderBy('tbl_indikator.id', 'DESC')
-            ->get();
+            ->where('tbl_indikator.status_indikator', 'aktif');
+
+        // FILTER BERDASARKAN UNIT USER (kecuali admin/unit_mutu)
+        if (!in_array($user->unit_id, [1, 2])) {
+            $queryIndikator->where('tbl_indikator.unit_id', $user->unit_id);
+        }
+
+        $indikators = $queryIndikator->orderBy('tbl_indikator.id', 'DESC')->get();
 
         // ==============================
         // AMBIL LAPORAN BULAN & TAHUN INI
         // ==============================
-        $laporan = DB::table('tbl_laporan_dan_analis')
+        $laporanQuery = DB::table('tbl_laporan_dan_analis')
             ->whereMonth('tanggal_laporan', $bulan)
-            ->whereYear('tanggal_laporan', $tahun)
-            ->get();
+            ->whereYear('tanggal_laporan', $tahun);
+
+        // FILTER LAPORAN BERDASARKAN UNIT USER (kecuali admin/unit_mutu)
+        if (!in_array($user->unit_id, [1, 2])) {
+            $laporanQuery->where('unit_id', $user->unit_id);
+        }
+
+        $laporan = $laporanQuery->get();
 
         // Kelompokkan laporan berdasarkan indikator
         $laporanByIndikator = [];
@@ -46,15 +58,9 @@ class LaporanAnalisisController extends Controller
 
         $rows = [];
 
-        // =====================================
-        // LOOP SETIAP INDIKATOR
-        // =====================================
         foreach ($indikators as $ind) {
-
-            // Ambil seluruh laporan indikator ini (sudah difilter bulan & tahun)
             $laporanIndikator = collect($laporanByIndikator[$ind->id] ?? []);
 
-            // TAMPILKAN LAPORAN YANG SUDAH ADA
             foreach ($laporanIndikator as $lap) {
                 $rows[] = (object) [
                     'id' => $ind->id,
@@ -75,52 +81,32 @@ class LaporanAnalisisController extends Controller
                 ];
             }
 
-            // =============================================
-            // CEK APAKAH MASIH BOLEH INPUT DATA
-            // =============================================
+            // CEK BOLEH INPUT
             $freq = (int) ($ind->frekuensi_id ?? 0);
-
-            // Laporan indikator sesuai unit
             $lapUnit = $laporanIndikator->where('unit_id', $ind->unit_id);
 
             $bolehInput = true;
             $alasanTidakBoleh = null;
 
-            // FREKUENSI HARIAN
-            if ($freq === 1) {
+            if ($freq === 1) { // harian
                 $hariIni = Carbon::now()->format('Y-m-d');
-
-                $found = $lapUnit->first(function ($l) use ($hariIni) {
-                    return Carbon::parse($l->tanggal_laporan)->format('Y-m-d') === $hariIni;
-                });
-
+                $found = $lapUnit->first(fn($l) => Carbon::parse($l->tanggal_laporan)->format('Y-m-d') === $hariIni);
                 if ($found) {
                     $bolehInput = false;
                     $alasanTidakBoleh = 'Sudah ada laporan hari ini';
                 }
-            }
-
-            // FREKUENSI MINGGUAN
-            if ($freq === 2) {
+            } elseif ($freq === 2) { // mingguan
                 $currentWeek = Carbon::now()->isoWeek();
-
-                $found = $lapUnit->first(function ($l) use ($currentWeek) {
-                    return Carbon::parse($l->tanggal_laporan)->isoWeek() == $currentWeek;
-                });
-
+                $found = $lapUnit->first(fn($l) => Carbon::parse($l->tanggal_laporan)->isoWeek() == $currentWeek);
                 if ($found) {
                     $bolehInput = false;
                     $alasanTidakBoleh = 'Sudah ada laporan minggu ini';
                 }
-            }
-
-            // FREKUENSI BULANAN
-            if ($freq === 3 && $lapUnit->count()) {
+            } elseif ($freq === 3 && $lapUnit->count()) { // bulanan
                 $bolehInput = false;
                 $alasanTidakBoleh = 'Sudah ada laporan bulan ini';
             }
 
-            // Jika boleh input → tambahkan baris kosong
             if ($bolehInput) {
                 $rows[] = (object) [
                     'id' => $ind->id,

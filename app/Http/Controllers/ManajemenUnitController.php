@@ -9,7 +9,7 @@ class ManajemenUnitController extends Controller
 {
     public function index()
     {
-        $units = tbl_unit::orderBy('nama_unit', 'ASC')->get();
+        $units = tbl_unit::orderBy('id', 'ASC')->get();
         $title = "Data Unit";
 
         // Hitung total

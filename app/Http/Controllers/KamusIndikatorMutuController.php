@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use DB;
 use Illuminate\Http\Request;
 use Validator;
@@ -13,7 +14,9 @@ class KamusIndikatorMutuController extends Controller
      */
     public function index()
     {
-        $mutu = DB::table('tbl_kamus_indikator_mutu')
+        $user = Auth::user(); // ambil user login
+
+        $query = DB::table('tbl_kamus_indikator_mutu')
             ->leftJoin('tbl_indikator', 'tbl_kamus_indikator_mutu.indikator_id', '=', 'tbl_indikator.id')
             ->leftJoin('tbl_dimensi_mutu', 'tbl_kamus_indikator_mutu.dimensi_mutu_id', '=', 'tbl_dimensi_mutu.id')
             ->leftJoin('tbl_metodologi_pengumpulan_data', 'tbl_kamus_indikator_mutu.metodologi_pengumpulan_data_id', '=', 'tbl_metodologi_pengumpulan_data.id')
@@ -26,6 +29,7 @@ class KamusIndikatorMutuController extends Controller
             ->select(
                 'tbl_kamus_indikator_mutu.*',
                 'tbl_indikator.nama_indikator',
+                'tbl_indikator.unit_id', // penting, nanti untuk filter
                 'tbl_dimensi_mutu.nama_dimensi_mutu',
                 'tbl_metodologi_pengumpulan_data.nama_metodologi_pengumpulan_data',
                 'tbl_cakupan_data.nama_cakupan_data',
@@ -35,8 +39,14 @@ class KamusIndikatorMutuController extends Controller
                 'tbl_interpretasi_data.nama_interpretasi_data',
                 'tbl_publikasi_data.nama_publikasi_data'
             )
-            ->orderBy('tbl_kamus_indikator_mutu.id', 'asc')
-            ->get();
+            ->orderBy('tbl_kamus_indikator_mutu.id', 'asc');
+
+        // Filter sesuai unit jika bukan admin/unit_mutu
+        if (!in_array($user->unit_id, [1, 2])) {
+            $query->where('tbl_indikator.unit_id', $user->unit_id);
+        }
+
+        $mutu = $query->get();
 
         return view('menu.KamusIndikatorMutu.index', compact('mutu'));
     }
