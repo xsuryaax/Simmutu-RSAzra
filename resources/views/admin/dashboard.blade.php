@@ -4,8 +4,8 @@
 @section('title', 'Default Layout')
 
 @section('page-title')
-    <div class="page-heading">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="dash-header">
+        <div class="dash-header-left">
             <h3>Profile Statistics</h3>
         </div>
         <div class="dash-header-right">
@@ -27,11 +27,11 @@
         <section class="row">
             <div class="col-12 col-lg-9">
                 <div class="row mb-4">
-                    <div class="col-6 col-md-6 col-lg-3 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body px-4 py-3">
-                                <div class="row align-items-center">
-                                    <div class="col-4 col-xxl-5">
+                    <div class="col-6 col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body px-4 py-4-5">
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon purple">
                                             <i class="bi bi-buildings"></i>
                                         </div>
@@ -45,11 +45,11 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-6 col-lg-3 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body px-4 py-3">
-                                <div class="row align-items-center">
-                                    <div class="col-4 col-xxl-5">
+                    <div class="col-6 col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body px-4 py-4-5">
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon green">
                                             <i class="bi bi-check-circle"></i>
                                         </div>
@@ -63,11 +63,11 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-6 col-lg-3 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body px-4 py-3">
-                                <div class="row align-items-center">
-                                    <div class="col-4 col-xxl-5">
+                    <div class="col-6 col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body px-4 py-4-5">
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon red">
                                             <i class="bi bi-x-circle"></i>
                                         </div>
@@ -81,11 +81,11 @@
                         </div>
                     </div>
 
-                    <div class="col-6 col-md-6 col-lg-3 mb-3">
-                        <div class="card h-100">
-                            <div class="card-body px-4 py-3">
-                                <div class="row align-items-center">
-                                    <div class="col-4 col-xxl-5">
+                    <div class="col-6 col-lg-3 col-md-6">
+                        <div class="card">
+                            <div class="card-body px-4 py-4-5">
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
                                         <div class="stats-icon blue">
                                             <i class="bi bi-bookmark"></i>
                                         </div>
@@ -98,11 +98,10 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 {{-- ===== CHART ADMIN ===== --}}
-                @if(in_array($roleId, [1, 2]))
+                @if (in_array($roleId, [1, 2]))
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -110,21 +109,21 @@
                                     <h4>Hasil Indikator Semua Unit</h4>
 
                                     <div class="d-flex gap-2">
-                                        <select id="divisionFilter" class="form-select form-select-sm" style="width: 150px;">
+                                        <select id="divisionFilter" class="form-select form-select-sm">
                                             <option value="all" selected>-- Semua Unit --</option>
                                         </select>
 
-                                        <select id="indicatorFilter" class="form-select form-select-sm" style="width: 200px;">
+                                        <select id="indicatorFilter" class="form-select form-select-sm">
                                             <option value="">-- Pilih Indikator --</option>
                                             @foreach ($indikators as $ind)
                                                 <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
                                             @endforeach
                                         </select>
 
-                                        <select id="admFilterTahun" class="form-select form-select-sm" style="width: 100px;">
+                                        <select id="admFilterTahun" class="form-select form-select-sm">
                                         </select>
 
-                                        <select id="admFilterPeriode" class="form-select form-select-sm" style="width: 170px;">
+                                        <select id="admFilterPeriode" class="form-select form-select-sm">
                                             <option value="Tahun" selected>Data Satu Tahun</option>
                                             <option value="Q1">Q1 (Jan-Mar)</option>
                                             <option value="Q2">Q2 (Apr-Jun)</option>
@@ -132,8 +131,7 @@
                                             <option value="Q4">Q4 (Okt-Des)</option>
                                         </select>
 
-                                        <select id="admFilterTipeChart" class="form-select form-select-sm"
-                                            style="width: 130px;">
+                                        <select id="admFilterTipeChart" class="form-select form-select-sm">
                                             <option value="line" selected>Line Chart</option>
                                             <option value="bar">Bar Chart</option>
                                         </select>
@@ -183,11 +181,21 @@
 
                             // ==================== FUNGSI =======================
                             function getFilteredData(data, periode) {
-                                let start = 0, end = 12;
+                                let start = 0,
+                                    end = 12;
                                 if (periode === "Q1") end = 3;
-                                if (periode === "Q2") { start = 3; end = 6; }
-                                if (periode === "Q3") { start = 6; end = 9; }
-                                if (periode === "Q4") { start = 9; end = 12; }
+                                if (periode === "Q2") {
+                                    start = 3;
+                                    end = 6;
+                                }
+                                if (periode === "Q3") {
+                                    start = 6;
+                                    end = 9;
+                                }
+                                if (periode === "Q4") {
+                                    start = 9;
+                                    end = 12;
+                                }
                                 return data.slice(start, end);
                             }
 
@@ -204,14 +212,12 @@
                                     type: "bar",
                                     data: {
                                         labels: labels,
-                                        datasets: [
-                                            {
-                                                label: "Tidak ada data",
-                                                data: new Array(labels.length).fill(null),
-                                                borderColor: "rgba(0,0,0,0)",
-                                                backgroundColor: "rgba(0,0,0,0)"
-                                            }
-                                        ]
+                                        datasets: [{
+                                            label: "Tidak ada data",
+                                            data: new Array(labels.length).fill(null),
+                                            borderColor: "rgba(0,0,0,0)",
+                                            backgroundColor: "rgba(0,0,0,0)"
+                                        }]
                                     },
                                     options: {
                                         responsive: true,
@@ -252,8 +258,7 @@
                                     type: type,
                                     data: {
                                         labels: labels,
-                                        datasets: [
-                                            {
+                                        datasets: [{
                                                 label: "Target",
                                                 data: datasetTarget,
                                                 borderColor: "rgba(255, 159, 64, 1)",
@@ -291,7 +296,6 @@
                         </script>
                     </div>
                 @else
-
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
@@ -301,19 +305,19 @@
                                     <div class="d-flex gap-2">
 
                                         {{-- FILTER INDIKATOR --}}
-                                        <select id="filterIndikator" class="form-select form-select-sm" style="width: 180px;">
+                                        <select id="filterIndikator" class="form-select form-select-sm">
                                             @foreach ($indikators as $ind)
                                                 <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
                                             @endforeach
                                         </select>
 
-                                        <select id="filterTahun" class="form-select form-select-sm" style="width: 100px;">
+                                        <select id="filterTahun" class="form-select form-select-sm">
                                             @foreach ($years as $th)
                                                 <option value="{{ $th }}">{{ $th }}</option>
                                             @endforeach
                                         </select>
 
-                                        <select id="filterPeriode" class="form-select form-select-sm" style="width: 170px;">
+                                        <select id="filterPeriode" class="form-select form-select-sm">
                                             <option value="Tahun" selected>Data Satu Tahun</option>
                                             <option value="Q1">Q1 (Jan-Mar)</option>
                                             <option value="Q2">Q2 (Apr-Jun)</option>
@@ -321,7 +325,7 @@
                                             <option value="Q4">Q4 (Okt-Des)</option>
                                         </select>
 
-                                        <select id="filterTipeChart" class="form-select form-select-sm" style="width: 130px;">
+                                        <select id="filterTipeChart" class="form-select form-select-sm">
                                             <option value="line" selected>Line Chart</option>
                                             <option value="bar">Bar Chart</option>
                                         </select>
@@ -349,12 +353,25 @@
                             const filterTipe = document.getElementById('filterTipeChart');
 
                             function getQuarterData(data, quarter) {
-                                let start = 0, end = 12;
+                                let start = 0,
+                                    end = 12;
 
-                                if (quarter === 'Q1') { start = 0; end = 3; }
-                                if (quarter === 'Q2') { start = 3; end = 6; }
-                                if (quarter === 'Q3') { start = 6; end = 9; }
-                                if (quarter === 'Q4') { start = 9; end = 12; }
+                                if (quarter === 'Q1') {
+                                    start = 0;
+                                    end = 3;
+                                }
+                                if (quarter === 'Q2') {
+                                    start = 3;
+                                    end = 6;
+                                }
+                                if (quarter === 'Q3') {
+                                    start = 6;
+                                    end = 9;
+                                }
+                                if (quarter === 'Q4') {
+                                    start = 9;
+                                    end = 12;
+                                }
 
                                 return {
                                     labels: data.labels.slice(start, end),
@@ -379,8 +396,7 @@
                                     type: type,
                                     data: {
                                         labels: viewData.labels,
-                                        datasets: [
-                                            {
+                                        datasets: [{
                                                 label: "Target",
                                                 data: viewData.target,
                                                 borderColor: 'rgba(255,99,132,1)',
@@ -429,7 +445,7 @@
                         <h4>Terakhir Mengisi</h4>
                     </div>
                     <div class="card-content pb-3">
-                        @foreach($recentIsi as $row)
+                        @foreach ($recentIsi as $row)
                             <div class="recent-message d-flex px-4 py-3 align-items-center">
                                 <div class="avatar avatar-lg">
                                     @php
