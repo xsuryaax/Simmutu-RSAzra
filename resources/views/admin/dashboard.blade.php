@@ -7,6 +7,8 @@
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">
             <h3>Profile Statistics</h3>
+        </div>
+        <div class="dash-header-right">
             <form method="POST" action="/logout">
                 <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                 @csrf
