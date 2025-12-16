@@ -16,20 +16,12 @@
 
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/css/bootstrap.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/css/bootstrap.css', 'resources/css/app-dark.css', 'resources/js/app.js'])
     @else
         <style>
             /*! tailwindcss v4.0.7 | MIT License | https://tailwindcss.com */
         </style>
     @endif
-
-    @production
-        {{-- Di mode produksi, gunakan Vite::asset() untuk mendapatkan path ter-hash --}}
-        <link rel="stylesheet" href="{{ Vite::asset('resources/css/app-dark.css') }}" media="(prefers-color-scheme: dark)">
-    @else
-        {{-- Di mode development, gunakan @vite array tunggal agar Vite hot-reload tetap berfungsi --}}
-        @vite(['resources/css/app-dark.css'], 'resources/css/app-dark.css', 'css/app-dark.css', ['media' => '(prefers-color-scheme: dark)'])
-    @endproduction
 
     {{-- CSS tambahan per halaman --}}
     @stack('css')

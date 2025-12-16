@@ -38,7 +38,7 @@
 @endsection
 
 @section('content')
-<section id="basic-vertical-layouts">
+    <section id="basic-vertical-layouts">
         <div class="row match-height">
 
             <div class="col-md-12 col-12">
@@ -53,7 +53,7 @@
                             <form action="{{ route('kamus-indikator-mutu.store') }}" method="POST">
                                 @csrf
                                 <div class="card">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header">
                                         <h5 class="mb-0">Informasi Dasar</h5>
                                     </div>
                                     <div class="card-body">
@@ -65,7 +65,8 @@
                                                 <select name="indikator_id" class="form-select">
                                                     <option value="">Pilih Indikator</option>
                                                     @foreach ($indikator as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->nama_indikator }}</option>
+                                                        <option value="{{ $item->id }}">{{ $item->nama_indikator }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -73,13 +74,11 @@
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Definisi Operasional <span
                                                         class="text-danger">*</span></label>
-                                                <textarea name="definisi_operasional" class="form-control"
-                                                    rows="4"></textarea>
+                                                <textarea name="definisi_operasional" class="form-control" rows="4"></textarea>
                                             </div>
 
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Tujuan <span
-                                                        class="text-danger">*</span></label>
+                                                <label class="form-label">Tujuan <span class="text-danger">*</span></label>
                                                 <textarea name="tujuan" class="form-control" rows="4"></textarea>
                                             </div>
                                         </div>
@@ -87,7 +86,7 @@
                                     </div>
                                 </div>
                                 <div class="card mt-4">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header">
                                         <h5 class="mb-0">Metodologi</h5>
                                     </div>
 
@@ -100,7 +99,8 @@
                                                 <select name="dimensi_mutu_id" class="form-select">
                                                     <option value="">Pilih Dimensi Mutu</option>
                                                     @foreach ($dimensi as $d)
-                                                        <option value="{{ $d->id }}">{{ $d->nama_dimensi_mutu }}</option>
+                                                        <option value="{{ $d->id }}">{{ $d->nama_dimensi_mutu }}
+                                                        </option>
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -108,22 +108,20 @@
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Dasar Pemikiran <span
                                                         class="text-danger">*</span></label>
-                                                <textarea name="dasar_pemikiran" class="form-control"
-                                                    rows="3"></textarea>
+                                                <textarea name="dasar_pemikiran" class="form-control" rows="3"></textarea>
                                             </div>
 
                                             <div class="col-md-12 mb-3">
                                                 <label class="form-label">Formula Pengukuran <span
                                                         class="text-danger">*</span></label>
-                                                <textarea name="formula_pengukuran" class="form-control"
-                                                    rows="3"></textarea>
+                                                <textarea name="formula_pengukuran" class="form-control" rows="3"></textarea>
                                             </div>
 
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card mt-4">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header">
                                         <h5 class="mb-0">Pengumpulan Data</h5>
                                     </div>
 
@@ -133,8 +131,7 @@
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Metodologi <span
                                                         class="text-danger">*</span></label>
-                                                <textarea name="metodologi" class="form-control"
-                                                    rows="3"></textarea>
+                                                <textarea name="metodologi" class="form-control" rows="3"></textarea>
                                             </div>
 
                                             <div class="col-md-6 mb-3">
@@ -142,14 +139,15 @@
                                                         class="text-danger">*</span></label><br>
 
                                                 @foreach ($metodologiPengumpulan as $item)
-                                                @php($id = 'jenis_' . $item->id)
+                                                    @php($id = 'jenis_' . $item->id)
 
-                                                <input type="radio" class="btn-check" name="metodologi_pengumpulan_data_id"
-                                                    id="{{ $id }}" value="{{ $item->id }}" autocomplete="off">
+                                                    <input type="radio" class="btn-check"
+                                                        name="metodologi_pengumpulan_data_id" id="{{ $id }}"
+                                                        value="{{ $item->id }}" autocomplete="off">
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_metodologi_pengumpulan_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_metodologi_pengumpulan_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
@@ -158,29 +156,27 @@
                                                         class="text-danger">*</span></label><br>
 
                                                 @foreach ($cakupan as $item)
-                                                @php($id = 'cakupan_' . $item->id)
+                                                    @php($id = 'cakupan_' . $item->id)
 
-                                                <input type="radio" class="btn-check" name="cakupan_data_id" id="{{ $id }}"
-                                                    value="{{ $item->id }}">
+                                                    <input type="radio" class="btn-check" name="cakupan_data_id"
+                                                        id="{{ $id }}" value="{{ $item->id }}">
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_cakupan_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_cakupan_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Detail Pengukuran <span
                                                         class="text-danger">*</span></label>
-                                                <textarea name="detail_pengukuran" class="form-control"
-                                                    rows="3"></textarea>
+                                                <textarea name="detail_pengukuran" class="form-control" rows="3"></textarea>
                                             </div>
 
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Frekuensi Pengumpulan *</label>
 
-                                                <select class="form-select" name="frekuensi_pengumpulan_data_id"
-                                                    required>
+                                                <select class="form-select" name="frekuensi_pengumpulan_data_id" required>
                                                     <option value="">Pilih Frekuensi</option>
 
                                                     @foreach ($frekuensiPengumpulan as $item)
@@ -202,7 +198,7 @@
                                 </div>
 
                                 <div class="card mt-4">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header">
                                         <h5 class="mb-0">Analisis Data</h5>
                                     </div>
 
@@ -228,14 +224,15 @@
                                                         class="text-danger">*</span></label><br>
 
                                                 @foreach ($metodologiAnalisis as $item)
-                                                @php($id = 'analisis_' . $item->id)
+                                                    @php($id = 'analisis_' . $item->id)
 
-                                                <input type="radio" class="btn-check" name="metodologi_analisis_data_id"
-                                                    id="{{ $id }}" value="{{ $item->id }}">
+                                                    <input type="radio" class="btn-check"
+                                                        name="metodologi_analisis_data_id" id="{{ $id }}"
+                                                        value="{{ $item->id }}">
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_metodologi_analisis_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_metodologi_analisis_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
@@ -244,14 +241,14 @@
                                                         class="text-danger">*</span></label><br>
 
                                                 @foreach ($interpretasi as $item)
-                                                @php($id = 'interpretasi_' . $item->id)
+                                                    @php($id = 'interpretasi_' . $item->id)
 
-                                                <input type="radio" class="btn-check" name="interpretasi_data_id"
-                                                    id="{{ $id }}" value="{{ $item->id }}">
+                                                    <input type="radio" class="btn-check" name="interpretasi_data_id"
+                                                        id="{{ $id }}" value="{{ $item->id }}">
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_interpretasi_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_interpretasi_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
@@ -264,8 +261,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Penanggung Jawab <span
                                                     class="text-danger">*</span></label>
-                                            <textarea name="penanggung_jawab" class="form-control" rows="4"
-                                                placeholder="Isi penanggung jawab..."></textarea>
+                                            <textarea name="penanggung_jawab" class="form-control" rows="4" placeholder="Isi penanggung jawab..."></textarea>
                                         </div>
 
                                         <div class="col-md-6 mb-3">
@@ -273,14 +269,14 @@
                                                     class="text-danger">*</span></label><br>
 
                                             @foreach ($publikasi as $item)
-                                            @php($id = 'publikasi_' . $item->id)
+                                                @php($id = 'publikasi_' . $item->id)
 
-                                            <input type="radio" class="btn-check" name="publikasi_data_id"
-                                                id="{{ $id }}" value="{{ $item->id }}">
+                                                <input type="radio" class="btn-check" name="publikasi_data_id"
+                                                    id="{{ $id }}" value="{{ $item->id }}">
 
-                                            <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                {{ $item->nama_publikasi_data }}
-                                            </label>
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $item->nama_publikasi_data }}
+                                                </label>
                                             @endforeach
                                         </div>
 

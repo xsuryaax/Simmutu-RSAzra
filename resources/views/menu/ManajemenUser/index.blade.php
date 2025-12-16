@@ -108,7 +108,8 @@
                                                     <fieldset class="form-group">
                                                         <select class="form-select" id="role_id" name="role_id">
                                                             @foreach ($roles as $r)
-                                                                <option value="{{ $r->id }}">{{ $r->nama_role }}</option>
+                                                                <option value="{{ $r->id }}">{{ $r->nama_role }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </fieldset>
@@ -122,7 +123,8 @@
                                                     <fieldset class="form-group">
                                                         <select class="form-select" id="unit_id" name="unit_id">
                                                             @foreach ($units as $u)
-                                                                <option value="{{ $u->id }}">{{ $u->nama_unit }}</option>
+                                                                <option value="{{ $u->id }}">{{ $u->nama_unit }}
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </fieldset>
@@ -132,8 +134,8 @@
                                         <div class="col-12">
                                             <div class="form-check">
                                                 <div class="checkbox mt-2">
-                                                    <input type="checkbox" id="status_user" name="status_user" value="aktif"
-                                                        class="form-check-input" />
+                                                    <input type="checkbox" id="status_user" name="status_user"
+                                                        value="aktif" class="form-check-input" />
                                                     <label for="status_user">User Aktif</label>
                                                 </div>
                                             </div>
@@ -159,59 +161,62 @@
                         <h5 class="card-title">Daftar User</h5>
                     </div>
                     <div class="card-body">
-                        <table class="table table-striped" id="table1">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama</th>
-                                    <th>Email</th>
-                                    <th>Role</th>
-                                    <th>Unit</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($users as $u)
+                        <div class="table-responsive table-dark">
+                            <table class="table table-striped" id="table1">
+                                <thead>
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-
-                                        <td>
-                                            <strong>{{ $u->nama_lengkap }}</strong><br>
-                                            <small class="text-muted">{{ $u->username }}</small>
-                                        </td>
-
-                                        <td>{{ $u->email }}</td>
-                                        <td>{{ $u->nama_role }}</td>
-                                        <td>{{ $u->nama_unit ?? '-' }}</td>
-
-                                        <td>
-                                            @if ($u->status_user == 'aktif')
-                                                <span class="badge bg-success">Aktif</span>
-                                            @else
-                                                <span class="badge bg-secondary">Non-Aktif</span>
-                                            @endif
-                                        </td>
-
-                                        <td>
-                                            <button class="btn btn-warning btn-sm" onclick='openEditModal(@json($u))'>
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-
-                                            <form action="{{ route('manajemen-user.destroy', $u->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Hapus user ini?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger btn-sm">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
+                                        <th>No</th>
+                                        <th>Nama</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Unit</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
                                     </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($users as $u)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
 
-                                @endforeach
-                            </tbody>
-                        </table>
+                                            <td>
+                                                <strong>{{ $u->nama_lengkap }}</strong><br>
+                                                <small class="text-muted">{{ $u->username }}</small>
+                                            </td>
+
+                                            <td>{{ $u->email }}</td>
+                                            <td>{{ $u->nama_role }}</td>
+                                            <td>{{ $u->nama_unit ?? '-' }}</td>
+
+                                            <td>
+                                                @if ($u->status_user == 'aktif')
+                                                    <span class="badge bg-success">Aktif</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Non-Aktif</span>
+                                                @endif
+                                            </td>
+
+                                            <td>
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick='openEditModal(@json($u))'>
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+
+                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}"
+                                                    method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Hapus user ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -238,7 +243,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" id="eNama" name="nama_lengkap" class="form-control" required>
+                                    <input type="text" id="eNama" name="nama_lengkap" class="form-control"
+                                        required>
                                 </div>
 
                                 <div class="mb-3">

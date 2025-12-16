@@ -11,17 +11,17 @@
             </p>
         </div>
         <div class="page-header-right">
-            <div class="justify-content-end d-flex">
+            <div class="logout-btn">
                 <form method="POST" action="/logout">
                     @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
+                    <button type="submit" class="btn btn-primary">
                         <i class="bi bi-box-arrow-right"></i>
                         Logout
                     </button>
                 </form>
             </div>
             <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="{{ url('/') }}">Dashboard</a>
@@ -46,10 +46,10 @@
             <div class="card-body">
 
                 {{-- Alerts --}}
-                @if(session('success'))
+                @if (session('success'))
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
-                @if(session('error'))
+                @if (session('error'))
                     <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
 
@@ -58,7 +58,7 @@
                     <div class="col-md-2">
                         <label class="form-label">Bulan</label>
                         <select name="bulan" class="form-control">
-                            @foreach(range(1, 12) as $b)
+                            @foreach (range(1, 12) as $b)
                                 <option value="{{ $b }}" {{ $bulan == $b ? 'selected' : '' }}>
                                     {{ \DateTime::createFromFormat('!m', $b)->format('F') }}
                                 </option>
@@ -69,8 +69,9 @@
                     <div class="col-md-2">
                         <label class="form-label">Tahun</label>
                         <select name="tahun" class="form-control">
-                            @foreach(range(date('Y') - 5, date('Y') + 2) as $t)
-                                <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>{{ $t }}</option>
+                            @foreach (range(date('Y') - 5, date('Y') + 2) as $t)
+                                <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>{{ $t }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -81,7 +82,7 @@
                 </form>
 
                 {{-- Table --}}
-                <div class="table-responsive">
+                <div class="table-responsive table-dark">
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
@@ -96,7 +97,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($data as $row)
+                            @foreach ($data as $row)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $row->nama_indikator }}</td>
@@ -114,7 +115,7 @@
                                             $nilaiTampil = $row->nilai;
                                         @endphp
 
-                                        @if(!is_null($nilaiTampil))
+                                        @if (!is_null($nilaiTampil))
                                             @php $nilai = rtrim(rtrim($nilaiTampil, '0'), '.'); @endphp
                                             {{ $nilai }}
                                         @else
@@ -122,7 +123,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if(!$row->boleh_input)
+                                        @if (!$row->boleh_input)
                                             {{-- alasan jika ada --}}
                                             <span class="badge bg-secondary">
                                                 {{ $row->alasan_tidak_boleh ?? 'Sudah input' }}
@@ -166,8 +167,9 @@
                                 <label class="form-label fw-semibold">Tanggal</label>
                                 <select name="tanggal_laporan" class="form-select" required>
                                     @php $selectedDay = date('d'); @endphp
-                                    @for($i = 1; $i <= 31; $i++)
-                                        <option value="{{ $i }}" {{ $selectedDay == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                    @for ($i = 1; $i <= 31; $i++)
+                                        <option value="{{ $i }}" {{ $selectedDay == $i ? 'selected' : '' }}>
+                                            {{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>

@@ -5,9 +5,11 @@
 
 {{-- Bagian Konten Utama --}}
 @section('content')
-    <div class="page-heading">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="dash-header">
+        <div class="dash-header-left">
             <h3>Profile Statistics</h3>
+        </div>
+        <div class="dash-header-right">
             <form method="POST" action="/logout">
                 <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                 @csrf
@@ -20,9 +22,9 @@
     </div>
     <div class="page-content">
         <section class="row">
-            <div class="col-13 col-lg-9">
+            <div class="col-13 col-lg-12">
                 <div class="row">
-                    <div class="col-6 col-lg-4 col-md-6">
+                    <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
@@ -41,7 +43,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 col-lg-4 col-md-6">
+                    <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
@@ -58,7 +60,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 col-lg-4 col-md-6">
+                    <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
@@ -75,209 +77,50 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
+                    <div class="col-6 col-lg-3 col-md-6">
                         <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4>Hasil Indikator Unit</h4>
-
-                                <div class="d-flex gap-2">
-
-                                    {{-- FILTER INDIKATOR --}}
-                                    <select id="filterIndikator" class="form-select form-select-sm" style="width: 180px;">
-                                        @foreach ($indikators as $ind)
-                                            <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <select id="filterTahun" class="form-select form-select-sm" style="width: 100px;">
-                                        @foreach ($years as $th)
-                                            <option value="{{ $th }}">{{ $th }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <select id="filterPeriode" class="form-select form-select-sm" style="width: 170px;">
-                                        <option value="Tahun" selected>Data Satu Tahun</option>
-                                        <option value="Q1">Q1 (Jan-Mar)</option>
-                                        <option value="Q2">Q2 (Apr-Jun)</option>
-                                        <option value="Q3">Q3 (Jul-Sep)</option>
-                                        <option value="Q4">Q4 (Okt-Des)</option>
-                                    </select>
-
-                                    <select id="filterTipeChart" class="form-select form-select-sm" style="width: 130px;">
-                                        <option value="line" selected>Line Chart</option>
-                                        <option value="bar">Bar Chart</option>
-                                    </select>
+                            <div class="card-body px-4 py-4-5">
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                        <div class="stats-icon blue mb-2">
+                                            <i class="bi bi-bookmark"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                                        <h6 class="text-muted font-semibold">Total Indikator</h6>
+                                        <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="card-body">
-                                <canvas id="chart-line-indikator"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-                    <script>
-                        const allData = {!! $allDataJson !!};
-
-                        const ctx = document.getElementById('chart-line-indikator');
-
-                        let myChart;
-
-                        const filterIndikator = document.getElementById('filterIndikator');
-                        const filterTahun = document.getElementById('filterTahun');
-                        const filterPeriode = document.getElementById('filterPeriode');
-                        const filterTipe = document.getElementById('filterTipeChart');
-
-                        function getQuarterData(data, quarter) {
-                            let start = 0, end = 12;
-
-                            if (quarter === 'Q1') { start = 0; end = 3; }
-                            if (quarter === 'Q2') { start = 3; end = 6; }
-                            if (quarter === 'Q3') { start = 6; end = 9; }
-                            if (quarter === 'Q4') { start = 9; end = 12; }
-
-                            return {
-                                labels: data.labels.slice(start, end),
-                                target: data.target.slice(start, end),
-                                hasil: data.hasil.slice(start, end)
-                            };
-                        }
-
-                        function updateChart() {
-
-                            const id = filterIndikator.value;
-                            const thn = filterTahun.value;
-                            const periode = filterPeriode.value;
-                            const type = filterTipe.value;
-
-                            const baseData = allData[id][thn];
-                            const viewData = getQuarterData(baseData, periode);
-
-                            if (myChart) myChart.destroy();
-
-                            myChart = new Chart(ctx, {
-                                type: type,
-                                data: {
-                                    labels: viewData.labels,
-                                    datasets: [
-                                        {
-                                            label: "Target",
-                                            data: viewData.target,
-                                            borderColor: 'rgba(255,99,132,1)',
-                                            backgroundColor: 'rgba(255,99,132,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        },
-                                        {
-                                            label: "Hasil",
-                                            data: viewData.hasil,
-                                            borderColor: 'rgba(54,162,235,1)',
-                                            backgroundColor: 'rgba(54,162,235,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        }
-                                    ]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            min: 0,
-                                            max: 120
-                                        }
-                                    }
-                                }
-                            });
-                        }
-
-                        filterIndikator.addEventListener('change', updateChart);
-                        filterTahun.addEventListener('change', updateChart);
-                        filterPeriode.addEventListener('change', updateChart);
-                        filterTipe.addEventListener('change', updateChart);
-
-                        updateChart();
-                    </script>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-3">
-                <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                <div class="stats-icon blue mb-2">
-                                    <i class="bi bi-bookmark"></i>
-                                </div>
-                            </div>
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                <h6 class="text-muted font-semibold">Total Indikator</h6>
-                                <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Terakhir Mengisi</h4>
-                    </div>
-                    <div class="card-content pb-4">
-                        @foreach($recentIsi as $row)
-                            <div class="recent-message d-flex px-4 py-3">
-                                <div class="avatar avatar-lg">
-                                    @php
-                                        // Gunakan ID unit untuk menentukan gambar
-                                        $imgIndex = ($row->unit_id % 10) + 1; // hasil 1-10
-                                        $imgPath = asset("assets/faces/{$imgIndex}.jpg");
-                                    @endphp
-                                    <img src="{{ $imgPath }}" />
-                                </div>
-                                <div class="name ms-4">
-                                    <h5 class="mb-1">{{ $row->nama_unit }}</h5>
-                                    <h6 class="text-muted mb-0">{{ date('d F Y', strtotime($row->tanggal_laporan)) }}</h6>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-                {{-- <div class="card">
-                    <div class="card-header">
-                        <h4>Visitors Profile</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="chart-visitors-profile"></div>
-                    </div>
-                </div> --}}
             </div>
         </section>
         <section>
             {{-- chart untuk admin --}}
-            <div class="row">
-                <div class="col-12">
+            <div class="row adm-chart">
+                <div class="col-9 left-chart">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h4>Hasil Indikator Semua Unit</h4>
 
-                            <div class="d-flex gap-2">
-                                <select id="divisionFilter" class="form-select form-select-sm" style="width: 150px;">
+                            <div class="d-flex gap-2 chart-filter">
+                                <select id="divisionFilter" class="form-select form-select-sm">
                                     <option value="all" selected>-- Semua Unit --</option>
                                 </select>
 
-                                <select id="indicatorFilter" class="form-select form-select-sm" style="width: 200px;">
+                                <select id="indicatorFilter" class="form-select form-select-sm">
                                     <option value="">-- Pilih Indikator --</option>
                                     @foreach ($indikators as $ind)
                                         <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
                                     @endforeach
                                 </select>
 
-                                <select id="admFilterTahun" class="form-select form-select-sm" style="width: 100px;">
+                                <select id="admFilterTahun" class="form-select form-select-sm">
                                 </select>
 
-                                <select id="admFilterPeriode" class="form-select form-select-sm" style="width: 170px;">
+                                <select id="admFilterPeriode" class="form-select form-select-sm">
                                     <option value="Tahun" selected>Data Satu Tahun</option>
                                     <option value="Q1">Q1 (Jan-Mar)</option>
                                     <option value="Q2">Q2 (Apr-Jun)</option>
@@ -285,7 +128,7 @@
                                     <option value="Q4">Q4 (Okt-Des)</option>
                                 </select>
 
-                                <select id="admFilterTipeChart" class="form-select form-select-sm" style="width: 130px;">
+                                <select id="admFilterTipeChart" class="form-select form-select-sm">
                                     <option value="line" selected>Line Chart</option>
                                     <option value="bar">Bar Chart</option>
                                 </select>
@@ -294,6 +137,32 @@
                         </div>
                         <div class="card-body">
                             <canvas id="chartDivisionAchievement"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3 right-chart">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Terakhir Mengisi</h4>
+                        </div>
+                        <div class="card-content pb-4">
+                            @foreach ($recentIsi as $row)
+                                <div class="recent-message d-flex px-4 py-3">
+                                    <div class="avatar avatar-lg">
+                                        @php
+                                            // Gunakan ID unit untuk menentukan gambar
+                                            $imgIndex = ($row->unit_id % 10) + 1; // hasil 1-10
+                                            $imgPath = asset("assets/faces/{$imgIndex}.jpg");
+                                        @endphp
+                                        <img src="{{ $imgPath }}" />
+                                    </div>
+                                    <div class="name ms-4">
+                                        <h5 class="mb-1">{{ $row->nama_unit }}</h5>
+                                        <h6 class="text-muted mb-0">{{ date('d F Y', strtotime($row->tanggal_laporan)) }}
+                                        </h6>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -335,11 +204,21 @@
 
                     // ==================== FUNGSI =======================
                     function getFilteredData(data, periode) {
-                        let start = 0, end = 12;
+                        let start = 0,
+                            end = 12;
                         if (periode === "Q1") end = 3;
-                        if (periode === "Q2") { start = 3; end = 6; }
-                        if (periode === "Q3") { start = 6; end = 9; }
-                        if (periode === "Q4") { start = 9; end = 12; }
+                        if (periode === "Q2") {
+                            start = 3;
+                            end = 6;
+                        }
+                        if (periode === "Q3") {
+                            start = 6;
+                            end = 9;
+                        }
+                        if (periode === "Q4") {
+                            start = 9;
+                            end = 12;
+                        }
                         return data.slice(start, end);
                     }
 
@@ -356,17 +235,16 @@
                             type: "bar",
                             data: {
                                 labels: labels,
-                                datasets: [
-                                    {
-                                        label: "Tidak ada data",
-                                        data: new Array(labels.length).fill(null),
-                                        borderColor: "rgba(0,0,0,0)",
-                                        backgroundColor: "rgba(0,0,0,0)"
-                                    }
-                                ]
+                                datasets: [{
+                                    label: "Tidak ada data",
+                                    data: new Array(labels.length).fill(null),
+                                    borderColor: "rgba(0,0,0,0)",
+                                    backgroundColor: "rgba(0,0,0,0)"
+                                }]
                             },
                             options: {
                                 responsive: true,
+                                maintainAspectRatio: false,
                                 scales: {
                                     y: {
                                         beginAtZero: true,
@@ -404,8 +282,7 @@
                             type: type,
                             data: {
                                 labels: labels,
-                                datasets: [
-                                    {
+                                datasets: [{
                                         label: "Target",
                                         data: datasetTarget,
                                         borderColor: "rgba(255, 159, 64, 1)",
@@ -440,6 +317,148 @@
                     indicatorFilterEl.addEventListener("change", updateDivisionChart);
 
                     updateDivisionChart();
+                </script>
+            </div>
+        </section>
+        <section>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4>Hasil Indikator Unit</h4>
+
+                            <div class="d-flex gap-2">
+
+                                {{-- FILTER INDIKATOR --}}
+                                <select id="filterIndikator" class="form-select form-select-sm">
+                                    @foreach ($indikators as $ind)
+                                        <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
+                                    @endforeach
+                                </select>
+
+                                <select id="filterTahun" class="form-select form-select-sm">
+                                    @foreach ($years as $th)
+                                        <option value="{{ $th }}">{{ $th }}</option>
+                                    @endforeach
+                                </select>
+
+                                <select id="filterPeriode" class="form-select form-select-sm">
+                                    <option value="Tahun" selected>Data Satu Tahun</option>
+                                    <option value="Q1">Q1 (Jan-Mar)</option>
+                                    <option value="Q2">Q2 (Apr-Jun)</option>
+                                    <option value="Q3">Q3 (Jul-Sep)</option>
+                                    <option value="Q4">Q4 (Okt-Des)</option>
+                                </select>
+
+                                <select id="filterTipeChart" class="form-select form-select-sm">
+                                    <option value="line" selected>Line Chart</option>
+                                    <option value="bar">Bar Chart</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <canvas id="chart-line-indikator"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+                <script>
+                    const allData = {!! $allDataJson !!};
+
+                    const ctx = document.getElementById('chart-line-indikator');
+
+                    let myChart;
+
+                    const filterIndikator = document.getElementById('filterIndikator');
+                    const filterTahun = document.getElementById('filterTahun');
+                    const filterPeriode = document.getElementById('filterPeriode');
+                    const filterTipe = document.getElementById('filterTipeChart');
+
+                    function getQuarterData(data, quarter) {
+                        let start = 0,
+                            end = 12;
+
+                        if (quarter === 'Q1') {
+                            start = 0;
+                            end = 3;
+                        }
+                        if (quarter === 'Q2') {
+                            start = 3;
+                            end = 6;
+                        }
+                        if (quarter === 'Q3') {
+                            start = 6;
+                            end = 9;
+                        }
+                        if (quarter === 'Q4') {
+                            start = 9;
+                            end = 12;
+                        }
+
+                        return {
+                            labels: data.labels.slice(start, end),
+                            target: data.target.slice(start, end),
+                            hasil: data.hasil.slice(start, end)
+                        };
+                    }
+
+                    function updateChart() {
+
+                        const id = filterIndikator.value;
+                        const thn = filterTahun.value;
+                        const periode = filterPeriode.value;
+                        const type = filterTipe.value;
+
+                        const baseData = allData[id][thn];
+                        const viewData = getQuarterData(baseData, periode);
+
+                        if (myChart) myChart.destroy();
+
+                        myChart = new Chart(ctx, {
+                            type: type,
+                            data: {
+                                labels: viewData.labels,
+                                datasets: [{
+                                        label: "Target",
+                                        data: viewData.target,
+                                        borderColor: 'rgba(255,99,132,1)',
+                                        backgroundColor: 'rgba(255,99,132,0.6)',
+                                        tension: 0.2,
+                                        fill: type === 'bar'
+                                    },
+                                    {
+                                        label: "Hasil",
+                                        data: viewData.hasil,
+                                        borderColor: 'rgba(54,162,235,1)',
+                                        backgroundColor: 'rgba(54,162,235,0.6)',
+                                        tension: 0.2,
+                                        fill: type === 'bar'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        min: 0,
+                                        max: 120
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    filterIndikator.addEventListener('change', updateChart);
+                    filterTahun.addEventListener('change', updateChart);
+                    filterPeriode.addEventListener('change', updateChart);
+                    filterTipe.addEventListener('change', updateChart);
+
+                    updateChart();
                 </script>
             </div>
         </section>
