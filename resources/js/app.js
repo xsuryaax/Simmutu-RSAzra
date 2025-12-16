@@ -1,4 +1,5 @@
 import './bootstrap';
+import './components/css-dark';
 import './components/sidebar';
 import './components/datatables';
 import './components/initTheme';

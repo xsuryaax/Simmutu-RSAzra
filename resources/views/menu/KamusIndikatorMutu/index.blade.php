@@ -50,7 +50,7 @@
                 </a>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
+                <div class="table-responsive table-dark">
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>

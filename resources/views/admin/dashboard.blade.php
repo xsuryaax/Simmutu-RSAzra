@@ -3,8 +3,7 @@
 {{-- Bagian Title Halaman --}}
 @section('title', 'Default Layout')
 
-{{-- Bagian Konten Utama --}}
-@section('content')
+@section('page-title')
     <div class="page-heading">
         <div class="d-flex justify-content-between align-items-center">
             <h3>Profile Statistics</h3>
@@ -18,429 +17,434 @@
             </form>
         </div>
     </div>
+@endsection
+
+{{-- Bagian Konten Utama --}}
+@section('content')
     <div class="page-content">
         <section class="row">
-            <div class="col-13 col-lg-9">
-                <div class="row">
-                    <div class="col-6 col-lg-4 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon purple mb-2">
+            <div class="col-12 col-lg-9">
+                <div class="row mb-4">
+                    <div class="col-6 col-md-6 col-lg-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body px-4 py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-xxl-5">
+                                        <div class="stats-icon purple">
                                             <i class="bi bi-buildings"></i>
                                         </div>
                                     </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">
-                                            Total Unit
-                                        </h6>
+                                    <div class="col-8 col-xxl-7">
+                                        <h6 class="text-muted font-semibold mb-1">Total Unit</h6>
                                         <h6 class="font-extrabold mb-0">{{ $totalUnit }}</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 col-lg-4 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon green mb-2">
+
+                    <div class="col-6 col-md-6 col-lg-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body px-4 py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-xxl-5">
+                                        <div class="stats-icon green">
                                             <i class="bi bi-check-circle"></i>
                                         </div>
                                     </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Unit Sudah Mengisi Indikator</h6>
+                                    <div class="col-8 col-xxl-7">
+                                        <h6 class="text-muted font-semibold mb-1">Unit Sudah Mengisi</h6>
                                         <h6 class="font-extrabold mb-0">{{ $unitSudahIsi }}</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 col-lg-4 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon red mb-2">
+
+                    <div class="col-6 col-md-6 col-lg-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body px-4 py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-xxl-5">
+                                        <div class="stats-icon red">
                                             <i class="bi bi-x-circle"></i>
                                         </div>
                                     </div>
-                                    <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                        <h6 class="text-muted font-semibold">Unit Belum Mengisi Indikator</h6>
+                                    <div class="col-8 col-xxl-7">
+                                        <h6 class="text-muted font-semibold mb-1">Unit Belum Mengisi</h6>
                                         <h6 class="font-extrabold mb-0">{{ $unitBelumIsi }}</h6>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h4>Hasil Indikator Unit</h4>
-
-                                <div class="d-flex gap-2">
-
-                                    {{-- FILTER INDIKATOR --}}
-                                    <select id="filterIndikator" class="form-select form-select-sm" style="width: 180px;">
-                                        @foreach ($indikators as $ind)
-                                            <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <select id="filterTahun" class="form-select form-select-sm" style="width: 100px;">
-                                        @foreach ($years as $th)
-                                            <option value="{{ $th }}">{{ $th }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <select id="filterPeriode" class="form-select form-select-sm" style="width: 170px;">
-                                        <option value="Tahun" selected>Data Satu Tahun</option>
-                                        <option value="Q1">Q1 (Jan-Mar)</option>
-                                        <option value="Q2">Q2 (Apr-Jun)</option>
-                                        <option value="Q3">Q3 (Jul-Sep)</option>
-                                        <option value="Q4">Q4 (Okt-Des)</option>
-                                    </select>
-
-                                    <select id="filterTipeChart" class="form-select form-select-sm" style="width: 130px;">
-                                        <option value="line" selected>Line Chart</option>
-                                        <option value="bar">Bar Chart</option>
-                                    </select>
+                    <div class="col-6 col-md-6 col-lg-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body px-4 py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-4 col-xxl-5">
+                                        <div class="stats-icon blue">
+                                            <i class="bi bi-bookmark"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-8 col-xxl-7">
+                                        <h6 class="text-muted font-semibold mb-1">Total Indikator</h6>
+                                        <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="card-body">
-                                <canvas id="chart-line-indikator"></canvas>
                             </div>
                         </div>
                     </div>
 
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+                </div>
 
-                    <script>
-                        const allData = {!! $allDataJson !!};
+                {{-- ===== CHART ADMIN ===== --}}
+                @if(in_array($roleId, [1, 2]))
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4>Hasil Indikator Semua Unit</h4>
 
-                        const ctx = document.getElementById('chart-line-indikator');
+                                    <div class="d-flex gap-2">
+                                        <select id="divisionFilter" class="form-select form-select-sm" style="width: 150px;">
+                                            <option value="all" selected>-- Semua Unit --</option>
+                                        </select>
 
-                        let myChart;
+                                        <select id="indicatorFilter" class="form-select form-select-sm" style="width: 200px;">
+                                            <option value="">-- Pilih Indikator --</option>
+                                            @foreach ($indikators as $ind)
+                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
+                                            @endforeach
+                                        </select>
 
-                        const filterIndikator = document.getElementById('filterIndikator');
-                        const filterTahun = document.getElementById('filterTahun');
-                        const filterPeriode = document.getElementById('filterPeriode');
-                        const filterTipe = document.getElementById('filterTipeChart');
+                                        <select id="admFilterTahun" class="form-select form-select-sm" style="width: 100px;">
+                                        </select>
 
-                        function getQuarterData(data, quarter) {
-                            let start = 0, end = 12;
+                                        <select id="admFilterPeriode" class="form-select form-select-sm" style="width: 170px;">
+                                            <option value="Tahun" selected>Data Satu Tahun</option>
+                                            <option value="Q1">Q1 (Jan-Mar)</option>
+                                            <option value="Q2">Q2 (Apr-Jun)</option>
+                                            <option value="Q3">Q3 (Jul-Sep)</option>
+                                            <option value="Q4">Q4 (Okt-Des)</option>
+                                        </select>
 
-                            if (quarter === 'Q1') { start = 0; end = 3; }
-                            if (quarter === 'Q2') { start = 3; end = 6; }
-                            if (quarter === 'Q3') { start = 6; end = 9; }
-                            if (quarter === 'Q4') { start = 9; end = 12; }
+                                        <select id="admFilterTipeChart" class="form-select form-select-sm"
+                                            style="width: 130px;">
+                                            <option value="line" selected>Line Chart</option>
+                                            <option value="bar">Bar Chart</option>
+                                        </select>
+                                    </div>
 
-                            return {
-                                labels: data.labels.slice(start, end),
-                                target: data.target.slice(start, end),
-                                hasil: data.hasil.slice(start, end)
-                            };
-                        }
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="chartDivisionAchievement"></canvas>
+                                </div>
+                            </div>
+                        </div>
 
-                        function updateChart() {
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-                            const id = filterIndikator.value;
-                            const thn = filterTahun.value;
-                            const periode = filterPeriode.value;
-                            const type = filterTipe.value;
+                        <script>
+                            // ==================== DATA =======================
+                            const allUnitData = @json($divisionData);
 
-                            const baseData = allData[id][thn];
-                            const viewData = getQuarterData(baseData, periode);
+                            // tahun tersedia
+                            const adminAvailableYears = Object.keys(allUnitData).reverse();
+                            const sampleYear = adminAvailableYears[0];
 
-                            if (myChart) myChart.destroy();
+                            // daftar unit (kecuali labels)
+                            const unitNames = Object.keys(allUnitData[sampleYear]).filter(u => u !== "labels");
 
-                            myChart = new Chart(ctx, {
-                                type: type,
-                                data: {
-                                    labels: viewData.labels,
-                                    datasets: [
-                                        {
-                                            label: "Target",
-                                            data: viewData.target,
-                                            borderColor: 'rgba(255,99,132,1)',
-                                            backgroundColor: 'rgba(255,99,132,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        },
-                                        {
-                                            label: "Hasil",
-                                            data: viewData.hasil,
-                                            borderColor: 'rgba(54,162,235,1)',
-                                            backgroundColor: 'rgba(54,162,235,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        }
-                                    ]
-                                },
-                                options: {
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            min: 0,
-                                            max: 120
+                            // ==================== ELEMENT =======================
+                            const unitFilterEl = document.getElementById("divisionFilter");
+                            const admFilterTahunEl = document.getElementById("admFilterTahun");
+                            const admFilterPeriodeEl = document.getElementById("admFilterPeriode");
+                            const admFilterTipeChartEl = document.getElementById("admFilterTipeChart");
+                            const indicatorFilterEl = document.getElementById("indicatorFilter");
+
+                            // ==================== ISI FILTER =======================
+                            unitNames.forEach(unit => {
+                                const opt = document.createElement("option");
+                                opt.value = unit;
+                                opt.textContent = unit;
+                                unitFilterEl.appendChild(opt);
+                            });
+
+                            adminAvailableYears.forEach(year => {
+                                const opt = document.createElement("option");
+                                opt.value = year;
+                                opt.textContent = year;
+                                admFilterTahunEl.appendChild(opt);
+                            });
+
+                            // ==================== FUNGSI =======================
+                            function getFilteredData(data, periode) {
+                                let start = 0, end = 12;
+                                if (periode === "Q1") end = 3;
+                                if (periode === "Q2") { start = 3; end = 6; }
+                                if (periode === "Q3") { start = 6; end = 9; }
+                                if (periode === "Q4") { start = 9; end = 12; }
+                                return data.slice(start, end);
+                            }
+
+                            let divisionChart;
+                            const ctx2 = document.getElementById("chartDivisionAchievement");
+
+                            function renderEmptyDivisionChart() {
+                                const tahun = admFilterTahunEl.value || adminAvailableYears[0];
+                                const labels = allUnitData[tahun].labels;
+
+                                if (divisionChart) divisionChart.destroy();
+
+                                divisionChart = new Chart(ctx2, {
+                                    type: "bar",
+                                    data: {
+                                        labels: labels,
+                                        datasets: [
+                                            {
+                                                label: "Tidak ada data",
+                                                data: new Array(labels.length).fill(null),
+                                                borderColor: "rgba(0,0,0,0)",
+                                                backgroundColor: "rgba(0,0,0,0)"
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                min: 0,
+                                                max: 120
+                                            }
                                         }
                                     }
+                                });
+                            }
+
+
+                            function updateDivisionChart() {
+                                const unit = unitFilterEl.value;
+                                const tahun = admFilterTahunEl.value;
+                                const periode = admFilterPeriodeEl.value;
+                                const type = admFilterTipeChartEl.value;
+                                const indikatorId = indicatorFilterEl.value;
+
+                                if (!unit || !tahun || !indikatorId) {
+                                    renderEmptyDivisionChart();
+                                    return;
                                 }
-                            });
-                        }
 
-                        filterIndikator.addEventListener('change', updateChart);
-                        filterTahun.addEventListener('change', updateChart);
-                        filterPeriode.addEventListener('change', updateChart);
-                        filterTipe.addEventListener('change', updateChart);
+                                const unitData = allUnitData[tahun][unit]['indikators'][indikatorId];
 
-                        updateChart();
-                    </script>
-                </div>
-            </div>
+                                const labels = getFilteredData(allUnitData[tahun].labels, periode);
 
-            <div class="col-12 col-lg-3">
-                <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                <div class="stats-icon blue mb-2">
-                                    <i class="bi bi-bookmark"></i>
+                                const datasetTarget = getFilteredData(unitData.target, periode);
+                                const datasetHasil = getFilteredData(unitData.hasil, periode);
+
+                                if (divisionChart) divisionChart.destroy();
+
+                                divisionChart = new Chart(ctx2, {
+                                    type: type,
+                                    data: {
+                                        labels: labels,
+                                        datasets: [
+                                            {
+                                                label: "Target",
+                                                data: datasetTarget,
+                                                borderColor: "rgba(255, 159, 64, 1)",
+                                                backgroundColor: "rgba(255, 159, 64, 0.7)"
+                                            },
+                                            {
+                                                label: "Hasil",
+                                                data: datasetHasil,
+                                                borderColor: "rgba(75, 192, 192, 1)",
+                                                backgroundColor: "rgba(75, 192, 192, 0.7)"
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                min: 0,
+                                                max: 120
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // EVENT
+                            unitFilterEl.addEventListener("change", updateDivisionChart);
+                            admFilterTahunEl.addEventListener("change", updateDivisionChart);
+                            admFilterPeriodeEl.addEventListener("change", updateDivisionChart);
+                            admFilterTipeChartEl.addEventListener("change", updateDivisionChart);
+                            indicatorFilterEl.addEventListener("change", updateDivisionChart);
+
+                            updateDivisionChart();
+                        </script>
+                    </div>
+                @else
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h4>Hasil Indikator Unit</h4>
+
+                                    <div class="d-flex gap-2">
+
+                                        {{-- FILTER INDIKATOR --}}
+                                        <select id="filterIndikator" class="form-select form-select-sm" style="width: 180px;">
+                                            @foreach ($indikators as $ind)
+                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <select id="filterTahun" class="form-select form-select-sm" style="width: 100px;">
+                                            @foreach ($years as $th)
+                                                <option value="{{ $th }}">{{ $th }}</option>
+                                            @endforeach
+                                        </select>
+
+                                        <select id="filterPeriode" class="form-select form-select-sm" style="width: 170px;">
+                                            <option value="Tahun" selected>Data Satu Tahun</option>
+                                            <option value="Q1">Q1 (Jan-Mar)</option>
+                                            <option value="Q2">Q2 (Apr-Jun)</option>
+                                            <option value="Q3">Q3 (Jul-Sep)</option>
+                                            <option value="Q4">Q4 (Okt-Des)</option>
+                                        </select>
+
+                                        <select id="filterTipeChart" class="form-select form-select-sm" style="width: 130px;">
+                                            <option value="line" selected>Line Chart</option>
+                                            <option value="bar">Bar Chart</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <canvas id="chart-line-indikator"></canvas>
                                 </div>
                             </div>
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
-                                <h6 class="text-muted font-semibold">Total Indikator</h6>
-                                <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
-                            </div>
                         </div>
+
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+                        <script>
+                            const allData = {!! $allDataJson !!};
+
+                            const ctx = document.getElementById('chart-line-indikator');
+
+                            let myChart;
+
+                            const filterIndikator = document.getElementById('filterIndikator');
+                            const filterTahun = document.getElementById('filterTahun');
+                            const filterPeriode = document.getElementById('filterPeriode');
+                            const filterTipe = document.getElementById('filterTipeChart');
+
+                            function getQuarterData(data, quarter) {
+                                let start = 0, end = 12;
+
+                                if (quarter === 'Q1') { start = 0; end = 3; }
+                                if (quarter === 'Q2') { start = 3; end = 6; }
+                                if (quarter === 'Q3') { start = 6; end = 9; }
+                                if (quarter === 'Q4') { start = 9; end = 12; }
+
+                                return {
+                                    labels: data.labels.slice(start, end),
+                                    target: data.target.slice(start, end),
+                                    hasil: data.hasil.slice(start, end)
+                                };
+                            }
+
+                            function updateChart() {
+
+                                const id = filterIndikator.value;
+                                const thn = filterTahun.value;
+                                const periode = filterPeriode.value;
+                                const type = filterTipe.value;
+
+                                const baseData = allData[id][thn];
+                                const viewData = getQuarterData(baseData, periode);
+
+                                if (myChart) myChart.destroy();
+
+                                myChart = new Chart(ctx, {
+                                    type: type,
+                                    data: {
+                                        labels: viewData.labels,
+                                        datasets: [
+                                            {
+                                                label: "Target",
+                                                data: viewData.target,
+                                                borderColor: 'rgba(255,99,132,1)',
+                                                backgroundColor: 'rgba(255,99,132,0.6)',
+                                                tension: 0.2,
+                                                fill: type === 'bar'
+                                            },
+                                            {
+                                                label: "Hasil",
+                                                data: viewData.hasil,
+                                                borderColor: 'rgba(54,162,235,1)',
+                                                backgroundColor: 'rgba(54,162,235,0.6)',
+                                                tension: 0.2,
+                                                fill: type === 'bar'
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                min: 0,
+                                                max: 120
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            filterIndikator.addEventListener('change', updateChart);
+                            filterTahun.addEventListener('change', updateChart);
+                            filterPeriode.addEventListener('change', updateChart);
+                            filterTipe.addEventListener('change', updateChart);
+
+                            updateChart();
+                        </script>
                     </div>
-                </div>
+                @endif
+
+            </div>
+
+            {{-- ===================== SIDEBAR KANAN ===================== --}}
+            <div class="col-12 col-lg-3">
                 <div class="card">
                     <div class="card-header">
                         <h4>Terakhir Mengisi</h4>
                     </div>
-                    <div class="card-content pb-4">
+                    <div class="card-content pb-3">
                         @foreach($recentIsi as $row)
-                            <div class="recent-message d-flex px-4 py-3">
+                            <div class="recent-message d-flex px-4 py-3 align-items-center">
                                 <div class="avatar avatar-lg">
                                     @php
-                                        // Gunakan ID unit untuk menentukan gambar
-                                        $imgIndex = ($row->unit_id % 10) + 1; // hasil 1-10
-                                        $imgPath = asset("assets/faces/{$imgIndex}.jpg");
+                                        $imgIndex = ($row->unit_id % 10) + 1;
                                     @endphp
-                                    <img src="{{ $imgPath }}" />
+                                    <img src="{{ asset("assets/faces/{$imgIndex}.jpg") }}">
                                 </div>
-                                <div class="name ms-4">
-                                    <h5 class="mb-1">{{ $row->nama_unit }}</h5>
-                                    <h6 class="text-muted mb-0">{{ date('d F Y', strtotime($row->tanggal_laporan)) }}</h6>
+                                <div class="name ms-3">
+                                    <h6 class="mb-1">{{ $row->nama_unit }}</h6>
+                                    <small class="text-muted">
+                                        {{ date('d F Y', strtotime($row->tanggal_laporan)) }}
+                                    </small>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
-                {{-- <div class="card">
-                    <div class="card-header">
-                        <h4>Visitors Profile</h4>
-                    </div>
-                    <div class="card-body">
-                        <div id="chart-visitors-profile"></div>
-                    </div>
-                </div> --}}
-            </div>
-        </section>
-        <section>
-            {{-- chart untuk admin --}}
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4>Hasil Indikator Semua Unit</h4>
-
-                            <div class="d-flex gap-2">
-                                <select id="divisionFilter" class="form-select form-select-sm" style="width: 150px;">
-                                    <option value="all" selected>-- Semua Unit --</option>
-                                </select>
-
-                                <select id="indicatorFilter" class="form-select form-select-sm" style="width: 200px;">
-                                    <option value="">-- Pilih Indikator --</option>
-                                    @foreach ($indikators as $ind)
-                                        <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
-                                    @endforeach
-                                </select>
-
-                                <select id="admFilterTahun" class="form-select form-select-sm" style="width: 100px;">
-                                </select>
-
-                                <select id="admFilterPeriode" class="form-select form-select-sm" style="width: 170px;">
-                                    <option value="Tahun" selected>Data Satu Tahun</option>
-                                    <option value="Q1">Q1 (Jan-Mar)</option>
-                                    <option value="Q2">Q2 (Apr-Jun)</option>
-                                    <option value="Q3">Q3 (Jul-Sep)</option>
-                                    <option value="Q4">Q4 (Okt-Des)</option>
-                                </select>
-
-                                <select id="admFilterTipeChart" class="form-select form-select-sm" style="width: 130px;">
-                                    <option value="line" selected>Line Chart</option>
-                                    <option value="bar">Bar Chart</option>
-                                </select>
-                            </div>
-
-                        </div>
-                        <div class="card-body">
-                            <canvas id="chartDivisionAchievement"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-                <script>
-                    // ==================== DATA =======================
-                    const allUnitData = @json($divisionData);
-
-                    // tahun tersedia
-                    const adminAvailableYears = Object.keys(allUnitData).reverse();
-                    const sampleYear = adminAvailableYears[0];
-
-                    // daftar unit (kecuali labels)
-                    const unitNames = Object.keys(allUnitData[sampleYear]).filter(u => u !== "labels");
-
-                    // ==================== ELEMENT =======================
-                    const unitFilterEl = document.getElementById("divisionFilter");
-                    const admFilterTahunEl = document.getElementById("admFilterTahun");
-                    const admFilterPeriodeEl = document.getElementById("admFilterPeriode");
-                    const admFilterTipeChartEl = document.getElementById("admFilterTipeChart");
-                    const indicatorFilterEl = document.getElementById("indicatorFilter");
-
-                    // ==================== ISI FILTER =======================
-                    unitNames.forEach(unit => {
-                        const opt = document.createElement("option");
-                        opt.value = unit;
-                        opt.textContent = unit;
-                        unitFilterEl.appendChild(opt);
-                    });
-
-                    adminAvailableYears.forEach(year => {
-                        const opt = document.createElement("option");
-                        opt.value = year;
-                        opt.textContent = year;
-                        admFilterTahunEl.appendChild(opt);
-                    });
-
-                    // ==================== FUNGSI =======================
-                    function getFilteredData(data, periode) {
-                        let start = 0, end = 12;
-                        if (periode === "Q1") end = 3;
-                        if (periode === "Q2") { start = 3; end = 6; }
-                        if (periode === "Q3") { start = 6; end = 9; }
-                        if (periode === "Q4") { start = 9; end = 12; }
-                        return data.slice(start, end);
-                    }
-
-                    let divisionChart;
-                    const ctx2 = document.getElementById("chartDivisionAchievement");
-
-                    function renderEmptyDivisionChart() {
-                        const tahun = admFilterTahunEl.value || adminAvailableYears[0];
-                        const labels = allUnitData[tahun].labels;
-
-                        if (divisionChart) divisionChart.destroy();
-
-                        divisionChart = new Chart(ctx2, {
-                            type: "bar",
-                            data: {
-                                labels: labels,
-                                datasets: [
-                                    {
-                                        label: "Tidak ada data",
-                                        data: new Array(labels.length).fill(null),
-                                        borderColor: "rgba(0,0,0,0)",
-                                        backgroundColor: "rgba(0,0,0,0)"
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        min: 0,
-                                        max: 120
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-
-                    function updateDivisionChart() {
-                        const unit = unitFilterEl.value;
-                        const tahun = admFilterTahunEl.value;
-                        const periode = admFilterPeriodeEl.value;
-                        const type = admFilterTipeChartEl.value;
-                        const indikatorId = indicatorFilterEl.value;
-
-                        if (!unit || !tahun || !indikatorId) {
-                            renderEmptyDivisionChart();
-                            return;
-                        }
-
-                        const unitData = allUnitData[tahun][unit]['indikators'][indikatorId];
-
-                        const labels = getFilteredData(allUnitData[tahun].labels, periode);
-
-                        const datasetTarget = getFilteredData(unitData.target, periode);
-                        const datasetHasil = getFilteredData(unitData.hasil, periode);
-
-                        if (divisionChart) divisionChart.destroy();
-
-                        divisionChart = new Chart(ctx2, {
-                            type: type,
-                            data: {
-                                labels: labels,
-                                datasets: [
-                                    {
-                                        label: "Target",
-                                        data: datasetTarget,
-                                        borderColor: "rgba(255, 159, 64, 1)",
-                                        backgroundColor: "rgba(255, 159, 64, 0.7)"
-                                    },
-                                    {
-                                        label: "Hasil",
-                                        data: datasetHasil,
-                                        borderColor: "rgba(75, 192, 192, 1)",
-                                        backgroundColor: "rgba(75, 192, 192, 0.7)"
-                                    }
-                                ]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        min: 0,
-                                        max: 120
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                    // EVENT
-                    unitFilterEl.addEventListener("change", updateDivisionChart);
-                    admFilterTahunEl.addEventListener("change", updateDivisionChart);
-                    admFilterPeriodeEl.addEventListener("change", updateDivisionChart);
-                    admFilterTipeChartEl.addEventListener("change", updateDivisionChart);
-                    indicatorFilterEl.addEventListener("change", updateDivisionChart);
-
-                    updateDivisionChart();
-                </script>
             </div>
         </section>
     </div>

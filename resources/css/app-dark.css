@@ -1,57 +1,70 @@
-html.dark body, [data-bs-theme="dark"] body {
-    background-color: #212529; /* Warna gelap */
+html.dark body {
+    background-color: #212529; 
     color: #f8f9fa; /* Warna teks terang */
 }
 
-html.dark #sidebar,
-[data-bs-theme="dark"] #sidebar {
-    background-color: #1e2023; /* Background gelap yang bagus, misal */
-    border-right: 1px solid #333; /* Border pemisah gelap */
+html.dark #sidebar {
+    background-color: #1e2023; 
+    border-right: 1px solid #333; 
 }
 
-/* 2. Targetkan wrapper di dalam sidebar (jika ada background terpisah) */
-html.dark .sidebar-wrapper,
-[data-bs-theme="dark"] .sidebar-wrapper {
+html.dark .sidebar-wrapper {
     background-color: #1e2023;
 }
 
-/* 3. Targetkan link, teks, dan ikon di dalam sidebar */
-html.dark #sidebar .sidebar-menu ul.menu li.sidebar-title,
-[data-bs-theme="dark"] #sidebar .sidebar-menu ul.menu li.sidebar-title {
-    color: #888; /* Warna teks judul menu yang agak abu-abu */
+html.dark #sidebar .sidebar-menu ul.menu li.sidebar-title {
+    color: #888;
 }
 
-html.dark #sidebar .sidebar-menu ul.menu li.sidebar-item a,
-[data-bs-theme="dark"] #sidebar .sidebar-menu ul.menu li.sidebar-item a {
-    color: #e9ecef; /* Warna teks link menu menjadi terang */
+html.dark #sidebar .sidebar-menu ul.menu li.sidebar-item a {
+    color: #e9ecef; 
 }
 
-/* 4. Terapkan style untuk item menu yang aktif atau hover */
-html.dark #sidebar .sidebar-item.active > .sidebar-link,
-[data-bs-theme="dark"] #sidebar .sidebar-item.active > .sidebar-link {
-    background-color: #007774; /* Warna highlight untuk item aktif */
-    color: #ffffff; /* Warna teks putih untuk item aktif */
+html.dark #sidebar .sidebar-item.active > .sidebar-link {
+    background-color: #007774;
+    color: #e1f0ff; 
 }
 
-html.dark #sidebar .sidebar-item.hover > .sidebar-link,
-[data-bs-theme="dark"] #sidebar .sidebar-item.hover > .sidebar-link {
-    background-color: #6278c6a0; /* Warna highlight untuk item aktif */
-    color: #000000; /* Warna teks putih untuk item aktif */
+html.dark #sidebar .sidebar-item:hover > .sidebar-link{
+    background-color: #00777460; 
+    color: #e1f0ff; 
 }
 
-/* 5. Submenu (jika terpisah) */
-html.dark .submenu {
-    background-color: #2b2f34; /* Warna submenu sedikit lebih gelap/terang dari sidebar */
+html.dark .dash-header {
+    background-color: #2b2f34;
 }
 
-html.dark .page-heading h3{
-    color: #e1f0ff; /* Warna teks heading halaman */
+html.dark .dash-header h3{
+    color: #e1f0ff;
+}
+
+html.dark .page-header {
+    background-color: #2b2f34;
+}
+
+html.dark .page-header h3{
+    color: #e1f0ff;
 }
 
 html.dark .card{
-    background-color: #2b2f34; /* Warna latar belakang kartu */
+    background-color: #2b2f34; 
 }
 
-html.dark .card-header{
-    background-color: #2b2f34; /* Warna latar belakang kartu */
+html.dark .card h4, 
+html.dark .card h5, 
+html.dark .card h6 { 
+    color: #e1f0ff;
+}
+
+html.dark .card label {
+    color: #e1f0ff;
+}
+
+html.dark .card-header {
+    background-color: #2b2f34;
+}
+
+html.dark .table-dark th,
+html.dark .table-dark td {
+    color: #e1f0ff;
 }

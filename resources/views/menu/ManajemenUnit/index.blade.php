@@ -127,8 +127,8 @@
                                             <div class="form-group has-icon-left">
                                                 <label for="nama_unit">Nama Unit</label>
                                                 <div class="position-relative">
-                                                    <input type="text" class="form-control" id="nama_unit" name="nama_unit"
-                                                        placeholder="Masukkan nama unit">
+                                                    <input type="text" class="form-control" id="nama_unit"
+                                                        name="nama_unit" placeholder="Masukkan nama unit">
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-building"></i>
                                                     </div>
@@ -140,8 +140,8 @@
                                             <div class="form-group has-icon-left">
                                                 <label for="deskripsi_unit">Deskripsi</label>
                                                 <div class="position-relative">
-                                                    <textarea class="form-control" id="deskripsi_unit" name="deskripsi_unit"
-                                                        placeholder="Masukkan deskripsi unit" rows="3"></textarea>
+                                                    <textarea class="form-control" id="deskripsi_unit" name="deskripsi_unit" placeholder="Masukkan deskripsi unit"
+                                                        rows="3"></textarea>
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-card-text"></i>
                                                     </div>
@@ -176,53 +176,57 @@
                         <h5 class="card-title">Daftar Unit</h5>
                     </div>
                     <div class="card-body">
-                        <table class="table table-striped" id="table1">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Kode Unit</th>
-                                    <th>Nama Unit</th>
-                                    <th>Deskripsi</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($units as $item)
+                        <div class="table-responsive table-dark">
+                            <table class="table table-striped" id="table1">
+                                <thead>
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $item->kode_unit }}</td>
-                                        <td>{{ $item->nama_unit }}</td>
-                                        <td>{{ $item->deskripsi_unit }}</td>
-                                        <td>
-                                            @if ($item->status_unit == 'aktif')
-                                                <span class="badge bg-success">Aktif</span>
-                                            @else
-                                                <span class="badge bg-secondary">Non-Aktif</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('manajemen-unit.edit', $item->id) }}"
-                                                class="btn btn-warning btn-sm">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            <form action="{{ route('manajemen-unit.destroy', $item->id) }}" method="POST"
-                                                class="d-inline" onsubmit="return confirm('Yakin ingin menghapus unit ini?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button class="btn btn-danger btn-sm">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </form>
-                                        </td>
+                                        <th>No</th>
+                                        <th>Kode Unit</th>
+                                        <th>Nama Unit</th>
+                                        <th>Deskripsi</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($units as $item)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $item->kode_unit }}</td>
+                                            <td>{{ $item->nama_unit }}</td>
+                                            <td>{{ $item->deskripsi_unit }}</td>
+                                            <td>
+                                                @if ($item->status_unit == 'aktif')
+                                                    <span class="badge bg-success">Aktif</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Non-Aktif</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('manajemen-unit.edit', $item->id) }}"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+
+                                                <form action="{{ route('manajemen-unit.destroy', $item->id) }}"
+                                                    method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Yakin ingin menghapus unit ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-            {{-- >>> END OF KOREKSI <<< --}} </div>
+            {{-- >>> END OF KOREKSI <<< --}}
+        </div>
     </section>
 @endsection

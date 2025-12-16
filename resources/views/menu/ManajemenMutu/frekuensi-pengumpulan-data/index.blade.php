@@ -37,19 +37,20 @@
     </div>
 @endsection
 
-    @section('content')
-        <section class="section">
+@section('content')
+    <section class="section">
 
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Frekuensi Pengumpulan Data</span>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Frekuensi Pengumpulan Data</h5>
 
-                    <a href="{{ route('frekuensi-pengumpulan-data.create') }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus"></i> Tambah Frekuensi Pengumpulan Data
-                    </a>
-                </div>
+                <a href="{{ route('frekuensi-pengumpulan-data.create') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus"></i> Tambah Frekuensi Pengumpulan Data
+                </a>
+            </div>
 
-                <div class="card-body">
+            <div class="card-body">
+                <div class="table-responsive table-dark">
                     <table class="table table-striped" id="tableIndikator">
                         <thead>
                             <tr>
@@ -60,7 +61,7 @@
                         </thead>
 
                         <tbody>
-                            @foreach($frekuensiPengumpulanData as $i => $row)
+                            @foreach ($frekuensiPengumpulanData as $i => $row)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
 
@@ -71,8 +72,8 @@
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <form action="{{ route('frekuensi-pengumpulan-data.destroy', $row->id) }}" method="POST"
-                                            style="display: inline;">
+                                        <form action="{{ route('frekuensi-pengumpulan-data.destroy', $row->id) }}"
+                                            method="POST" style="display: inline;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm"
@@ -88,44 +89,45 @@
                     </table>
                 </div>
             </div>
-        </section>
-    @endsection
+        </div>
+    </section>
+@endsection
 
-    @push('scripts')
-        <style>
-            .dataTable-wrapper .dataTable-pagination a {
-                padding: 3px 6px !important;
-                font-size: 11px !important;
-                min-width: 28px !important;
-            }
+@push('scripts')
+    <style>
+        .dataTable-wrapper .dataTable-pagination a {
+            padding: 3px 6px !important;
+            font-size: 11px !important;
+            min-width: 28px !important;
+        }
 
-            .dataTable-wrapper .dataTable-selector {
-                width: 60px !important;
-                padding: 4px 6px !important;
-                font-size: 12px !important;
-            }
+        .dataTable-wrapper .dataTable-selector {
+            width: 60px !important;
+            padding: 4px 6px !important;
+            font-size: 12px !important;
+        }
 
-            .dataTable-wrapper .dataTable-input {
-                padding: 4px 8px !important;
-                font-size: 12px !important;
-                height: 32px !important;
-            }
+        .dataTable-wrapper .dataTable-input {
+            padding: 4px 8px !important;
+            font-size: 12px !important;
+            height: 32px !important;
+        }
 
-            .dataTable-top {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
+        .dataTable-top {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-            .dataTable-dropdown,
-            .dataTable-search {
-                margin: 0 !important;
-            }
-        </style>
-        <script>
-            let indikatorTable = document.querySelector('#tableIndikator');
-            let dataIndikator = new simpleDatatables.DataTable(indikatorTable);
-        </script>
-    @endpush
+        .dataTable-dropdown,
+        .dataTable-search {
+            margin: 0 !important;
+        }
+    </style>
+    <script>
+        let indikatorTable = document.querySelector('#tableIndikator');
+        let dataIndikator = new simpleDatatables.DataTable(indikatorTable);
+    </script>
+@endpush

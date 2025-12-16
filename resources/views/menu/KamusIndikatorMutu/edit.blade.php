@@ -37,7 +37,7 @@
 @endsection
 
 @section('content')
-<section id="basic-vertical-layouts">
+    <section id="basic-vertical-layouts">
         <div class="row match-height">
 
             <div class="col-md-12 col-12">
@@ -56,7 +56,7 @@
 
                                 {{-- ==================== INFORMASI DASAR ==================== --}}
                                 <div class="card">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header">
                                         <h5 class="mb-0">Informasi Dasar</h5>
                                     </div>
 
@@ -65,13 +65,13 @@
 
                                             {{-- Indikator --}}
                                             <div class="col-md-12 mb-3">
-                                                <label class="form-label">Indikator <span class="text-danger">*</span></label>
+                                                <label class="form-label">Indikator <span
+                                                        class="text-danger">*</span></label>
                                                 <select name="indikator_id" class="form-select">
                                                     <option value="">Pilih Indikator</option>
 
                                                     @foreach ($indikator as $item)
-                                                        <option 
-                                                            value="{{ $item->id }}" 
+                                                        <option value="{{ $item->id }}"
                                                             {{ $item->id == $data->indikator_id ? 'selected' : '' }}>
                                                             {{ $item->nama_indikator }}
                                                         </option>
@@ -81,7 +81,8 @@
 
                                             {{-- Definisi Operasional --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Definisi Operasional <span class="text-danger">*</span></label>
+                                                <label class="form-label">Definisi Operasional <span
+                                                        class="text-danger">*</span></label>
                                                 <textarea name="definisi_operasional" class="form-control" rows="4">{{ $data->definisi_operasional }}</textarea>
                                             </div>
 
@@ -97,7 +98,7 @@
 
                                 {{-- ==================== METODOLOGI ==================== --}}
                                 <div class="card mt-4">
-                                    <div class="card-header bg-light">
+                                    <div class="card-header">
                                         <h5 class="mb-0">Metodologi</h5>
                                     </div>
 
@@ -106,13 +107,13 @@
 
                                             {{-- Dimensi Mutu --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Dimensi Mutu <span class="text-danger">*</span></label>
+                                                <label class="form-label">Dimensi Mutu <span
+                                                        class="text-danger">*</span></label>
                                                 <select name="dimensi_mutu_id" class="form-select">
                                                     <option value="">Pilih Dimensi Mutu</option>
 
                                                     @foreach ($dimensi as $d)
-                                                        <option 
-                                                            value="{{ $d->id }}" 
+                                                        <option value="{{ $d->id }}"
                                                             {{ $d->id == $data->dimensi_mutu_id ? 'selected' : '' }}>
                                                             {{ $d->nama_dimensi_mutu }}
                                                         </option>
@@ -122,13 +123,15 @@
 
                                             {{-- Dasar Pemikiran --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Dasar Pemikiran <span class="text-danger">*</span></label>
+                                                <label class="form-label">Dasar Pemikiran <span
+                                                        class="text-danger">*</span></label>
                                                 <textarea name="dasar_pemikiran" class="form-control" rows="3">{{ $data->dasar_pemikiran }}</textarea>
                                             </div>
 
                                             {{-- Formula Pengukuran --}}
                                             <div class="col-md-12 mb-3">
-                                                <label class="form-label">Formula Pengukuran <span class="text-danger">*</span></label>
+                                                <label class="form-label">Formula Pengukuran <span
+                                                        class="text-danger">*</span></label>
                                                 <textarea name="formula_pengukuran" class="form-control" rows="3">{{ $data->formula_pengukuran }}</textarea>
                                             </div>
 
@@ -138,55 +141,58 @@
 
                                 {{-- ==================== PENGUMPULAN DATA ==================== --}}
                                 <div class="card mt-4">
-                                    <div class="card-header bg-light"><h5 class="mb-0">Pengumpulan Data</h5></div>
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Pengumpulan Data</h5>
+                                    </div>
 
                                     <div class="card-body">
                                         <div class="row">
 
                                             {{-- Metodologi --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Metodologi <span class="text-danger">*</span></label>
+                                                <label class="form-label">Metodologi <span
+                                                        class="text-danger">*</span></label>
                                                 <textarea name="metodologi" class="form-control" rows="3">{{ $data->metodologi }}</textarea>
                                             </div>
 
                                             {{-- Jenis Metodologi (Radio) --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Jenis Metodologi <span class="text-danger">*</span></label><br>
+                                                <label class="form-label">Jenis Metodologi <span
+                                                        class="text-danger">*</span></label><br>
 
                                                 @foreach ($metodologiPengumpulan as $item)
-                                                @php($id = 'jenis_'.$item->id)
-                                                <input type="radio" class="btn-check" 
-                                                    name="metodologi_pengumpulan_data_id" 
-                                                    id="{{ $id }}" 
-                                                    value="{{ $item->id }}"
-                                                    {{ $item->id == $data->metodologi_pengumpulan_data_id ? 'checked' : '' }}>
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_metodologi_pengumpulan_data }}
-                                                </label>
+                                                    @php($id = 'jenis_' . $item->id)
+                                                    <input type="radio" class="btn-check"
+                                                        name="metodologi_pengumpulan_data_id" id="{{ $id }}"
+                                                        value="{{ $item->id }}"
+                                                        {{ $item->id == $data->metodologi_pengumpulan_data_id ? 'checked' : '' }}>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_metodologi_pengumpulan_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
                                             {{-- Cakupan Data --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Cakupan Data <span class="text-danger">*</span></label><br>
+                                                <label class="form-label">Cakupan Data <span
+                                                        class="text-danger">*</span></label><br>
 
                                                 @foreach ($cakupan as $item)
-                                                @php($id = 'cakupan_'.$item->id)
-                                                <input type="radio" class="btn-check"
-                                                    name="cakupan_data_id"
-                                                    id="{{ $id }}"
-                                                    value="{{ $item->id }}"
-                                                    {{ $item->id == $data->cakupan_data_id ? 'checked' : '' }}>
+                                                    @php($id = 'cakupan_' . $item->id)
+                                                    <input type="radio" class="btn-check" name="cakupan_data_id"
+                                                        id="{{ $id }}" value="{{ $item->id }}"
+                                                        {{ $item->id == $data->cakupan_data_id ? 'checked' : '' }}>
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_cakupan_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_cakupan_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
                                             {{-- Detail Pengukuran --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Detail Pengukuran <span class="text-danger">*</span></label>
+                                                <label class="form-label">Detail Pengukuran <span
+                                                        class="text-danger">*</span></label>
                                                 <textarea name="detail_pengukuran" class="form-control" rows="3">{{ $data->detail_pengukuran }}</textarea>
                                             </div>
 
@@ -197,8 +203,7 @@
                                                     <option value="">Pilih Frekuensi</option>
 
                                                     @foreach ($frekuensiPengumpulan as $item)
-                                                        <option 
-                                                            value="{{ $item->id }}"
+                                                        <option value="{{ $item->id }}"
                                                             {{ $item->id == $data->frekuensi_pengumpulan_data_id ? 'selected' : '' }}>
                                                             {{ $item->nama_frekuensi_pengumpulan_data }}
                                                         </option>
@@ -208,7 +213,8 @@
 
                                             {{-- Sumber Data --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Sumber Data <span class="text-danger">*</span></label>
+                                                <label class="form-label">Sumber Data <span
+                                                        class="text-danger">*</span></label>
                                                 <textarea name="sumber_data" class="form-control" rows="3">{{ $data->sumber_data }}</textarea>
                                             </div>
 
@@ -218,20 +224,22 @@
 
                                 {{-- ==================== ANALISIS DATA ==================== --}}
                                 <div class="card mt-4">
-                                    <div class="card-header bg-light"><h5 class="mb-0">Analisis Data</h5></div>
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Analisis Data</h5>
+                                    </div>
 
                                     <div class="card-body">
                                         <div class="row">
 
                                             {{-- Frekuensi Analisa --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Frekuensi Analisa <span class="text-danger">*</span></label>
+                                                <label class="form-label">Frekuensi Analisa <span
+                                                        class="text-danger">*</span></label>
                                                 <select class="form-select" name="frekuensi_analisis_data_id">
                                                     <option value="">Pilih Frekuensi</option>
 
                                                     @foreach ($frekuensiAnalisis as $item)
-                                                        <option 
-                                                            value="{{ $item->id }}"
+                                                        <option value="{{ $item->id }}"
                                                             {{ $item->id == $data->frekuensi_analisis_data_id ? 'selected' : '' }}>
                                                             {{ $item->nama_frekuensi_analisis_data }}
                                                         </option>
@@ -241,39 +249,38 @@
 
                                             {{-- Metodologi Analisis (Radio) --}}
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Metodologi Analisa <span class="text-danger">*</span></label><br>
+                                                <label class="form-label">Metodologi Analisa <span
+                                                        class="text-danger">*</span></label><br>
 
                                                 @foreach ($metodologiAnalisis as $item)
-                                                @php($id = 'analisis_'.$item->id)
+                                                    @php($id = 'analisis_' . $item->id)
 
-                                                <input type="radio" class="btn-check"
-                                                    name="metodologi_analisis_data_id"
-                                                    id="{{ $id }}"
-                                                    value="{{ $item->id }}"
-                                                    {{ $item->id == $data->metodologi_analisis_data_id ? 'checked' : '' }}>
+                                                    <input type="radio" class="btn-check"
+                                                        name="metodologi_analisis_data_id" id="{{ $id }}"
+                                                        value="{{ $item->id }}"
+                                                        {{ $item->id == $data->metodologi_analisis_data_id ? 'checked' : '' }}>
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_metodologi_analisis_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_metodologi_analisis_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
                                             {{-- Interpretasi --}}
                                             <div class="col-md-12 mb-3">
-                                                <label class="form-label">Interpretasi Data <span class="text-danger">*</span></label><br>
+                                                <label class="form-label">Interpretasi Data <span
+                                                        class="text-danger">*</span></label><br>
 
                                                 @foreach ($interpretasi as $item)
-                                                @php($id = 'interpretasi_'.$item->id)
+                                                    @php($id = 'interpretasi_' . $item->id)
 
-                                                <input type="radio" class="btn-check"
-                                                    name="interpretasi_data_id"
-                                                    id="{{ $id }}"
-                                                    value="{{ $item->id }}"
-                                                    {{ $item->id == $data->interpretasi_data_id ? 'checked' : '' }}>
+                                                    <input type="radio" class="btn-check" name="interpretasi_data_id"
+                                                        id="{{ $id }}" value="{{ $item->id }}"
+                                                        {{ $item->id == $data->interpretasi_data_id ? 'checked' : '' }}>
 
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_interpretasi_data }}
-                                                </label>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_interpretasi_data }}
+                                                    </label>
                                                 @endforeach
                                             </div>
 
@@ -287,26 +294,26 @@
 
                                         {{-- Penanggung Jawab --}}
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Penanggung Jawab <span class="text-danger">*</span></label>
+                                            <label class="form-label">Penanggung Jawab <span
+                                                    class="text-danger">*</span></label>
                                             <textarea name="penanggung_jawab" class="form-control" rows="4">{{ $data->penanggung_jawab }}</textarea>
                                         </div>
 
                                         {{-- Publikasi --}}
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Publikasi Data <span class="text-danger">*</span></label><br>
+                                            <label class="form-label">Publikasi Data <span
+                                                    class="text-danger">*</span></label><br>
 
                                             @foreach ($publikasi as $item)
-                                            @php($id = 'publikasi_'.$item->id)
+                                                @php($id = 'publikasi_' . $item->id)
 
-                                            <input type="radio" class="btn-check"
-                                                name="publikasi_data_id"
-                                                id="{{ $id }}"
-                                                value="{{ $item->id }}"
-                                                {{ $item->id == $data->publikasi_data_id ? 'checked' : '' }}>
+                                                <input type="radio" class="btn-check" name="publikasi_data_id"
+                                                    id="{{ $id }}" value="{{ $item->id }}"
+                                                    {{ $item->id == $data->publikasi_data_id ? 'checked' : '' }}>
 
-                                            <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                {{ $item->nama_publikasi_data }}
-                                            </label>
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $item->nama_publikasi_data }}
+                                                </label>
                                             @endforeach
                                         </div>
 
@@ -316,7 +323,8 @@
                                 {{-- BUTTON --}}
                                 <div class="mt-4">
                                     <button class="btn btn-primary">Update</button>
-                                    <a href="{{ route('kamus-indikator-mutu.index') }}" class="btn btn-secondary">Kembali</a>
+                                    <a href="{{ route('kamus-indikator-mutu.index') }}"
+                                        class="btn btn-secondary">Kembali</a>
                                 </div>
 
                             </form>
