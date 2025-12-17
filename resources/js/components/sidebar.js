@@ -116,6 +116,7 @@ class Sidebar {
             this.sidebarEL.classList.remove("inactive");
         } else {
             this.sidebarEL.classList.remove("active");
+            this.sidebarEL.classList.add("inactive");
         }
 
         // reset
@@ -200,6 +201,10 @@ const onFirstLoad = (sidebarEL) => {
     if (isDesktop(window)) {
         sidebarEL.classList.add("active");
         sidebarEL.classList.add("sidebar-desktop");
+    } else {
+        sidebarEL.classList.remove("active");
+        sidebarEL.classList.add("inactive");
+        sidebarEL.classList.remove("sidebar-desktop");
     }
 
     document.querySelectorAll(".submenu-item.active").forEach((activeItem) => {

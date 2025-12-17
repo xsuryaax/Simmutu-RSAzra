@@ -328,6 +328,35 @@
   color: #fff;
 }
 
+@media (max-width: 768px) {
+  .card .card-header h5{
+    font-size: 1.1rem;
+  }
+
+  .card .card-header a {
+    font-size: 0.9rem;
+    padding: 5px;
+  }
+
+  .card .card-body .form-label {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .card .card-body .form-control {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    display: block;
+  }
+
+  .card .chart-card-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
 .page-header {
   padding: 1rem 1rem;
   background-color: #fff;
@@ -351,43 +380,43 @@
 }
 
 @media (max-width: 768px) {
-    .page-header {
-        flex-direction: row; 
-        justify-content: space-between; 
-        align-items: flex-start; 
-        flex-wrap: wrap; 
-        gap: 20px; 
-    }
+  .page-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
 
-    .page-header-left {
-      order: 1;
-    }
-    
-    .page-header-left h3 {
-        font-size: 1.2rem; 
-        margin-bottom: 5px; 
-    }
-    
-    .page-header-left .text-subtitle {
-        font-size: 0.9rem; 
-        margin: 0; 
-    }
-    
-    .page-header-right {
-        display: flex;
-        flex-direction: column;  
-        gap: 10px;
-    }
-    
-    .logout-btn .btn {
-        font-size: 0.9rem; 
-        padding: 8px 12px;
-    }
-    
-    .breadcrumb {
-        font-size: 0.8rem; 
-        margin: 0; 
-    }
+  .page-header-left {
+    order: 1;
+  }
+
+  .page-header-left h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+  }
+
+  .page-header-left .text-subtitle {
+    font-size: 0.7rem;
+    margin: 0;
+  }
+
+  .page-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: auto;
+    gap: 3px;
+  }
+
+  .logout-btn .btn {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .breadcrumb {
+    font-size: 0.75rem;
+    margin: 0;
+  }
 }
 
 .dash-header {
