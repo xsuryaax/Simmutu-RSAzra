@@ -65,41 +65,10 @@ class ManajemenDataMutu extends Seeder
 
         DB::table('tbl_role')->insert([
             ['nama_role' => 'Administrator', 'deskripsi_role' => 'Memiliki akses penuh ke semua fitur dan pengaturan sistem.'],
-            ['nama_role' => 'Kepala Unit', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
-            ['nama_role' => 'Staff Unit', 'deskripsi_role' => 'Mengawasi pelaksanaan program unit dan analisis data mutu.'],
-            ['nama_role' => 'Tim Mutu', 'deskripsi_role' => 'Mengelola data mutu, melakukan analisis, dan menyusun laporan.'],
-            ['nama_role' => 'Manajemen', 'deskripsi_role' => 'Mengumpulkan data dan melaksanakan prosedur sesuai standar mutu.'],
+            ['nama_role' => 'Tim Mutu', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
+            ['nama_role' => 'SIMRS', 'deskripsi_role' => 'Mengawasi pelaksanaan program unit dan analisis data mutu.'],
+            ['nama_role' => 'Marketing', 'deskripsi_role' => 'Mengelola data mutu, melakukan analisis, dan menyusun laporan.'],
+            ['nama_role' => 'Kasir', 'deskripsi_role' => 'Mengumpulkan data dan melaksanakan prosedur sesuai standar mutu.'],
         ]);
-
-        DB::table(
-            'tbl_indikator'
-        )->insert(
-                [
-                    [
-                        'nama_indikator' => 'Respontime permintaan perbaikan',
-                        'target_indikator' => 90.00,
-                        'tipe_indikator' => 'lokal',
-                        'periode_tahun' => '2025',
-                        'tanggal_mulai' => '2025-12-01',
-                        'tanggal_selesai' => '2025-12-31',
-                        'status_periode' => 'aktif',
-                        'status_indikator' => 'aktif',
-                        'unit_id' => 1,
-                        'kamus_indikator_id' => 1
-                    ],
-                    [
-                        'nama_indikator' => 'Waktu Tunggu Pelayanan Loket Pendaftaran',
-                        'target_indikator' => 90.00,
-                        'tipe_indikator' => 'nasional',
-                        'periode_tahun' => '2024',
-                        'tanggal_mulai' => '2024-01-01',
-                        'tanggal_selesai' => '2024-12-31',
-                        'status_periode' => 'aktif',
-                        'status_indikator' => 'aktif',
-                        'unit_id' => 2,
-                        'kamus_indikator_id' => 3
-                    ]
-                ]
-            );
     }
 }

@@ -10,17 +10,33 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $roleId = Auth::user()->role_id;
+        $user = Auth::user();
+        $roleId = $user->role_id;
+
+        // 🔑 indikator KHUSUS untuk chart
+        if (in_array($roleId, [1, 2])) {
+            // Admin / Mutu
+            $indikatorsForChart = $this->getIndikators();
+        } else {
+            // User biasa → hanya indikator unit sendiri
+            $indikatorsForChart = $this->getIndikators()
+                ->where('unit_id', $user->unit_id);
+        }
 
         $data = [
             'roleId' => $roleId,
+
+            // ⚠️ data global (tetap)
             ...$this->getBaseData(),
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),
-            // ⬇️ selalu ada
+
+            // 🔥 chart data (sinkron)
+            'indikatorsForChart' => $indikatorsForChart,
             'allDataJson' => json_encode($this->getUserChartData()),
         ];
 
+        // 🟢 khusus admin / mutu
         if (in_array($roleId, [1, 2])) {
             $data['divisionData'] = $this->getDivisionData();
         }
@@ -113,15 +129,31 @@ class DashboardController extends Controller
      * ========================= */
     private function getUserChartData(): array
     {
-        $indikators = $this->getIndikators();
+        $user = Auth::user();
         $years = $this->getYears();
         $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // 🔑 FILTER INDIKATOR DI AWAL
+        if (in_array($user->role_id, [1, 2])) {
+            // Admin / Mutu → semua indikator
+            $indikators = $this->getIndikators();
+        } else {
+            // User biasa → hanya indikator unit sendiri
+            $indikators = $this->getIndikators()
+                ->where('unit_id', $user->unit_id);
+        }
 
         $data = [];
 
         foreach ($indikators as $ind) {
             foreach ($years as $tahun) {
-                $data[$ind->id][$tahun] = $this->buildIndikatorData($ind, $tahun, $labels);
+
+                $data[$ind->id][$tahun] = $this->buildIndikatorData(
+                    $ind,
+                    $tahun,
+                    $labels,
+                    in_array($user->role_id, [1, 2]) ? null : $user->unit_id
+                );
             }
         }
 

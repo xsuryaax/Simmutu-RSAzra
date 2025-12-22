@@ -1,9 +1,7 @@
 @extends('layouts.app')
 
-{{-- Bagian Title Halaman --}}
 @section('title', 'Default Layout')
 
-{{-- Bagian Breadcrumb dan Halaman Title --}}
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
@@ -51,7 +49,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive table-dark">
-                    <table class="table table-striped" id="table1">
+                    <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>NO</th>

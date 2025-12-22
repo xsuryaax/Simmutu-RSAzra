@@ -29,7 +29,7 @@ class KamusIndikatorMutuController extends Controller
             ->select(
                 'tbl_kamus_indikator_mutu.*',
                 'tbl_indikator.nama_indikator',
-                'tbl_indikator.unit_id', // penting, nanti untuk filter
+                'tbl_indikator.unit_id',
                 'tbl_dimensi_mutu.nama_dimensi_mutu',
                 'tbl_metodologi_pengumpulan_data.nama_metodologi_pengumpulan_data',
                 'tbl_cakupan_data.nama_cakupan_data',
@@ -59,8 +59,18 @@ class KamusIndikatorMutuController extends Controller
      */
     public function create()
     {
-        // Semua data dropdown
-        $indikator = DB::table('tbl_indikator')->get();
+        $user = Auth::user();
+
+        // Query indikator
+        $queryIndikator = DB::table('tbl_indikator');
+
+        // Jika bukan admin / mutu, batasi unit sendiri
+        if (!in_array($user->unit_id, [1, 2])) {
+            $queryIndikator->where('unit_id', $user->unit_id);
+        }
+
+        $indikator = $queryIndikator->get();
+
         $dimensi = DB::table('tbl_dimensi_mutu')->get();
         $metodologiPengumpulan = DB::table('tbl_metodologi_pengumpulan_data')->get();
         $cakupan = DB::table('tbl_cakupan_data')->get();

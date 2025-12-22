@@ -105,8 +105,7 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Semua Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -260,17 +259,17 @@
                                     data: {
                                         labels: labels,
                                         datasets: [{
-                                                label: "Target",
-                                                data: datasetTarget,
-                                                borderColor: "rgba(255, 159, 64, 1)",
-                                                backgroundColor: "rgba(255, 159, 64, 0.7)"
-                                            },
-                                            {
-                                                label: "Hasil",
-                                                data: datasetHasil,
-                                                borderColor: "rgba(75, 192, 192, 1)",
-                                                backgroundColor: "rgba(75, 192, 192, 0.7)"
-                                            }
+                                            label: "Target",
+                                            data: datasetTarget,
+                                            borderColor: "rgba(255, 159, 64, 1)",
+                                            backgroundColor: "rgba(255, 159, 64, 0.7)"
+                                        },
+                                        {
+                                            label: "Hasil",
+                                            data: datasetHasil,
+                                            borderColor: "rgba(75, 192, 192, 1)",
+                                            backgroundColor: "rgba(75, 192, 192, 0.7)"
+                                        }
                                         ]
                                     },
                                     options: {
@@ -300,15 +299,13 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Unit</h4>
 
                                     <div class="d-flex gap-2">
-
                                         {{-- FILTER INDIKATOR --}}
                                         <select id="filterIndikator" class="form-select form-select-sm">
-                                            @foreach ($indikators as $ind)
+                                            @foreach ($indikatorsForChart as $ind)
                                                 <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
                                             @endforeach
                                         </select>
@@ -335,107 +332,111 @@
                                 </div>
 
                                 <div class="card-body">
+                                    {{-- PESAN JIKA DATA KOSONG --}}
+                                    <div id="chartMessage" class="text-center text-muted py-3 d-none">
+                                        Data belum tersedia untuk indikator & tahun ini
+                                    </div>
+
                                     <canvas id="chart-line-indikator"></canvas>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-                        <script>
-                            const allData = {!! $allDataJson !!};
+                    <script>
+                        const allData = {!! $allDataJson !!};
+                        const ctx = document.getElementById('chart-line-indikator');
+                        const chartMessage = document.getElementById('chartMessage');
 
-                            const ctx = document.getElementById('chart-line-indikator');
+                        let myChart;
 
-                            let myChart;
+                        const filterIndikator = document.getElementById('filterIndikator');
+                        const filterTahun = document.getElementById('filterTahun');
+                        const filterPeriode = document.getElementById('filterPeriode');
+                        const filterTipe = document.getElementById('filterTipeChart');
 
-                            const filterIndikator = document.getElementById('filterIndikator');
-                            const filterTahun = document.getElementById('filterTahun');
-                            const filterPeriode = document.getElementById('filterPeriode');
-                            const filterTipe = document.getElementById('filterTipeChart');
+                        function getQuarterData(data, quarter) {
+                            let start = 0, end = 12;
 
-                            function getQuarterData(data, quarter) {
-                                let start = 0,
-                                    end = 12;
+                            if (quarter === 'Q1') { start = 0; end = 3; }
+                            if (quarter === 'Q2') { start = 3; end = 6; }
+                            if (quarter === 'Q3') { start = 6; end = 9; }
+                            if (quarter === 'Q4') { start = 9; end = 12; }
 
-                                if (quarter === 'Q1') {
-                                    start = 0;
-                                    end = 3;
-                                }
-                                if (quarter === 'Q2') {
-                                    start = 3;
-                                    end = 6;
-                                }
-                                if (quarter === 'Q3') {
-                                    start = 6;
-                                    end = 9;
-                                }
-                                if (quarter === 'Q4') {
-                                    start = 9;
-                                    end = 12;
-                                }
+                            return {
+                                labels: data.labels.slice(start, end),
+                                target: data.target.slice(start, end),
+                                hasil: data.hasil.slice(start, end)
+                            };
+                        }
 
-                                return {
-                                    labels: data.labels.slice(start, end),
-                                    target: data.target.slice(start, end),
-                                    hasil: data.hasil.slice(start, end)
-                                };
+                        function updateChart() {
+                            const id = filterIndikator.value;
+                            const thn = filterTahun.value;
+                            const periode = filterPeriode.value;
+                            const type = filterTipe.value;
+
+                            // 🔴 DATA TIDAK ADA
+                            if (!allData[id] || !allData[id][thn]) {
+                                if (myChart) myChart.destroy();
+                                chartMessage.classList.remove('d-none');
+                                return;
                             }
 
-                            function updateChart() {
+                            // 🟢 DATA ADA
+                            chartMessage.classList.add('d-none');
 
-                                const id = filterIndikator.value;
-                                const thn = filterTahun.value;
-                                const periode = filterPeriode.value;
-                                const type = filterTipe.value;
+                            const baseData = allData[id][thn];
+                            const viewData = getQuarterData(baseData, periode);
 
-                                const baseData = allData[id][thn];
-                                const viewData = getQuarterData(baseData, periode);
+                            if (myChart) myChart.destroy();
 
-                                if (myChart) myChart.destroy();
-
-                                myChart = new Chart(ctx, {
-                                    type: type,
-                                    data: {
-                                        labels: viewData.labels,
-                                        datasets: [{
-                                                label: "Target",
-                                                data: viewData.target,
-                                                borderColor: 'rgba(255,99,132,1)',
-                                                backgroundColor: 'rgba(255,99,132,0.6)',
-                                                tension: 0.2,
-                                                fill: type === 'bar'
-                                            },
-                                            {
-                                                label: "Hasil",
-                                                data: viewData.hasil,
-                                                borderColor: 'rgba(54,162,235,1)',
-                                                backgroundColor: 'rgba(54,162,235,0.6)',
-                                                tension: 0.2,
-                                                fill: type === 'bar'
-                                            }
-                                        ]
-                                    },
-                                    options: {
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                min: 0,
-                                                max: 120
-                                            }
+                            myChart = new Chart(ctx, {
+                                type: type,
+                                data: {
+                                    labels: viewData.labels,
+                                    datasets: [
+                                        {
+                                            label: "Target",
+                                            data: viewData.target,
+                                            borderColor: 'rgba(255,99,132,1)',
+                                            backgroundColor: 'rgba(255,99,132,0.6)',
+                                            tension: 0.2,
+                                            fill: type === 'bar'
+                                        },
+                                        {
+                                            label: "Hasil",
+                                            data: viewData.hasil,
+                                            borderColor: 'rgba(54,162,235,1)',
+                                            backgroundColor: 'rgba(54,162,235,0.6)',
+                                            tension: 0.2,
+                                            fill: type === 'bar'
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            min: 0,
+                                            max: 120
                                         }
                                     }
-                                });
-                            }
+                                }
+                            });
+                        }
 
-                            filterIndikator.addEventListener('change', updateChart);
-                            filterTahun.addEventListener('change', updateChart);
-                            filterPeriode.addEventListener('change', updateChart);
-                            filterTipe.addEventListener('change', updateChart);
+                        filterIndikator.addEventListener('change', updateChart);
+                        filterTahun.addEventListener('change', updateChart);
+                        filterPeriode.addEventListener('change', updateChart);
+                        filterTipe.addEventListener('change', updateChart);
 
-                            updateChart();
-                        </script>
-                    </div>
+                        updateChart();
+                    </script>
                 @endif
 
             </div>

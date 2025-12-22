@@ -39,10 +39,8 @@ class HakAksesController extends Controller
             'title' => 'Pengaturan',
             'icon' => 'ri-database-2-line',
             'menus' => [
-                ['key' => 'database', 'label' => 'Database'],
-                ['key' => 'unit', 'label' => 'Unit'],
                 ['key' => 'manajemen_user', 'label' => 'Manajemen User'],
-                ['key' => 'manage_role', 'label' => 'Manage Role'],
+                ['key' => 'manage_role', 'label' => 'Manajemen Role'],
                 ['key' => 'manajemen_unit', 'label' => 'Manajemen Unit'],
                 ['key' => 'hak_akses', 'label' => 'Hak Akses'],
             ]
