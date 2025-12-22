@@ -23,17 +23,36 @@ class DashboardController extends Controller
                 ->where('unit_id', $user->unit_id);
         }
 
+        // 1. Definisikan Data Dummy
+        $unitsSudah = [
+            (object) ['id' => 1, 'nama_unit' => 'Unit Gawat Darurat (UGD)'],
+            (object) ['id' => 2, 'nama_unit' => 'Unit Rawat Jalan'],
+            (object) ['id' => 3, 'nama_unit' => 'Laboratorium'],
+            (object) ['id' => 4, 'nama_unit' => 'Farmasi'],
+        ];
+
+        $unitsBelum = [
+            (object) ['id' => 5, 'nama_unit' => 'Unit Rekam Medis'],
+            (object) ['id' => 6, 'nama_unit' => 'Radiologi'],
+            (object) ['id' => 7, 'nama_unit' => 'Gizi'],
+        ];
+
+        // 2. Masukkan semua ke dalam array $data
         $data = [
-            'roleId' => $roleId,
+            'roleId'      => $roleId,
 
             // ⚠️ data global (tetap)
             ...$this->getBaseData(),
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),
-
-            // 🔥 chart data (sinkron)
-            'indikatorsForChart' => $indikatorsForChart,
+            // ⬇️ selalu ada
             'allDataJson' => json_encode($this->getUserChartData()),
+
+            // Data Dummy untuk Modal & Card
+            'unitsSudah'   => $unitsSudah,
+            'unitsBelum'   => $unitsBelum,
+            'unitSudahIsi' => count($unitsSudah),
+            'unitBelumIsi' => count($unitsBelum),
         ];
 
         // 🟢 khusus admin / mutu
@@ -41,6 +60,8 @@ class DashboardController extends Controller
             $data['divisionData'] = $this->getDivisionData();
         }
 
+        // 3. Langsung kirim array $data. 
+        // Di Blade, key array otomatis jadi nama variabel (contoh: $unitsSudah)
         return view('admin.dashboard', $data);
     }
 
