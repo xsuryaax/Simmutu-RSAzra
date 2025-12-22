@@ -18,6 +18,7 @@ use App\Http\Controllers\ManajemenRoleController;
 use App\Http\Controllers\ManajemenUnitController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\PDSAController;
+use App\Http\Controllers\IMNController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -44,8 +45,7 @@ Route::get('/unauthorized', function () {
 */
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    ;
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');;
 
     Route::get('/chart', function () {
         return view('admin.chart');
@@ -70,6 +70,11 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:metodologi_analisis_data');
     Route::resource('publikasi-data', PublikasiDataController::class)
         ->middleware('check.role:publikasi_data');
+
+    // Indikator Mutu Nasional
+    Route::get('indikator-mutu-nasional', [IMNController::class, 'index'])->name('indikator-mutu-nasional.index');
+    Route::get('indikator-mutu-nasional/create', [IMNController::class, 'create'])->name('indikator-mutu-nasional.create');
+    Route::get('indikator-mutu-nasional/edit', [IMNController::class, 'edit'])->name('indikator-mutu-nasional.edit');
 
     // Manajemen Role, User, Unit
     Route::resource('manajemen-role', ManajemenRoleController::class)

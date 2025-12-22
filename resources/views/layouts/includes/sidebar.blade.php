@@ -57,13 +57,19 @@
                 <li class="sidebar-item {{ Request::is('kamus-indikator-mutu*') ? 'active' : '' }}">
                     <a href="{{ route('kamus-indikator-mutu.index') }}" class='sidebar-link'>
                         <i class="bi bi-book-fill"></i>
-                        <span>Kamus Indikator Mutu</span>
+                        <span>Kamus Indikator Mutu Unit</span>
                     </a>
                 </li>
                 <li class="sidebar-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
                     <a href="{{ route('master-indikator.index') }}" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
-                        <span>Master Indikator</span>
+                        <span>Master Indikator Mutu Unit</span>
+                    </a>
+                </li>
+                <li class="sidebar-item {{ Request::is('indikator-mutu-nasional*') ? 'active' : '' }}">
+                    <a href="{{ route('indikator-mutu-nasional.index') }}" class='sidebar-link'>
+                        <i class="bi bi-globe2"></i>
+                        <span>Indikator Mutu Nasional</span>
                     </a>
                 </li>
 
