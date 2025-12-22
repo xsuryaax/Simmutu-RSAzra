@@ -471,48 +471,47 @@
     </div>
 @endsection
 
-    {{-- modal untuk card --}}
-    <div class="modal fade" id="modalSudahIsi" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white">Daftar Unit Sudah Mengisi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+{{-- modal untuk card --}}
+<div class="modal fade" id="modalSudahIsi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white">Daftar Unit Sudah Mengisi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
                     <ul class="list-group">
-                        <ul class="list-group">
-                            @foreach ($unitsSudah as $unit)
-                                <li class="list-group-item">
-                                    {{ $unit->nama_unit }}
-                                </li>
-                            @endforeach
-                        </ul>
+                        @foreach ($unitsSudah as $unit)
+                            <li class="list-group-item">
+                                {{ $unit->nama_unit }}
+                            </li>
+                        @endforeach
                     </ul>
-                </div>
+                </ul>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="modal fade" id="modalBelumIsi" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white">Daftar Unit Belum Mengisi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+<div class="modal fade" id="modalBelumIsi" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-white">Daftar Unit Belum Mengisi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group">
                     <ul class="list-group">
-                        <ul class="list-group">
-                            @foreach ($unitsBelum as $unit)
-                                <li class="list-group-item">
-                                    {{ $unit->nama_unit }}
-                                </li>
-                            @endforeach
-                        </ul>
+                        @foreach ($unitsBelum as $unit)
+                            <li class="list-group-item">
+                                {{ $unit->nama_unit }}
+                            </li>
+                        @endforeach
                     </ul>
-                </div>
+                </ul>
             </div>
         </div>
     </div>
-@endsection
+</div>

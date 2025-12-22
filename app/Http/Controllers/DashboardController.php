@@ -39,13 +39,15 @@ class DashboardController extends Controller
 
         // 2. Masukkan semua ke dalam array $data
         $data = [
-            'roleId'      => $roleId,
+            'roleId' => $roleId,
 
             // ⚠️ data global (tetap)
             ...$this->getBaseData(),
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),
-            // ⬇️ selalu ada
+
+            // 🔥 chart data (sinkron)
+            'indikatorsForChart' => $indikatorsForChart,
             'allDataJson' => json_encode($this->getUserChartData()),
 
             // Data Dummy untuk Modal & Card
