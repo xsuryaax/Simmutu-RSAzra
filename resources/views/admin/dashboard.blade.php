@@ -46,7 +46,7 @@
                     </div>
 
                     <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
+                        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalSudahIsi">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
                                     <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -64,7 +64,7 @@
                     </div>
 
                     <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
+                        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalBelumIsi">
                             <div class="card-body px-4 py-4-5">
                                 <div class="row">
                                     <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -467,5 +467,50 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    {{-- modal untuk card --}}
+    <div class="modal fade" id="modalSudahIsi" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white">Daftar Unit Sudah Mengisi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        <ul class="list-group">
+                            @foreach ($unitsSudah as $unit)
+                                <li class="list-group-item">
+                                    {{ $unit->nama_unit }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalBelumIsi" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white">Daftar Unit Belum Mengisi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group">
+                        <ul class="list-group">
+                            @foreach ($unitsBelum as $unit)
+                                <li class="list-group-item">
+                                    {{ $unit->nama_unit }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

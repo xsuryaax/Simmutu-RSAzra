@@ -7,9 +7,9 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Indikator Mutu Nasional</h3>
+            <h3>Indikator Mutu Prioritas Rumah Sakit</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola Indikator Mutu Nasional dalam sistem.
+                Halaman untuk mengelola Indikator Mutu Prioritas Rumah Sakit dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
@@ -29,7 +29,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Indikator Mutu Nasional
+                            Indikator Mutu Prioritas Rumah Sakit
                         </li>
                     </ol>
                 </nav>
@@ -43,9 +43,9 @@
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center gap-3">
-                <h5 class="card-title mb-0">Indikator Mutu Nasional</h5>
+                <h5 class="card-title mb-0">Indikator Mutu Prioritas Rumah Sakit</h5>
 
-                <a href="{{ route('indikator-mutu-nasional.create') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('indikator-mutu-prioritas-rs.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data
                 </a>
             </div>
@@ -82,7 +82,7 @@
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
-                                <th>NO</th>
+                                <th style="width: 150px;">KAT</th>
                                 <th style="width: 300px;">INDIKATOR</th>
                                 <th>STANDAR</th>
                                 <th>NUMERATOR</th>

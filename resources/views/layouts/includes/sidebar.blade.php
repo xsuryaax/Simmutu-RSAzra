@@ -72,6 +72,12 @@
                         <span>Indikator Mutu Nasional</span>
                     </a>
                 </li>
+                <li class="sidebar-item {{ Request::is('indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
+                    <a href="{{ route('indikator-mutu-prioritas-rs.index') }}" class='sidebar-link'>
+                        <i class="bi bi-hospital"></i>
+                        <span>Indikator Mutu Prioritas RS</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-title">Menu</li>
 

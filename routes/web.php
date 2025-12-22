@@ -19,6 +19,7 @@ use App\Http\Controllers\ManajemenUnitController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\PDSAController;
 use App\Http\Controllers\IMNController;
+use App\Http\Controllers\IMPRSController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -75,6 +76,11 @@ Route::middleware('auth')->group(function () {
     Route::get('indikator-mutu-nasional', [IMNController::class, 'index'])->name('indikator-mutu-nasional.index');
     Route::get('indikator-mutu-nasional/create', [IMNController::class, 'create'])->name('indikator-mutu-nasional.create');
     Route::get('indikator-mutu-nasional/edit', [IMNController::class, 'edit'])->name('indikator-mutu-nasional.edit');
+
+    // Indikator Mutu Prioritas RS
+    Route::get('indikator-mutu-prioritas-rs', [IMPRSController::class, 'index'])->name('indikator-mutu-prioritas-rs.index');
+    Route::get('indikator-mutu-prioritas-rs/create', [IMPRSController::class, 'create'])->name('indikator-mutu-prioritas-rs.create');
+    Route::get('indikator-mutu-prioritas-rs/edit', [IMPRSController::class, 'edit'])->name('indikator-mutu-prioritas-rs.edit');
 
     // Manajemen Role, User, Unit
     Route::resource('manajemen-role', ManajemenRoleController::class)
