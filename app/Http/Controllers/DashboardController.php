@@ -58,7 +58,7 @@ class DashboardController extends Controller
     private function getBaseData(): array
     {
         return [
-            'totalIndikator' => DB::table('tbl_indikator')->count(),
+            'totalIndikator' => DB::table('tbl_indikator_unit')->count(),
             'indikators' => $this->getIndikators(),
             'years' => $this->getYears(),
         ];
@@ -66,30 +66,30 @@ class DashboardController extends Controller
 
     private function getIndikators()
     {
-        return DB::table('tbl_indikator')
-            ->leftJoin('tbl_kamus_indikator_mutu', 'tbl_kamus_indikator_mutu.id', '=', 'tbl_indikator.kamus_indikator_id')
+        return DB::table('tbl_indikator_unit')
+            ->leftJoin('tbl_kamus_indikator_mutu_unit', 'tbl_kamus_indikator_mutu_unit.id', '=', 'tbl_indikator_unit.kamus_indikator_unit_id')
             ->select(
-                'tbl_indikator.id',
-                'tbl_indikator.nama_indikator',
-                'tbl_indikator.target_indikator',
-                'tbl_indikator.unit_id',
-                'tbl_kamus_indikator_mutu.frekuensi_pengumpulan_data_id as frekuensi_id'
+                'tbl_indikator_unit.id',
+                'tbl_indikator_unit.nama_indikator_unit',
+                'tbl_indikator_unit.target_indikator_unit',
+                'tbl_indikator_unit.unit_id',
+                'tbl_kamus_indikator_mutu_unit.frekuensi_pengumpulan_data_id as frekuensi_id'
             )
-            ->orderBy('nama_indikator')
+            ->orderBy('nama_indikator_unit')
             ->get();
     }
 
     private function getUnitIndikatorMap()
     {
         return DB::table('tbl_unit as u')
-            ->join('tbl_indikator as i', 'i.unit_id', '=', 'u.id')
+            ->join('tbl_indikator_unit as i', 'i.unit_id', '=', 'u.id')
             ->select(
                 'u.nama_unit',
                 'i.id as indikator_id',
-                'i.nama_indikator'
+                'i.nama_indikator_unit'
             )
             ->orderBy('u.nama_unit')
-            ->orderBy('i.nama_indikator')
+            ->orderBy('i.nama_indikator_unit')
             ->get()
             ->groupBy('nama_unit');
     }
@@ -116,7 +116,7 @@ class DashboardController extends Controller
         foreach ($units as $unit) {
 
             // 1️⃣ Ambil indikator MILIK UNIT
-            $indikatorUnit = DB::table('tbl_indikator')
+            $indikatorUnit = DB::table('tbl_indikator_unit')
                 ->where('unit_id', $unit->id)
                 ->pluck('id');
 
@@ -130,9 +130,9 @@ class DashboardController extends Controller
                 ->where('unit_id', $unit->id)
                 ->whereMonth('tanggal_laporan', $bulanWajib)
                 ->whereYear('tanggal_laporan', $tahunWajib)
-                ->whereIn('indikator_id', $indikatorUnit)
+                ->whereIn('indikator_unit_id', $indikatorUnit)
                 ->distinct()
-                ->count('indikator_id');
+                ->count('indikator_unit_id');
 
             // 3️⃣ Bandingkan
             if ($indikatorTerisi === $indikatorUnit->count()) {
@@ -223,7 +223,7 @@ class DashboardController extends Controller
                 foreach ($indikators->where('unit_id', $u->id) as $ind) {
                     $divisionData[$tahun][$u->nama_unit]['indikators'][$ind->id] = array_merge(
                         [
-                            'nama_indikator' => $ind->nama_indikator
+                            'nama_indikator_unit' => $ind->nama_indikator_unit
                         ],
                         $this->buildIndikatorData($ind, $tahun, $labels, $u->id)
                     );
@@ -241,10 +241,10 @@ class DashboardController extends Controller
     private function buildIndikatorData($ind, int $tahun, array $labels, $unitId = null): array
     {
         $hasil = array_fill(1, 12, null);
-        $target = array_fill(1, 12, $ind->target_indikator);
+        $target = array_fill(1, 12, $ind->target_indikator_unit);
 
         $query = DB::table('tbl_laporan_dan_analis')
-            ->where('indikator_id', $ind->id)
+            ->where('indikator_unit_id', $ind->id)
             ->whereYear('tanggal_laporan', $tahun);
 
         if ($unitId) {

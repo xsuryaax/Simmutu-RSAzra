@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class tbl_kamus_indikator_mutu extends Model
+class tbl_kamus_indikator_mutu_unit extends Model
 {
     use HasFactory;
-    protected $table = 'tbl_kamus_indikator_mutu';
+    protected $table = 'tbl_kamus_indikator_mutu_unit';
     protected $fillable = [
         'definisi_operasional',
         'tujuan',
@@ -18,7 +18,7 @@ class tbl_kamus_indikator_mutu extends Model
         'detail_pengukuran',
         'sumber_data',
         'penanggung_jawab',
-        'indikator_id',
+        'indikator_unit_id',
         'dimensi_mutu_id',
         'metodologi_pengumpulan_data_id',
         'cakupan_data_id',

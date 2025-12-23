@@ -54,14 +54,14 @@
                         <span>Laporan & Analisis</span>
                     </a>
                 </li>
-                <li class="sidebar-item {{ Request::is('kamus-indikator-mutu*') ? 'active' : '' }}">
-                    <a href="{{ route('kamus-indikator-mutu.index') }}" class='sidebar-link'>
+                <li class="sidebar-item {{ Request::is('kamus-indikator-mutu-unit*') ? 'active' : '' }}">
+                    <a href="{{ route('kamus-indikator-mutu-unit.index') }}" class='sidebar-link'>
                         <i class="bi bi-book-fill"></i>
                         <span>Kamus Indikator Mutu Unit</span>
                     </a>
                 </li>
-                <li class="sidebar-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
-                    <a href="{{ route('master-indikator.index') }}" class="sidebar-link">
+                <li class="sidebar-item {{ request()->is('master-indikator-unit*') ? 'active' : '' }}">
+                    <a href="{{ route('master-indikator-unit.index') }}" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
                         <span>Master Indikator Mutu Unit</span>
                     </a>

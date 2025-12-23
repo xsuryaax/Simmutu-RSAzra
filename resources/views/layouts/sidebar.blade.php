@@ -68,17 +68,17 @@
                 <li class="sidebar-title">Menu</li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('master-indikator-unit*') || request()->is('cakupan-data*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-stack"></i>
                         <span>Manajemen Data Mutu</span>
                     </a>
                     <ul class="submenu">
                         <li
-                            class="submenu-item has-sub {{ request()->is('master-indikator*') || request()->is('cakupan-data*') ? 'active' : '' }}">
+                            class="submenu-item has-sub {{ request()->is('master-indikator-unit*') || request()->is('cakupan-data*') ? 'active' : '' }}">
                             <a href="#" class="submenu-link">Master Indikator Mutu</a>
                             <ul class="submenu submenu-level-2">
-                                <li class="submenu-item {{ request()->is('master-indikator') ? 'active' : '' }}">
+                                <li class="submenu-item {{ request()->is('master-indikator-unit') ? 'active' : '' }}">
                                     <a href="{{ url('/master-indikator') }}" class="submenu-link">Master
                                         Indikator</a>
                                 </li>

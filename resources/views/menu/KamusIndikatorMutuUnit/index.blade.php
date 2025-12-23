@@ -43,7 +43,7 @@
             <div class="card-header d-flex justify-content-between align-items-center gap-3">
                 <h5 class="card-title mb-0">Kamus Indikator Mutu</h5>
 
-                <a href="{{ route('kamus-indikator-mutu.create') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('kamus-indikator-mutu-unit.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data
                 </a>
             </div>
@@ -69,7 +69,7 @@
                             @foreach ($mutu as $m)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $m->nama_indikator }}</td>
+                                    <td>{{ $m->nama_indikator_unit }}</td>
                                     <td>{{ $m->nama_dimensi_mutu }}</td>
                                     <td>{{ $m->nama_metodologi_pengumpulan_data }}</td>
                                     <td>{{ $m->nama_cakupan_data }}</td>
@@ -80,12 +80,12 @@
                                     <td>{{ $m->nama_publikasi_data }}</td>
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a href="{{ route('kamus-indikator-mutu.edit', $m->id) }}"
+                                            <a href="{{ route('kamus-indikator-mutu-unit.edit', $m->id) }}"
                                                 class="btn btn-warning btn-sm">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <form action="{{ route('kamus-indikator-mutu.destroy', $m->id) }}"
+                                            <form action="{{ route('kamus-indikator-mutu-unit.destroy', $m->id) }}"
                                                 method="POST" class="d-inline"
                                                 onsubmit="return confirm('Hapus data ini?')">
                                                 @csrf

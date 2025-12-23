@@ -105,10 +105,10 @@
 
                                 <tr class="table table-striped">
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $indikator->nama_indikator }}</td>
+                                    <td>{{ $indikator->nama_indikator_unit }}</td>
                                     <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}</td>
                                     <td>{{ $indikator->nama_unit }}</td>
-                                    <td>{{ number_format($indikator->target_indikator, 0) }} %</td>
+                                    <td>{{ number_format($indikator->target_indikator_unit, 0) }} %</td>
                                     <td>
                                         @if ($nilaiRekap !== null)
                                             <span>
@@ -120,7 +120,7 @@
                                     </td>
                                     <td>
                                         @if ($nilaiRekap !== null)
-                                            @if ($nilaiRekap >= $indikator->target_indikator)
+                                            @if ($nilaiRekap >= $indikator->target_indikator_unit)
                                                 <span class="badge bg-success">Tercapai</span>
                                             @else
                                                 <span class="badge bg-danger">Tidak Tercapai</span>
@@ -171,10 +171,10 @@
                                         @php $no++; @endphp
                                         <tr>
                                             <td>{{ $no }}</td>
-                                            <td>{{ $indikator->nama_indikator }}</td>
+                                            <td>{{ $indikator->nama_indikator_unit }}</td>
                                             <td>{{ \Carbon\Carbon::parse($lap->tanggal_laporan)->format('d F Y') }}</td>
                                             <td>{{ $indikator->nama_unit }}</td>
-                                            <td>{{ number_format($indikator->target_indikator, 0) }} %</td>
+                                            <td>{{ number_format($indikator->target_indikator_unit, 0) }} %</td>
                                             <td>{{ $lap->nilai }} %</td>
                                             <td>
                                                 <span class="badge bg-secondary">Sudah Input</span>
@@ -217,7 +217,7 @@
                         action="{{ route('laporan-analisis.store') }}">
                         @csrf
                         <div class="modal-body">
-                            <input type="hidden" name="indikator_id" id="modal_indikator_id">
+                            <input type="hidden" name="indikator_unit_id" id="modal_indikator_id">
                             <input type="hidden" name="unit_id" id="modal_unit_id">
                             <input type="hidden" name="bulan" value="{{ $bulan }}">
                             <input type="hidden" name="tahun" value="{{ $tahun }}">

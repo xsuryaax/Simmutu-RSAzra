@@ -227,7 +227,7 @@
                                     const opt = document.createElement("option");
                                     opt.value = id;
 
-                                    opt.textContent = indikatorObj[id].nama_indikator ?? `Indikator ${id}`;
+                                    opt.textContent = indikatorObj[id].nama_indikator_unit ?? `Indikator ${id}`;
 
                                     indicatorFilterEl.appendChild(opt);
                                 });
@@ -319,7 +319,7 @@
                                         {{-- FILTER INDIKATOR --}}
                                         <select id="filterIndikator" class="form-select form-select-sm">
                                             @foreach ($indikatorsForChart as $ind)
-                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
+                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator_unit }}</option>
                                             @endforeach
                                         </select>
 

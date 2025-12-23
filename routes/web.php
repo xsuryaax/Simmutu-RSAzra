@@ -53,8 +53,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Menu Manajemen Mutu
-    Route::resource('master-indikator', MasterIndikatorController::class)
-        ->middleware('check.role:master_indikator');
+    Route::resource('master-indikator-unit', MasterIndikatorController::class)
+        ->middleware('check.role:master_indikator_unit');
     Route::resource('cakupan-data', CakupanDataController::class)
         ->middleware('check.role:cakupan_data');
     Route::resource('dimensi-mutu', DimensiMutuController::class)
@@ -91,8 +91,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:manajemen_unit');
 
     // Kamus & Laporan
-    Route::resource('kamus-indikator-mutu', KamusIndikatorMutuController::class)
-        ->middleware('check.role:kamus_indikator_mutu');
+    Route::resource('kamus-indikator-mutu-unit', KamusIndikatorMutuController::class)
+        ->middleware('check.role:kamus_indikator_mutu_unit');
     Route::resource('laporan-analisis', LaporanAnalisisController::class)
         ->middleware('check.role:laporan_analisis');
 

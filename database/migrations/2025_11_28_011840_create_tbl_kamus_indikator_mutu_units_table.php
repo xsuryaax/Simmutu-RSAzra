@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_kamus_indikator_mutu', function (Blueprint $table) {
+        Schema::create('tbl_kamus_indikator_mutu_unit', function (Blueprint $table) {
             $table->id();
             $table->text('definisi_operasional');
             $table->text('tujuan');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('detail_pengukuran');
             $table->text('sumber_data');
             $table->text('penanggung_jawab');
-            $table->integer('indikator_id');
+            $table->integer('indikator_unit_id');
             $table->integer('dimensi_mutu_id');
             $table->integer('metodologi_pengumpulan_data_id');
             $table->integer('cakupan_data_id');
@@ -39,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_kamus_indikator_mutu');
+        Schema::dropIfExists('tbl_kamus_indikator_mutu_unit');
     }
 };

@@ -16,20 +16,20 @@ class KamusIndikatorMutuController extends Controller
     {
         $user = Auth::user(); // ambil user login
 
-        $query = DB::table('tbl_kamus_indikator_mutu')
-            ->leftJoin('tbl_indikator', 'tbl_kamus_indikator_mutu.indikator_id', '=', 'tbl_indikator.id')
-            ->leftJoin('tbl_dimensi_mutu', 'tbl_kamus_indikator_mutu.dimensi_mutu_id', '=', 'tbl_dimensi_mutu.id')
-            ->leftJoin('tbl_metodologi_pengumpulan_data', 'tbl_kamus_indikator_mutu.metodologi_pengumpulan_data_id', '=', 'tbl_metodologi_pengumpulan_data.id')
-            ->leftJoin('tbl_cakupan_data', 'tbl_kamus_indikator_mutu.cakupan_data_id', '=', 'tbl_cakupan_data.id')
-            ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_kamus_indikator_mutu.frekuensi_pengumpulan_data_id', '=', 'tbl_frekuensi_pengumpulan_data.id')
-            ->leftJoin('tbl_frekuensi_analisis_data', 'tbl_kamus_indikator_mutu.frekuensi_analisis_data_id', '=', 'tbl_frekuensi_analisis_data.id')
-            ->leftJoin('tbl_metodologi_analisis_data', 'tbl_kamus_indikator_mutu.metodologi_analisis_data_id', '=', 'tbl_metodologi_analisis_data.id')
-            ->leftJoin('tbl_interpretasi_data', 'tbl_kamus_indikator_mutu.interpretasi_data_id', '=', 'tbl_interpretasi_data.id')
-            ->leftJoin('tbl_publikasi_data', 'tbl_kamus_indikator_mutu.publikasi_data_id', '=', 'tbl_publikasi_data.id')
+        $query = DB::table('tbl_kamus_indikator_mutu_unit')
+            ->leftJoin('tbl_indikator_unit', 'tbl_kamus_indikator_mutu_unit.indikator_unit_id', '=', 'tbl_indikator_unit.id')
+            ->leftJoin('tbl_dimensi_mutu', 'tbl_kamus_indikator_mutu_unit.dimensi_mutu_id', '=', 'tbl_dimensi_mutu.id')
+            ->leftJoin('tbl_metodologi_pengumpulan_data', 'tbl_kamus_indikator_mutu_unit.metodologi_pengumpulan_data_id', '=', 'tbl_metodologi_pengumpulan_data.id')
+            ->leftJoin('tbl_cakupan_data', 'tbl_kamus_indikator_mutu_unit.cakupan_data_id', '=', 'tbl_cakupan_data.id')
+            ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_kamus_indikator_mutu_unit.frekuensi_pengumpulan_data_id', '=', 'tbl_frekuensi_pengumpulan_data.id')
+            ->leftJoin('tbl_frekuensi_analisis_data', 'tbl_kamus_indikator_mutu_unit.frekuensi_analisis_data_id', '=', 'tbl_frekuensi_analisis_data.id')
+            ->leftJoin('tbl_metodologi_analisis_data', 'tbl_kamus_indikator_mutu_unit.metodologi_analisis_data_id', '=', 'tbl_metodologi_analisis_data.id')
+            ->leftJoin('tbl_interpretasi_data', 'tbl_kamus_indikator_mutu_unit.interpretasi_data_id', '=', 'tbl_interpretasi_data.id')
+            ->leftJoin('tbl_publikasi_data', 'tbl_kamus_indikator_mutu_unit.publikasi_data_id', '=', 'tbl_publikasi_data.id')
             ->select(
-                'tbl_kamus_indikator_mutu.*',
-                'tbl_indikator.nama_indikator',
-                'tbl_indikator.unit_id',
+                'tbl_kamus_indikator_mutu_unit.*',
+                'tbl_indikator_unit.nama_indikator_unit',
+                'tbl_indikator_unit.unit_id',
                 'tbl_dimensi_mutu.nama_dimensi_mutu',
                 'tbl_metodologi_pengumpulan_data.nama_metodologi_pengumpulan_data',
                 'tbl_cakupan_data.nama_cakupan_data',
@@ -39,16 +39,16 @@ class KamusIndikatorMutuController extends Controller
                 'tbl_interpretasi_data.nama_interpretasi_data',
                 'tbl_publikasi_data.nama_publikasi_data'
             )
-            ->orderBy('tbl_kamus_indikator_mutu.id', 'asc');
+            ->orderBy('tbl_kamus_indikator_mutu_unit.id', 'asc');
 
         // Filter sesuai unit jika bukan admin/unit_mutu
         if (!in_array($user->unit_id, [1, 2])) {
-            $query->where('tbl_indikator.unit_id', $user->unit_id);
+            $query->where('tbl_indikator_unit.unit_id', $user->unit_id);
         }
 
         $mutu = $query->get();
 
-        return view('menu.KamusIndikatorMutu.index', compact('mutu'));
+        return view('menu.KamusIndikatorMutuUnit.index', compact('mutu'));
     }
 
     /**
@@ -62,7 +62,7 @@ class KamusIndikatorMutuController extends Controller
         $user = Auth::user();
 
         // Query indikator
-        $queryIndikator = DB::table('tbl_indikator');
+        $queryIndikator = DB::table('tbl_indikator_unit');
 
         // Jika bukan admin / mutu, batasi unit sendiri
         if (!in_array($user->unit_id, [1, 2])) {
@@ -80,7 +80,7 @@ class KamusIndikatorMutuController extends Controller
         $interpretasi = DB::table('tbl_interpretasi_data')->get();
         $publikasi = DB::table('tbl_publikasi_data')->get();
 
-        return view('menu.KamusIndikatorMutu.create', compact(
+        return view('menu.KamusIndikatorMutuUnit.create', compact(
             'indikator',
             'dimensi',
             'metodologiPengumpulan',
@@ -108,7 +108,7 @@ class KamusIndikatorMutuController extends Controller
             'sumber_data' => 'required',
             'penanggung_jawab' => 'required',
 
-            'indikator_id' => 'required',
+            'indikator_unit_id' => 'required',
             'dimensi_mutu_id' => 'required',
             'metodologi_pengumpulan_data_id' => 'required',
             'cakupan_data_id' => 'required',
@@ -120,7 +120,7 @@ class KamusIndikatorMutuController extends Controller
         ]);
 
         // 1️⃣ Insert & dapatkan ID kamus
-        $kamusId = DB::table('tbl_kamus_indikator_mutu')->insertGetId([
+        $kamusId = DB::table('tbl_kamus_indikator_mutu_unit')->insertGetId([
             'definisi_operasional' => $request->definisi_operasional,
             'tujuan' => $request->tujuan,
             'dasar_pemikiran' => $request->dasar_pemikiran,
@@ -130,7 +130,7 @@ class KamusIndikatorMutuController extends Controller
             'sumber_data' => $request->sumber_data,
             'penanggung_jawab' => $request->penanggung_jawab,
 
-            'indikator_id' => $request->indikator_id,
+            'indikator_unit_id' => $request->indikator_unit_id,
             'dimensi_mutu_id' => $request->dimensi_mutu_id,
             'metodologi_pengumpulan_data_id' => $request->metodologi_pengumpulan_data_id,
             'cakupan_data_id' => $request->cakupan_data_id,
@@ -144,14 +144,14 @@ class KamusIndikatorMutuController extends Controller
             'updated_at' => now(),
         ]);
 
-        // 2️⃣ Update tabel indikator -> isi kamus_indikator_id
-        DB::table('tbl_indikator')
+        // 2️⃣ Update tabel indikator -> isi kamus_indikator_unit_id
+        DB::table('tbl_indikator_unit')
             ->where('id', $request->indikator_id)
             ->update([
-                'kamus_indikator_id' => $kamusId,
+                'kamus_indikator_unit_id' => $kamusId,
             ]);
 
-        return redirect()->route('kamus-indikator-mutu.index')
+        return redirect()->route('kamus-indikator-mutu-unit.index')
             ->with('success', 'Kamus Indikator Mutu berhasil ditambahkan.');
     }
 
@@ -161,9 +161,9 @@ class KamusIndikatorMutuController extends Controller
      */
     public function edit(string $id)
     {
-        $data = DB::table('tbl_kamus_indikator_mutu')->where('id', $id)->first();
+        $data = DB::table('tbl_kamus_indikator_mutu_unit')->where('id', $id)->first();
 
-        $indikator = DB::table('tbl_indikator')->get();
+        $indikator = DB::table('tbl_indikator_unit')->get();
         $dimensi = DB::table('tbl_dimensi_mutu')->get();
         $metodologiPengumpulan = DB::table('tbl_metodologi_pengumpulan_data')->get();
         $cakupan = DB::table('tbl_cakupan_data')->get();
@@ -173,7 +173,7 @@ class KamusIndikatorMutuController extends Controller
         $interpretasi = DB::table('tbl_interpretasi_data')->get();
         $publikasi = DB::table('tbl_publikasi_data')->get();
 
-        return view('menu.KamusIndikatorMutu.edit', compact(
+        return view('menu.KamusIndikatorMutuUnit.edit', compact(
             'data',
             'indikator',
             'dimensi',
@@ -192,8 +192,8 @@ class KamusIndikatorMutuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        DB::table('tbl_kamus_indikator_mutu')->where('id', $id)->update([
-            'indikator_id' => $request->indikator_id,
+        DB::table('tbl_kamus_indikator_mutu_unit')->where('id', $id)->update([
+            'indikator_unit_id' => $request->indikator_unit_id,
             'dimensi_mutu_id' => $request->dimensi_mutu_id,
             'metodologi_pengumpulan_data_id' => $request->metodologi_pengumpulan_data_id,
             'cakupan_data_id' => $request->cakupan_data_id,
@@ -204,7 +204,7 @@ class KamusIndikatorMutuController extends Controller
             'publikasi_data_id' => $request->publikasi_data_id,
         ]);
 
-        return redirect()->route('kamus-indikator-mutu.index')
+        return redirect()->route('kamus-indikator-mutu-unit.index')
             ->with('success', 'Data berhasil diperbarui.');
     }
 
@@ -213,9 +213,9 @@ class KamusIndikatorMutuController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table('tbl_kamus_indikator_mutu')->where('id', $id)->delete();
+        DB::table('tbl_kamus_indikator_mutu_unit')->where('id', $id)->delete();
 
-        return redirect()->route('kamus-indikator-mutu.index')
+        return redirect()->route('kamus-indikator-mutu-unit.index')
             ->with('success', 'Data berhasil dihapus.');
     }
 }

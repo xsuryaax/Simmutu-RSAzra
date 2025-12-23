@@ -32,27 +32,27 @@ class LaporanAnalisisController extends Controller
 
     private function getIndikator($user)
     {
-        return DB::table('tbl_indikator')
-            ->leftJoin('tbl_kamus_indikator_mutu', 'tbl_kamus_indikator_mutu.id', '=', 'tbl_indikator.kamus_indikator_id')
-            ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_frekuensi_pengumpulan_data.id', '=', 'tbl_kamus_indikator_mutu.frekuensi_pengumpulan_data_id')
-            ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
+        return DB::table('tbl_indikator_unit')
+            ->leftJoin('tbl_kamus_indikator_mutu_unit', 'tbl_kamus_indikator_mutu_unit.id', '=', 'tbl_indikator_unit.kamus_indikator_unit_id')
+            ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_frekuensi_pengumpulan_data.id', '=', 'tbl_kamus_indikator_mutu_unit.frekuensi_pengumpulan_data_id')
+            ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator_unit.unit_id')
             ->select(
-                'tbl_indikator.id',
-                'tbl_indikator.nama_indikator',
-                'tbl_indikator.unit_id',
-                'tbl_indikator.target_indikator',
-                'tbl_indikator.tanggal_mulai',
-                'tbl_indikator.tanggal_selesai',
+                'tbl_indikator_unit.id',
+                'tbl_indikator_unit.nama_indikator_unit',
+                'tbl_indikator_unit.unit_id',
+                'tbl_indikator_unit.target_indikator_unit',
+                'tbl_indikator_unit.tanggal_mulai',
+                'tbl_indikator_unit.tanggal_selesai',
                 'tbl_frekuensi_pengumpulan_data.nama_frekuensi_pengumpulan_data',
                 'tbl_unit.nama_unit'
             )
-            ->where('tbl_indikator.status_indikator', 'aktif')
+            ->where('tbl_indikator_unit.status_indikator_unit', 'aktif')
             ->when(
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) =>
-                $q->where('tbl_indikator.unit_id', $user->unit_id)
+                $q->where('tbl_indikator_unit.unit_id', $user->unit_id)
             )
-            ->orderBy('tbl_indikator.id')
+            ->orderBy('tbl_indikator_unit.id')
             ->get();
 
     }
@@ -61,7 +61,7 @@ class LaporanAnalisisController extends Controller
     {
         // Ambil data per row dengan paginate
         $laporan = DB::table('tbl_laporan_dan_analis')
-            ->select('indikator_id', 'unit_id', 'nilai', 'tanggal_laporan')
+            ->select('indikator_unit_id', 'unit_id', 'nilai', 'tanggal_laporan')
             ->whereMonth('tanggal_laporan', $bulan)
             ->whereYear('tanggal_laporan', $tahun)
             ->when(!in_array($user->unit_id, [1, 2]), function ($q) use ($user) {
@@ -71,7 +71,7 @@ class LaporanAnalisisController extends Controller
             ->paginate(10); // 10 row per halaman
 
         // Group per indikator di Collection
-        $grouped = $laporan->getCollection()->groupBy('indikator_id');
+        $grouped = $laporan->getCollection()->groupBy('indikator_unit_id');
 
         return [
             'paginator' => $laporan,
@@ -83,12 +83,12 @@ class LaporanAnalisisController extends Controller
     private function getRekapBulanan($user, $bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
+            ->join('tbl_indikator_unit as i', 'i.id', '=', 'l.indikator_unit_id')
             ->select(
-                'l.indikator_id',
+                'l.indikator_unit_id',
                 'l.unit_id',
                 DB::raw('ROUND(AVG(l.nilai)::numeric, 2) as nilai_rekap'),
-                DB::raw("CASE WHEN ROUND(AVG(l.nilai)::numeric, 2) >= i.target_indikator THEN 'tercapai' ELSE 'tidak tercapai' END as status")
+                DB::raw("CASE WHEN ROUND(AVG(l.nilai)::numeric, 2) >= i.target_indikator_unit THEN 'tercapai' ELSE 'tidak tercapai' END as status")
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
@@ -96,32 +96,36 @@ class LaporanAnalisisController extends Controller
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('l.unit_id', $user->unit_id)
             )
-            ->groupBy('l.indikator_id', 'l.unit_id', 'i.target_indikator')
+            ->groupBy('l.indikator_unit_id', 'l.unit_id', 'i.target_indikator_unit')
             ->get()
-            ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
+            ->keyBy(fn($r) => $r->indikator_unit_id . '-' . $r->unit_id);
     }
 
 
     public function store(Request $request)
     {
         $request->validate([
-            'indikator_id' => 'required|integer',
+            'indikator_unit_id' => 'required|integer',
             'unit_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
             'tanggal_laporan' => 'required|integer|min:1|max:31',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000',
-            'file_laporan' => 'nullable|file|max:5120',
+            'file_laporan' => 'required|file|max:5120', // ⬅️ WAJIB
         ]);
 
+        /* ===================== BUAT TANGGAL ===================== */
         $tanggal = Carbon::createFromDate(
             $request->tahun,
             $request->bulan,
             $request->tanggal_laporan
         );
 
-        $indikator = DB::table('tbl_indikator')->where('id', $request->indikator_id)->first();
+        /* ===================== AMBIL INDIKATOR ===================== */
+        $indikator = DB::table('tbl_indikator_unit')
+            ->where('id', $request->indikator_unit_id)
+            ->first();
 
         if (
             $tanggal->lt(Carbon::parse($indikator->tanggal_mulai)) ||
@@ -130,8 +134,9 @@ class LaporanAnalisisController extends Controller
             return back()->with('error', 'Tanggal laporan di luar periode indikator');
         }
 
+        /* ===================== CEK DUPLIKASI ===================== */
         $exists = DB::table('tbl_laporan_dan_analis')
-            ->where('indikator_id', $request->indikator_id)
+            ->where('indikator_unit_id', $request->indikator_unit_id)
             ->where('unit_id', $request->unit_id)
             ->whereDate('tanggal_laporan', $tanggal)
             ->exists();
@@ -140,15 +145,24 @@ class LaporanAnalisisController extends Controller
             return back()->with('error', 'Tanggal tersebut sudah diinput');
         }
 
+        /* ===================== HITUNG NILAI ===================== */
         $nilai = ($request->numerator / $request->denominator) * 100;
-        $pencapaian = $nilai >= $indikator->target_indikator ? 'tercapai' : 'tidak-tercapai';
+        $pencapaian = $nilai >= $indikator->target_indikator_unit
+            ? 'tercapai'
+            : 'tidak-tercapai';
 
+        /* ===================== UPLOAD FILE ===================== */
+        $filePath = $request->file('file_laporan')
+            ->store('laporan_indikator', 'public');
+
+        /* ===================== INSERT ===================== */
         DB::table('tbl_laporan_dan_analis')->insert([
-            'indikator_id' => $request->indikator_id,
+            'indikator_unit_id' => $request->indikator_unit_id,
             'unit_id' => $request->unit_id,
             'nilai' => round($nilai, 2),
             'pencapaian' => $pencapaian,
             'tanggal_laporan' => $tanggal->format('Y-m-d'),
+            'file_laporan' => $filePath, // ⬅️ INI YANG SEBELUMNYA HILANG
             'created_at' => now(),
             'updated_at' => now(),
         ]);

@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_indikator', function (Blueprint $table) {
+        Schema::create('tbl_indikator_unit', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_indikator');
-            $table->decimal('target_indikator', 5, 2);
-            $table->enum('tipe_indikator', ['lokal', 'nasional']);
+            $table->string('nama_indikator_unit');
+            $table->decimal('target_indikator_unit', 5, 2);
+            $table->enum('tipe_indikator_unit', ['lokal', 'nasional']);
             $table->string('periode_tahun');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->enum('status_periode', ['aktif', 'non-aktif']);
-            $table->enum('status_indikator', ['aktif', 'non-aktif']);
+            $table->enum('status_indikator_unit', ['aktif', 'non-aktif']);
             $table->integer('unit_id');
-            $table->integer('kamus_indikator_id')->nullable();
+            $table->integer('kamus_indikator_unit_id')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_indikator');
+        Schema::dropIfExists('tbl_indikator_unit');
     }
 };

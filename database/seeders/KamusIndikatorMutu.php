@@ -13,7 +13,7 @@ class KamusIndikatorMutu extends Seeder
      */
     public function run(): void
     {
-        DB::table('tbl_kamus_indikator_mutu')->insert([
+        DB::table('tbl_kamus_indikator_mutu_unit')->insert([
 
             /*
             |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ class KamusIndikatorMutu extends Seeder
             |--------------------------------------------------------------------------
             */
             [
-                'indikator_id' => 1, // Response Time Permintaan Perbaikan
+                'indikator_unit_id' => 1, // Response Time Permintaan Perbaikan
                 'definisi_operasional' =>
                     'Waktu yang dibutuhkan sejak permintaan perbaikan diterima hingga dilakukan respon awal.',
                 'tujuan' =>
@@ -60,7 +60,7 @@ class KamusIndikatorMutu extends Seeder
 
             // 1. Kelengkapan Data Piutang
             [
-                'indikator_id' => 2,
+                'indikator_unit_id' => 2,
                 'definisi_operasional' =>
                     'Persentase kelengkapan data pembayaran piutang perusahaan dan asuransi.',
                 'tujuan' =>
@@ -93,7 +93,7 @@ class KamusIndikatorMutu extends Seeder
 
             // 2. Ketepatan Waktu Honor Dokter
             [
-                'indikator_id' => 3,
+                'indikator_unit_id' => 3,
                 'definisi_operasional' =>
                     'Persentase pembayaran honor dokter yang dilakukan tepat waktu sesuai kesepakatan.',
                 'tujuan' =>
@@ -126,7 +126,7 @@ class KamusIndikatorMutu extends Seeder
 
             // 3. Kesalahan Harga Estimasi vs Nota
             [
-                'indikator_id' => 4,
+                'indikator_unit_id' => 4,
                 'definisi_operasional' =>
                     'Persentase kesesuaian harga antara memo estimasi dan nota perawatan pembedahan.',
                 'tujuan' =>

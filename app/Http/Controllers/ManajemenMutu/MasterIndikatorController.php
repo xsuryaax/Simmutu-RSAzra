@@ -16,20 +16,20 @@ class MasterIndikatorController extends Controller
     {
         $user = Auth::user(); // ambil user login
 
-        $query = DB::table('tbl_indikator')
-            ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
-            ->select('tbl_indikator.*', 'tbl_unit.nama_unit')
-            ->orderBy('tbl_indikator.created_at', 'DESC');
+        $query = DB::table('tbl_indikator_unit')
+            ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator_unit.unit_id')
+            ->select('tbl_indikator_unit.*', 'tbl_unit.nama_unit')
+            ->orderBy('tbl_indikator_unit.created_at', 'DESC');
 
         // Filter hanya unit sendiri jika bukan admin atau unit_mutu
         // Admin/unit_mutu: unit_id 1 dan 2 (ubah sesuai database)
         if (!in_array($user->unit_id, [1, 2])) {
-            $query->where('tbl_indikator.unit_id', $user->unit_id);
+            $query->where('tbl_indikator_unit.unit_id', $user->unit_id);
         }
 
         $indikators = $query->get(); // ✅ ambil list semua
 
-        return view('menu.ManajemenMutu.master-indikator.index', compact('indikators'));
+        return view('menu.ManajemenMutu.master-indikator-unit.index', compact('indikators'));
     }
 
 
@@ -50,7 +50,7 @@ class MasterIndikatorController extends Controller
 
         $units = $queryUnits->get();
 
-        return view('menu.ManajemenMutu.master-indikator.create', compact('units'));
+        return view('menu.ManajemenMutu.master-indikator-unit.create', compact('units'));
     }
 
     /**
@@ -59,31 +59,31 @@ class MasterIndikatorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_indikator' => 'required',
+            'nama_indikator_unit' => 'required',
             'unit_id' => 'required|exists:tbl_unit,id',
-            'target_indikator' => 'required|numeric',
-            'tipe_indikator' => 'required|in:lokal,nasional',
+            'target_indikator_unit' => 'required|numeric',
+            'tipe_indikator_unit' => 'required|in:lokal,nasional',
             'periode_tahun' => 'required',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status_periode' => 'required|in:aktif,non-aktif',
-            'status_indikator' => 'required|in:aktif,non-aktif',
+            'status_indikator_unit' => 'required|in:aktif,non-aktif',
         ]);
 
-        DB::table('tbl_indikator')->insert([
-            'nama_indikator' => $request->nama_indikator,
+        DB::table('tbl_indikator_unit')->insert([
+            'nama_indikator_unit' => $request->nama_indikator_unit,
             'unit_id' => $request->unit_id,
-            'target_indikator' => $request->target_indikator,
-            'tipe_indikator' => $request->tipe_indikator,
+            'target_indikator_unit' => $request->target_indikator_unit,
+            'tipe_indikator_unit' => $request->tipe_indikator_unit,
             'periode_tahun' => $request->periode_tahun,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
             'status_periode' => $request->status_periode,
-            'status_indikator' => $request->status_indikator,
+            'status_indikator_unit' => $request->status_indikator_unit,
             'created_at' => now(),
         ]);
 
-        return redirect()->route('master-indikator.index')
+        return redirect()->route('master-indikator-unit.index')
             ->with('success', 'Indikator berhasil ditambahkan.');
     }
 
@@ -94,10 +94,10 @@ class MasterIndikatorController extends Controller
     {
         $user = Auth::user();
 
-        $indikator = DB::table('tbl_indikator')
-            ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
-            ->select('tbl_indikator.*', 'tbl_unit.nama_unit')
-            ->where('tbl_indikator.id', $id)
+        $indikator = DB::table('tbl_indikator_unit')
+            ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator_unit.unit_id')
+            ->select('tbl_indikator_unit.*', 'tbl_unit.nama_unit')
+            ->where('tbl_indikator_unit.id', $id)
             ->first();
 
         // Ambil unit
@@ -108,7 +108,7 @@ class MasterIndikatorController extends Controller
         }
         $units = $queryUnits->get();
 
-        return view('menu.ManajemenMutu.master-indikator.edit', compact('indikator', 'units'));
+        return view('menu.ManajemenMutu.master-indikator-unit.edit', compact('indikator', 'units'));
     }
 
     /**
@@ -117,31 +117,31 @@ class MasterIndikatorController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'nama_indikator' => 'required',
+            'nama_indikator_unit' => 'required',
             'unit_id' => 'required|exists:tbl_unit,id',
-            'target_indikator' => 'required|numeric',
-            'tipe_indikator' => 'required|in:lokal,nasional',
+            'target_indikator_unit' => 'required|numeric',
+            'tipe_indikator_unit' => 'required|in:lokal,nasional',
             'periode_tahun' => 'required',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status_periode' => 'required|in:aktif,non-aktif',
-            'status_indikator' => 'required|in:aktif,non-aktif',
+            'status_indikator_unit' => 'required|in:aktif,non-aktif',
         ]);
 
-        DB::table('tbl_indikator')->where('id', $id)->update([
-            'nama_indikator' => $request->nama_indikator,
+        DB::table('tbl_indikator_unit')->where('id', $id)->update([
+            'nama_indikator_unit' => $request->nama_indikator_unit,
             'unit_id' => $request->unit_id,
-            'target_indikator' => $request->target_indikator,
-            'tipe_indikator' => $request->tipe_indikator,
+            'target_indikator_unit' => $request->target_indikator_unit,
+            'tipe_indikator_unit' => $request->tipe_indikator_unit,
             'periode_tahun' => $request->periode_tahun,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
             'status_periode' => $request->status_periode,
-            'status_indikator' => $request->status_indikator,
+            'status_indikator_unit' => $request->status_indikator_unit,
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('master-indikator.index')
+        return redirect()->route('master-indikator-unit.index')
             ->with('success', 'Indikator berhasil diperbarui.');
     }
 
@@ -150,9 +150,9 @@ class MasterIndikatorController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table('tbl_indikator')->where('id', $id)->delete();
+        DB::table('tbl_indikator_unit')->where('id', $id)->delete();
 
-        return redirect()->route('master-indikator.index')
+        return redirect()->route('master-indikator-unit.index')
             ->with('success', 'Indikator berhasil dihapus.');
     }
 }

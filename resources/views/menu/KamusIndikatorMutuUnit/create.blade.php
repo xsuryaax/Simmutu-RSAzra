@@ -50,7 +50,7 @@
                     <div class="card-content">
                         <div class="card-body">
 
-                            <form action="{{ route('kamus-indikator-mutu.store') }}" method="POST">
+                            <form action="{{ route('kamus-indikator-mutu-unit.store') }}" method="POST">
                                 @csrf
                                 <div class="card">
                                     <div class="card-header">
@@ -62,10 +62,10 @@
                                             <div class="col-md-12 mb-3">
                                                 <label class="form-label">Indikator <span
                                                         class="text-danger">*</span></label>
-                                                <select name="indikator_id" class="form-select">
+                                                <select name="indikator_unit_id" class="form-select">
                                                     <option value="">Pilih Indikator</option>
                                                     @foreach ($indikator as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->nama_indikator }}
+                                                        <option value="{{ $item->id }}">{{ $item->nama_indikator_unit }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -284,7 +284,7 @@
                                 </div>
                                 <div class="mt-4">
                                     <button class="btn btn-primary">Simpan</button>
-                                    <a href="{{ route('kamus-indikator-mutu.index') }}"
+                                    <a href="{{ route('kamus-indikator-mutu-unit.index') }}"
                                         class="btn btn-secondary">Kembali</a>
                                 </div>
                             </form>

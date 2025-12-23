@@ -45,7 +45,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5>Data Indikator</h5>
 
-                <a href="{{ route('master-indikator.create') }}" class="btn btn-primary btn-sm">
+                <a href="{{ route('master-indikator-unit.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Indikator
                 </a>
             </div>
@@ -72,14 +72,14 @@
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
 
-                                    <td>{{ $row->nama_indikator }}</td>
+                                    <td>{{ $row->nama_indikator_unit }}</td>
 
                                     <td>{{ $row->nama_unit ?? '-' }}</td>
 
-                                    <td>{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
+                                    <td>{{ rtrim(rtrim($row->target_indikator_unit, '0'), '.') }}%</td>
 
                                     <td>
-                                        <span class="badge bg-info">{{ ucfirst($row->tipe_indikator) }}</span>
+                                        <span class="badge bg-info">{{ ucfirst($row->tipe_indikator_unit) }}</span>
                                     </td>
 
                                     <td>
@@ -92,7 +92,7 @@
                                     </td>
 
                                     <td>
-                                        @if ($row->status_indikator == 'aktif')
+                                        @if ($row->status_indikator_unit == 'aktif')
                                             <span class="badge bg-success">Aktif</span>
                                         @else
                                             <span class="badge bg-danger">Non-Aktif</span>
@@ -100,12 +100,12 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('master-indikator.edit', $row->id) }}"
+                                        <a href="{{ route('master-indikator-unit.edit', $row->id) }}"
                                             class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <form action="{{ route('master-indikator.destroy', $row->id) }}" method="POST"
+                                        <form action="{{ route('master-indikator-unit.destroy', $row->id) }}" method="POST"
                                             style="display: inline;">
                                             @csrf
                                             @method('DELETE')

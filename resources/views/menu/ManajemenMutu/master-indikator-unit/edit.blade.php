@@ -6,7 +6,7 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Form Tambah Master Indikator</h3>
+            <h3>Form Edit Master Indikator</h3>
             <p class="text-subtitle text-muted">
                 Halaman untuk mengelola master indikator dalam sistem.
             </p>
@@ -28,7 +28,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Form Tambah Master Indikator
+                            Form Edit Master Indikator
                         </li>
                     </ol>
                 </nav>
@@ -44,25 +44,27 @@
                 <div class="col-md-12 col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Form Tambah Indikator</h4>
+                            <h4 class="card-title">Form Edit Indikator</h4>
                         </div>
 
                         <div class="card-content">
                             <div class="card-body">
 
-                                <form action="{{ route('master-indikator.store') }}" method="POST" class="form form-vertical">
+                                <form action="{{ route('master-indikator-unit.update', $indikator->id) }}" method="POST" class="form form-vertical">
                                     @csrf
+                                    @method('PUT')
 
                                     <div class="form-body">
                                         <div class="row">
 
                                             {{-- Nama Indikator --}}
                                             <div class="col-md-6 mb-3">
-                                                <label for="nama_indikator">Nama Indikator</label>
-                                                <input type="text" id="nama_indikator" name="nama_indikator"
-                                                    class="form-control @error('nama_indikator') is-invalid @enderror"
-                                                    value="{{ old('nama_indikator') }}" placeholder="Masukkan nama indikator" required>
-                                                @error('nama_indikator')
+                                                <label for="nama_indikator_unit">Nama Indikator</label>
+                                                <input type="text" id="nama_indikator_unit" name="nama_indikator_unit"
+                                                    class="form-control @error('nama_indikator_unit') is-invalid @enderror"
+                                                    value="{{ old('nama_indikator_unit', $indikator->nama_indikator_unit) }}"
+                                                    required>
+                                                @error('nama_indikator_unit')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
@@ -75,7 +77,8 @@
                                                     <option value="">-- Pilih Unit --</option>
 
                                                     @foreach ($units as $unit)
-                                                        <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                                                        <option value="{{ $unit->id }}"
+                                                            {{ old('unit_id', $indikator->unit_id) == $unit->id ? 'selected' : '' }}>
                                                             {{ $unit->nama_unit }}
                                                         </option>
                                                     @endforeach
@@ -88,27 +91,26 @@
 
                                             {{-- Target --}}
                                             <div class="col-md-6 mb-3">
-                                                <label for="target_indikator">Target</label>
-                                                <input type="number" id="target_indikator" name="target_indikator"
-                                                    class="form-control @error('target_indikator') is-invalid @enderror"
-                                                    value="{{ old('target_indikator') }}"
-                                                    placeholder="Masukkan target indikator" required>
-                                                @error('target_indikator')
+                                                <label for="target_indikator_unit">Target</label>
+                                                <input type="number" id="target_indikator_unit" name="target_indikator_unit"
+                                                    class="form-control @error('target_indikator_unit') is-invalid @enderror"
+                                                    value="{{ old('target_indikator_unit', $indikator->target_indikator_unit) }}"
+                                                    required>
+                                                @error('target_indikator_unit')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
 
                                             {{-- Tipe Indikator --}}
                                             <div class="col-md-6 mb-3">
-                                                <label for="tipe_indikator">Tipe Indikator</label>
-                                                <select id="tipe_indikator" name="tipe_indikator"
-                                                    class="form-control @error('tipe_indikator') is-invalid @enderror" required>
+                                                <label for="tipe_indikator_unit">Tipe Indikator</label>
+                                                <select id="tipe_indikator_unit" name="tipe_indikator_unit"
+                                                    class="form-control @error('tipe_indikator_unit') is-invalid @enderror" required>
                                                     <option value="">-- Pilih Tipe --</option>
-                                                    <option value="lokal" {{ old('tipe_indikator') == 'lokal' ? 'selected' : '' }}>Lokal</option>
-                                                    <option value="nasional" {{ old('tipe_indikator') == 'nasional' ? 'selected' : '' }}>Nasional</option>
-                                                    
+                                                    <option value="lokal" {{ old('tipe_indikator_unit', $indikator->tipe_indikator_unit) == 'lokal' ? 'selected' : '' }}>Lokal</option>
+                                                    <option value="nasional" {{ old('tipe_indikator_unit', $indikator->tipe_indikator_unit) == 'nasional' ? 'selected' : '' }}>Nasional</option>
                                                 </select>
-                                                @error('tipe_indikator')
+                                                @error('tipe_indikator_unit')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
@@ -118,7 +120,7 @@
                                                 <label for="periode_tahun">Periode Tahun</label>
                                                 <input type="number" id="periode_tahun" name="periode_tahun"
                                                     class="form-control @error('periode_tahun') is-invalid @enderror"
-                                                    value="{{ old('periode_tahun') }}" placeholder="Masukkan periode tahun" required>
+                                                    value="{{ old('periode_tahun', $indikator->periode_tahun) }}" required>
                                                 @error('periode_tahun')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
@@ -129,7 +131,7 @@
                                                 <label for="tanggal_mulai">Tanggal Mulai</label>
                                                 <input type="date" id="tanggal_mulai" name="tanggal_mulai"
                                                     class="form-control @error('tanggal_mulai') is-invalid @enderror"
-                                                    value="{{ old('tanggal_mulai') }}" required>
+                                                    value="{{ old('tanggal_mulai', $indikator->tanggal_mulai) }}" required>
                                                 @error('tanggal_mulai')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
@@ -140,7 +142,7 @@
                                                 <label for="tanggal_selesai">Tanggal Selesai</label>
                                                 <input type="date" id="tanggal_selesai" name="tanggal_selesai"
                                                     class="form-control @error('tanggal_selesai') is-invalid @enderror"
-                                                    value="{{ old('tanggal_selesai') }}" required>
+                                                    value="{{ old('tanggal_selesai', $indikator->tanggal_selesai) }}" required>
                                                 @error('tanggal_selesai')
                                                     <small class="text-danger">{{ $message }}</small>
                                                 @enderror
@@ -153,59 +155,50 @@
 
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="status_periode"
-                                                            id="status_aktif" value="aktif"
-                                                            {{ old('status_periode', 'aktif') == 'aktif' ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="status_aktif">Aktif</label>
+                                                            value="aktif"
+                                                            {{ old('status_periode', $indikator->status_periode) == 'aktif' ? 'checked' : '' }}>
+                                                        <label class="form-check-label">Aktif</label>
                                                     </div>
 
                                                     <div class="form-check form-check-inline">
                                                         <input class="form-check-input" type="radio" name="status_periode"
-                                                            id="status_non_aktif" value="non-aktif"
-                                                            {{ old('status_periode') == 'non-aktif' ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="status_non_aktif">Non-Aktif</label>
+                                                            value="non-aktif"
+                                                            {{ old('status_periode', $indikator->status_periode) == 'non-aktif' ? 'checked' : '' }}>
+                                                        <label class="form-check-label">Non-Aktif</label>
                                                     </div>
 
                                                 </div>
-
-                                                @error('status_indikator')
-                                                    <small class="text-danger">{{ $message }}</small>
-                                                @enderror
                                             </div>
 
-                                            {{-- Status Indikator--}}
+                                            {{-- Status Indikator --}}
                                             <div class="col-md-12 mb-3">
                                                 <label>Status Indikator</label>
                                                 <div class="d-flex gap-4 mt-1">
 
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="status_indikator"
-                                                            id="status_aktif" value="aktif"
-                                                            {{ old('status_indikator', 'aktif') == 'aktif' ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="status_aktif">Aktif</label>
+                                                        <input class="form-check-input" type="radio" name="status_indikator_unit"
+                                                            value="aktif"
+                                                            {{ old('status_indikator_unit', $indikator->status_indikator_unit) == 'aktif' ? 'checked' : '' }}>
+                                                        <label class="form-check-label">Aktif</label>
                                                     </div>
 
                                                     <div class="form-check form-check-inline">
-                                                        <input class="form-check-input" type="radio" name="status_indikator"
-                                                            id="status_non_aktif" value="non-aktif"
-                                                            {{ old('status_indikator') == 'non-aktif' ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="status_non_aktif">Non-Aktif</label>
+                                                        <input class="form-check-input" type="radio" name="status_indikator_unit"
+                                                            value="non-aktif"
+                                                            {{ old('status_indikator_unit', $indikator->status_indikator_unit) == 'non-aktif' ? 'checked' : '' }}>
+                                                        <label class="form-check-label">Non-Aktif</label>
                                                     </div>
 
                                                 </div>
-
-                                                @error('status_indikator')
-                                                    <small class="text-danger">{{ $message }}</small>
-                                                @enderror
                                             </div>
 
                                             {{-- Tombol --}}
                                             <div class="col-12 d-flex justify-content-end">
-                                                <a href="{{ route('master-indikator.index') }}"
-                                                    class="btn btn-light-secondary me-2">
+                                                <a href="{{ route('master-indikator-unit.index') }}" class="btn btn-light-secondary me-2">
                                                     Kembali
                                                 </a>
                                                 <button type="submit" class="btn btn-primary">
-                                                    <i class="bi bi-check-circle"></i> Simpan
+                                                    <i class="bi bi-check-circle"></i> Update
                                                 </button>
                                             </div>
 
