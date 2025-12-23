@@ -23,20 +23,6 @@ class DashboardController extends Controller
                 ->where('unit_id', $user->unit_id);
         }
 
-        // 1. Definisikan Data Dummy
-        $unitsSudah = [
-            (object) ['id' => 1, 'nama_unit' => 'Unit Gawat Darurat (UGD)'],
-            (object) ['id' => 2, 'nama_unit' => 'Unit Rawat Jalan'],
-            (object) ['id' => 3, 'nama_unit' => 'Laboratorium'],
-            (object) ['id' => 4, 'nama_unit' => 'Farmasi'],
-        ];
-
-        $unitsBelum = [
-            (object) ['id' => 5, 'nama_unit' => 'Unit Rekam Medis'],
-            (object) ['id' => 6, 'nama_unit' => 'Radiologi'],
-            (object) ['id' => 7, 'nama_unit' => 'Gizi'],
-        ];
-
         // 2. Masukkan semua ke dalam array $data
         $data = [
             'roleId' => $roleId,
@@ -49,13 +35,11 @@ class DashboardController extends Controller
             // 🔥 chart data (sinkron)
             'indikatorsForChart' => $indikatorsForChart,
             'allDataJson' => json_encode($this->getUserChartData()),
-
-            // Data Dummy untuk Modal & Card
-            'unitsSudah'   => $unitsSudah,
-            'unitsBelum'   => $unitsBelum,
-            'unitSudahIsi' => count($unitsSudah),
-            'unitBelumIsi' => count($unitsBelum),
         ];
+
+        if (in_array($roleId, [1, 2])) {
+            $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
+        }
 
         // 🟢 khusus admin / mutu
         if (in_array($roleId, [1, 2])) {
@@ -95,6 +79,21 @@ class DashboardController extends Controller
             ->get();
     }
 
+    private function getUnitIndikatorMap()
+    {
+        return DB::table('tbl_unit as u')
+            ->join('tbl_indikator as i', 'i.unit_id', '=', 'u.id')
+            ->select(
+                'u.nama_unit',
+                'i.id as indikator_id',
+                'i.nama_indikator'
+            )
+            ->orderBy('u.nama_unit')
+            ->orderBy('i.nama_indikator')
+            ->get()
+            ->groupBy('nama_unit');
+    }
+
     private function getYears()
     {
         return DB::table('tbl_laporan_dan_analis')
@@ -103,35 +102,55 @@ class DashboardController extends Controller
             ->pluck('tahun');
     }
 
-    /* =========================
-     * STATISTIK UNIT
-     * ========================= */
     private function getStatistikUnit(): array
     {
-        $bulan = date('m');
-        $tahun = date('Y');
+        $now = now();
+        $bulanWajib = $now->copy()->subMonth()->month;
+        $tahunWajib = $now->copy()->subMonth()->year;
 
-        $totalUnit = DB::table('tbl_indikator')
-            ->distinct('unit_id')
-            ->count('unit_id');
+        $units = DB::table('tbl_unit')->get();
 
-        $unitSudahIsi = DB::table('tbl_indikator as i')
-            ->leftJoin('tbl_laporan_dan_analis as l', function ($join) use ($bulan, $tahun) {
-                $join->on('i.id', '=', 'l.indikator_id')
-                    ->whereMonth('l.tanggal_laporan', $bulan)
-                    ->whereYear('l.tanggal_laporan', $tahun);
-            })
-            ->selectRaw('i.unit_id')
-            ->groupBy('i.unit_id')
-            ->havingRaw('COUNT(i.id) = COUNT(l.id)')
-            ->count();
+        $unitsSudah = [];
+        $unitsBelum = [];
+
+        foreach ($units as $unit) {
+
+            // 1️⃣ Ambil indikator MILIK UNIT
+            $indikatorUnit = DB::table('tbl_indikator')
+                ->where('unit_id', $unit->id)
+                ->pluck('id');
+
+            // ❗ Jika unit TIDAK punya indikator → SKIP
+            if ($indikatorUnit->isEmpty()) {
+                continue;
+            }
+
+            // 2️⃣ Hitung indikator yang SUDAH diisi bulan wajib
+            $indikatorTerisi = DB::table('tbl_laporan_dan_analis')
+                ->where('unit_id', $unit->id)
+                ->whereMonth('tanggal_laporan', $bulanWajib)
+                ->whereYear('tanggal_laporan', $tahunWajib)
+                ->whereIn('indikator_id', $indikatorUnit)
+                ->distinct()
+                ->count('indikator_id');
+
+            // 3️⃣ Bandingkan
+            if ($indikatorTerisi === $indikatorUnit->count()) {
+                $unitsSudah[] = $unit;
+            } else {
+                $unitsBelum[] = $unit;
+            }
+        }
 
         return [
-            'totalUnit' => $totalUnit,
-            'unitSudahIsi' => $unitSudahIsi,
-            'unitBelumIsi' => $totalUnit - $unitSudahIsi,
+            'totalUnit' => count($unitsSudah) + count($unitsBelum),
+            'unitSudahIsi' => count($unitsSudah),
+            'unitBelumIsi' => count($unitsBelum),
+            'unitsSudah' => $unitsSudah,
+            'unitsBelum' => $unitsBelum,
         ];
     }
+
 
     /* =========================
      * RECENT INPUT
@@ -202,11 +221,16 @@ class DashboardController extends Controller
                 $divisionData[$tahun][$u->nama_unit]['indikators'] = [];
 
                 foreach ($indikators->where('unit_id', $u->id) as $ind) {
-                    $divisionData[$tahun][$u->nama_unit]['indikators'][$ind->id] =
-                        $this->buildIndikatorData($ind, $tahun, $labels, $u->id);
+                    $divisionData[$tahun][$u->nama_unit]['indikators'][$ind->id] = array_merge(
+                        [
+                            'nama_indikator' => $ind->nama_indikator
+                        ],
+                        $this->buildIndikatorData($ind, $tahun, $labels, $u->id)
+                    );
                 }
             }
         }
+
 
         return $divisionData;
     }

@@ -110,14 +110,14 @@
 
                                     <div class="d-flex gap-2">
                                         <select id="divisionFilter" class="form-select form-select-sm">
-                                            <option value="all" selected>-- Semua Unit --</option>
+                                            <option value="">-- Pilih Unit --</option>
+                                            @foreach ($unitIndikatorMap as $unitName => $items)
+                                                <option value="{{ $unitName }}">{{ $unitName }}</option>
+                                            @endforeach
                                         </select>
 
-                                        <select id="indicatorFilter" class="form-select form-select-sm">
+                                        <select id="indicatorFilter" class="form-select form-select-sm" disabled>
                                             <option value="">-- Pilih Indikator --</option>
-                                            @foreach ($indikators as $ind)
-                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
-                                            @endforeach
                                         </select>
 
                                         <select id="admFilterTahun" class="form-select form-select-sm">
@@ -147,92 +147,95 @@
                         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
                         <script>
-                            // ==================== DATA =======================
+                            /* ==================== DATA ======================= */
                             const allUnitData = @json($divisionData);
 
-                            // tahun tersedia
                             const adminAvailableYears = Object.keys(allUnitData).reverse();
-                            const sampleYear = adminAvailableYears[0];
+                            const defaultYear = adminAvailableYears[0];
 
-                            // daftar unit (kecuali labels)
-                            const unitNames = Object.keys(allUnitData[sampleYear]).filter(u => u !== "labels");
-
-                            // ==================== ELEMENT =======================
+                            /* ==================== ELEMENT ======================= */
                             const unitFilterEl = document.getElementById("divisionFilter");
                             const admFilterTahunEl = document.getElementById("admFilterTahun");
                             const admFilterPeriodeEl = document.getElementById("admFilterPeriode");
                             const admFilterTipeChartEl = document.getElementById("admFilterTipeChart");
                             const indicatorFilterEl = document.getElementById("indicatorFilter");
 
-                            // ==================== ISI FILTER =======================
-                            unitNames.forEach(unit => {
-                                const opt = document.createElement("option");
-                                opt.value = unit;
-                                opt.textContent = unit;
-                                unitFilterEl.appendChild(opt);
-                            });
+                            const ctx2 = document.getElementById("chartDivisionAchievement");
+                            let divisionChart = null;
 
+                            /* ==================== INIT DROPDOWN ======================= */
+
+                            // isi tahun
                             adminAvailableYears.forEach(year => {
                                 const opt = document.createElement("option");
                                 opt.value = year;
                                 opt.textContent = year;
                                 admFilterTahunEl.appendChild(opt);
                             });
+                            admFilterTahunEl.value = defaultYear;
 
-                            // ==================== FUNGSI =======================
+                            indicatorFilterEl.disabled = true;
+
+                            /* ==================== UTIL ======================= */
                             function getFilteredData(data, periode) {
-                                let start = 0,
-                                    end = 12;
+                                let start = 0, end = 12;
                                 if (periode === "Q1") end = 3;
-                                if (periode === "Q2") {
-                                    start = 3;
-                                    end = 6;
-                                }
-                                if (periode === "Q3") {
-                                    start = 6;
-                                    end = 9;
-                                }
-                                if (periode === "Q4") {
-                                    start = 9;
-                                    end = 12;
-                                }
+                                if (periode === "Q2") { start = 3; end = 6; }
+                                if (periode === "Q3") { start = 6; end = 9; }
+                                if (periode === "Q4") { start = 9; end = 12; }
                                 return data.slice(start, end);
                             }
 
-                            let divisionChart;
-                            const ctx2 = document.getElementById("chartDivisionAchievement");
-
+                            /* ==================== EMPTY CHART ======================= */
                             function renderEmptyDivisionChart() {
-                                const tahun = admFilterTahunEl.value || adminAvailableYears[0];
-                                const labels = allUnitData[tahun].labels;
+                                const labels = allUnitData[defaultYear].labels;
 
                                 if (divisionChart) divisionChart.destroy();
 
                                 divisionChart = new Chart(ctx2, {
                                     type: "bar",
                                     data: {
-                                        labels: labels,
+                                        labels,
                                         datasets: [{
                                             label: "Tidak ada data",
                                             data: new Array(labels.length).fill(null),
-                                            borderColor: "rgba(0,0,0,0)",
                                             backgroundColor: "rgba(0,0,0,0)"
                                         }]
                                     },
                                     options: {
                                         responsive: true,
                                         scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                min: 0,
-                                                max: 120
-                                            }
+                                            y: { beginAtZero: true, min: 0, max: 120 }
                                         }
                                     }
                                 });
                             }
 
+                            /* ==================== UPDATE INDIKATOR ======================= */
+                            function updateIndicatorDropdown() {
+                                const unit = unitFilterEl.value;
+                                const tahun = admFilterTahunEl.value;
 
+                                indicatorFilterEl.innerHTML = '<option value="">-- Pilih Indikator --</option>';
+                                indicatorFilterEl.disabled = true;
+
+                                if (!unit || !allUnitData[tahun][unit]) return;
+
+                                const indikatorObj = allUnitData[tahun][unit].indikators;
+
+                                Object.keys(indikatorObj).forEach(id => {
+                                    const opt = document.createElement("option");
+                                    opt.value = id;
+
+                                    opt.textContent = indikatorObj[id].nama_indikator ?? `Indikator ${id}`;
+
+                                    indicatorFilterEl.appendChild(opt);
+                                });
+
+                                indicatorFilterEl.disabled = false;
+                            }
+
+                            /* ==================== UPDATE CHART ======================= */
                             function updateDivisionChart() {
                                 const unit = unitFilterEl.value;
                                 const tahun = admFilterTahunEl.value;
@@ -245,55 +248,65 @@
                                     return;
                                 }
 
-                                const unitData = allUnitData[tahun][unit]['indikators'][indikatorId];
+                                const indikatorData = allUnitData[tahun][unit]?.indikators?.[indikatorId];
+                                if (!indikatorData) {
+                                    renderEmptyDivisionChart();
+                                    return;
+                                }
 
                                 const labels = getFilteredData(allUnitData[tahun].labels, periode);
-
-                                const datasetTarget = getFilteredData(unitData.target, periode);
-                                const datasetHasil = getFilteredData(unitData.hasil, periode);
+                                const target = getFilteredData(indikatorData.target, periode);
+                                const hasil = getFilteredData(indikatorData.hasil, periode);
 
                                 if (divisionChart) divisionChart.destroy();
 
                                 divisionChart = new Chart(ctx2, {
-                                    type: type,
+                                    type,
                                     data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            label: "Target",
-                                            data: datasetTarget,
-                                            borderColor: "rgba(255, 159, 64, 1)",
-                                            backgroundColor: "rgba(255, 159, 64, 0.7)"
-                                        },
-                                        {
-                                            label: "Hasil",
-                                            data: datasetHasil,
-                                            borderColor: "rgba(75, 192, 192, 1)",
-                                            backgroundColor: "rgba(75, 192, 192, 0.7)"
-                                        }
+                                        labels,
+                                        datasets: [
+                                            {
+                                                label: "Target",
+                                                data: target,
+                                                backgroundColor: "rgba(255,159,64,0.7)",
+                                                borderColor: "rgba(255, 159, 64, 1)"
+                                            },
+                                            {
+                                                label: "Realisasi",
+                                                data: hasil,
+                                                backgroundColor: "rgba(75,192,192,0.7)",
+                                                borderColor: "rgba(75, 192, 192, 1)"
+                                            }
                                         ]
                                     },
                                     options: {
                                         responsive: true,
                                         scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                min: 0,
-                                                max: 120
-                                            }
+                                            y: { beginAtZero: true, min: 0, max: 120 }
                                         }
                                     }
                                 });
                             }
 
-                            // EVENT
-                            unitFilterEl.addEventListener("change", updateDivisionChart);
-                            admFilterTahunEl.addEventListener("change", updateDivisionChart);
+                            /* ==================== EVENT ======================= */
+                            unitFilterEl.addEventListener("change", () => {
+                                updateIndicatorDropdown();
+                                updateDivisionChart();
+                            });
+
+                            admFilterTahunEl.addEventListener("change", () => {
+                                updateIndicatorDropdown();
+                                updateDivisionChart();
+                            });
+
                             admFilterPeriodeEl.addEventListener("change", updateDivisionChart);
                             admFilterTipeChartEl.addEventListener("change", updateDivisionChart);
                             indicatorFilterEl.addEventListener("change", updateDivisionChart);
 
-                            updateDivisionChart();
+                            renderEmptyDivisionChart();
                         </script>
+
+
                     </div>
                 @else
                     <div class="row">
@@ -332,7 +345,6 @@
                                 </div>
 
                                 <div class="card-body">
-                                    {{-- PESAN JIKA DATA KOSONG --}}
                                     <div id="chartMessage" class="text-center text-muted py-3 d-none">
                                         Data belum tersedia untuk indikator & tahun ini
                                     </div>
@@ -378,14 +390,12 @@
                             const periode = filterPeriode.value;
                             const type = filterTipe.value;
 
-                            // 🔴 DATA TIDAK ADA
                             if (!allData[id] || !allData[id][thn]) {
                                 if (myChart) myChart.destroy();
                                 chartMessage.classList.remove('d-none');
                                 return;
                             }
 
-                            // 🟢 DATA ADA
                             chartMessage.classList.add('d-none');
 
                             const baseData = allData[id][thn];
@@ -407,7 +417,7 @@
                                             fill: type === 'bar'
                                         },
                                         {
-                                            label: "Hasil",
+                                            label: "Realisasi",
                                             data: viewData.hasil,
                                             borderColor: 'rgba(54,162,235,1)',
                                             backgroundColor: 'rgba(54,162,235,0.6)',
@@ -469,18 +479,16 @@
             </div>
         </section>
     </div>
-@endsection
 
-{{-- modal untuk card --}}
-<div class="modal fade" id="modalSudahIsi" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary">
-                <h5 class="modal-title text-white">Daftar Unit Sudah Mengisi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="list-group">
+    {{-- modal untuk card --}}
+    <div class="modal fade" id="modalSudahIsi" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white">Daftar Unit Sudah Mengisi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <ul class="list-group">
                         @foreach ($unitsSudah as $unit)
                             <li class="list-group-item">
@@ -488,21 +496,19 @@
                             </li>
                         @endforeach
                     </ul>
-                </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="modalBelumIsi" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Daftar Unit Belum Mengisi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="list-group">
+    <div class="modal fade" id="modalBelumIsi" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white">Daftar Unit Belum Mengisi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <ul class="list-group">
                         @foreach ($unitsBelum as $unit)
                             <li class="list-group-item">
@@ -510,8 +516,8 @@
                             </li>
                         @endforeach
                     </ul>
-                </ul>
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endsection
