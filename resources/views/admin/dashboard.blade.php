@@ -25,87 +25,89 @@
 @section('content')
     <div class="page-content">
         <section class="row">
-            <div class="col-12 col-lg-9">
-                <div class="row mb-4">
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon purple">
-                                            <i class="bi bi-buildings"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-8 col-xxl-7">
-                                        <h6 class="text-muted font-semibold mb-1">Total Unit</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $totalUnit }}</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalSudahIsi">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon green">
-                                            <i class="bi bi-check-circle"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-8 col-xxl-7">
-                                        <h6 class="text-muted font-semibold mb-1">Unit Sudah Mengisi</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $unitSudahIsi }}</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalBelumIsi">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon red">
-                                            <i class="bi bi-x-circle"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-8 col-xxl-7">
-                                        <h6 class="text-muted font-semibold mb-1">Unit Belum Mengisi</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $unitBelumIsi }}</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6 col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body px-4 py-4-5">
-                                <div class="row">
-                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                                        <div class="stats-icon blue">
-                                            <i class="bi bi-bookmark"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-8 col-xxl-7">
-                                        <h6 class="text-muted font-semibold mb-1">Total Indikator</h6>
-                                        <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="col-12 col-lg-12">
                 {{-- ===== CHART ADMIN ===== --}}
                 @if (in_array($roleId, [1, 2]))
-                    <div class="row">
-                        <div class="col-12">
+                    <div class="row mb-4">
+                        <div class="col-6 col-lg-3 col-md-6">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-body px-4 py-4-5">
+                                    <div class="row">
+                                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                            <div class="stats-icon purple">
+                                                <i class="bi bi-buildings"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 col-xxl-7">
+                                            <h6 class="text-muted font-semibold mb-1">Total Unit</h6>
+                                            <h6 class="font-extrabold mb-0">{{ $totalUnit }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-lg-3 col-md-6">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
+                                data-bs-target="#modalSudahIsi">
+                                <div class="card-body px-4 py-4-5">
+                                    <div class="row">
+                                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                            <div class="stats-icon green">
+                                                <i class="bi bi-check-circle"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 col-xxl-7">
+                                            <h6 class="text-muted font-semibold mb-1">Unit Sudah Mengisi</h6>
+                                            <h6 class="font-extrabold mb-0">{{ $unitSudahIsi }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-lg-3 col-md-6">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
+                                data-bs-target="#modalBelumIsi">
+                                <div class="card-body px-4 py-4-5">
+                                    <div class="row">
+                                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                            <div class="stats-icon red">
+                                                <i class="bi bi-x-circle"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 col-xxl-7">
+                                            <h6 class="text-muted font-semibold mb-1">Unit Belum Mengisi</h6>
+                                            <h6 class="font-extrabold mb-0">{{ $unitBelumIsi }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-lg-3 col-md-6">
+                            <div class="card">
+                                <div class="card-body px-4 py-4-5">
+                                    <div class="row">
+                                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                            <div class="stats-icon blue">
+                                                <i class="bi bi-bookmark"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-8 col-xxl-7">
+                                            <h6 class="text-muted font-semibold mb-1">Total Indikator</h6>
+                                            <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-9">
+                            <div class="card">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Semua Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -140,6 +142,31 @@
                                 </div>
                                 <div class="card-body">
                                     <canvas id="chartDivisionAchievement"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Terakhir Mengisi</h4>
+                                </div>
+                                <div class="card-content pb-3">
+                                    @foreach ($recentIsi as $row)
+                                        <div class="recent-message d-flex px-4 py-3 align-items-center">
+                                            <div class="avatar avatar-lg">
+                                                @php
+                                                    $imgIndex = ($row->unit_id % 10) + 1;
+                                                @endphp
+                                                <img src="{{ asset("assets/faces/{$imgIndex}.jpg") }}">
+                                            </div>
+                                            <div class="name ms-3">
+                                                <h6 class="mb-1">{{ $row->nama_unit }}</h6>
+                                                <small class="text-muted">
+                                                    {{ date('d F Y', strtotime($row->tanggal_laporan)) }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -178,11 +205,21 @@
 
                             /* ==================== UTIL ======================= */
                             function getFilteredData(data, periode) {
-                                let start = 0, end = 12;
+                                let start = 0,
+                                    end = 12;
                                 if (periode === "Q1") end = 3;
-                                if (periode === "Q2") { start = 3; end = 6; }
-                                if (periode === "Q3") { start = 6; end = 9; }
-                                if (periode === "Q4") { start = 9; end = 12; }
+                                if (periode === "Q2") {
+                                    start = 3;
+                                    end = 6;
+                                }
+                                if (periode === "Q3") {
+                                    start = 6;
+                                    end = 9;
+                                }
+                                if (periode === "Q4") {
+                                    start = 9;
+                                    end = 12;
+                                }
                                 return data.slice(start, end);
                             }
 
@@ -205,7 +242,11 @@
                                     options: {
                                         responsive: true,
                                         scales: {
-                                            y: { beginAtZero: true, min: 0, max: 120 }
+                                            y: {
+                                                beginAtZero: true,
+                                                min: 0,
+                                                max: 120
+                                            }
                                         }
                                     }
                                 });
@@ -264,8 +305,7 @@
                                     type,
                                     data: {
                                         labels,
-                                        datasets: [
-                                            {
+                                        datasets: [{
                                                 label: "Target",
                                                 data: target,
                                                 backgroundColor: "rgba(255,159,64,0.7)",
@@ -282,7 +322,11 @@
                                     options: {
                                         responsive: true,
                                         scales: {
-                                            y: { beginAtZero: true, min: 0, max: 120 }
+                                            y: {
+                                                beginAtZero: true,
+                                                min: 0,
+                                                max: 120
+                                            }
                                         }
                                     }
                                 });
@@ -312,14 +356,16 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Unit</h4>
 
                                     <div class="d-flex gap-2">
                                         {{-- FILTER INDIKATOR --}}
                                         <select id="filterIndikator" class="form-select form-select-sm">
                                             @foreach ($indikatorsForChart as $ind)
-                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator_unit }}</option>
+                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator_unit }}
+                                                </option>
                                             @endforeach
                                         </select>
 
@@ -370,12 +416,25 @@
                         const filterTipe = document.getElementById('filterTipeChart');
 
                         function getQuarterData(data, quarter) {
-                            let start = 0, end = 12;
+                            let start = 0,
+                                end = 12;
 
-                            if (quarter === 'Q1') { start = 0; end = 3; }
-                            if (quarter === 'Q2') { start = 3; end = 6; }
-                            if (quarter === 'Q3') { start = 6; end = 9; }
-                            if (quarter === 'Q4') { start = 9; end = 12; }
+                            if (quarter === 'Q1') {
+                                start = 0;
+                                end = 3;
+                            }
+                            if (quarter === 'Q2') {
+                                start = 3;
+                                end = 6;
+                            }
+                            if (quarter === 'Q3') {
+                                start = 6;
+                                end = 9;
+                            }
+                            if (quarter === 'Q4') {
+                                start = 9;
+                                end = 12;
+                            }
 
                             return {
                                 labels: data.labels.slice(start, end),
@@ -407,8 +466,7 @@
                                 type: type,
                                 data: {
                                     labels: viewData.labels,
-                                    datasets: [
-                                        {
+                                    datasets: [{
                                             label: "Target",
                                             data: viewData.target,
                                             borderColor: 'rgba(255,99,132,1)',
@@ -452,31 +510,7 @@
             </div>
 
             {{-- ===================== SIDEBAR KANAN ===================== --}}
-            <div class="col-12 col-lg-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Terakhir Mengisi</h4>
-                    </div>
-                    <div class="card-content pb-3">
-                        @foreach ($recentIsi as $row)
-                            <div class="recent-message d-flex px-4 py-3 align-items-center">
-                                <div class="avatar avatar-lg">
-                                    @php
-                                        $imgIndex = ($row->unit_id % 10) + 1;
-                                    @endphp
-                                    <img src="{{ asset("assets/faces/{$imgIndex}.jpg") }}">
-                                </div>
-                                <div class="name ms-3">
-                                    <h6 class="mb-1">{{ $row->nama_unit }}</h6>
-                                    <small class="text-muted">
-                                        {{ date('d F Y', strtotime($row->tanggal_laporan)) }}
-                                    </small>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
+
         </section>
     </div>
 

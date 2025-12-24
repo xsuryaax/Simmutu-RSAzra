@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $, { get } from 'jquery';
 import 'datatables.net'; // Mengimpor fungsionalitas DataTables
 
 /**
@@ -10,6 +10,16 @@ const initJqueryDataTable = () => {
     if (table1El.length) {
         const jquery_datatable = table1El.DataTable({
             responsive: true,
+            dom: 
+                "<'row align-items-center'<'col-sm-12 col-md-3'l><'col-md-6 d-none d-md-block'><'col-sm-12 col-md-3'f>>" + 
+                "<'row dt-row'<'col-sm-12'tr>>" + 
+                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "language": {
+                "info": "Page _PAGE_ of _PAGES_",
+                "lengthMenu": "_MENU_ ",
+                "search": "",
+                "searchPlaceholder": "Search.."
+            }
         });
         // Terapkan pewarnaan saat draw event
         jquery_datatable.on('draw', setTableColor);
@@ -27,9 +37,9 @@ const initCustomizedDataTable = () => {
     if (table2El.length) {
         const customized_datatable = table2El.DataTable({
             responsive: true,
-            pagingType: 'simple',
+            pagingType: 'full_numbers',
             dom:
-                "<'row'<'col-3'l><'col-9'f>>" +
+                "<'row'<'col-4'l><'col-4'f>>" +
                 "<'row dt-row'<'col-sm-12'tr>>" +
                 "<'row'<'col-4'i><'col-8'p>>",
             "language": {
