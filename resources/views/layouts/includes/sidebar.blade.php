@@ -48,35 +48,75 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li class="sidebar-item {{ Request::is('laporan-analisis*') ? 'active' : '' }}">
-                    <a href="{{ route('laporan-analisis.index') }}" class='sidebar-link'>
-                        <i class="bi bi-file-earmark-bar-graph-fill"></i>
-                        <span>Laporan & Analisis</span>
-                    </a>
-                </li>
-                <li class="sidebar-item {{ Request::is('kamus-indikator-mutu-unit*') ? 'active' : '' }}">
-                    <a href="{{ route('kamus-indikator-mutu-unit.index') }}" class='sidebar-link'>
-                        <i class="bi bi-book-fill"></i>
-                        <span>Kamus Indikator Mutu Unit</span>
-                    </a>
-                </li>
-                <li class="sidebar-item {{ request()->is('master-indikator-unit*') ? 'active' : '' }}">
-                    <a href="{{ route('master-indikator-unit.index') }}" class="sidebar-link">
+
+                {{-- 1 level menu Indikator mutu Unit --}}
+                <li
+                    class="sidebar-item has-sub {{ request()->is('laporan-analisis*') || request()->is('kamus-indikator-mutu-unit*') || request()->is('master-indikator-unit*') ? 'active' : '' }}">
+                    <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
-                        <span>Master Indikator Mutu Unit</span>
+                        <span>Indikator Mutu Unit</span>
                     </a>
+                    <ul class="submenu">
+                        <li class="submenu-item {{ request()->is('laporan-analisis*') ? 'active' : '' }}">
+                            <a href="{{ route('laporan-analisis.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Laporan & Analisis</a>
+                        </li>
+                        <li class="submenu-item {{ request()->is('kamus-indikator-mutu-unit*') ? 'active' : '' }}">
+                            <a href="{{ route('kamus-indikator-mutu-unit.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Kamus Indikator Mutu Unit</a>
+                        </li>
+                        <li class="submenu-item {{ request()->is('master-indikator-unit*') ? 'active' : '' }}">
+                            <a href="{{ route('master-indikator-unit.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Master Indikator Mutu Unit</a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="sidebar-item {{ Request::is('indikator-mutu-nasional*') ? 'active' : '' }}">
-                    <a href="{{ route('indikator-mutu-nasional.index') }}" class='sidebar-link'>
+
+                {{-- 1 level menu Indikator mutu Nasional --}}
+                <li
+                    class="sidebar-item has-sub {{ request()->is('master-indikator-mutu-nasional*') || request()->is('indikator-mutu-nasional*') ? 'active' : '' }}">
+                    <a href="#" class="sidebar-link">
                         <i class="bi bi-globe2"></i>
                         <span>Indikator Mutu Nasional</span>
                     </a>
+
+                    <ul class="submenu">
+                        <li class="submenu-item {{ request()->is('indikator-mutu-nasional*') ? 'active' : '' }}">
+                            <a href="{{ route('indikator-mutu-nasional.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Analisis Indikator Mutu Nasional</a>
+                        </li>
+                        <li
+                            class="submenu-item {{ request()->is('master-indikator-mutu-nasional*') ? 'active' : '' }}">
+                            <a href="{{ route('master-indikator-mutu-nasional.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Master Indikator Mutu Nasional</a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="sidebar-item {{ Request::is('indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
-                    <a href="{{ route('indikator-mutu-prioritas-rs.index') }}" class='sidebar-link'>
-                        <i class="bi bi-hospital"></i>
+
+                {{-- 1 level menu Indikator mutu Prioritas RS --}}
+                <li
+                    class="sidebar-item has-sub {{ request()->is('indikator-mutu-prioritas-rs*') || request()->is('master-indikator-mutu-prioritas-rs*') || request()->is('kamus-indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
+                    <a href="#" class="sidebar-link">
+                        <i class="bi bi-hospital-fill"></i>
                         <span>Indikator Mutu Prioritas RS</span>
                     </a>
+
+                    <ul class="submenu">
+                        <li class="submenu-item {{ request()->is('indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
+                            <a href="{{ route('indikator-mutu-prioritas-rs.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Analisis Indikator Mutu Prioritas RS</a>
+                        </li>
+                        <li
+                            class="submenu-item {{ request()->is('master-indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
+                            <a href="{{ route('master-indikator-mutu-prioritas-rs.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Master Indikator Mutu Prioritas RS</a>
+                        </li>
+                        <li
+                            class="submenu-item {{ request()->is('kamus-indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
+                            <a href="{{ route('kamus-indikator-mutu-prioritas-rs.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Kamus Indikator Mutu Prioritas RS</a>
+                        </li>
+                    </ul>
                 </li>
 
                 <li class="sidebar-title">Menu</li>

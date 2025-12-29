@@ -7,7 +7,7 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Indikator Mutu Prioritas Rumah Sakit</h3>
+            <h3>Analisis Indikator Mutu Prioritas Rumah Sakit</h3>
             <p class="text-subtitle text-muted">
                 Halaman untuk mengelola Indikator Mutu Prioritas Rumah Sakit dalam sistem.
             </p>

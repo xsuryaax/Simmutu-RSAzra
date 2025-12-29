@@ -19,7 +19,10 @@ use App\Http\Controllers\ManajemenUnitController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\PDSAController;
 use App\Http\Controllers\IMNController;
+use App\Http\Controllers\MIMNController;
 use App\Http\Controllers\IMPRSController;
+use App\Http\Controllers\MIMPRSController;
+use App\Http\Controllers\KamusIMPRSController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -77,10 +80,25 @@ Route::middleware('auth')->group(function () {
     Route::get('indikator-mutu-nasional/create', [IMNController::class, 'create'])->name('indikator-mutu-nasional.create');
     Route::get('indikator-mutu-nasional/edit', [IMNController::class, 'edit'])->name('indikator-mutu-nasional.edit');
 
+    // master Indikator Mutu Nasional
+    Route::get('master-indikator-mutu-nasional', [MIMNController::class, 'index'])->name('master-indikator-mutu-nasional.index');
+    Route::get('master-indikator-mutu-nasional/create', [MIMNController::class, 'create'])->name('master-indikator-mutu-nasional.create');
+    Route::get('master-indikator-mutu-nasional/edit', [MIMNController::class, 'edit'])->name('master-indikator-mutu-nasional.edit');
+
     // Indikator Mutu Prioritas RS
     Route::get('indikator-mutu-prioritas-rs', [IMPRSController::class, 'index'])->name('indikator-mutu-prioritas-rs.index');
     Route::get('indikator-mutu-prioritas-rs/create', [IMPRSController::class, 'create'])->name('indikator-mutu-prioritas-rs.create');
     Route::get('indikator-mutu-prioritas-rs/edit', [IMPRSController::class, 'edit'])->name('indikator-mutu-prioritas-rs.edit');
+
+    // master Indikator Mutu Prioritas RS
+    Route::get('master-indikator-mutu-prioritas-rs', [MIMPRSController::class, 'index'])->name('master-indikator-mutu-prioritas-rs.index');
+    Route::get('master-indikator-mutu-prioritas-rs/create', [MIMPRSController::class, 'create'])->name('master-indikator-mutu-prioritas-rs.create');
+    Route::get('master-indikator-mutu-prioritas-rs/edit', [MIMPRSController::class, 'edit'])->name('master-indikator-mutu-prioritas-rs.edit');
+
+    // kamus Indikator Mutu Prioritas RS
+    Route::get('kamus-indikator-mutu-prioritas-rs', [KamusIMPRSController::class, 'index'])->name('kamus-indikator-mutu-prioritas-rs.index');
+    Route::get('kamus-indikator-mutu-prioritas-rs/create', [KamusIMPRSController::class, 'create'])->name('kamus-indikator-mutu-prioritas-rs.create');
+    Route::get('kamus-indikator-mutu-prioritas-rs/edit', [KamusIMPRSController::class, 'edit'])->name('kamus-indikator-mutu-prioritas-rs.edit');
 
     // Manajemen Role, User, Unit
     Route::resource('manajemen-role', ManajemenRoleController::class)

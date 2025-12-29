@@ -7,9 +7,9 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Analisis Indikator Mutu Nasional</h3>
+            <h3>Master Indikator Mutu Nasional</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk melengkapi data Indikator Mutu Nasional dalam sistem.
+                Halaman untuk mengelola Indikator Mutu Nasional dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
