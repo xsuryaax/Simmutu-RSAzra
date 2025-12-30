@@ -13,7 +13,6 @@ class DashboardController extends Controller
         $user = Auth::user();
         $roleId = $user->role_id;
 
-        // 🔑 indikator KHUSUS untuk chart
         if (in_array($roleId, [1, 2])) {
             // Admin / Mutu
             $indikatorsForChart = $this->getIndikators();
@@ -23,16 +22,13 @@ class DashboardController extends Controller
                 ->where('unit_id', $user->unit_id);
         }
 
-        // 2. Masukkan semua ke dalam array $data
         $data = [
             'roleId' => $roleId,
 
-            // ⚠️ data global (tetap)
             ...$this->getBaseData(),
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),
 
-            // 🔥 chart data (sinkron)
             'indikatorsForChart' => $indikatorsForChart,
             'allDataJson' => json_encode($this->getUserChartData()),
         ];
@@ -41,20 +37,13 @@ class DashboardController extends Controller
             $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
         }
 
-        // 🟢 khusus admin / mutu
         if (in_array($roleId, [1, 2])) {
             $data['divisionData'] = $this->getDivisionData();
         }
 
-        // 3. Langsung kirim array $data. 
-        // Di Blade, key array otomatis jadi nama variabel (contoh: $unitsSudah)
         return view('admin.dashboard', $data);
     }
 
-
-    /* =========================
-     * DATA DASAR
-     * ========================= */
     private function getBaseData(): array
     {
         return [
@@ -96,7 +85,7 @@ class DashboardController extends Controller
 
     private function getYears()
     {
-        return DB::table('tbl_laporan_dan_analis')
+        return DB::table('tbl_laporan_dan_analis_unit')
             ->selectRaw('DISTINCT EXTRACT(YEAR FROM tanggal_laporan) as tahun')
             ->orderByDesc('tahun')
             ->pluck('tahun');
@@ -126,7 +115,7 @@ class DashboardController extends Controller
             }
 
             // 2️⃣ Hitung indikator yang SUDAH diisi bulan wajib
-            $indikatorTerisi = DB::table('tbl_laporan_dan_analis')
+            $indikatorTerisi = DB::table('tbl_laporan_dan_analis_unit')
                 ->where('unit_id', $unit->id)
                 ->whereMonth('tanggal_laporan', $bulanWajib)
                 ->whereYear('tanggal_laporan', $tahunWajib)
@@ -151,14 +140,10 @@ class DashboardController extends Controller
         ];
     }
 
-
-    /* =========================
-     * RECENT INPUT
-     * ========================= */
     private function getRecentIsi(): array
     {
         return [
-            'recentIsi' => DB::table('tbl_laporan_dan_analis as l')
+            'recentIsi' => DB::table('tbl_laporan_dan_analis_unit as l')
                 ->join('tbl_unit as u', 'u.id', '=', 'l.unit_id')
                 ->orderByDesc('l.tanggal_laporan')
                 ->limit(5)
@@ -166,9 +151,6 @@ class DashboardController extends Controller
         ];
     }
 
-    /* =========================
-     * USER CHART
-     * ========================= */
     private function getUserChartData(): array
     {
         $user = Auth::user();
@@ -202,9 +184,6 @@ class DashboardController extends Controller
         return $data;
     }
 
-    /* =========================
-     * DIVISION CHART (ADMIN/MUTU)
-     * ========================= */
     private function getDivisionData(): array
     {
         $indikators = $this->getIndikators();
@@ -235,15 +214,12 @@ class DashboardController extends Controller
         return $divisionData;
     }
 
-    /* =========================
-     * BUILDER DATA INDIKATOR
-     * ========================= */
     private function buildIndikatorData($ind, int $tahun, array $labels, $unitId = null): array
     {
         $hasil = array_fill(1, 12, null);
         $target = array_fill(1, 12, $ind->target_indikator_unit);
 
-        $query = DB::table('tbl_laporan_dan_analis')
+        $query = DB::table('tbl_laporan_dan_analis_unit')
             ->where('indikator_unit_id', $ind->id)
             ->whereYear('tanggal_laporan', $tahun);
 

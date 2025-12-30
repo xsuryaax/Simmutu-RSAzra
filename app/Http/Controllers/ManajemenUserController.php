@@ -10,13 +10,10 @@ class ManajemenUserController extends Controller
 {
     public function index()
     {
-        // Ambil semua role
         $roles = DB::table('tbl_role')->orderBy('id', 'ASC')->get();
 
-        // Ambil semua unit
         $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
 
-        // Ambil semua user + join role & unit
         $users = DB::table('users')
             ->leftJoin('tbl_role', 'users.role_id', '=', 'tbl_role.id')
             ->leftJoin('tbl_unit', 'users.unit_id', '=', 'tbl_unit.id')
@@ -77,7 +74,6 @@ class ManajemenUserController extends Controller
             'status_user' => $request->status_user,
         ];
 
-        // Jika password diisi, update
         if ($request->password != null) {
             $data['password'] = bcrypt($request->password);
         }

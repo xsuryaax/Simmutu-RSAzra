@@ -15,16 +15,21 @@ class HakAksesController extends Controller
             'icon' => 'ri-dashboard-line',
             'menus' => [
                 ['key' => 'dashboard', 'label' => 'Dashboard'],
-                ['key' => 'laporan_analisis', 'label' => 'Laporan dan Analisis'],
-                ['key' => 'kamus_indikator_mutu_unit', 'label' => 'Kamus Indikator Mutu Unit'],
-                ['key' => 'master_indikator_unit', 'label' => 'Master Indikator Unit'],
+                ['key' => 'master_impu', 'label' => 'Master IMPU'],
+                ['key' => 'kamus_impu', 'label' => 'Kamus IMPU'],
+                ['key' => 'master_imprs', 'label' => 'Master IMPRS'],
+                ['key' => 'kamus_imprs', 'label' => 'Kamus IMPRS'],
+                ['key' => 'master_imn', 'label' => 'Master IMN'],
+                ['key' => 'laporan_analis_imprs', 'label' => 'Laporan Analis IMPRS'],
+                ['key' => 'laporan_analis_impu', 'label' => 'Laporan Analis IMPU'],
+                ['key' => 'laporan_analis_imn', 'label' => 'Laporan Analis IMN'],
             ]
         ],
         'manajemen_data_mutu' => [
             'title' => 'Manajemen Data Mutu Unit',
             'icon' => 'ri-list-check-2',
             'menus' => [
-                
+
                 ['key' => 'cakupan_data', 'label' => 'Cakupan Data'],
                 ['key' => 'dimensi_mutu', 'label' => 'Dimensi Mutu'],
                 ['key' => 'frekuensi_analisis_data', 'label' => 'Frekuensi Analisis Data'],
@@ -65,21 +70,18 @@ class HakAksesController extends Controller
 
 
     public function update(Request $request, $roleId)
-{
-    // Ambil list key menu yang dipilih (contoh: ["dashboard", "kamus_indikator_mutu"])
-    $menuDipilih = $request->menu_key ?? [];
+    {
+        $menuDipilih = $request->menu_key ?? [];
 
-    // Hapus semua hak akses lama untuk role ini
-    tbl_hak_akses::where('role_id', $roleId)->delete();
+        tbl_hak_akses::where('role_id', $roleId)->delete();
 
-    // Simpan hak akses baru
-    foreach ($menuDipilih as $key) {
-        tbl_hak_akses::create([
-            'role_id' => $roleId,
-            'menu_key' => $key
-        ]);
+        foreach ($menuDipilih as $key) {
+            tbl_hak_akses::create([
+                'role_id' => $roleId,
+                'menu_key' => $key
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Hak akses berhasil diperbarui!');
     }
-
-    return redirect()->back()->with('success', 'Hak akses berhasil diperbarui!');
-}
 }

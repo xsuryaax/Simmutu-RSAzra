@@ -12,12 +12,10 @@ class ManajemenUnitController extends Controller
         $units = tbl_unit::orderBy('id', 'ASC')->get();
         $title = "Data Unit";
 
-        // Hitung total
         $totalUnit = tbl_unit::count();
         $unitAktif = tbl_unit::where('status_unit', 'aktif')->count();
         $unitNonAktif = tbl_unit::where('status_unit', 'non-aktif')->count();
 
-        // Generate kode otomatis untuk form create di index
         $last = tbl_unit::orderBy('id', 'DESC')->first();
         $num = $last ? (int) substr($last->kode_unit, 4) + 1 : 1;
         $kode = 'UNIT' . str_pad($num, 3, '0', STR_PAD_LEFT);
@@ -31,7 +29,6 @@ class ManajemenUnitController extends Controller
         ));
     }
 
-
     public function store(Request $request)
     {
         $request->validate([
@@ -42,7 +39,6 @@ class ManajemenUnitController extends Controller
 
         $status = $request->status_unit ? 'aktif' : 'non-aktif';
 
-        // Generate kode otomatis
         $last = tbl_unit::orderBy('id', 'DESC')->first();
         $num = $last ? (int) substr($last->kode_unit, 4) + 1 : 1;
         $kode = 'UNIT' . str_pad($num, 3, '0', STR_PAD_LEFT);

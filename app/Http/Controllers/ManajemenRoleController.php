@@ -12,7 +12,6 @@ class ManajemenRoleController extends Controller
      */
     public function index()
     {
-        // Ambil semua role + hitung jumlah user yang memakai role tsb
         $roles = DB::table('tbl_role')
             ->leftJoin('users', 'tbl_role.id', '=', 'users.role_id')
             ->select(
@@ -25,7 +24,6 @@ class ManajemenRoleController extends Controller
             ->orderBy('tbl_role.id', 'asc')
             ->get();
 
-        // Hitung kartu statistik
         $total_role = $roles->count();
         $role_aktif = $roles->where('total_user', '>', 0)->count();
         $role_nonaktif = $roles->where('total_user', '=', 0)->count();
@@ -91,7 +89,6 @@ class ManajemenRoleController extends Controller
      */
     public function destroy($id)
     {
-        // Cek apakah role dipakai user → kalau iya, jangan dihapus
         $cekUser = DB::table('users')->where('role_id', $id)->count();
 
         if ($cekUser > 0) {

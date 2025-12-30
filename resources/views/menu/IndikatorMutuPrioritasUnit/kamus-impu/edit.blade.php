@@ -1,0 +1,340 @@
+@extends('layouts.app')
+
+@section('title', 'Edit Kamus Indikator Mutu')
+
+@section('page-title')
+    <div class="page-header">
+        <div class="page-header-left">
+            <h3>Edit Kamus Indikator Mutu</h3>
+            <p class="text-subtitle text-muted">
+                Halaman untuk mengelola kamus indikator mutu dalam sistem.
+            </p>
+        </div>
+        <div class="page-header-right">
+            <div class="justify-content-end d-flex">
+                <form method="POST" action="/logout">
+                    @csrf
+                    <button type="submit" class="btn btn-primary logout-btn">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Form Edit Kamus Indikator Mutu
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('content')
+    <section id="basic-vertical-layouts">
+        <div class="row match-height">
+
+            <div class="col-md-12 col-12">
+                <div class="card">
+
+                    <div class="card-header">
+                        <h4 class="card-title">Form Edit Kamus Indikator Mutu</h4>
+                    </div>
+
+                    <div class="card-content">
+                        <div class="card-body">
+
+                            <form action="{{ route('kamus-impu.update', $data->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
+                                {{-- ==================== INFORMASI DASAR ==================== --}}
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Informasi Dasar</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+
+                                            {{-- Indikator --}}
+                                            <div class="col-md-12 mb-3">
+                                                <label class="form-label">Indikator <span
+                                                        class="text-danger">*</span></label>
+                                                <select name="indikator_unit_id" class="form-select">
+                                                    <option value="">Pilih Indikator</option>
+
+                                                    @foreach ($indikator as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            {{ $item->id == $data->indikator_unit_id ? 'selected' : '' }}>
+                                                            {{ $item->nama_indikator_unit }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            {{-- Definisi Operasional --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Definisi Operasional <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="definisi_operasional" class="form-control" rows="4">{{ $data->definisi_operasional }}</textarea>
+                                            </div>
+
+                                            {{-- Tujuan --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Tujuan <span class="text-danger">*</span></label>
+                                                <textarea name="tujuan" class="form-control" rows="4">{{ $data->tujuan }}</textarea>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ==================== METODOLOGI ==================== --}}
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Metodologi</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+
+                                            {{-- Dimensi Mutu --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Dimensi Mutu <span
+                                                        class="text-danger">*</span></label>
+                                                <select name="dimensi_mutu_id" class="form-select">
+                                                    <option value="">Pilih Dimensi Mutu</option>
+
+                                                    @foreach ($dimensi as $d)
+                                                        <option value="{{ $d->id }}"
+                                                            {{ $d->id == $data->dimensi_mutu_id ? 'selected' : '' }}>
+                                                            {{ $d->nama_dimensi_mutu }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            {{-- Dasar Pemikiran --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Dasar Pemikiran <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="dasar_pemikiran" class="form-control" rows="3">{{ $data->dasar_pemikiran }}</textarea>
+                                            </div>
+
+                                            {{-- Formula Pengukuran --}}
+                                            <div class="col-md-12 mb-3">
+                                                <label class="form-label">Formula Pengukuran <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="formula_pengukuran" class="form-control" rows="3">{{ $data->formula_pengukuran }}</textarea>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ==================== PENGUMPULAN DATA ==================== --}}
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Pengumpulan Data</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+
+                                            {{-- Metodologi --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Metodologi <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="metodologi" class="form-control" rows="3">{{ $data->metodologi }}</textarea>
+                                            </div>
+
+                                            {{-- Jenis Metodologi (Radio) --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Jenis Metodologi <span
+                                                        class="text-danger">*</span></label><br>
+
+                                                @foreach ($metodologiPengumpulan as $item)
+                                                    @php($id = 'jenis_' . $item->id)
+                                                    <input type="radio" class="btn-check"
+                                                        name="metodologi_pengumpulan_data_id" id="{{ $id }}"
+                                                        value="{{ $item->id }}"
+                                                        {{ $item->id == $data->metodologi_pengumpulan_data_id ? 'checked' : '' }}>
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_metodologi_pengumpulan_data }}
+                                                    </label>
+                                                @endforeach
+                                            </div>
+
+                                            {{-- Cakupan Data --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Cakupan Data <span
+                                                        class="text-danger">*</span></label><br>
+
+                                                @foreach ($cakupan as $item)
+                                                    @php($id = 'cakupan_' . $item->id)
+                                                    <input type="radio" class="btn-check" name="cakupan_data_id"
+                                                        id="{{ $id }}" value="{{ $item->id }}"
+                                                        {{ $item->id == $data->cakupan_data_id ? 'checked' : '' }}>
+
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_cakupan_data }}
+                                                    </label>
+                                                @endforeach
+                                            </div>
+
+                                            {{-- Detail Pengukuran --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Detail Pengukuran <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="detail_pengukuran" class="form-control" rows="3">{{ $data->detail_pengukuran }}</textarea>
+                                            </div>
+
+                                            {{-- Frekuensi Pengumpulan --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Frekuensi Pengumpulan *</label>
+                                                <select class="form-select" name="frekuensi_pengumpulan_data_id">
+                                                    <option value="">Pilih Frekuensi</option>
+
+                                                    @foreach ($frekuensiPengumpulan as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            {{ $item->id == $data->frekuensi_pengumpulan_data_id ? 'selected' : '' }}>
+                                                            {{ $item->nama_frekuensi_pengumpulan_data }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            {{-- Sumber Data --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Sumber Data <span
+                                                        class="text-danger">*</span></label>
+                                                <textarea name="sumber_data" class="form-control" rows="3">{{ $data->sumber_data }}</textarea>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ==================== ANALISIS DATA ==================== --}}
+                                <div class="card mt-4">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Analisis Data</h5>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="row">
+
+                                            {{-- Frekuensi Analisa --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Frekuensi Analisa <span
+                                                        class="text-danger">*</span></label>
+                                                <select class="form-select" name="frekuensi_analisis_data_id">
+                                                    <option value="">Pilih Frekuensi</option>
+
+                                                    @foreach ($frekuensiAnalisis as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            {{ $item->id == $data->frekuensi_analisis_data_id ? 'selected' : '' }}>
+                                                            {{ $item->nama_frekuensi_analisis_data }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            {{-- Metodologi Analisis (Radio) --}}
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Metodologi Analisa <span
+                                                        class="text-danger">*</span></label><br>
+
+                                                @foreach ($metodologiAnalisis as $item)
+                                                    @php($id = 'analisis_' . $item->id)
+
+                                                    <input type="radio" class="btn-check"
+                                                        name="metodologi_analisis_data_id" id="{{ $id }}"
+                                                        value="{{ $item->id }}"
+                                                        {{ $item->id == $data->metodologi_analisis_data_id ? 'checked' : '' }}>
+
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_metodologi_analisis_data }}
+                                                    </label>
+                                                @endforeach
+                                            </div>
+
+                                            {{-- Interpretasi --}}
+                                            <div class="col-md-12 mb-3">
+                                                <label class="form-label">Interpretasi Data <span
+                                                        class="text-danger">*</span></label><br>
+
+                                                @foreach ($interpretasi as $item)
+                                                    @php($id = 'interpretasi_' . $item->id)
+
+                                                    <input type="radio" class="btn-check" name="interpretasi_data_id"
+                                                        id="{{ $id }}" value="{{ $item->id }}"
+                                                        {{ $item->id == $data->interpretasi_data_id ? 'checked' : '' }}>
+
+                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                        {{ $item->nama_interpretasi_data }}
+                                                    </label>
+                                                @endforeach
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ==================== PENANGGUNG JAWAB & PUBLIKASI ==================== --}}
+                                <div class="card-body">
+                                    <div class="row">
+
+                                        {{-- Penanggung Jawab --}}
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Penanggung Jawab <span
+                                                    class="text-danger">*</span></label>
+                                            <textarea name="penanggung_jawab" class="form-control" rows="4">{{ $data->penanggung_jawab }}</textarea>
+                                        </div>
+
+                                        {{-- Publikasi --}}
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Publikasi Data <span
+                                                    class="text-danger">*</span></label><br>
+
+                                            @foreach ($publikasi as $item)
+                                                @php($id = 'publikasi_' . $item->id)
+
+                                                <input type="radio" class="btn-check" name="publikasi_data_id"
+                                                    id="{{ $id }}" value="{{ $item->id }}"
+                                                    {{ $item->id == $data->publikasi_data_id ? 'checked' : '' }}>
+
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $item->nama_publikasi_data }}
+                                                </label>
+                                            @endforeach
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {{-- BUTTON --}}
+                                <div class="mt-4">
+                                    <button class="btn btn-primary">Update</button>
+                                    <a href="{{ route('kamus-impu.index') }}"
+                                        class="btn btn-secondary">Kembali</a>
+                                </div>
+
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+@endsection

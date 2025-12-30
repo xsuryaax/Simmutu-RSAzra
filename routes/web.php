@@ -3,26 +3,31 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HakAksesController;
-use App\Http\Controllers\KamusIndikatorMutuController;
-use App\Http\Controllers\LaporanAnalisisController;
+use App\Http\Controllers\ManajemenRoleController;
+use App\Http\Controllers\ManajemenUnitController;
+use App\Http\Controllers\ManajemenUserController;
+use App\Http\Controllers\PDSAController;
+
+use App\Http\Controllers\IndikatorMutuPrioritasUnit\KamusIMPUController;
+use App\Http\Controllers\IndikatorMutuPrioritasUnit\LaporanAnalisIMPUController;
+use App\Http\Controllers\IndikatorMutuPrioritasUnit\MasterIMPUController;
+
+use App\Http\Controllers\IndikatorMutuNasional\MasterIMNController;
+use App\Http\Controllers\IndikatorMutuNasional\LaporanAnalisIMNController;
+
+use App\Http\Controllers\IndikatorMutuPrioritasRS\MasterIMPRSController;
+use App\Http\Controllers\IndikatorMutuPrioritasRS\KamusIMPRSController;
+use App\Http\Controllers\IndikatorMutuPrioritasRS\LaporanAnalisIMPRSController;
+
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiAnalisisDataController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiPengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\InterpretasiDataController;
-use App\Http\Controllers\ManajemenMutu\MasterIndikatorController;
 use App\Http\Controllers\ManajemenMutu\MetodologiAnalisisDataController;
 use App\Http\Controllers\ManajemenMutu\MetodologiPengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\PublikasiDataController;
-use App\Http\Controllers\ManajemenRoleController;
-use App\Http\Controllers\ManajemenUnitController;
-use App\Http\Controllers\ManajemenUserController;
-use App\Http\Controllers\PDSAController;
-use App\Http\Controllers\IMNController;
-use App\Http\Controllers\MIMNController;
-use App\Http\Controllers\IMPRSController;
-use App\Http\Controllers\MIMPRSController;
-use App\Http\Controllers\KamusIMPRSController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,15 +54,36 @@ Route::get('/unauthorized', function () {
 */
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');;
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    ;
 
     Route::get('/chart', function () {
         return view('admin.chart');
     });
 
+    // Indikator Mutu Prioritas Unit
+    Route::resource('master-impu', MasterIMPUController::class)
+        ->middleware('check.role:master_impu');
+    Route::resource('kamus-impu', KamusIMPUController::class)
+        ->middleware('check.role:kamus_impu');
+    Route::resource('laporan-analis-impu', LaporanAnalisIMPUController::class)
+        ->middleware('check.role:laporan_analis_impu');
+
+    // Indikator Mutu Prioritas RS
+    Route::resource('master-imprs', MasterIMPRSController::class)
+        ->middleware('check.role:master_imprs');
+    Route::resource('kamus-imprs', KamusIMPRSController::class)
+        ->middleware('check.role:kamus_imprs');
+    Route::resource('laporan-analis-imprs', LaporanAnalisIMPRSController::class)
+        ->middleware('check.role:laporan_analis_imprs');
+
+    // Indikator Mutu Nasional
+    Route::resource('master-imn', MasterIMNController::class)
+        ->middleware('check.role:master_imn');
+    Route::resource('laporan-analis-imn', LaporanAnalisIMNController::class)
+        ->middleware('check.role:laporan_analis_imn');
+
     // Menu Manajemen Mutu
-    Route::resource('master-indikator-unit', MasterIndikatorController::class)
-        ->middleware('check.role:master_indikator_unit');
     Route::resource('cakupan-data', CakupanDataController::class)
         ->middleware('check.role:cakupan_data');
     Route::resource('dimensi-mutu', DimensiMutuController::class)
@@ -75,31 +101,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('publikasi-data', PublikasiDataController::class)
         ->middleware('check.role:publikasi_data');
 
-    // Indikator Mutu Nasional
-    Route::get('indikator-mutu-nasional', [IMNController::class, 'index'])->name('indikator-mutu-nasional.index');
-    Route::get('indikator-mutu-nasional/create', [IMNController::class, 'create'])->name('indikator-mutu-nasional.create');
-    Route::get('indikator-mutu-nasional/edit', [IMNController::class, 'edit'])->name('indikator-mutu-nasional.edit');
-
-    // master Indikator Mutu Nasional
-    Route::get('master-indikator-mutu-nasional', [MIMNController::class, 'index'])->name('master-indikator-mutu-nasional.index');
-    Route::get('master-indikator-mutu-nasional/create', [MIMNController::class, 'create'])->name('master-indikator-mutu-nasional.create');
-    Route::get('master-indikator-mutu-nasional/edit', [MIMNController::class, 'edit'])->name('master-indikator-mutu-nasional.edit');
-
-    // Indikator Mutu Prioritas RS
-    Route::get('indikator-mutu-prioritas-rs', [IMPRSController::class, 'index'])->name('indikator-mutu-prioritas-rs.index');
-    Route::get('indikator-mutu-prioritas-rs/create', [IMPRSController::class, 'create'])->name('indikator-mutu-prioritas-rs.create');
-    Route::get('indikator-mutu-prioritas-rs/edit', [IMPRSController::class, 'edit'])->name('indikator-mutu-prioritas-rs.edit');
-
-    // master Indikator Mutu Prioritas RS
-    Route::get('master-indikator-mutu-prioritas-rs', [MIMPRSController::class, 'index'])->name('master-indikator-mutu-prioritas-rs.index');
-    Route::get('master-indikator-mutu-prioritas-rs/create', [MIMPRSController::class, 'create'])->name('master-indikator-mutu-prioritas-rs.create');
-    Route::get('master-indikator-mutu-prioritas-rs/edit', [MIMPRSController::class, 'edit'])->name('master-indikator-mutu-prioritas-rs.edit');
-
-    // kamus Indikator Mutu Prioritas RS
-    Route::get('kamus-indikator-mutu-prioritas-rs', [KamusIMPRSController::class, 'index'])->name('kamus-indikator-mutu-prioritas-rs.index');
-    Route::get('kamus-indikator-mutu-prioritas-rs/create', [KamusIMPRSController::class, 'create'])->name('kamus-indikator-mutu-prioritas-rs.create');
-    Route::get('kamus-indikator-mutu-prioritas-rs/edit', [KamusIMPRSController::class, 'edit'])->name('kamus-indikator-mutu-prioritas-rs.edit');
-
     // Manajemen Role, User, Unit
     Route::resource('manajemen-role', ManajemenRoleController::class)
         ->middleware('check.role:manage_role');
@@ -107,12 +108,6 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:manajemen_user');
     Route::resource('manajemen-unit', ManajemenUnitController::class)
         ->middleware('check.role:manajemen_unit');
-
-    // Kamus & Laporan
-    Route::resource('kamus-indikator-mutu-unit', KamusIndikatorMutuController::class)
-        ->middleware('check.role:kamus_indikator_mutu_unit');
-    Route::resource('laporan-analisis', LaporanAnalisisController::class)
-        ->middleware('check.role:laporan_analisis');
 
     // Hak akses
     Route::get('hak-akses', [HakAksesController::class, 'index'])

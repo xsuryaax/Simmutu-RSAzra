@@ -51,22 +51,22 @@
 
                 {{-- 1 level menu Indikator mutu Unit --}}
                 <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analisis*') || request()->is('kamus-indikator-mutu-unit*') || request()->is('master-indikator-unit*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis-impu*') || request()->is('kamus-impu*') || request()->is('master-impu*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
                         <span>Indikator Mutu Unit</span>
                     </a>
                     <ul class="submenu">
-                        <li class="submenu-item {{ request()->is('laporan-analisis*') ? 'active' : '' }}">
-                            <a href="{{ route('laporan-analisis.index') }}" class="submenu-link"
+                        <li class="submenu-item {{ request()->is('laporan-analis-impu*') ? 'active' : '' }}">
+                            <a href="{{ route('laporan-analis-impu.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Laporan & Analisis</a>
                         </li>
-                        <li class="submenu-item {{ request()->is('kamus-indikator-mutu-unit*') ? 'active' : '' }}">
-                            <a href="{{ route('kamus-indikator-mutu-unit.index') }}" class="submenu-link"
+                        <li class="submenu-item {{ request()->is('kamus-impu*') ? 'active' : '' }}">
+                            <a href="{{ route('kamus-impu.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Kamus Indikator Mutu Unit</a>
                         </li>
-                        <li class="submenu-item {{ request()->is('master-indikator-unit*') ? 'active' : '' }}">
-                            <a href="{{ route('master-indikator-unit.index') }}" class="submenu-link"
+                        <li class="submenu-item {{ request()->is('master-impu*') ? 'active' : '' }}">
+                            <a href="{{ route('master-impu.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Master Indikator Mutu Unit</a>
                         </li>
                     </ul>
@@ -74,20 +74,20 @@
 
                 {{-- 1 level menu Indikator mutu Nasional --}}
                 <li
-                    class="sidebar-item has-sub {{ request()->is('master-indikator-mutu-nasional*') || request()->is('indikator-mutu-nasional*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('master-imn*') || request()->is('laporan-analis-imn*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-globe2"></i>
                         <span>Indikator Mutu Nasional</span>
                     </a>
 
                     <ul class="submenu">
-                        <li class="submenu-item {{ request()->is('indikator-mutu-nasional*') ? 'active' : '' }}">
-                            <a href="{{ route('indikator-mutu-nasional.index') }}" class="submenu-link"
+                        <li class="submenu-item {{ request()->is('laporan-analis-imn*') ? 'active' : '' }}">
+                            <a href="{{ route('laporan-analis-imn.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Analisis Indikator Mutu Nasional</a>
                         </li>
                         <li
-                            class="submenu-item {{ request()->is('master-indikator-mutu-nasional*') ? 'active' : '' }}">
-                            <a href="{{ route('master-indikator-mutu-nasional.index') }}" class="submenu-link"
+                            class="submenu-item {{ request()->is('master-imn*') ? 'active' : '' }}">
+                            <a href="{{ route('master-imn.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Master Indikator Mutu Nasional</a>
                         </li>
                     </ul>
@@ -95,25 +95,25 @@
 
                 {{-- 1 level menu Indikator mutu Prioritas RS --}}
                 <li
-                    class="sidebar-item has-sub {{ request()->is('indikator-mutu-prioritas-rs*') || request()->is('master-indikator-mutu-prioritas-rs*') || request()->is('kamus-indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis-imprs*') || request()->is('master-imprs*') || request()->is('kamus-imprs*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-hospital-fill"></i>
                         <span>Indikator Mutu Prioritas RS</span>
                     </a>
 
                     <ul class="submenu">
-                        <li class="submenu-item {{ request()->is('indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
-                            <a href="{{ route('indikator-mutu-prioritas-rs.index') }}" class="submenu-link"
+                        <li class="submenu-item {{ request()->is('laporan-analis-imprs*') ? 'active' : '' }}">
+                            <a href="{{ route('laporan-analis-imprs.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Analisis Indikator Mutu Prioritas RS</a>
                         </li>
                         <li
-                            class="submenu-item {{ request()->is('master-indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
-                            <a href="{{ route('master-indikator-mutu-prioritas-rs.index') }}" class="submenu-link"
+                            class="submenu-item {{ request()->is('master-imprs*') ? 'active' : '' }}">
+                            <a href="{{ route('master-imprs.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Master Indikator Mutu Prioritas RS</a>
                         </li>
                         <li
-                            class="submenu-item {{ request()->is('kamus-indikator-mutu-prioritas-rs*') ? 'active' : '' }}">
-                            <a href="{{ route('kamus-indikator-mutu-prioritas-rs.index') }}" class="submenu-link"
+                            class="submenu-item {{ request()->is('kamus-imprs*') ? 'active' : '' }}">
+                            <a href="{{ route('kamus-imprs.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Kamus Indikator Mutu Prioritas RS</a>
                         </li>
                     </ul>
