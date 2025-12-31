@@ -120,8 +120,8 @@
             </div>
 
             <div class="card-body">
-                <div class="table-responsive table-dark">
-                    <table class="table table-striped">
+                <div class="table-parent-container table-responsive-md table-dark">
+                    <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th>NO</th>
@@ -133,7 +133,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($laporanNasional as $i => $row)
+                            @foreach ($laporanNasional as $i => $row)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
                                     <td>{{ $row->nama_indikator }}</td>
@@ -151,19 +151,12 @@
                                         @endif
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center text-muted">
-                                        Belum ada laporan
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-
     </section>
 
     {{-- ================= MODAL INPUT ================= --}}

@@ -46,10 +46,8 @@
             </div>
 
             <div class="card-body">
-                <div class="table-responsive table-dark">
-
-                    {{-- TABLE --}}
-                    <table class="table table-striped" id="tableIndikatorNasional">
+                <div class="table-parent-container table-responsive-md table-dark">
+                    <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th>NO</th>
@@ -63,7 +61,7 @@
                         </thead>
 
                         <tbody>
-                            @forelse ($indikators as $i => $row)
+                            @foreach ($indikators as $i => $row)
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
 
@@ -104,13 +102,7 @@
                                         </form>
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted">
-                                        Data indikator nasional belum tersedia
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
 
                     </table>

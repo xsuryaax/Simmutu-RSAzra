@@ -50,7 +50,7 @@
                 </a>
             </div>
             <div class="card-body">
-                <div class="table-responsive table-dark">
+                <div class="table-parent-container table-responsive-md table-dark">
                     <form method="GET" class="row g-2 align-items-end mb-4">
                         <div class="col-md-2">
                             <label class="form-label">Bulan</label>
