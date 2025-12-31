@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Master IMPRS')
 
 {{-- Bagian Breadcrumb dan Halaman Title --}}
 @section('page-title')
@@ -29,7 +29,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Indikator Mutu Prioritas Rumah Sakit
+                            Master IMPRS
                         </li>
                     </ol>
                 </nav>
@@ -43,7 +43,7 @@
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center gap-3">
-                <h5 class="card-title mb-0">Indikator Mutu Prioritas Rumah Sakit</h5>
+                <h5 class="card-title mb-0">Master Indikator Mutu Prioritas Rumah Sakit</h5>
 
                 <a href="{{ route('master-imprs.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data

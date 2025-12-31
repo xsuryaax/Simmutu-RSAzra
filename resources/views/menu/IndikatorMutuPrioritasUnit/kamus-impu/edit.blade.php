@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Kamus Indikator Mutu')
+@section('title', 'Edit Kamus IMPU')
 
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Edit Kamus Indikator Mutu</h3>
+            <h3>Edit Kamus Indikator Mutu Prioritas Unit</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola kamus indikator mutu dalam sistem.
+                Halaman untuk mengelola kamus indikator mutu prioritas unit dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
@@ -27,7 +27,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Form Edit Kamus Indikator Mutu
+                            Form Edit Kamus Indikator Mutu Prioritas Unit
                         </li>
                     </ol>
                 </nav>
@@ -44,7 +44,7 @@
                 <div class="card">
 
                     <div class="card-header">
-                        <h4 class="card-title">Form Edit Kamus Indikator Mutu</h4>
+                        <h4 class="card-title">Form Edit Kamus Indikator Mutu Prioritas Unit</h4>
                     </div>
 
                     <div class="card-content">
@@ -323,8 +323,7 @@
                                 {{-- BUTTON --}}
                                 <div class="mt-4">
                                     <button class="btn btn-primary">Update</button>
-                                    <a href="{{ route('kamus-impu.index') }}"
-                                        class="btn btn-secondary">Kembali</a>
+                                    <a href="{{ route('kamus-impu.index') }}" class="btn btn-secondary">Kembali</a>
                                 </div>
 
                             </form>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Edit Unit')
 
 @section('page-title')
     <div class="page-header">
@@ -28,7 +28,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Form Edit Unit
+                            Edit Unit
                         </li>
                     </ol>
                 </nav>
@@ -48,96 +48,94 @@
                     <div class="card-content">
                         <div class="card-body">
                             <form action="{{ route('manajemen-unit.update', $unit->id) }}" method="POST"
-                                    class="form form-vertical">
-                                    @csrf
-                                    @method('PUT')
+                                class="form form-vertical">
+                                @csrf
+                                @method('PUT')
 
-                                    <div class="form-body">
-                                        <div class="row">
+                                <div class="form-body">
+                                    <div class="row">
 
-                                            {{-- Kode Unit --}}
-                                            <div class="col-6 mb-3">
-                                                <div class="form-group">
-                                                    <label for="kode_unit">Kode Unit</label>
-                                                    <input type="text" id="kode_unit" name="kode_unit"
-                                                        class="form-control"
-                                                        value="{{ $unit->kode_unit }}" readonly>
-                                                </div>
+                                        {{-- Kode Unit --}}
+                                        <div class="col-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="kode_unit">Kode Unit</label>
+                                                <input type="text" id="kode_unit" name="kode_unit" class="form-control"
+                                                    value="{{ $unit->kode_unit }}" readonly>
                                             </div>
+                                        </div>
 
-                                            {{-- Nama Unit --}}
-                                            <div class="col-6 mb-3">
-                                                <div class="form-group">
-                                                    <label for="nama_unit">Nama Unit</label>
-                                                    <input type="text" id="nama_unit" name="nama_unit"
-                                                        class="form-control @error('nama_unit') is-invalid @enderror"
-                                                        placeholder="Masukkan nama unit"
-                                                        value="{{ old('nama_unit', $unit->nama_unit) }}" required>
+                                        {{-- Nama Unit --}}
+                                        <div class="col-6 mb-3">
+                                            <div class="form-group">
+                                                <label for="nama_unit">Nama Unit</label>
+                                                <input type="text" id="nama_unit" name="nama_unit"
+                                                    class="form-control @error('nama_unit') is-invalid @enderror"
+                                                    placeholder="Masukkan nama unit"
+                                                    value="{{ old('nama_unit', $unit->nama_unit) }}" required>
 
-                                                    @error('nama_unit')
-                                                        <small class="text-danger">{{ $message }}</small>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Deskripsi --}}
-                                            <div class="col-12 mb-3">
-                                                <div class="form-group">
-                                                    <label for="deskripsi_unit">Keterangan</label>
-                                                    <textarea id="deskripsi_unit" name="deskripsi_unit" rows="3"
-                                                        class="form-control @error('deskripsi_unit') is-invalid @enderror"
-                                                        placeholder="Masukkan keterangan unit">{{ old('deskripsi_unit', $unit->deskripsi_unit) }}</textarea>
-
-                                                    @error('deskripsi_unit')
-                                                        <small class="text-danger">{{ $message }}</small>
-                                                    @enderror
-                                                </div>
-                                            </div>
-
-                                            {{-- Status --}}
-                                            <div class="col-3 mb-3">
-                                                <label class="form-label d-block">Status</label>
-
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="status_unit"
-                                                        id="status_aktif" value="aktif"
-                                                        {{ old('status_unit', $unit->status_unit) == 'aktif' ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="status_aktif">Aktif</label>
-                                                </div>
-
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="status_unit"
-                                                        id="status_non_aktif" value="non-aktif"
-                                                        {{ old('status_unit', $unit->status_unit) == 'non-aktif' ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="status_non_aktif">Non-Aktif</label>
-                                                </div>
-
-                                                @error('status_unit')
-                                                    <br><small class="text-danger">{{ $message }}</small>
+                                                @error('nama_unit')
+                                                    <small class="text-danger">{{ $message }}</small>
                                                 @enderror
                                             </div>
+                                        </div>
 
-                                            {{-- Tombol --}}
-                                            <div class="col-12 d-flex justify-content-end">
-                                                <a href="{{ route('manajemen-unit.index') }}"
-                                                    class="btn btn-light-secondary me-2">
-                                                    Kembali
-                                                </a>
+                                        {{-- Deskripsi --}}
+                                        <div class="col-12 mb-3">
+                                            <div class="form-group">
+                                                <label for="deskripsi_unit">Keterangan</label>
+                                                <textarea id="deskripsi_unit" name="deskripsi_unit" rows="3"
+                                                    class="form-control @error('deskripsi_unit') is-invalid @enderror" placeholder="Masukkan keterangan unit">{{ old('deskripsi_unit', $unit->deskripsi_unit) }}</textarea>
 
-                                                <button type="submit" class="btn btn-primary">
-                                                    <i class="bi bi-check-circle"></i> Update
-                                                </button>
+                                                @error('deskripsi_unit')
+                                                    <small class="text-danger">{{ $message }}</small>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        {{-- Status --}}
+                                        <div class="col-3 mb-3">
+                                            <label class="form-label d-block">Status</label>
+
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="status_unit"
+                                                    id="status_aktif" value="aktif"
+                                                    {{ old('status_unit', $unit->status_unit) == 'aktif' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="status_aktif">Aktif</label>
                                             </div>
 
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="status_unit"
+                                                    id="status_non_aktif" value="non-aktif"
+                                                    {{ old('status_unit', $unit->status_unit) == 'non-aktif' ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="status_non_aktif">Non-Aktif</label>
+                                            </div>
+
+                                            @error('status_unit')
+                                                <br><small class="text-danger">{{ $message }}</small>
+                                            @enderror
                                         </div>
+
+                                        {{-- Tombol --}}
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <a href="{{ route('manajemen-unit.index') }}"
+                                                class="btn btn-light-secondary me-2">
+                                                Kembali
+                                            </a>
+
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle"></i> Update
+                                            </button>
+                                        </div>
+
                                     </div>
+                                </div>
 
-                                </form>
+                            </form>
 
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 @endsection

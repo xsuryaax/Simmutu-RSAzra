@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Manajemen Unit')
 
 {{-- Bagian Breadcrumb dan Halaman Title --}}
 @section('page-title')

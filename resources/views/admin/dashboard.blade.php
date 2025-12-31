@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Dashboard')
 
 @section('page-title')
     <div class="dash-header">
@@ -103,8 +103,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-9">
+                    <div class="row adm-chart">
+                        <div class="col-9 left-chart">
                             <div class="card">
                                 <div
                                     class="card-header d-flex justify-content-between align-items-center chart-card-header">
@@ -145,7 +145,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-3">
+                        <div class="col-3 right-chart">
                             <div class="card">
                                 <div class="card-header">
                                     <h4>Terakhir Mengisi</h4>

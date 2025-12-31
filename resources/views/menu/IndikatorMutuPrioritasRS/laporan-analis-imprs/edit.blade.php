@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Form Edit IMPRS')
 
 @section('page-title')
     <div class="page-header">
@@ -28,7 +28,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Form Edit Indikator Mutu Prioritas Rumah Sakit
+                            Form Edit IMPRS
                         </li>
                     </ol>
                 </nav>

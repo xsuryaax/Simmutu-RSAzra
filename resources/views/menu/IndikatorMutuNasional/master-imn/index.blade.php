@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Indikator Mutu Nasional')
+@section('title', 'Master IMN')
 
 @section('page-title')
     <div class="page-header">
@@ -34,90 +34,88 @@
 @endsection
 
 @section('content')
-<section class="section">
-    <div class="card">
+    <section class="section">
+        <div class="card">
 
-        <div class="card-header d-flex justify-content-between align-items-center gap-3">
-            <h5 class="card-title mb-0">Indikator Mutu Nasional</h5>
+            <div class="card-header d-flex justify-content-between align-items-center gap-3">
+                <h5 class="card-title mb-0">Indikator Mutu Nasional</h5>
 
-            <a href="{{ route('master-imn.create') }}"
-               class="btn btn-primary btn-sm">
-                <i class="bi bi-plus"></i> Tambah Data
-            </a>
-        </div>
+                <a href="{{ route('master-imn.create') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus"></i> Tambah Data
+                </a>
+            </div>
 
-        <div class="card-body">
-            <div class="table-responsive table-dark">
+            <div class="card-body">
+                <div class="table-responsive table-dark">
 
-                {{-- TABLE --}}
-                <table class="table table-striped" id="tableIndikatorNasional">
-                    <thead>
-                        <tr>
-                            <th>NO</th>
-                            <th style="width:300px;">INDIKATOR</th>
-                            <th>TAHUN</th>
-                            <th>STANDAR</th>
-                            <th>PERIODE</th>
-                            <th>STATUS</th>
-                            <th>AKSI</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @forelse ($indikators as $i => $row)
+                    {{-- TABLE --}}
+                    <table class="table table-striped" id="tableIndikatorNasional">
+                        <thead>
                             <tr>
-                                <td>{{ $i + 1 }}</td>
+                                <th>NO</th>
+                                <th style="width:300px;">INDIKATOR</th>
+                                <th>TAHUN</th>
+                                <th>STANDAR</th>
+                                <th>PERIODE</th>
+                                <th>STATUS</th>
+                                <th>AKSI</th>
+                            </tr>
+                        </thead>
 
-                                <td>{{ $row->nama_indikator_nasional }}</td>
+                        <tbody>
+                            @forelse ($indikators as $i => $row)
+                                <tr>
+                                    <td>{{ $i + 1 }}</td>
 
-                                <td>{{ $row->periode_tahun }}</td>
+                                    <td>{{ $row->nama_indikator_nasional }}</td>
 
-                                <td>
-                                    {{ rtrim(rtrim($row->target_indikator_nasional, '0'), '.') }}%
-                                </td>
+                                    <td>{{ $row->periode_tahun }}</td>
 
-                                <td>
+                                    <td>
+                                        {{ rtrim(rtrim($row->target_indikator_nasional, '0'), '.') }}%
+                                    </td>
+
+                                    <td>
                                         {{ \Carbon\Carbon::parse($row->tanggal_mulai)->format('j') }} -
                                         {{ \Carbon\Carbon::parse($row->tanggal_selesai)->format('j') }}
                                     </td>
 
-                                <td>
-                                    @if ($row->status_indikator_nasional === 'aktif')
-                                        <span class="badge bg-success">Aktif</span>
-                                    @else
-                                        <span class="badge bg-danger">Non-Aktif</span>
-                                    @endif
-                                </td>
+                                    <td>
+                                        @if ($row->status_indikator_nasional === 'aktif')
+                                            <span class="badge bg-success">Aktif</span>
+                                        @else
+                                            <span class="badge bg-danger">Non-Aktif</span>
+                                        @endif
+                                    </td>
 
-                                <td class="text-nowrap">
-                                    <a href="{{ route('master-imn.edit', $row->id) }}"
-                                       class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
+                                    <td class="text-nowrap">
+                                        <a href="{{ route('master-imn.edit', $row->id) }}" class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
 
-                                    <form action="{{ route('master-imn.destroy', $row->id) }}"
-                                          method="POST" style="display:inline;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Hapus indikator ini?')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted">
-                                    Data indikator nasional belum tersedia
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
+                                        <form action="{{ route('master-imn.destroy', $row->id) }}" method="POST"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Hapus indikator ini?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        Data indikator nasional belum tersedia
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
 
-                </table>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 @endsection

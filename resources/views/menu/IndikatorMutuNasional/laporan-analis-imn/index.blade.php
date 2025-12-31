@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan dan Analisis Nasional')
+@section('title', 'Laporan dan Analisis IMN')
 
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Laporan dan Analisis Nasional</h3>
+            <h3>Laporan dan Analisis Indikator Mutu Nasional</h3>
             <p class="text-subtitle text-muted">
                 Halaman untuk mengelola laporan dan analisis indikator mutu nasional.
             </p>
@@ -74,7 +74,8 @@
                                 <tr>
                                     <td>{{ $i + 1 }}</td>
                                     <td>{{ $row->nama_indikator }}</td>
-                                    <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}</td>
+                                    <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}
+                                    </td>
                                     <td>{{ rtrim(rtrim($row->target, '0'), '.') }}%</td>
 
                                     <td>
@@ -98,7 +99,8 @@
                                     </td>
 
                                     <td>
-                                        <button class="btn btn-success btn-sm" onclick="openInputModal({{ $row->id }})">
+                                        <button class="btn btn-success btn-sm"
+                                            onclick="openInputModal({{ $row->id }})">
                                             + Input
                                         </button>
                                     </td>

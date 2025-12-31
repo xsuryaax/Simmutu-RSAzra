@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Default Layout')
+@section('title', 'Interpretasi Data')
 
 @section('page-title')
     <div class="page-header">

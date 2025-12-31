@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Default Layout')
+@section('title', 'Kamus IMPU')
 
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Kamus Indikator Mutu</h3>
+            <h3>Kamus Indikator Mutu Prioritas Unit</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola kamus indikator mutu dalam sistem.
+                Halaman untuk mengelola kamus indikator mutu prioritas unit dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
@@ -27,7 +27,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Kamus Indikator Mutu
+                            Kamus Indikator Mutu Prioritas Unit
                         </li>
                     </ol>
                 </nav>
@@ -41,7 +41,7 @@
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center gap-3">
-                <h5 class="card-title mb-0">Kamus Indikator Mutu</h5>
+                <h5 class="card-title mb-0">Kamus Indikator Mutu Prioritas Unit</h5>
 
                 <a href="{{ route('kamus-impu.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data
@@ -85,9 +85,8 @@
                                                 <i class="bi bi-pencil"></i>
                                             </a>
 
-                                            <form action="{{ route('kamus-impu.destroy', $m->id) }}"
-                                                method="POST" class="d-inline"
-                                                onsubmit="return confirm('Hapus data ini?')">
+                                            <form action="{{ route('kamus-impu.destroy', $m->id) }}" method="POST"
+                                                class="d-inline" onsubmit="return confirm('Hapus data ini?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="btn btn-danger btn-sm">

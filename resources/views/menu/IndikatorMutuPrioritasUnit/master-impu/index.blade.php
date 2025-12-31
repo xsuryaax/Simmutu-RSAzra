@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Master IMPU')
 
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Master Indikator</h3>
+            <h3>Master Indikator Mutu Prioritas Unit</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola master indikator dalam sistem.
+                Halaman untuk mengelola master indikator mutu prioritas unit dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
@@ -28,7 +28,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Master Indikator
+                            Master Indikator Mutu Prioritas Unit
                         </li>
                     </ol>
                 </nav>
@@ -43,10 +43,10 @@
 
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Data Indikator</h5>
+                <h5>Data Indikator Mutu Prioritas Unit</h5>
 
                 <a href="{{ route('master-impu.create') }}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus"></i> Tambah Indikator
+                    <i class="bi bi-plus"></i> Tambah Data
                 </a>
             </div>
 
@@ -100,8 +100,7 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('master-impu.edit', $row->id) }}"
-                                            class="btn btn-warning btn-sm">
+                                        <a href="{{ route('master-impu.edit', $row->id) }}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 

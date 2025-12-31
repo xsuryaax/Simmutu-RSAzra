@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Laporan & Analisis IMPRS')
 
 {{-- Bagian Breadcrumb dan Halaman Title --}}
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Analisis Indikator Mutu Prioritas Rumah Sakit</h3>
+            <h3>Laporan & Analisis Indikator Mutu Prioritas Rumah Sakit</h3>
             <p class="text-subtitle text-muted">
                 Halaman untuk mengelola Indikator Mutu Prioritas Rumah Sakit dalam sistem.
             </p>
@@ -29,7 +29,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Indikator Mutu Prioritas Rumah Sakit
+                            Laporan & Analisis IMPRS
                         </li>
                     </ol>
                 </nav>

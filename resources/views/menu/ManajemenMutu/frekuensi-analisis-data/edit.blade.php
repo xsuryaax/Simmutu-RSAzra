@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Edit Frekuensi Analisis Data')
 
 @section('page-title')
     <div class="page-header">
@@ -38,54 +38,45 @@
 @endsection
 
 @section('content')
-    <section id="basic-vertical-layouts">
-        <div class="row match-height">
+    <section class="section" id="basic-vertical-layouts">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Form Edit Frekuensi Analisis Data</h4>
+            </div>
 
-            <div class="col-md-6 col-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Form Edit Frekuensi Analisis Data</h4>
-                    </div>
+            <div class="card-body">
 
-                    <div class="card-content">
-                        <div class="card-body">
+                <form action="{{ route('frekuensi-analisis-data.update', $frekuensiAnalisisData->id) }}" method="POST"
+                    class="form form-vertical">
+                    @csrf
+                    @method('PUT')
 
-                            <form action="{{ route('frekuensi-analisis-data.update', $frekuensiAnalisisData->id) }}"
-                                method="POST" class="form form-vertical">
-                                @csrf
-                                @method('PUT')
-
-                                <div class="form-body">
-                                    <div class="row">
-                                        <div class="col-md-12 mb-3">
-                                            <label for="nama_frekuensi_analisis_data">Nama Frekuensi Analisis Data</label>
-                                            <input type="text" id="nama_frekuensi_analisis_data"
-                                                name="nama_frekuensi_analisis_data"
-                                                class="form-control @error('nama_frekuensi_analisis_data') is-invalid @enderror"
-                                                value="{{ old('nama_frekuensi_analisis_data', $frekuensiAnalisisData->nama_frekuensi_analisis_data) }}"
-                                                placeholder="Masukkan nama frekuensi analisis data" required>
-                                            @error('nama_frekuensi_analisis_data')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-                                        <div class="col-12 d-flex justify-content-end">
-                                            <a href="{{ route('frekuensi-analisis-data.index') }}"
-                                                class="btn btn-light-secondary me-2">
-                                                Kembali
-                                            </a>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-check-circle"></i> Update
-                                            </button>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                            </form>
+                    <div class="form-body">
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="nama_frekuensi_analisis_data">Nama Frekuensi Analisis Data</label>
+                                <input type="text" id="nama_frekuensi_analisis_data" name="nama_frekuensi_analisis_data"
+                                    class="form-control @error('nama_frekuensi_analisis_data') is-invalid @enderror"
+                                    value="{{ old('nama_frekuensi_analisis_data', $frekuensiAnalisisData->nama_frekuensi_analisis_data) }}"
+                                    placeholder="Masukkan nama frekuensi analisis data" required>
+                                @error('nama_frekuensi_analisis_data')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <a href="{{ route('frekuensi-analisis-data.index') }}" class="btn btn-light-secondary me-2">
+                                    Kembali
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Update
+                                </button>
+                            </div>
 
                         </div>
                     </div>
-                </div>
+
+                </form>
+
             </div>
         </div>
     </section>

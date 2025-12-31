@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan dan Analisis')
+@section('title', 'Laporan dan Analisis IMPU')
 
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Laporan dan Analisis</h3>
+            <h3>Laporan dan Analisis IMPU</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola laporan dan analisis dalam sistem.
+                Halaman untuk mengelola laporan dan analisis Indikator Mutu Prioritas Unit.
             </p>
         </div>
         <div class="page-header-right">
@@ -27,7 +27,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Laporan dan Analisis
+                            Laporan dan Analisis IMPU
                         </li>
                     </ol>
                 </nav>
@@ -40,7 +40,7 @@
     <section class="section">
         <div class="card">
             <div class="card-header">
-                <h5>Data Indikator Laporan</h5>
+                <h5>Data Indikator Laporan IMPU</h5>
             </div>
 
             <div class="card-body">
@@ -106,7 +106,8 @@
                                 <tr class="table table-striped">
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $indikator->nama_indikator_unit }}</td>
-                                    <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}</td>
+                                    <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}
+                                    </td>
                                     <td>{{ $indikator->nama_unit }}</td>
                                     <td>{{ number_format($indikator->target_indikator_unit, 0) }} %</td>
                                     <td>
@@ -165,7 +166,7 @@
                         <tbody>
                             @php $no = ($paginate->currentPage() - 1) * $paginate->perPage(); @endphp
 
-                            @if(count($indikators) > 0 && $laporanHarian->flatten()->count() > 0)
+                            @if (count($indikators) > 0 && $laporanHarian->flatten()->count() > 0)
                                 @foreach ($indikators as $indikator)
                                     @foreach ($laporanHarian[$indikator->id] ?? [] as $lap)
                                         @php $no++; @endphp

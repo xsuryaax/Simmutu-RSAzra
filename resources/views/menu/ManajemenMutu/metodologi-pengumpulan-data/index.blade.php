@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 {{-- Bagian Title Halaman --}}
-@section('title', 'Default Layout')
+@section('title', 'Metodologi Pengumpulan Data')
 
 @section('page-title')
     <div class="page-header">
