@@ -16,12 +16,13 @@ return new class extends Migration
             $table->string('nama_imprs');
             $table->decimal('target_imprs', 5, 2);
             $table->enum('tipe_imprs', ['lokal', 'nasional']);
+            $table->string('periode_tahun');
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->enum('status_periode', ['aktif', 'non-aktif']);
             $table->enum('status_imprs', ['aktif', 'non-aktif']);
             $table->integer('kategori_id');
-            $table->integer('kamus_imprs_id');
+            $table->integer('kamus_imprs_id')->nullable();
             $table->timestamps();
         });
     }

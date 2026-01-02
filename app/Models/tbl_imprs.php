@@ -13,6 +13,7 @@ class tbl_imprs extends Model
         'nama_imprs',
         'target_imprs',
         'tipe_imprs',
+        'periode_tahun',
         'tanggal_mulai',
         'tanggal_selesai',
         'status_periode',

@@ -116,6 +116,11 @@
                             <a href="{{ route('kamus-imprs.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Kamus Indikator Mutu Prioritas RS</a>
                         </li>
+                        <li
+                            class="submenu-item {{ request()->is('kategori-imprs*') ? 'active' : '' }}">
+                            <a href="{{ route('kategori-imprs.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Kategori Indikator Mutu Prioritas RS</a>
+                        </li>
                     </ul>
                 </li>
 

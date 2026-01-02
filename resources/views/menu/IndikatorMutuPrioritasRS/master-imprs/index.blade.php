@@ -51,56 +51,54 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive table-dark">
-                    <form method="GET" class="row g-2 align-items-end mb-4">
-                        <div class="col-md-2">
-                            <label class="form-label">Bulan</label>
-                            <select name="bulan" class="form-control">
-                                {{-- @foreach (range(1, 12) as $b)
-                                    <option value="{{ $b }}" {{ $bulan == $b ? 'selected' : '' }}>
-                                        {{ \DateTime::createFromFormat('!m', $b)->format('F') }}
-                                    </option>
-                                @endforeach --}}
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <label class="form-label">Tahun</label>
-                            <select name="tahun" class="form-control">
-                                {{-- @foreach (range(date('Y') - 5, date('Y') + 2) as $t)
-                                    <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>
-                                        {{ $t }}
-                                    </option>
-                                @endforeach --}}
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <button class="btn btn-primary w-100"><i class="bi bi-funnel"></i> Filter</button>
-                        </div>
-                    </form>
-
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th style="width: 150px;">KAT</th>
+                                <th>NO</th>
                                 <th style="width: 300px;">INDIKATOR</th>
                                 <th>STANDAR</th>
-                                <th>NUMERATOR</th>
-                                <th>DENUMERATOR</th>
-                                <th>HASIL</th>
+                                <th>PERIODE</th>
+                                <th>RENTANG WAKTU</th>
+                                <th>STATUS</th>
                                 <th>AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                            @foreach ($indikators as $key => $rows)
+                                <tr>
+                                    <td>{{ $rows->nama_kategori_imprs }}</td>
+                                    <td>{{ $key + 1 }}</td>
+                                    <td>{{ $rows->nama_imprs }}</td>
+                                    <td>{{ rtrim(rtrim($rows->target_imprs, '0'), '.') }}%</td>
+                                    <td>{{ $rows->periode_tahun }}</td>
+                                    <td>
+                                        {{ \Carbon\Carbon::parse($rows->tanggal_mulai)
+                                            ->format('j') }} -
+                                        {{ \Carbon\Carbon::parse($rows->tanggal_selesai)    ->format('j') }}
+                                    </td>
+                                    <td>
+                                        @if ($rows->status_imprs == 'aktif')
+                                            <span class="badge bg-success">Aktif</span>
+                                        @else
+                                            <span class="badge bg-danger">Non-Aktif</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('master-imprs.edit', $rows->id) }}" class="btn btn-warning btn-sm">
+                                                <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        <form action="{{ route('master-imprs.destroy', $rows->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
