@@ -73,9 +73,9 @@
                                     <td>{{ rtrim(rtrim($rows->target_imprs, '0'), '.') }}%</td>
                                     <td>{{ $rows->periode_tahun }}</td>
                                     <td>
-                                        {{ \Carbon\Carbon::parse($rows->tanggal_mulai)
-                                            ->format('j') }} -
-                                        {{ \Carbon\Carbon::parse($rows->tanggal_selesai)    ->format('j') }}
+                                        {{ \Carbon\Carbon::parse($rows->tanggal_mulai)->format('j') }}
+                                        -
+                                        {{ \Carbon\Carbon::parse($rows->tanggal_selesai)->format('j') }}
                                     </td>
                                     <td>
                                         @if ($rows->status_imprs == 'aktif')
@@ -85,16 +85,19 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('master-imprs.edit', $rows->id) }}" class="btn btn-warning btn-sm">
-                                                <i class="bi bi-pencil"></i>
+                                        <a href="{{ route('master-imprs.edit', $rows->id) }}"
+                                            class="btn btn-warning btn-sm">
+                                            <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <form action="{{ route('master-imprs.destroy', $rows->id) }}" method="POST" style="display: inline;">
+                                        <form action="{{ route('master-imprs.destroy', $rows->id) }}" method="POST"
+                                            style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data ini?')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Hapus data ini?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
                                         </form>
                                     </td>
                                 </tr>

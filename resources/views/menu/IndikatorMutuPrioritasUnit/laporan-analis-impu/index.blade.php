@@ -150,8 +150,8 @@
             </div>
 
             <div class="card-body">
-                <div class="table-responsive table-dark">
-                    <table class="table table-striped">
+                <div class="table-parent-container table-responsive-md table-dark">
+                    <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th>NO</th>
@@ -165,34 +165,27 @@
                         </thead>
                         <tbody>
                             @php $no = ($paginate->currentPage() - 1) * $paginate->perPage(); @endphp
-
-                            @if (count($indikators) > 0 && $laporanHarian->flatten()->count() > 0)
-                                @foreach ($indikators as $indikator)
-                                    @foreach ($laporanHarian[$indikator->id] ?? [] as $lap)
-                                        @php $no++; @endphp
-                                        <tr>
-                                            <td>{{ $no }}</td>
-                                            <td>{{ $indikator->nama_indikator_unit }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($lap->tanggal_laporan)->format('d F Y') }}</td>
-                                            <td>{{ $indikator->nama_unit }}</td>
-                                            <td>{{ number_format($indikator->target_indikator_unit, 0) }} %</td>
-                                            <td>{{ $lap->nilai }} %</td>
-                                            <td>
-                                                <span class="badge bg-secondary">Sudah Input</span>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+                            @foreach ($indikators as $indikator)
+                                @foreach ($laporanHarian[$indikator->id] ?? [] as $lap)
+                                    @php $no++; @endphp
+                                    <tr>
+                                        <td>{{ $no }}</td>
+                                        <td>{{ $indikator->nama_indikator_unit }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($lap->tanggal_laporan)->format('d F Y') }}</td>
+                                        <td>{{ $indikator->nama_unit }}</td>
+                                        <td>{{ number_format($indikator->target_indikator_unit, 0) }} %</td>
+                                        <td>{{ $lap->nilai }} %</td>
+                                        <td>
+                                            <span class="badge bg-secondary">Sudah Input</span>
+                                        </td>
+                                    </tr>
                                 @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted">Belum Ada Laporan</td>
-                                </tr>
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         Showing {{ $paginate->firstItem() }} to {{ $paginate->lastItem() }} of {{ $paginate->total() }}
                         results

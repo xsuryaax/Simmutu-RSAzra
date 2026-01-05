@@ -10,10 +10,11 @@ const initJqueryDataTable = () => {
     if (table1El.length) {
         const jquery_datatable = table1El.DataTable({
             responsive: true,
+            autoWidth: false,
             dom: 
-                "<'row align-items-center'<'col-sm-12 col-md-3'l><'col-md-6 d-none d-md-block'><'col-sm-12 col-md-3'f>>" + 
+                "<'row align-items-center'<'col-sm-12 col-md-1'l><'col-md-8 d-none d-md-block'><'col-sm-12 col-md-3'f>>" + 
                 "<'row dt-row'<'col-sm-12'tr>>" + 
-                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             "language": {
                 "info": "Page _PAGE_ of _PAGES_",
                 "lengthMenu": "_MENU_ ",

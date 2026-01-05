@@ -869,6 +869,29 @@
   outline: 0;
   box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.1);
 }
+
+/* Datatable Table1 */
+#table1 th, #table1 td {
+  min-width: 100px;
+  white-space: normal !important; 
+  word-break: normal !important; 
+  vertical-align: middle;
+}
+
+#table1 th:first-child, #table1 td:first-child {
+  min-width: 40px;
+}
+
+@media (min-width: 992px) {
+  .table-responsive-md, 
+  .dt-row {
+    overflow-x: hidden !important;
+  }
+  
+  #table1 {
+    width: 100% !important;
+  }
+}
 .modal .modal-content {
   box-shadow: -8px 12px 18px 0 rgba(25, 42, 70, 0.13);
   border: none;

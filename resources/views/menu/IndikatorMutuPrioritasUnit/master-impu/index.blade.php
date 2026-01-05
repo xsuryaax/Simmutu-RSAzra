@@ -40,7 +40,6 @@
 @section('content')
 
     <section class="section">
-
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5>Data Indikator Mutu Prioritas Unit</h5>
@@ -51,8 +50,8 @@
             </div>
 
             <div class="card-body">
-                <div class="table-responsive table-dark">
-                    <table class="table table-striped" id="tableIndikator">
+                <div class="table-parent-container table-responsive-md table-dark">
+                    <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -122,45 +121,5 @@
                 </div>
             </div>
         </div>
-
     </section>
 @endsection
-
-@push('scripts')
-    <style>
-        .dataTable-wrapper .dataTable-pagination a {
-            padding: 3px 6px !important;
-            font-size: 11px !important;
-            min-width: 28px !important;
-        }
-
-        .dataTable-wrapper .dataTable-selector {
-            width: 60px !important;
-            padding: 4px 6px !important;
-            font-size: 12px !important;
-        }
-
-        .dataTable-wrapper .dataTable-input {
-            padding: 4px 8px !important;
-            font-size: 12px !important;
-            height: 32px !important;
-        }
-
-        .dataTable-top {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .dataTable-dropdown,
-        .dataTable-search {
-            margin: 0 !important;
-        }
-    </style>
-    <script>
-        let indikatorTable = document.querySelector('#tableIndikator');
-        let dataIndikator = new simpleDatatables.DataTable(indikatorTable);
-    </script>
-@endpush
