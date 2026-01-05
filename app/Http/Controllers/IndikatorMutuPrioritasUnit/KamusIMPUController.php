@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\IndikatorMutuPrioritasUnit;
 
 use App\Http\Controllers\Controller;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
-use Validator;
 
 class KamusIMPUController extends Controller
 {
@@ -43,7 +41,7 @@ class KamusIMPUController extends Controller
             ->orderBy('tbl_kamus_indikator_mutu_unit.id', 'asc');
 
         // Filter sesuai unit jika bukan admin/unit_mutu
-        if (!in_array($user->unit_id, [1, 2])) {
+        if (! in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator_unit.unit_id', $user->unit_id);
         }
 
@@ -66,20 +64,20 @@ class KamusIMPUController extends Controller
         $queryIndikator = DB::table('tbl_indikator_unit');
 
         // Jika bukan admin / mutu, batasi unit sendiri
-        if (!in_array($user->unit_id, [1, 2])) {
+        if (! in_array($user->unit_id, [1, 2])) {
             $queryIndikator->where('unit_id', $user->unit_id);
         }
 
         $indikator = $queryIndikator->get();
 
-        $dimensi = DB::table('tbl_dimensi_mutu')->get();
+        $dimensi               = DB::table('tbl_dimensi_mutu')->get();
         $metodologiPengumpulan = DB::table('tbl_metodologi_pengumpulan_data')->get();
-        $cakupan = DB::table('tbl_cakupan_data')->get();
-        $frekuensiPengumpulan = DB::table('tbl_frekuensi_pengumpulan_data')->get();
-        $frekuensiAnalisis = DB::table('tbl_frekuensi_analisis_data')->get();
-        $metodologiAnalisis = DB::table('tbl_metodologi_analisis_data')->get();
-        $interpretasi = DB::table('tbl_interpretasi_data')->get();
-        $publikasi = DB::table('tbl_publikasi_data')->get();
+        $cakupan               = DB::table('tbl_cakupan_data')->get();
+        $frekuensiPengumpulan  = DB::table('tbl_frekuensi_pengumpulan_data')->get();
+        $frekuensiAnalisis     = DB::table('tbl_frekuensi_analisis_data')->get();
+        $metodologiAnalisis    = DB::table('tbl_metodologi_analisis_data')->get();
+        $interpretasi          = DB::table('tbl_interpretasi_data')->get();
+        $publikasi             = DB::table('tbl_publikasi_data')->get();
 
         return view('menu.IndikatorMutuPrioritasUnit.kamus-impu.create', compact(
             'indikator',
@@ -100,49 +98,49 @@ class KamusIMPUController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'definisi_operasional' => 'required',
-            'tujuan' => 'required',
-            'dasar_pemikiran' => 'required',
-            'formula_pengukuran' => 'required',
-            'metodologi' => 'required',
-            'detail_pengukuran' => 'required',
-            'sumber_data' => 'required',
-            'penanggung_jawab' => 'required',
+            'definisi_operasional'           => 'required',
+            'tujuan'                         => 'required',
+            'dasar_pemikiran'                => 'required',
+            'formula_pengukuran'             => 'required',
+            'metodologi'                     => 'required',
+            'detail_pengukuran'              => 'required',
+            'sumber_data'                    => 'required',
+            'penanggung_jawab'               => 'required',
 
-            'indikator_unit_id' => 'required',
-            'dimensi_mutu_id' => 'required',
+            'indikator_unit_id'              => 'required',
+            'dimensi_mutu_id'                => 'required',
             'metodologi_pengumpulan_data_id' => 'required',
-            'cakupan_data_id' => 'required',
-            'frekuensi_pengumpulan_data_id' => 'required',
-            'frekuensi_analisis_data_id' => 'required',
-            'metodologi_analisis_data_id' => 'required',
-            'interpretasi_data_id' => 'required',
-            'publikasi_data_id' => 'required',
+            'cakupan_data_id'                => 'required',
+            'frekuensi_pengumpulan_data_id'  => 'required',
+            'frekuensi_analisis_data_id'     => 'required',
+            'metodologi_analisis_data_id'    => 'required',
+            'interpretasi_data_id'           => 'required',
+            'publikasi_data_id'              => 'required',
         ]);
 
         // 1️⃣ Insert & dapatkan ID kamus
         $kamusId = DB::table('tbl_kamus_indikator_mutu_unit')->insertGetId([
-            'definisi_operasional' => $request->definisi_operasional,
-            'tujuan' => $request->tujuan,
-            'dasar_pemikiran' => $request->dasar_pemikiran,
-            'formula_pengukuran' => $request->formula_pengukuran,
-            'metodologi' => $request->metodologi,
-            'detail_pengukuran' => $request->detail_pengukuran,
-            'sumber_data' => $request->sumber_data,
-            'penanggung_jawab' => $request->penanggung_jawab,
+            'definisi_operasional'           => $request->definisi_operasional,
+            'tujuan'                         => $request->tujuan,
+            'dasar_pemikiran'                => $request->dasar_pemikiran,
+            'formula_pengukuran'             => $request->formula_pengukuran,
+            'metodologi'                     => $request->metodologi,
+            'detail_pengukuran'              => $request->detail_pengukuran,
+            'sumber_data'                    => $request->sumber_data,
+            'penanggung_jawab'               => $request->penanggung_jawab,
 
-            'indikator_unit_id' => $request->indikator_unit_id,
-            'dimensi_mutu_id' => $request->dimensi_mutu_id,
+            'indikator_unit_id'              => $request->indikator_unit_id,
+            'dimensi_mutu_id'                => $request->dimensi_mutu_id,
             'metodologi_pengumpulan_data_id' => $request->metodologi_pengumpulan_data_id,
-            'cakupan_data_id' => $request->cakupan_data_id,
-            'frekuensi_pengumpulan_data_id' => $request->frekuensi_pengumpulan_data_id,
-            'frekuensi_analisis_data_id' => $request->frekuensi_analisis_data_id,
-            'metodologi_analisis_data_id' => $request->metodologi_analisis_data_id,
+            'cakupan_data_id'                => $request->cakupan_data_id,
+            'frekuensi_pengumpulan_data_id'  => $request->frekuensi_pengumpulan_data_id,
+            'frekuensi_analisis_data_id'     => $request->frekuensi_analisis_data_id,
+            'metodologi_analisis_data_id'    => $request->metodologi_analisis_data_id,
 
-            'interpretasi_data_id' => $request->interpretasi_data_id,
-            'publikasi_data_id' => $request->publikasi_data_id,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'interpretasi_data_id'           => $request->interpretasi_data_id,
+            'publikasi_data_id'              => $request->publikasi_data_id,
+            'created_at'                     => now(),
+            'updated_at'                     => now(),
         ]);
 
         // 2️⃣ Update tabel indikator -> isi kamus_indikator_unit_id
@@ -156,7 +154,6 @@ class KamusIMPUController extends Controller
             ->with('success', 'Kamus Indikator Mutu berhasil ditambahkan.');
     }
 
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -164,15 +161,15 @@ class KamusIMPUController extends Controller
     {
         $data = DB::table('tbl_kamus_indikator_mutu_unit')->where('id', $id)->first();
 
-        $indikator = DB::table('tbl_indikator_unit')->get();
-        $dimensi = DB::table('tbl_dimensi_mutu')->get();
+        $indikator             = DB::table('tbl_indikator_unit')->get();
+        $dimensi               = DB::table('tbl_dimensi_mutu')->get();
         $metodologiPengumpulan = DB::table('tbl_metodologi_pengumpulan_data')->get();
-        $cakupan = DB::table('tbl_cakupan_data')->get();
-        $frekuensiPengumpulan = DB::table('tbl_frekuensi_pengumpulan_data')->get();
-        $frekuensiAnalisis = DB::table('tbl_frekuensi_analisis_data')->get();
-        $metodologiAnalisis = DB::table('tbl_metodologi_analisis_data')->get();
-        $interpretasi = DB::table('tbl_interpretasi_data')->get();
-        $publikasi = DB::table('tbl_publikasi_data')->get();
+        $cakupan               = DB::table('tbl_cakupan_data')->get();
+        $frekuensiPengumpulan  = DB::table('tbl_frekuensi_pengumpulan_data')->get();
+        $frekuensiAnalisis     = DB::table('tbl_frekuensi_analisis_data')->get();
+        $metodologiAnalisis    = DB::table('tbl_metodologi_analisis_data')->get();
+        $interpretasi          = DB::table('tbl_interpretasi_data')->get();
+        $publikasi             = DB::table('tbl_publikasi_data')->get();
 
         return view('menu.IndikatorMutuPrioritasUnit.kamus-impu.edit', compact(
             'data',
@@ -194,15 +191,15 @@ class KamusIMPUController extends Controller
     public function update(Request $request, string $id)
     {
         DB::table('tbl_kamus_indikator_mutu_unit')->where('id', $id)->update([
-            'indikator_unit_id' => $request->indikator_unit_id,
-            'dimensi_mutu_id' => $request->dimensi_mutu_id,
+            'indikator_unit_id'              => $request->indikator_unit_id,
+            'dimensi_mutu_id'                => $request->dimensi_mutu_id,
             'metodologi_pengumpulan_data_id' => $request->metodologi_pengumpulan_data_id,
-            'cakupan_data_id' => $request->cakupan_data_id,
-            'frekuensi_pengumpulan_data_id' => $request->frekuensi_pengumpulan_data_id,
-            'frekuensi_analisis_data_id' => $request->frekuensi_analisis_data_id,
-            'metodologi_analisis_data_id' => $request->metodologi_analisis_data_id,
-            'interpretasi_data_id' => $request->interpretasi_data_id,
-            'publikasi_data_id' => $request->publikasi_data_id,
+            'cakupan_data_id'                => $request->cakupan_data_id,
+            'frekuensi_pengumpulan_data_id'  => $request->frekuensi_pengumpulan_data_id,
+            'frekuensi_analisis_data_id'     => $request->frekuensi_analisis_data_id,
+            'metodologi_analisis_data_id'    => $request->metodologi_analisis_data_id,
+            'interpretasi_data_id'           => $request->interpretasi_data_id,
+            'publikasi_data_id'              => $request->publikasi_data_id,
         ]);
 
         return redirect()->route('kamus-impu.index')

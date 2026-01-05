@@ -18,6 +18,7 @@ use App\Http\Controllers\IndikatorMutuNasional\LaporanAnalisIMNController;
 use App\Http\Controllers\IndikatorMutuPrioritasRS\MasterIMPRSController;
 use App\Http\Controllers\IndikatorMutuPrioritasRS\KamusIMPRSController;
 use App\Http\Controllers\IndikatorMutuPrioritasRS\LaporanAnalisIMPRSController;
+use App\Http\Controllers\IndikatorMutuPrioritasRS\KategoriIMPRSController;
 
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
@@ -76,6 +77,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:kamus_imprs');
     Route::resource('laporan-analis-imprs', LaporanAnalisIMPRSController::class)
         ->middleware('check.role:laporan_analis_imprs');
+    Route::resource('kategori-imprs', KategoriIMPRSController::class)
+        ->middleware('check.role:kategori_imprs');
 
     // Indikator Mutu Nasional
     Route::resource('master-imn', MasterIMNController::class)

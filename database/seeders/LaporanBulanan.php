@@ -1,10 +1,8 @@
 <?php
-
 namespace Database\Seeders;
 
 use Carbon\Carbon;
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class LaporanBulanan extends Seeder
@@ -14,18 +12,19 @@ class LaporanBulanan extends Seeder
      */
     public function run()
     {
-        $indikatorId = 4;
-        $unitId = 4;
+        $indikatorId = 1;
+        $unitId      = 3;
 
-        $tahun = date('Y');
+        // 🔒 KUNCI TAHUN KE 2025
+        $tahun = 2025;
 
-        // Batas akhir data (18 Desember)
+        // Batas akhir data (18 Desember 2025)
         $endDate = Carbon::create($tahun, 12, 18);
 
         // Ambil target indikator
-        $target = DB::table('tbl_indikator')
+        $target = DB::table('tbl_indikator_unit')
             ->where('id', $indikatorId)
-            ->value('target_indikator');
+            ->value('target_indikator_unit');
 
         // Loop per bulan
         for ($bulan = 1; $bulan <= 12; $bulan++) {
@@ -38,35 +37,37 @@ class LaporanBulanan extends Seeder
                 break;
             }
 
-            // Cegah data duplikat
-            $exists = DB::table('tbl_laporan_dan_analis')
-                ->where('indikator_id', $indikatorId)
+            // Cegah data duplikat (AMAN per bulan 2025)
+            $exists = DB::table('tbl_laporan_dan_analis_unit')
+                ->where('indikator_unit_id', $indikatorId)
                 ->where('unit_id', $unitId)
-                ->whereDate('tanggal_laporan', $tanggalAkhirBulan->format('Y-m-d'))
+                ->whereYear('tanggal_laporan', $tahun)
+                ->whereMonth('tanggal_laporan', $bulan)
                 ->exists();
 
             if ($exists) {
                 continue;
             }
 
-            // Dummy nilai bulanan (lebih stabil)
-            $numerator = rand(0, 5);
+                                         // Dummy nilai bulanan (lebih stabil)
+            $numerator   = rand(30, 45); // lebih realistis
             $denominator = 45;
-            $nilai = ($numerator / $denominator) * 100;
+
+            $nilai = round(($numerator / $denominator) * 100, 2);
 
             $pencapaian = $nilai >= $target
                 ? 'tercapai'
                 : 'tidak-tercapai';
 
-            DB::table('tbl_laporan_dan_analis')->insert([
-                'indikator_id' => $indikatorId,
-                'unit_id' => $unitId,
-                'nilai' => $nilai,
-                'pencapaian' => $pencapaian,
-                'file_laporan' => 'dummy_bulanan_marketing.pdf',
+            DB::table('tbl_laporan_dan_analis_unit')->insert([
+                'indikator_unit_id'    => $indikatorId,
+                'unit_id'         => $unitId,
+                'nilai'           => $nilai,
+                'pencapaian'      => $pencapaian,
+                'file_laporan'    => 'dummy_bulanan_2025.pdf',
                 'tanggal_laporan' => $tanggalAkhirBulan->format('Y-m-d'),
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at'      => now(),
+                'updated_at'      => now(),
             ]);
         }
     }
