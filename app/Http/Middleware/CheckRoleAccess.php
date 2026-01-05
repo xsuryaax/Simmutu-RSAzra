@@ -43,7 +43,7 @@ class CheckRoleAccess
             ->exists();
 
         if (!$hasAccess) {
-            return redirect()->route('unauthorized'); // halaman 403 custom
+            return redirect()->route('unauthorized');
         }
 
         return $next($request);
