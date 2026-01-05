@@ -349,8 +349,183 @@
 
                             renderEmptyDivisionChart();
                         </script>
+                    </div>
+                    <div class="row adm-chart">
+                        <div class="col-12">
+                            <div class="card">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                    <h4>Indikator Mutu Nasional</h4>
+                                    <div class="d-flex gap-2">
+                                        <select id="indicatorsFilter" class="form-select form-select-sm">
+                                            <option value="">-- Pilih Indikator --</option>
+                                            <option value="kebersihan_tangan" selected>Kepatuhan Kebersihan Tangan</option>
+                                            <option value="apd">Kepatuhan Penggunaan APD</option>
+                                        </select>
 
+                                        <select id="inmFilterTahun" class="form-select form-select-sm">
+                                            <option value="2024">2024</option>
+                                            <option value="2023">2023</option>
+                                        </select>
 
+                                        <select id="inmFilterPeriode" class="form-select form-select-sm">
+                                            <option value="Tahun" selected>Data Satu Tahun</option>
+                                            <option value="Q1">Q1 (Jan-Mar)</option>
+                                            <option value="Q2">Q2 (Apr-Jun)</option>
+                                            <option value="Q3">Q3 (Jul-Sep)</option>
+                                            <option value="Q4">Q4 (Okt-Des)</option>
+                                        </select>
+
+                                        <select id="inmFilterTipeChart" class="form-select form-select-sm">
+                                            <option value="line" selected>Line Chart</option>
+                                            <option value="bar">Bar Chart</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div style="height: 400px;">
+                                        <canvas id="chartINM"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+                        <script>
+                            // 1. DUMMY DATA (Sesuai angka di gambar)
+                            const rawData = {
+                                "kebersihan_tangan": {
+                                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Juni', 'Juli', 'Agst', 'Sept', 'Okt', 'Nov', 'Des'],
+                                    standar: [85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85],
+                                    capaian: [85.99, 87.50, 87.45, 86.22, 85.92, 87.13, 86.38, 85.78, 85.63, 87.08, 87.16, 86.52]
+                                },
+                                "apd": {
+                                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Juni', 'Juli', 'Agst', 'Sept', 'Okt', 'Nov', 'Des'],
+                                    standar: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                                    capaian: [98, 99, 100, 97, 99, 100, 98, 99, 99, 100, 100, 100]
+                                }
+                            };
+
+                            let myChart;
+                            const ctxIMN = document.getElementById('chartINM').getContext('2d');
+
+                            // 2. FUNGSI HITUNG TRENDLINE (Regresi Linear Sederhana)
+                            function calculateTrendline(data) {
+                                const n = data.length;
+                                let sumX = 0,
+                                    sumY = 0,
+                                    sumXY = 0,
+                                    sumXX = 0;
+                                for (let i = 0; i < n; i++) {
+                                    sumX += i;
+                                    sumY += data[i];
+                                    sumXY += i * data[i];
+                                    sumXX += i * i;
+                                }
+                                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+                                const intercept = (sumY - slope * sumX) / n;
+                                return data.map((_, i) => slope * i + intercept);
+                            }
+
+                            // 3. FUNGSI UPDATE CHART
+                            function updateChart() {
+                                const indicator = document.getElementById('indicatorsFilter').value;
+                                const periode = document.getElementById('inmFilterPeriode').value;
+                                const type = document.getElementById('inmFilterTipeChart').value;
+
+                                if (!indicator) {
+                                    if (myChart) myChart.destroy();
+                                    return;
+                                }
+
+                                let dataSrc = rawData[indicator];
+                                let labels = [...dataSrc.labels];
+                                let standar = [...dataSrc.standar];
+                                let capaian = [...dataSrc.capaian];
+
+                                // Filter Periode (Triwulan)
+                                if (periode !== 'Tahun') {
+                                    const qMap = {
+                                        'Q1': [0, 3],
+                                        'Q2': [3, 6],
+                                        'Q3': [6, 9],
+                                        'Q4': [9, 12]
+                                    };
+                                    const [start, end] = qMap[periode];
+                                    labels = labels.slice(start, end);
+                                    standar = standar.slice(start, end);
+                                    capaian = capaian.slice(start, end);
+                                }
+
+                                const trendline = calculateTrendline(capaian);
+
+                                if (myChart) myChart.destroy();
+
+                                myChart = new Chart(ctxIMN, {
+                                    type: type,
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                                label: 'Target',
+                                                data: standar,
+                                                borderColor: '#3498db',
+                                                backgroundColor: '#3498db',
+                                                borderWidth: 2,
+                                                pointStyle: 'diamond',
+                                                pointRadius: 6,
+                                                type: 'line'
+                                            },
+                                            {
+                                                label: 'Capaian',
+                                                data: capaian,
+                                                borderColor: '#e74c3c',
+                                                backgroundColor: '#e74c3c',
+                                                borderWidth: 2,
+                                                pointStyle: 'diamond',
+                                                pointRadius: 6,
+                                            }
+                                            // {
+                                            //     label: 'Linear (Capaian)',
+                                            //     data: trendline,
+                                            //     borderColor: '#333',
+                                            //     borderWidth: 1,
+                                            //     pointRadius: 0, // Tanpa titik
+                                            //     fill: false,
+                                            //     type: 'line'
+                                            // }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            y: {
+                                                min: 0,
+                                                max: 105,
+                                                ticks: {
+                                                    stepSize: 5
+                                                }
+                                            }
+                                        },
+                                        plugins: {
+                                            legend: {
+                                                position: 'bottom'
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // 4. EVENT LISTENERS
+                            document.getElementById('indicatorsFilter').addEventListener('change', updateChart);
+                            document.getElementById('inmFilterPeriode').addEventListener('change', updateChart);
+                            document.getElementById('inmFilterTipeChart').addEventListener('change', updateChart);
+                            document.getElementById('inmFilterTahun').addEventListener('change', updateChart);
+
+                            // Init pertama kali
+                            updateChart();
+                        </script>
                     </div>
                 @else
                     <div class="row">
