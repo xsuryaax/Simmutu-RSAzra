@@ -10,9 +10,6 @@ use Validator;
 
 class MasterIMPRSController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $user = Auth::user();
@@ -36,7 +33,6 @@ class MasterIMPRSController extends Controller
         );
     }
 
-
     public function create()
     {
         $user = Auth::user();
@@ -48,7 +44,6 @@ class MasterIMPRSController extends Controller
 
         return view('menu.IndikatorMutuPrioritasRS.master-imprs.create', compact('kategoris'));
     }
-
 
     public function store(Request $request)
     {
@@ -83,17 +78,14 @@ class MasterIMPRSController extends Controller
 
     public function edit($id)
     {
-        // Ambil data IMPRS
         $imprs = DB::table('tbl_imprs')
             ->where('id', $id)
             ->first();
 
-        // Ambil semua kategori (untuk dropdown)
         $kategoris = DB::table('tbl_kategori_imprs')
             ->orderBy('nama_kategori_imprs', 'ASC')
             ->get();
 
-        // Validasi jika data tidak ditemukan
         if (!$imprs) {
             abort(404, 'Data IMPRS tidak ditemukan');
         }

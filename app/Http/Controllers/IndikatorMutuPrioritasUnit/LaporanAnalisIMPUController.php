@@ -23,8 +23,8 @@ class LaporanAnalisIMPUController extends Controller
         return view('menu.IndikatorMutuPrioritasUnit.laporan-analis-impu.index', [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
-            'laporanHarian' => $laporan['grouped'],   // Data grouped
-            'paginate' => $laporan['paginator'], // Paginator untuk links()
+            'laporanHarian' => $laporan['grouped'],
+            'paginate' => $laporan['paginator'],
             'bulan' => $bulan,
             'tahun' => $tahun,
         ]);
@@ -55,7 +55,6 @@ class LaporanAnalisIMPUController extends Controller
             )
             ->orderBy('tbl_indikator_unit.id')
             ->get();
-
     }
 
     private function getLaporan($user, $bulan, $tahun)
@@ -69,9 +68,8 @@ class LaporanAnalisIMPUController extends Controller
                 $q->where('unit_id', $user->unit_id);
             })
             ->orderBy('tanggal_laporan', 'desc')
-            ->paginate(10); // 10 row per halaman
+            ->paginate(10);
 
-        // Group per indikator di Collection
         $grouped = $laporan->getCollection()->groupBy('indikator_unit_id');
 
         return [
@@ -102,7 +100,6 @@ class LaporanAnalisIMPUController extends Controller
             ->keyBy(fn($r) => $r->indikator_unit_id . '-' . $r->unit_id);
     }
 
-
     public function store(Request $request)
     {
         $request->validate([
@@ -113,7 +110,7 @@ class LaporanAnalisIMPUController extends Controller
             'tanggal_laporan' => 'required|integer|min:1|max:31',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000',
-            'file_laporan' => 'required|file|max:5120', // ⬅️ WAJIB
+            'file_laporan' => 'required|file|max:5120',
         ]);
 
         /* ===================== BUAT TANGGAL ===================== */
