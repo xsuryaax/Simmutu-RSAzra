@@ -176,7 +176,14 @@
                                         <td>{{ number_format($indikator->target_indikator_unit, 0) }} %</td>
                                         <td>{{ $lap->nilai }} %</td>
                                         <td>
-                                            <span class="badge bg-secondary">Sudah Input</span>
+                                            @if ($lap->file_laporan)
+                                                <a href="{{ asset('storage/' . $lap->file_laporan) }}" target="_blank"
+                                                class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-file-earmark-arrow-down"></i> Lihat File
+                                                </a>
+                                            @else
+                                                <span class="badge bg-secondary">Tidak Ada File</span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

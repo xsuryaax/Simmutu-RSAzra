@@ -20,6 +20,7 @@ class HakAksesController extends Controller
                 ['key' => 'master_imprs', 'label' => 'Master IMPRS'],
                 ['key' => 'kamus_imprs', 'label' => 'Kamus IMPRS'],
                 ['key' => 'master_imn', 'label' => 'Master IMN'],
+                ['key' => 'kategori_imprs', 'label' => 'Kategori IMPRS'],
                 ['key' => 'laporan_analis_imprs', 'label' => 'Laporan Analis IMPRS'],
                 ['key' => 'laporan_analis_impu', 'label' => 'Laporan Analis IMPU'],
                 ['key' => 'laporan_analis_imn', 'label' => 'Laporan Analis IMN'],

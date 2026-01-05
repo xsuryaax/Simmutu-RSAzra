@@ -51,7 +51,8 @@ class LaporanAnalisIMPRSController extends Controller
                 'l.nilai',
                 'l.pencapaian',
                 'l.tanggal_laporan',
-                'u.nama_unit'
+                'u.nama_unit',
+                'l.file_laporan'
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)

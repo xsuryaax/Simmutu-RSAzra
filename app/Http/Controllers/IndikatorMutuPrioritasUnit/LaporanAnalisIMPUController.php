@@ -61,7 +61,7 @@ class LaporanAnalisIMPUController extends Controller
     {
         // Ambil data per row dengan paginate
         $laporan = DB::table('tbl_laporan_dan_analis_unit')
-            ->select('indikator_unit_id', 'unit_id', 'nilai', 'tanggal_laporan')
+            ->select('indikator_unit_id', 'unit_id', 'nilai', 'tanggal_laporan', 'file_laporan')
             ->whereMonth('tanggal_laporan', $bulan)
             ->whereYear('tanggal_laporan', $tahun)
             ->when(!in_array($user->unit_id, [1, 2]), function ($q) use ($user) {

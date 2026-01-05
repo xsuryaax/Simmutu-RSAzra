@@ -71,7 +71,7 @@
             <h5>Rekap Bulanan IMPRS</h5>
         </div>
 
-        <div class="card-body table-responsive">
+        <div class="card-body table-responsive table-dark">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -132,8 +132,8 @@
             <h5>Data Laporan IMPRS</h5>
         </div>
 
-        <div class="card-body table-responsive">
-            <table class="table table-striped">
+        <div class="card-body table-responsive table-dark">
+            <table class="table table-striped"  id="table1">
                 <thead>
                     <tr>
                         <th>NO</th>
@@ -143,13 +143,13 @@
                         <th>TANGGAL</th>
                         <th>TARGET</th>
                         <th>NILAI</th>
-                        <th>STATUS</th>
+                        <th>FILE</th>
                     </tr>
                 </thead>
                 <tbody>
                     @php $no = ($paginate->currentPage() - 1) * $paginate->perPage(); @endphp
 
-                    @forelse ($laporanHarian as $indikatorId => $laporans)
+                    @foreach ($laporanHarian as $indikatorId => $laporans)
                         @foreach ($laporans as $lap)
                             @php
                                 $indikator = $indikators->firstWhere('id', $indikatorId);
@@ -164,15 +164,14 @@
                                 <td>{{ number_format($indikator->target_imprs, 0) }} %</td>
                                 <td>{{ $lap->nilai }} %</td>
                                 <td>
-                                    <span class="badge bg-success">Sudah Input</span>
+                                    <a href="{{ asset('storage/' . $lap->file_laporan) }}" target="_blank"
+                                                class="btn btn-sm btn-primary">
+                                        <i class="bi bi-file-earmark-arrow-down"></i> Unduh
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-muted">Belum ada laporan</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
 
