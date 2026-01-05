@@ -31,13 +31,13 @@ class DashboardController extends Controller
 
             'indikatorsForChart' => $indikatorsForChart,
             'allDataJson' => json_encode($this->getUserChartData()),
+            'indikatorNasionalList' => $this->getIndikatorNasional(),
+            'nasionalYears' => $this->getNasionalYears(),
+            'nasionalChartJson' => $this->getNasionalChartData(),
         ];
 
         if (in_array($roleId, [1, 2])) {
             $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
-        }
-
-        if (in_array($roleId, [1, 2])) {
             $data['divisionData'] = $this->getDivisionData();
         }
 
@@ -252,4 +252,73 @@ class DashboardController extends Controller
             'target' => array_values($target),
         ];
     }
+
+    private function getIndikatorNasional()
+    {
+        return DB::table('tbl_indikator_nasional')
+            ->select(
+                'id',
+                'nama_indikator_nasional',
+                'target_indikator_nasional'
+            )
+            ->orderBy('nama_indikator_nasional')
+            ->get();
+    }
+
+    private function getNasionalYears()
+    {
+        return DB::table('tbl_laporan_dan_analis_nasional')
+            ->selectRaw('DISTINCT EXTRACT(YEAR FROM tanggal_laporan) as tahun')
+            ->orderByDesc('tahun')
+            ->pluck('tahun');
+    }
+
+    private function getNasionalChartData(): array
+    {
+        $indikators = $this->getIndikatorNasional();
+        $years = $this->getNasionalYears();
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        $data = [];
+
+        foreach ($indikators as $ind) {
+            foreach ($years as $tahun) {
+                $data[$ind->id][$tahun] = $this->buildNasionalIndikatorData(
+                    $ind,
+                    $tahun,
+                    $labels
+                );
+            }
+        }
+
+        return $data;
+    }
+
+    private function buildNasionalIndikatorData($ind, int $tahun, array $labels): array
+    {
+        $hasil = array_fill(1, 12, null);
+        $target = array_fill(1, 12, $ind->target_indikator_nasional);
+
+        $rows = DB::table('tbl_laporan_dan_analis_nasional')
+            ->where('indikator_nasional_id', $ind->id)
+            ->whereYear('tanggal_laporan', $tahun)
+            ->selectRaw('
+            EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+            ROUND(AVG(nilai), 2) as nilai
+        ')
+            ->groupBy('bulan')
+            ->orderBy('bulan')
+            ->get();
+
+        foreach ($rows as $row) {
+            $hasil[$row->bulan] = $row->nilai;
+        }
+
+        return [
+            'labels' => $labels,
+            'hasil' => array_values($hasil),   // capaian
+            'target' => array_values($target), // target nasional
+        ];
+    }
+
 }

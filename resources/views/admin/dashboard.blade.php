@@ -48,8 +48,7 @@
                         </div>
 
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
-                                data-bs-target="#modalSudahIsi">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalSudahIsi">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
                                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -67,8 +66,7 @@
                         </div>
 
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
-                                data-bs-target="#modalBelumIsi">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalBelumIsi">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
                                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -106,8 +104,7 @@
                     <div class="row adm-chart">
                         <div class="col-9 left-chart">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Semua Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -306,17 +303,17 @@
                                     data: {
                                         labels,
                                         datasets: [{
-                                                label: "Target",
-                                                data: target,
-                                                backgroundColor: "rgba(255,159,64,0.7)",
-                                                borderColor: "rgba(255, 159, 64, 1)"
-                                            },
-                                            {
-                                                label: "Realisasi",
-                                                data: hasil,
-                                                backgroundColor: "rgba(75,192,192,0.7)",
-                                                borderColor: "rgba(75, 192, 192, 1)"
-                                            }
+                                            label: "Target",
+                                            data: target,
+                                            backgroundColor: "rgba(255,159,64,0.7)",
+                                            borderColor: "rgba(255, 159, 64, 1)"
+                                        },
+                                        {
+                                            label: "Realisasi",
+                                            data: hasil,
+                                            backgroundColor: "rgba(75,192,192,0.7)",
+                                            borderColor: "rgba(75, 192, 192, 1)"
+                                        }
                                         ]
                                     },
                                     options: {
@@ -350,24 +347,27 @@
                             renderEmptyDivisionChart();
                         </script>
                     </div>
+
+                    <!-- Indikator Mutu Nasional -->
                     <div class="row adm-chart">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Indikator Mutu Nasional</h4>
                                     <div class="d-flex gap-2">
                                         <select id="indicatorsFilter" class="form-select form-select-sm">
                                             <option value="">-- Pilih Indikator --</option>
-                                            <option value="kebersihan_tangan" selected>Kepatuhan Kebersihan Tangan</option>
-                                            <option value="apd">Kepatuhan Penggunaan APD</option>
+                                            @foreach ($indikatorNasionalList as $ind)
+                                                <option value="{{ $ind->id }}">
+                                                    {{ $ind->nama_indikator_nasional }}
+                                                </option>
+                                            @endforeach
                                         </select>
-
                                         <select id="inmFilterTahun" class="form-select form-select-sm">
-                                            <option value="2024">2024</option>
-                                            <option value="2023">2023</option>
+                                            @foreach ($nasionalYears as $th)
+                                                <option value="{{ $th }}">{{ $th }}</option>
+                                            @endforeach
                                         </select>
-
                                         <select id="inmFilterPeriode" class="form-select form-select-sm">
                                             <option value="Tahun" selected>Data Satu Tahun</option>
                                             <option value="Q1">Q1 (Jan-Mar)</option>
@@ -393,146 +393,111 @@
                         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
                         <script>
-                            // 1. DUMMY DATA (Sesuai angka di gambar)
-                            const rawData = {
-                                "kebersihan_tangan": {
-                                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Juni', 'Juli', 'Agst', 'Sept', 'Okt', 'Nov', 'Des'],
-                                    standar: [85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85, 85],
-                                    capaian: [85.99, 87.50, 87.45, 86.22, 85.92, 87.13, 86.38, 85.78, 85.63, 87.08, 87.16, 86.52]
-                                },
-                                "apd": {
-                                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Juni', 'Juli', 'Agst', 'Sept', 'Okt', 'Nov', 'Des'],
-                                    standar: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
-                                    capaian: [98, 99, 100, 97, 99, 100, 98, 99, 99, 100, 100, 100]
-                                }
+                        const nasionalData = @json($nasionalChartJson);
+                        
+                        let inmChart;
+                        const ctxIMN = document.getElementById('chartINM').getContext('2d');
+                        
+                        function getQuarterData(data, periode) {
+                            let start = 0, end = 12;
+                            if (periode === 'Q1') end = 3;
+                            if (periode === 'Q2') { start = 3; end = 6; }
+                            if (periode === 'Q3') { start = 6; end = 9; }
+                            if (periode === 'Q4') { start = 9; end = 12; }
+                            
+                            return {
+                                labels: data.labels.slice(start, end),
+                                target: data.target.slice(start, end),
+                                hasil: data.hasil.slice(start, end),
                             };
+                        }
 
-                            let myChart;
-                            const ctxIMN = document.getElementById('chartINM').getContext('2d');
-
-                            // 2. FUNGSI HITUNG TRENDLINE (Regresi Linear Sederhana)
-                            function calculateTrendline(data) {
-                                const n = data.length;
-                                let sumX = 0,
-                                    sumY = 0,
-                                    sumXY = 0,
-                                    sumXX = 0;
-                                for (let i = 0; i < n; i++) {
-                                    sumX += i;
-                                    sumY += data[i];
-                                    sumXY += i * data[i];
-                                    sumXX += i * i;
-                                }
-                                const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-                                const intercept = (sumY - slope * sumX) / n;
-                                return data.map((_, i) => slope * i + intercept);
+                        function showNoData(message = 'Tidak ada data untuk ditampilkan') {
+                            const canvas = document.getElementById('chartINM');
+                            const ctx = canvas.getContext('2d');
+                            
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
+                            ctx.font = '16px Arial';
+                            ctx.fillStyle = '#6c757d';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+                        }
+                        
+                        function updateINMChart() {
+                            const indikatorId = document.getElementById('indicatorsFilter').value;
+                            const tahun = document.getElementById('inmFilterTahun').value;
+                            const periode = document.getElementById('inmFilterPeriode').value;
+                            const type = document.getElementById('inmFilterTipeChart').value;
+                            
+                            if (!indikatorId || !nasionalData[indikatorId] || !nasionalData[indikatorId][tahun]) {
+                                if (inmChart) inmChart.destroy();
+                                return;
                             }
-
-                            // 3. FUNGSI UPDATE CHART
-                            function updateChart() {
-                                const indicator = document.getElementById('indicatorsFilter').value;
-                                const periode = document.getElementById('inmFilterPeriode').value;
-                                const type = document.getElementById('inmFilterTipeChart').value;
-
-                                if (!indicator) {
-                                    if (myChart) myChart.destroy();
-                                    return;
-                                }
-
-                                let dataSrc = rawData[indicator];
-                                let labels = [...dataSrc.labels];
-                                let standar = [...dataSrc.standar];
-                                let capaian = [...dataSrc.capaian];
-
-                                // Filter Periode (Triwulan)
-                                if (periode !== 'Tahun') {
-                                    const qMap = {
-                                        'Q1': [0, 3],
-                                        'Q2': [3, 6],
-                                        'Q3': [6, 9],
-                                        'Q4': [9, 12]
-                                    };
-                                    const [start, end] = qMap[periode];
-                                    labels = labels.slice(start, end);
-                                    standar = standar.slice(start, end);
-                                    capaian = capaian.slice(start, end);
-                                }
-
-                                const trendline = calculateTrendline(capaian);
-
-                                if (myChart) myChart.destroy();
-
-                                myChart = new Chart(ctxIMN, {
-                                    type: type,
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                                label: 'Target',
-                                                data: standar,
-                                                borderColor: '#3498db',
-                                                backgroundColor: '#3498db',
-                                                borderWidth: 2,
-                                                pointStyle: 'diamond',
-                                                pointRadius: 6,
-                                                type: 'line'
-                                            },
-                                            {
-                                                label: 'Capaian',
-                                                data: capaian,
-                                                borderColor: '#e74c3c',
-                                                backgroundColor: '#e74c3c',
-                                                borderWidth: 2,
-                                                pointStyle: 'diamond',
-                                                pointRadius: 6,
-                                            }
-                                            // {
-                                            //     label: 'Linear (Capaian)',
-                                            //     data: trendline,
-                                            //     borderColor: '#333',
-                                            //     borderWidth: 1,
-                                            //     pointRadius: 0, // Tanpa titik
-                                            //     fill: false,
-                                            //     type: 'line'
-                                            // }
-                                        ]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        scales: {
-                                            y: {
-                                                min: 0,
-                                                max: 105,
-                                                ticks: {
-                                                    stepSize: 5
-                                                }
-                                            }
+                            
+                            const base = nasionalData[indikatorId][tahun];
+                            const view = getQuarterData(base, periode);
+                            
+                            if (inmChart) inmChart.destroy();
+                            
+                            inmChart = new Chart(ctxIMN, {
+                                type,
+                                data: {
+                                    labels: view.labels,
+                                    datasets: [
+                                        {
+                                            label: 'Target',
+                                            data: view.target,
+                                            borderColor: '#3498db',
+                                            backgroundColor: '#3498db',
+                                            borderWidth: 2,
+                                            pointStyle: 'diamond',
+                                            pointRadius: 6,
+                                            type: 'line'
                                         },
-                                        plugins: {
-                                            legend: {
-                                                position: 'bottom'
-                                            }
+                                        {
+                                            label: 'Realisasi',
+                                            data: view.hasil,
+                                            borderColor: '#e74c3c',
+                                            backgroundColor: '#e74c3c',
+                                            borderWidth: 2,
+                                            pointStyle: 'diamond',
+                                            pointRadius: 6,
                                         }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            min: 0,
+                                            max: 105,
+                                            ticks: { stepSize: 5 }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: { position: 'bottom' }
                                     }
-                                });
-                            }
+                                }
+                            });
+                        }
 
-                            // 4. EVENT LISTENERS
-                            document.getElementById('indicatorsFilter').addEventListener('change', updateChart);
-                            document.getElementById('inmFilterPeriode').addEventListener('change', updateChart);
-                            document.getElementById('inmFilterTipeChart').addEventListener('change', updateChart);
-                            document.getElementById('inmFilterTahun').addEventListener('change', updateChart);
-
-                            // Init pertama kali
-                            updateChart();
+                        document.getElementById('indicatorsFilter').addEventListener('change', updateINMChart);
+                        document.getElementById('inmFilterTahun').addEventListener('change', updateINMChart);
+                        document.getElementById('inmFilterPeriode').addEventListener('change', updateINMChart);
+                        document.getElementById('inmFilterTipeChart').addEventListener('change', updateINMChart);
+                        
+                        // auto render pertama
+                        updateINMChart();
                         </script>
                     </div>
                 @else
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -642,21 +607,21 @@
                                 data: {
                                     labels: viewData.labels,
                                     datasets: [{
-                                            label: "Target",
-                                            data: viewData.target,
-                                            borderColor: 'rgba(255,99,132,1)',
-                                            backgroundColor: 'rgba(255,99,132,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        },
-                                        {
-                                            label: "Realisasi",
-                                            data: viewData.hasil,
-                                            borderColor: 'rgba(54,162,235,1)',
-                                            backgroundColor: 'rgba(54,162,235,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        }
+                                        label: "Target",
+                                        data: viewData.target,
+                                        borderColor: 'rgba(255,99,132,1)',
+                                        backgroundColor: 'rgba(255,99,132,0.6)',
+                                        tension: 0.2,
+                                        fill: type === 'bar'
+                                    },
+                                    {
+                                        label: "Realisasi",
+                                        data: viewData.hasil,
+                                        borderColor: 'rgba(54,162,235,1)',
+                                        backgroundColor: 'rgba(54,162,235,0.6)',
+                                        tension: 0.2,
+                                        fill: type === 'bar'
+                                    }
                                     ]
                                 },
                                 options: {
