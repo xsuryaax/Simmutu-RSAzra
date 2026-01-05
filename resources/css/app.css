@@ -489,7 +489,7 @@
   }
 }
 
-.pricing .card {
+/* .pricing .card {
   box-shadow: none;
   border-right: 1px solid #e9ecef;
   box-shadow: 0 10px 10px #e9ecef;
@@ -541,7 +541,7 @@
 .pricing .card-highlighted .card-title {
   color: #fff;
   font-size: 1.8rem;
-}
+} */
 .divider {
   display: block;
   text-align: center;
@@ -882,7 +882,7 @@
   min-width: 40px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 950px) {
   .table-responsive-md, 
   .dt-row {
     overflow-x: hidden !important;
@@ -892,6 +892,7 @@
     width: 100% !important;
   }
 }
+
 .modal .modal-content {
   box-shadow: -8px 12px 18px 0 rgba(25, 42, 70, 0.13);
   border: none;

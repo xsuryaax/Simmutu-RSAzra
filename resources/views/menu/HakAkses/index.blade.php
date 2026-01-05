@@ -45,7 +45,7 @@
             <div class="mb-3">
                 <label class="fw-semibold">Pilih Role</label>
                 <select name="role_id" class="form-select" onchange="this.form.submit()">
-                    @foreach($roles as $r)
+                    @foreach ($roles as $r)
                         <option value="{{ $r->id }}" {{ $selectedRole == $r->id ? 'selected' : '' }}>
                             {{ $r->nama_role }}
                         </option>
@@ -60,13 +60,12 @@
             @method('PUT')
             <input type="hidden" name="role_id" value="{{ $selectedRole }}">
 
-            @foreach($menuStructure as $groupKey => $group)
-
+            @foreach ($menuStructure as $groupKey => $group)
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body">
 
                         <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
-                            @if($groupKey === 'main')
+                            @if ($groupKey === 'main')
                                 <i class="bi bi-grid-fill"></i>
                             @elseif($groupKey === 'manajemen')
                                 <i class="bi bi-layers-fill"></i>
@@ -78,12 +77,13 @@
 
                         {{-- GRID MENU --}}
                         <div class="row g-3">
-                            @foreach($group['menus'] as $menu)
+                            @foreach ($group['menus'] as $menu)
                                 <div class="col-md-6">
-                                    <div class="border rounded-3 p-3 bg-light d-flex align-items-center">
+                                    <div class="border rounded-3 p-3 d-flex align-items-center">
                                         <div class="form-check m-0">
                                             <input class="form-check-input" type="checkbox" name="menu_key[]"
-                                                value="{{ $menu['key'] }}" {{ in_array($menu['key'], $hakAkses) ? 'checked' : '' }}>
+                                                value="{{ $menu['key'] }}"
+                                                {{ in_array($menu['key'], $hakAkses) ? 'checked' : '' }}>
                                             <label class="form-check-label">
                                                 {{ $menu['label'] }}
                                             </label>
@@ -95,7 +95,6 @@
 
                     </div>
                 </div>
-
             @endforeach
 
             <button class="btn btn-primary px-4 py-2">
