@@ -553,187 +553,137 @@
                     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
                     <script>
-                        const dataIndikator = {
-                            "Sasaran Keselamatan Pasien (SKP)": {
-                                "identifikasi_pasien": {
-                                    judul: "Identifikasi Pasien Saat Penempelan Etiket Obat di Farmasi",
-                                    standar: 100,
-                                    capaian: [100, 100, 100, 100, 99, 100, 100, 100, 98, 100, 100, 100]
-                                },
-                                "tertukar_radiologi": {
-                                    judul: "Tertukarnya Hasil Foto Radiologi",
-                                    standar: 0,
-                                    capaian: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
-                                }
-                            },
-                            "Kategori Lain": {
-                                "contoh_indikator": {
-                                    judul: "Indikator Contoh 1",
-                                    standar: 85,
-                                    capaian: [80, 82, 85, 87, 86, 88, 90, 85, 84, 86, 87, 89]
-                                }
-                            }
-                        };
+                    
+                    const IMPRS_DATA = @json($chartIMPRSJson);
+                    const YEARS      = @json($chartIMPRSYears);
+                    
+                    const labelsBulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                    
+                    const catFilter      = document.getElementById('catFilter');
+                    const indFilter      = document.getElementById('indicatsFilter');
+                    const tahunFilter    = document.getElementById('imprsFilterTahun');
+                    const periodeFilter  = document.getElementById('imprsFilterPeriode');
+                    const tipeFilter     = document.getElementById('imprsFilterTipeChart');
+                    const ctx            = document.getElementById('chartIMPRS').getContext('2d');
 
-                        const labelsBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Juni', 'Juli', 'Agst', 'Sept', 'Okt', 'Nov', 'Des'];
-                        let imprsChart = null;
-
-                        const catFilter = document.getElementById('catFilter');
-                        const indicatsFilter = document.getElementById('indicatsFilter');
-                        const tahunFilter = document.getElementById('imprsFilterTahun');
-                        const periodeFilter = document.getElementById('imprsFilterPeriode');
-                        const tipeChartFilter = document.getElementById('imprsFilterTipeChart');
-                        const canvas = document.getElementById('chartIMPRS');
-                        const ctx = canvas.getContext('2d');
-
-                        function updateIMPRSChart() {
-                            // filter tahun
-                            const currentYear = new Date().getFullYear();
-                            for (let i = 0; i < 3; i++) {
-                                let year = currentYear - i;
-                                tahunFilter.innerHTML += `<option value="${year}">${year}</option>`;
-                            }
-
-                            // filter kategori
-                            Object.keys(dataIndikator).forEach(cat => {
-                                catFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
-                            });
-
-                            renderChart();
+                    let chart = null;
+                    
+                    function init() {
+                        
+                        catFilter.innerHTML = `<option value="">-- Pilih Kategori --</option>`;
+                        indFilter.innerHTML = `<option value="">-- Pilih Indikator --</option>`;tahunFilter.innerHTML = '';
+                        
+                        Object.keys(IMPRS_DATA).forEach(cat => {
+                            
+                            catFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+                        
+                        });
+                        
+                        YEARS.forEach(y => {
+                            tahunFilter.innerHTML += `<option value="${y}">${y}</option>`;
+                        });
+                        
+                        emptyChart('Pilih kategori');
+                    }
+                    
+                    catFilter.onchange = () => {
+                        const cat = catFilter.value;
+                        indFilter.innerHTML = `<option value="">-- Pilih Indikator --</option>`;
+                        
+                        if (!cat) return emptyChart('Pilih indikator');
+                        
+                        Object.entries(IMPRS_DATA[cat].indikators).forEach(([id, obj]) => {
+                            indFilter.innerHTML += `<option value="${id}">${obj.judul}</option>`;
+                        });
+                        
+                        emptyChart('Pilih indikator');
+                    };
+                    
+                    [indFilter, tahunFilter, periodeFilter, tipeFilter].forEach(el => {
+                        el.onchange = renderChart;
+                    });
+                    
+                    function renderChart() {
+                        
+                        const cat     = catFilter.value;
+                        const ind     = indFilter.value;
+                        const year    = tahunFilter.value;
+                        const periode = periodeFilter.value;
+                        const tipe    = tipeFilter.value;
+                        
+                        if (!cat || !ind || !year) {
+                            return emptyChart('Lengkapi filter');
                         }
-
-                        // filter indikator (sesuai kategori)
-                        catFilter.addEventListener('change', function() {
-                            const cat = this.value;
-                            indicatsFilter.innerHTML = '<option value="">-- Pilih Indikator --</option>';
-
-                            if (cat && dataIndikator[cat]) {
-                                Object.keys(dataIndikator[cat]).forEach(key => {
-                                    indicatsFilter.innerHTML +=
-                                        `<option value="${key}">${dataIndikator[cat][key].judul}</option>`;
-                                });
-                            }
-                            renderChart();
-                        });
-
-                        [indicatsFilter, tahunFilter, periodeFilter, tipeChartFilter].forEach(el => {
-                            el.addEventListener('change', renderChart);
-                        });
-
-                        function renderChart() {
-                            const catValue = catFilter.value;
-                            const indicValue = indicatsFilter.value;
-                            const periodeValue = periodeFilter.value;
-                            const tipeValue = tipeChartFilter.value;
-
-                            if (imprsChart) {
-                                imprsChart.destroy();
-                            }
-
-                            // user harus pilih kategori dulu, chart kosong
-                            if (!catValue) {
-                                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                ctx.textAlign = 'center';
-                                ctx.font = '16px Arial';
-                                ctx.fillStyle = '#666';
-                                ctx.fillText('Pilih kategori terlebih dahulu', canvas.width / 2, canvas.height / 2);
-                                return;
-                            }
-
-                            // filter tampilan data
-                            let labels = [...labelsBulan];
-                            let sliceRange = [0, 12];
-                            if (periodeValue !== 'Tahun') {
-                                const qMap = {
-                                    'Q1': [0, 3],
-                                    'Q2': [3, 6],
-                                    'Q3': [6, 9],
-                                    'Q4': [9, 12]
-                                };
-                                sliceRange = qMap[periodeValue];
-                                labels = labels.slice(sliceRange[0], sliceRange[1]);
-                            }
-
-                            let datasets = [];
-
-                            if (!indicValue) {
-                                // kalau udah pilih kategori tapi indikator belum, tampilkan semua indikator di kategori itu (cuma hasil/capaian)
-                                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f'];
-                                let i = 0;
-                                Object.keys(dataIndikator[catValue]).forEach(key => {
-                                    datasets.push({
-                                        label: dataIndikator[catValue][key].judul,
-                                        data: dataIndikator[catValue][key].capaian.slice(sliceRange[0], sliceRange[1]),
-                                        borderColor: colors[i % colors.length],
-                                        backgroundColor: colors[i % colors.length],
-                                        fill: false,
-                                        tension: 0.1
-                                    });
-                                    i++;
-                                });
-                            } else {
-                                // kalau kategori & indikator udah dipilih, detail chart tampil
-                                const dataObj = dataIndikator[catValue][indicValue];
-                                const capaianData = dataObj.capaian.slice(sliceRange[0], sliceRange[1]);
-
-                                const standarData = Array(labels.length).fill(dataObj.standar);
-
-                                datasets = [{
-                                        label: 'Standar (' + dataObj.standar + '%)',
-                                        data: standarData,
+                        
+                        const dataObj = IMPRS_DATA[cat].indikators[ind].data[year];
+                        
+                        let start = 0, end = 12;
+                        if (periode !== 'Tahun') {
+                            const map = { Q1:[0,3], Q2:[3,6], Q3:[6,9], Q4:[9,12] };
+                            [start, end] = map[periode];
+                        }
+                        
+                        chart?.destroy();
+                        
+                        chart = new Chart(ctx, {
+                            type: tipe,
+                            data: {
+                                labels: labelsBulan.slice(start, end),
+                                datasets: [
+                                    { label: 'Standar', 
+                                        data: dataObj.target.slice(start, end),
                                         borderColor: '#3498db',
                                         backgroundColor: '#3498db',
-                                        fill: (tipeValue === 'line' ? false : true),
-                                        tension: 0.1
+                                        
                                     },
-                                    {
-                                        label: 'Capaian',
-                                        data: capaianData,
+                                    { label: 'Capaian', 
+                                        data: dataObj.hasil.slice(start, end),
                                         borderColor: '#e74c3c',
                                         backgroundColor: '#e74c3c',
-                                        fill: (tipeValue === 'line' ? false : true),
-                                        tension: 0.1
                                     }
-                                ];
-                            }
-
-                            imprsChart = new Chart(ctx, {
-                                type: tipeValue,
-                                data: {
-                                    labels: labels,
-                                    datasets: datasets
-                                },
-                                options: {
-                                    responsive: true,
-                                    maintainAspectRatio: false,
-                                    scales: {
-                                        y: {
-                                            beginAtZero: true,
-                                            max: 110,
-                                            ticks: {
-                                                callback: function(value) {
-                                                    return value + "%"
-                                                }
-                                            }
-                                        }
-                                    },
-                                    plugins: {
-                                        legend: {
+                                ]
+                            },
+                            options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 110,
+                ticks: {
+                    stepSize: 10,
+                    callback: function(value) {
+                        return value;
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
                                             position: 'bottom',
                                             labels: {
                                                 boxWidth: 12
                                             }
                                         },
-                                        tooltip: {
+            tooltip: {
                                             mode: 'index',
                                             intersect: false
                                         }
-                                    }
-                                }
-                            });
-                        }
-
-                        updateIMPRSChart();
+        }
+    }
+                        });
+                    }
+                    
+                    function emptyChart(text) {
+                        chart?.destroy();
+                        chart = new Chart(ctx, {
+                            type:'bar',
+                            data:{ labels:[''], datasets:[{ data:[0], label:text }] },
+                            options:{ plugins:{ legend:{display:false} }, scales:{x:{display:false},y:{display:false}} }
+                        });
+                    }
+                    
+                    init();
                     </script>
                 @else
                     <div class="row">

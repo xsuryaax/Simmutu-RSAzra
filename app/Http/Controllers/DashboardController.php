@@ -34,6 +34,8 @@ class DashboardController extends Controller
             'indikatorNasionalList' => $this->getIndikatorNasional(),
             'nasionalYears' => $this->getNasionalYears(),
             'nasionalChartJson' => $this->getNasionalChartData(),
+            'chartIMPRSJson' => $this->getIMPRSChartData(),
+            'chartIMPRSYears' => $this->getYears(),
         ];
 
         if (in_array($roleId, [1, 2])) {
@@ -321,4 +323,68 @@ class DashboardController extends Controller
         ];
     }
 
+    private function getIMPRSChartData(): array
+    {
+        $indikators = DB::table('tbl_imprs as i')
+            ->join('tbl_kategori_imprs as k', 'k.id', '=', 'i.kategori_id')
+            ->select(
+                'i.id',
+                'i.nama_imprs',
+                'i.target_imprs',
+                'k.nama_kategori_imprs as kategori'
+            )
+            ->orderBy('k.nama_kategori_imprs')
+            ->orderBy('i.nama_imprs')
+            ->get();
+
+        $years = $this->getYears();
+        $data = [];
+
+        foreach ($indikators as $ind) {
+
+            // 🔥 INI PENTING
+            if (!isset($data[$ind->kategori])) {
+                $data[$ind->kategori] = [
+                    'indikators' => []
+                ];
+            }
+
+            $data[$ind->kategori]['indikators'][$ind->id] = [
+                'judul' => $ind->nama_imprs,
+                'data' => []
+            ];
+
+            foreach ($years as $tahun) {
+                $data[$ind->kategori]['indikators'][$ind->id]['data'][$tahun]
+                    = $this->buildImprsData($ind, $tahun);
+            }
+        }
+        return $data;
+    }
+
+    private function buildImprsData($imprs, int $tahun): array
+    {
+        $target = array_fill(0, 12, (float) $imprs->target_imprs);
+
+        $hasilDB = DB::table('tbl_laporan_dan_analis_imprs')
+            ->where('imprs_id', $imprs->id)
+            ->whereYear('tanggal_laporan', $tahun)
+            ->selectRaw('
+            EXTRACT(MONTH FROM tanggal_laporan) AS bulan,
+            ROUND(AVG(nilai), 2) AS nilai
+        ')
+            ->groupByRaw('EXTRACT(MONTH FROM tanggal_laporan)')
+            ->pluck('nilai', 'bulan')
+            ->toArray();
+
+        $hasil = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $hasil[] = $hasilDB[$i] ?? null;
+        }
+
+        return [
+            'target' => $target,
+            'hasil' => $hasil
+        ];
+    }
 }
