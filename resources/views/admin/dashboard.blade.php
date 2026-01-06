@@ -48,7 +48,8 @@
                         </div>
 
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalSudahIsi">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
+                                data-bs-target="#modalSudahIsi">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
                                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -66,7 +67,8 @@
                         </div>
 
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalBelumIsi">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
+                                data-bs-target="#modalBelumIsi">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
                                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -104,7 +106,8 @@
                     <div class="row adm-chart">
                         <div class="col-9 left-chart">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Semua Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -303,17 +306,17 @@
                                     data: {
                                         labels,
                                         datasets: [{
-                                            label: "Target",
-                                            data: target,
-                                            backgroundColor: "rgba(255,159,64,0.7)",
-                                            borderColor: "rgba(255, 159, 64, 1)"
-                                        },
-                                        {
-                                            label: "Realisasi",
-                                            data: hasil,
-                                            backgroundColor: "rgba(75,192,192,0.7)",
-                                            borderColor: "rgba(75, 192, 192, 1)"
-                                        }
+                                                label: "Target",
+                                                data: target,
+                                                backgroundColor: "rgba(255,159,64,0.7)",
+                                                borderColor: "rgba(255, 159, 64, 1)"
+                                            },
+                                            {
+                                                label: "Realisasi",
+                                                data: hasil,
+                                                backgroundColor: "rgba(75,192,192,0.7)",
+                                                borderColor: "rgba(75, 192, 192, 1)"
+                                            }
                                         ]
                                     },
                                     options: {
@@ -352,7 +355,8 @@
                     <div class="row adm-chart">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Indikator Mutu Nasional</h4>
                                     <div class="d-flex gap-2">
                                         <select id="indicatorsFilter" class="form-select form-select-sm">
@@ -393,111 +397,350 @@
                         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
                         <script>
-                        const nasionalData = @json($nasionalChartJson);
-                        
-                        let inmChart;
-                        const ctxIMN = document.getElementById('chartINM').getContext('2d');
-                        
-                        function getQuarterData(data, periode) {
-                            let start = 0, end = 12;
-                            if (periode === 'Q1') end = 3;
-                            if (periode === 'Q2') { start = 3; end = 6; }
-                            if (periode === 'Q3') { start = 6; end = 9; }
-                            if (periode === 'Q4') { start = 9; end = 12; }
-                            
-                            return {
-                                labels: data.labels.slice(start, end),
-                                target: data.target.slice(start, end),
-                                hasil: data.hasil.slice(start, end),
-                            };
+                            const nasionalData = @json($nasionalChartJson);
+
+                            let inmChart;
+                            const ctxIMN = document.getElementById('chartINM').getContext('2d');
+
+                            function getQuarterData(data, periode) {
+                                let start = 0,
+                                    end = 12;
+                                if (periode === 'Q1') end = 3;
+                                if (periode === 'Q2') {
+                                    start = 3;
+                                    end = 6;
+                                }
+                                if (periode === 'Q3') {
+                                    start = 6;
+                                    end = 9;
+                                }
+                                if (periode === 'Q4') {
+                                    start = 9;
+                                    end = 12;
+                                }
+
+                                return {
+                                    labels: data.labels.slice(start, end),
+                                    target: data.target.slice(start, end),
+                                    hasil: data.hasil.slice(start, end),
+                                };
+                            }
+
+                            function showNoData(message = 'Tidak ada data untuk ditampilkan') {
+                                const canvas = document.getElementById('chartINM');
+                                const ctx = canvas.getContext('2d');
+
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                                ctx.font = '16px Arial';
+                                ctx.fillStyle = '#6c757d';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+                            }
+
+                            function updateINMChart() {
+                                const indikatorId = document.getElementById('indicatorsFilter').value;
+                                const tahun = document.getElementById('inmFilterTahun').value;
+                                const periode = document.getElementById('inmFilterPeriode').value;
+                                const type = document.getElementById('inmFilterTipeChart').value;
+
+                                if (!indikatorId || !nasionalData[indikatorId] || !nasionalData[indikatorId][tahun]) {
+                                    if (inmChart) inmChart.destroy();
+                                    return;
+                                }
+
+                                const base = nasionalData[indikatorId][tahun];
+                                const view = getQuarterData(base, periode);
+
+                                if (inmChart) inmChart.destroy();
+
+                                inmChart = new Chart(ctxIMN, {
+                                    type,
+                                    data: {
+                                        labels: view.labels,
+                                        datasets: [{
+                                                label: 'Target',
+                                                data: view.target,
+                                                borderColor: '#3498db',
+                                                backgroundColor: '#3498db',
+                                                borderWidth: 2,
+                                                pointStyle: 'diamond',
+                                                pointRadius: 6,
+                                                type: 'line'
+                                            },
+                                            {
+                                                label: 'Realisasi',
+                                                data: view.hasil,
+                                                borderColor: '#e74c3c',
+                                                backgroundColor: '#e74c3c',
+                                                borderWidth: 2,
+                                                pointStyle: 'diamond',
+                                                pointRadius: 6,
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            y: {
+                                                min: 0,
+                                                max: 105,
+                                                ticks: {
+                                                    stepSize: 5
+                                                }
+                                            }
+                                        },
+                                        plugins: {
+                                            legend: {
+                                                position: 'bottom'
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            document.getElementById('indicatorsFilter').addEventListener('change', updateINMChart);
+                            document.getElementById('inmFilterTahun').addEventListener('change', updateINMChart);
+                            document.getElementById('inmFilterPeriode').addEventListener('change', updateINMChart);
+                            document.getElementById('inmFilterTipeChart').addEventListener('change', updateINMChart);
+
+                            // auto render pertama
+                            updateINMChart();
+                        </script>
+                    </div>
+
+                    {{-- Indikator Mutu Prioritas RS --}}
+                    <div class="row adm-chart">
+                        <div class="col-12">
+                            <div class="card">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                    <h4>Indikator Mutu Prioritas Rumah Sakit</h4>
+                                    <div class="d-flex gap-2">
+                                        <select id="catFilter" class="form-select form-select-sm">
+                                            <option value="">-- Pilih Kategori --</option>
+                                        </select>
+                                        <select id="indicatsFilter" class="form-select form-select-sm">
+                                            <option value="">-- Pilih Indikator --</option>
+                                        </select>
+                                        <select id="imprsFilterTahun" class="form-select form-select-sm">
+                                        </select>
+                                        <select id="imprsFilterPeriode" class="form-select form-select-sm">
+                                            <option value="Tahun" selected>Data Satu Tahun</option>
+                                            <option value="Q1">Q1 (Jan-Mar)</option>
+                                            <option value="Q2">Q2 (Apr-Jun)</option>
+                                            <option value="Q3">Q3 (Jul-Sep)</option>
+                                            <option value="Q4">Q4 (Okt-Des)</option>
+                                        </select>
+
+                                        <select id="imprsFilterTipeChart" class="form-select form-select-sm">
+                                            <option value="line" selected>Line Chart</option>
+                                            <option value="bar">Bar Chart</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div style="height: 400px;">
+                                        <canvas id="chartIMPRS"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+                    <script>
+                        const dataIndikator = {
+                            "Sasaran Keselamatan Pasien (SKP)": {
+                                "identifikasi_pasien": {
+                                    judul: "Identifikasi Pasien Saat Penempelan Etiket Obat di Farmasi",
+                                    standar: 100,
+                                    capaian: [100, 100, 100, 100, 99, 100, 100, 100, 98, 100, 100, 100]
+                                },
+                                "tertukar_radiologi": {
+                                    judul: "Tertukarnya Hasil Foto Radiologi",
+                                    standar: 0,
+                                    capaian: [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]
+                                }
+                            },
+                            "Kategori Lain": {
+                                "contoh_indikator": {
+                                    judul: "Indikator Contoh 1",
+                                    standar: 85,
+                                    capaian: [80, 82, 85, 87, 86, 88, 90, 85, 84, 86, 87, 89]
+                                }
+                            }
+                        };
+
+                        const labelsBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Juni', 'Juli', 'Agst', 'Sept', 'Okt', 'Nov', 'Des'];
+                        let imprsChart = null;
+
+                        const catFilter = document.getElementById('catFilter');
+                        const indicatsFilter = document.getElementById('indicatsFilter');
+                        const tahunFilter = document.getElementById('imprsFilterTahun');
+                        const periodeFilter = document.getElementById('imprsFilterPeriode');
+                        const tipeChartFilter = document.getElementById('imprsFilterTipeChart');
+                        const canvas = document.getElementById('chartIMPRS');
+                        const ctx = canvas.getContext('2d');
+
+                        function updateIMPRSChart() {
+                            // filter tahun
+                            const currentYear = new Date().getFullYear();
+                            for (let i = 0; i < 3; i++) {
+                                let year = currentYear - i;
+                                tahunFilter.innerHTML += `<option value="${year}">${year}</option>`;
+                            }
+
+                            // filter kategori
+                            Object.keys(dataIndikator).forEach(cat => {
+                                catFilter.innerHTML += `<option value="${cat}">${cat}</option>`;
+                            });
+
+                            renderChart();
                         }
 
-                        function showNoData(message = 'Tidak ada data untuk ditampilkan') {
-                            const canvas = document.getElementById('chartINM');
-                            const ctx = canvas.getContext('2d');
-                            
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
-                            
-                            ctx.font = '16px Arial';
-                            ctx.fillStyle = '#6c757d';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
-                        }
-                        
-                        function updateINMChart() {
-                            const indikatorId = document.getElementById('indicatorsFilter').value;
-                            const tahun = document.getElementById('inmFilterTahun').value;
-                            const periode = document.getElementById('inmFilterPeriode').value;
-                            const type = document.getElementById('inmFilterTipeChart').value;
-                            
-                            if (!indikatorId || !nasionalData[indikatorId] || !nasionalData[indikatorId][tahun]) {
-                                if (inmChart) inmChart.destroy();
+                        // filter indikator (sesuai kategori)
+                        catFilter.addEventListener('change', function() {
+                            const cat = this.value;
+                            indicatsFilter.innerHTML = '<option value="">-- Pilih Indikator --</option>';
+
+                            if (cat && dataIndikator[cat]) {
+                                Object.keys(dataIndikator[cat]).forEach(key => {
+                                    indicatsFilter.innerHTML +=
+                                        `<option value="${key}">${dataIndikator[cat][key].judul}</option>`;
+                                });
+                            }
+                            renderChart();
+                        });
+
+                        [indicatsFilter, tahunFilter, periodeFilter, tipeChartFilter].forEach(el => {
+                            el.addEventListener('change', renderChart);
+                        });
+
+                        function renderChart() {
+                            const catValue = catFilter.value;
+                            const indicValue = indicatsFilter.value;
+                            const periodeValue = periodeFilter.value;
+                            const tipeValue = tipeChartFilter.value;
+
+                            if (imprsChart) {
+                                imprsChart.destroy();
+                            }
+
+                            // user harus pilih kategori dulu, chart kosong
+                            if (!catValue) {
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                ctx.textAlign = 'center';
+                                ctx.font = '16px Arial';
+                                ctx.fillStyle = '#666';
+                                ctx.fillText('Pilih kategori terlebih dahulu', canvas.width / 2, canvas.height / 2);
                                 return;
                             }
-                            
-                            const base = nasionalData[indikatorId][tahun];
-                            const view = getQuarterData(base, periode);
-                            
-                            if (inmChart) inmChart.destroy();
-                            
-                            inmChart = new Chart(ctxIMN, {
-                                type,
+
+                            // filter tampilan data
+                            let labels = [...labelsBulan];
+                            let sliceRange = [0, 12];
+                            if (periodeValue !== 'Tahun') {
+                                const qMap = {
+                                    'Q1': [0, 3],
+                                    'Q2': [3, 6],
+                                    'Q3': [6, 9],
+                                    'Q4': [9, 12]
+                                };
+                                sliceRange = qMap[periodeValue];
+                                labels = labels.slice(sliceRange[0], sliceRange[1]);
+                            }
+
+                            let datasets = [];
+
+                            if (!indicValue) {
+                                // kalau udah pilih kategori tapi indikator belum, tampilkan semua indikator di kategori itu (cuma hasil/capaian)
+                                const colors = ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f'];
+                                let i = 0;
+                                Object.keys(dataIndikator[catValue]).forEach(key => {
+                                    datasets.push({
+                                        label: dataIndikator[catValue][key].judul,
+                                        data: dataIndikator[catValue][key].capaian.slice(sliceRange[0], sliceRange[1]),
+                                        borderColor: colors[i % colors.length],
+                                        backgroundColor: colors[i % colors.length],
+                                        fill: false,
+                                        tension: 0.1
+                                    });
+                                    i++;
+                                });
+                            } else {
+                                // kalau kategori & indikator udah dipilih, detail chart tampil
+                                const dataObj = dataIndikator[catValue][indicValue];
+                                const capaianData = dataObj.capaian.slice(sliceRange[0], sliceRange[1]);
+
+                                const standarData = Array(labels.length).fill(dataObj.standar);
+
+                                datasets = [{
+                                        label: 'Standar (' + dataObj.standar + '%)',
+                                        data: standarData,
+                                        borderColor: '#3498db',
+                                        backgroundColor: '#3498db',
+                                        fill: (tipeValue === 'line' ? false : true),
+                                        tension: 0.1
+                                    },
+                                    {
+                                        label: 'Capaian',
+                                        data: capaianData,
+                                        borderColor: '#e74c3c',
+                                        backgroundColor: '#e74c3c',
+                                        fill: (tipeValue === 'line' ? false : true),
+                                        tension: 0.1
+                                    }
+                                ];
+                            }
+
+                            imprsChart = new Chart(ctx, {
+                                type: tipeValue,
                                 data: {
-                                    labels: view.labels,
-                                    datasets: [
-                                        {
-                                            label: 'Target',
-                                            data: view.target,
-                                            borderColor: '#3498db',
-                                            backgroundColor: '#3498db',
-                                            borderWidth: 2,
-                                            pointStyle: 'diamond',
-                                            pointRadius: 6,
-                                            type: 'line'
-                                        },
-                                        {
-                                            label: 'Realisasi',
-                                            data: view.hasil,
-                                            borderColor: '#e74c3c',
-                                            backgroundColor: '#e74c3c',
-                                            borderWidth: 2,
-                                            pointStyle: 'diamond',
-                                            pointRadius: 6,
-                                        }
-                                    ]
+                                    labels: labels,
+                                    datasets: datasets
                                 },
                                 options: {
                                     responsive: true,
                                     maintainAspectRatio: false,
                                     scales: {
                                         y: {
-                                            min: 0,
-                                            max: 105,
-                                            ticks: { stepSize: 5 }
+                                            beginAtZero: true,
+                                            max: 110,
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return value + "%"
+                                                }
+                                            }
                                         }
                                     },
                                     plugins: {
-                                        legend: { position: 'bottom' }
+                                        legend: {
+                                            position: 'bottom',
+                                            labels: {
+                                                boxWidth: 12
+                                            }
+                                        },
+                                        tooltip: {
+                                            mode: 'index',
+                                            intersect: false
+                                        }
                                     }
                                 }
                             });
                         }
 
-                        document.getElementById('indicatorsFilter').addEventListener('change', updateINMChart);
-                        document.getElementById('inmFilterTahun').addEventListener('change', updateINMChart);
-                        document.getElementById('inmFilterPeriode').addEventListener('change', updateINMChart);
-                        document.getElementById('inmFilterTipeChart').addEventListener('change', updateINMChart);
-                        
-                        // auto render pertama
-                        updateINMChart();
-                        </script>
-                    </div>
+                        updateIMPRSChart();
+                    </script>
                 @else
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div
+                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -607,21 +850,21 @@
                                 data: {
                                     labels: viewData.labels,
                                     datasets: [{
-                                        label: "Target",
-                                        data: viewData.target,
-                                        borderColor: 'rgba(255,99,132,1)',
-                                        backgroundColor: 'rgba(255,99,132,0.6)',
-                                        tension: 0.2,
-                                        fill: type === 'bar'
-                                    },
-                                    {
-                                        label: "Realisasi",
-                                        data: viewData.hasil,
-                                        borderColor: 'rgba(54,162,235,1)',
-                                        backgroundColor: 'rgba(54,162,235,0.6)',
-                                        tension: 0.2,
-                                        fill: type === 'bar'
-                                    }
+                                            label: "Target",
+                                            data: viewData.target,
+                                            borderColor: 'rgba(255,99,132,1)',
+                                            backgroundColor: 'rgba(255,99,132,0.6)',
+                                            tension: 0.2,
+                                            fill: type === 'bar'
+                                        },
+                                        {
+                                            label: "Realisasi",
+                                            data: viewData.hasil,
+                                            borderColor: 'rgba(54,162,235,1)',
+                                            backgroundColor: 'rgba(54,162,235,0.6)',
+                                            tension: 0.2,
+                                            fill: type === 'bar'
+                                        }
                                     ]
                                 },
                                 options: {
