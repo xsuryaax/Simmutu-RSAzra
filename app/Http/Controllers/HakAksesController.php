@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 class HakAksesController extends Controller
 {
+    // Define menu structure
     private $menuStructure = [
         'menu_utama' => [
             'title' => 'Menu Utama',
@@ -53,6 +54,7 @@ class HakAksesController extends Controller
         ]
     ];
 
+    // Display hak akses management page
     public function index(Request $request)
     {
         $selectedRole = $request->role_id ?? tbl_role::first()->id;
@@ -69,7 +71,7 @@ class HakAksesController extends Controller
         ]);
     }
 
-
+    // Update hak akses for a role
     public function update(Request $request, $roleId)
     {
         $menuDipilih = $request->menu_key ?? [];

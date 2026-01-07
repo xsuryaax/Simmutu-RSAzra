@@ -14,20 +14,18 @@ class MasterIMPUController extends Controller
      */
     public function index()
     {
-        $user = Auth::user(); // ambil user login
+        $user = Auth::user();
 
         $query = DB::table('tbl_indikator_unit')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator_unit.unit_id')
             ->select('tbl_indikator_unit.*', 'tbl_unit.nama_unit')
             ->orderBy('tbl_indikator_unit.created_at', 'DESC');
 
-        // Filter hanya unit sendiri jika bukan admin atau unit_mutu
-        // Admin/unit_mutu: unit_id 1 dan 2 (ubah sesuai database)
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator_unit.unit_id', $user->unit_id);
         }
 
-        $indikators = $query->get(); // ✅ ambil list semua
+        $indikators = $query->get();
 
         return view('menu.IndikatorMutuPrioritasUnit.master-impu.index', compact('indikators'));
     }
@@ -40,10 +38,8 @@ class MasterIMPUController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil unit
         $queryUnits = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC');
 
-        // Jika bukan admin/unit_mutu, batasi hanya unit user sendiri
         if (!in_array($user->unit_id, [1, 2])) {
             $queryUnits->where('id', $user->unit_id);
         }
@@ -100,8 +96,8 @@ class MasterIMPUController extends Controller
             ->where('tbl_indikator_unit.id', $id)
             ->first();
 
-        // Ambil unit
         $queryUnits = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC');
+
         // Admin (1) atau Unit Mutu (2) boleh lihat semua
         if (!in_array($user->unit_id, [1, 2])) {
             $queryUnits->where('id', $user->unit_id);

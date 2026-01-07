@@ -13,7 +13,7 @@ class KamusIMPUController extends Controller
      */
     public function index()
     {
-        $user = Auth::user(); // ambil user login
+        $user = Auth::user();
 
         $query = DB::table('tbl_kamus_indikator_mutu_unit')
             ->leftJoin('tbl_indikator_unit', 'tbl_kamus_indikator_mutu_unit.indikator_unit_id', '=', 'tbl_indikator_unit.id')
@@ -40,7 +40,7 @@ class KamusIMPUController extends Controller
             )
             ->orderBy('tbl_kamus_indikator_mutu_unit.id', 'asc');
 
-        // Filter sesuai unit jika bukan admin/unit_mutu
+        // Jika bukan admin / mutu, batasi unit sendiri
         if (! in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator_unit.unit_id', $user->unit_id);
         }
@@ -53,17 +53,12 @@ class KamusIMPUController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    /**
-     * Show form create
-     */
     public function create()
     {
         $user = Auth::user();
 
-        // Query indikator
         $queryIndikator = DB::table('tbl_indikator_unit');
 
-        // Jika bukan admin / mutu, batasi unit sendiri
         if (! in_array($user->unit_id, [1, 2])) {
             $queryIndikator->where('unit_id', $user->unit_id);
         }
@@ -118,7 +113,6 @@ class KamusIMPUController extends Controller
             'publikasi_data_id'              => 'required',
         ]);
 
-        // 1️⃣ Insert & dapatkan ID kamus
         $kamusId = DB::table('tbl_kamus_indikator_mutu_unit')->insertGetId([
             'definisi_operasional'           => $request->definisi_operasional,
             'tujuan'                         => $request->tujuan,
@@ -143,7 +137,6 @@ class KamusIMPUController extends Controller
             'updated_at'                     => now(),
         ]);
 
-        // 2️⃣ Update tabel indikator -> isi kamus_indikator_unit_id
         DB::table('tbl_indikator_unit')
             ->where('id', $request->indikator_id)
             ->update([

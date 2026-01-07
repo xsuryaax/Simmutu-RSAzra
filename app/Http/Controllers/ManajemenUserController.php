@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 class ManajemenUserController extends Controller
 {
+    // Display list of users
     public function index()
     {
         $roles = DB::table('tbl_role')->orderBy('id', 'ASC')->get();
@@ -28,6 +29,7 @@ class ManajemenUserController extends Controller
         return view('menu.ManajemenUser.index', compact('users', 'roles', 'units'));
     }
 
+    // Store new user
     public function store(Request $request)
     {
         $request->validate([
@@ -54,6 +56,7 @@ class ManajemenUserController extends Controller
         return redirect()->back()->with('success', 'User berhasil ditambahkan!');
     }
 
+    // Edit user
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
@@ -83,6 +86,7 @@ class ManajemenUserController extends Controller
         return redirect()->back()->with('success', 'User berhasil diupdate!');
     }
 
+    // Delete user
     public function destroy($id)
     {
         User::findOrFail($id)->delete();

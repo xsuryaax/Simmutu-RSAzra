@@ -10,6 +10,7 @@ use Carbon\Carbon;
 
 class LaporanAnalisIMPRSController extends Controller
 {
+    // DISPLAY INDEX
     public function index(Request $request)
     {
         $bulan = (int) ($request->bulan ?? date('m'));
@@ -28,6 +29,7 @@ class LaporanAnalisIMPRSController extends Controller
         ]);
     }
 
+    // AMBIL DATA INDIKATOR
     private function getIndikator()
     {
         return DB::table('tbl_imprs as i')
@@ -42,6 +44,7 @@ class LaporanAnalisIMPRSController extends Controller
             ->get();
     }
 
+    // AMBIL DATA LAPORAN
     private function getLaporan($bulan, $tahun)
     {
         $laporan = DB::table('tbl_laporan_dan_analis_imprs as l')
@@ -65,6 +68,7 @@ class LaporanAnalisIMPRSController extends Controller
         ];
     }
 
+    // AMBIL REKAP BULANAN
     private function getRekapBulanan($bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis_imprs as l')
@@ -87,6 +91,7 @@ class LaporanAnalisIMPRSController extends Controller
             ->keyBy('imprs_id');
     }
 
+    // AMBIL TANGGAL YANG SUDAH DIGUNAKAN
     private function getUsedDates($bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis_imprs')
@@ -101,6 +106,7 @@ class LaporanAnalisIMPRSController extends Controller
             ->map(fn($rows) => $rows->pluck('hari')->values());
     }
 
+    // PROSES SIMPAN LAPORAN
     public function store(Request $request)
     {
         $request->validate([
@@ -124,7 +130,6 @@ class LaporanAnalisIMPRSController extends Controller
             $request->tanggal_laporan
         );
 
-        // Ambil data IMPRS seperlunya saja
         $imprs = DB::table('tbl_imprs')
             ->select(
                 'id',
@@ -140,12 +145,10 @@ class LaporanAnalisIMPRSController extends Controller
             return back()->with('error', 'IMPRS tidak ditemukan');
         }
 
-        // Validasi periode (WAJIB untuk mutu RS)
         if ($tanggal < $imprs->tanggal_mulai || $tanggal > $imprs->tanggal_selesai) {
             return back()->with('error', 'Tanggal di luar periode IMPRS');
         }
 
-        // Cek duplikat (super cepat)
         if (
             DB::table('tbl_laporan_dan_analis_imprs')
                 ->where('imprs_id', $imprs->id)
@@ -156,7 +159,6 @@ class LaporanAnalisIMPRSController extends Controller
             return back()->with('error', 'Data sudah diinput');
         }
 
-        // Hitung nilai & pencapaian
         $nilai = ($request->numerator / $request->denominator) * 100;
         $pencapaian = $nilai >= $imprs->target_imprs
             ? 'tercapai'

@@ -9,17 +9,13 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    // ===========================
     // SHOW LOGIN PAGE
-    // ===========================
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    // ===========================
     // PROSES LOGIN
-    // ===========================
     public function login(Request $request)
     {
         $request->validate([
@@ -29,25 +25,20 @@ class AuthController extends Controller
 
         $user = User::where('username', $request->username)->first();
 
-        // Jika user tidak ditemukan
         if (!$user) {
             return back()->withErrors(['username' => 'Username tidak ditemukan.']);
         }
 
-        // Jika user non aktif
         if ($user->status_user !== 'aktif') {
             return back()->withErrors(['username' => 'Akun anda tidak aktif.']);
         }
 
-        // Cek password
         if (!Hash::check($request->password, $user->password)) {
             return back()->withErrors(['password' => 'Password salah.']);
         }
 
-        // Login user
         Auth::login($user);
 
-        // Redirect sesuai role jika ingin
         if ($user->role_id == 1) {
             return redirect()->route('dashboard');
         }
@@ -55,17 +46,13 @@ class AuthController extends Controller
         return redirect()->route('dashboard');
     }
 
-    // ===========================
     // SHOW REGISTER PAGE
-    // ===========================
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    // ===========================
     // PROSES REGISTER
-    // ===========================
     public function register(Request $request)
     {
         $request->validate([
@@ -87,9 +74,7 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'Registrasi berhasil. Silakan login.');
     }
 
-    // ===========================
     // LOGOUT
-    // ===========================
     public function logout()
     {
         Auth::logout();

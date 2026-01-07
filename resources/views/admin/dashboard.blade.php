@@ -401,6 +401,7 @@
 
                             let inmChart;
                             const ctxIMN = document.getElementById('chartINM').getContext('2d');
+                            const chartType = document.getElementById('inmFilterTipeChart').value;
 
                             function getQuarterData(data, periode) {
                                 let start = 0,
@@ -456,7 +457,7 @@
                                 if (inmChart) inmChart.destroy();
 
                                 inmChart = new Chart(ctxIMN, {
-                                    type,
+                                    type: type,
                                     data: {
                                         labels: view.labels,
                                         datasets: [{
@@ -466,8 +467,7 @@
                                                 backgroundColor: '#3498db',
                                                 borderWidth: 2,
                                                 pointStyle: 'diamond',
-                                                pointRadius: 6,
-                                                type: 'line'
+                                                pointRadius: type === 'line' ? 6 : 0
                                             },
                                             {
                                                 label: 'Realisasi',
@@ -476,7 +476,7 @@
                                                 backgroundColor: '#e74c3c',
                                                 borderWidth: 2,
                                                 pointStyle: 'diamond',
-                                                pointRadius: 6,
+                                                pointRadius: type === 'line' ? 6 : 0
                                             }
                                         ]
                                     },
@@ -644,33 +644,33 @@
                                 ]
                             },
                             options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 110,
-                ticks: {
-                    stepSize: 10,
-                    callback: function(value) {
-                        return value;
-                    }
-                }
-            }
-        },
-        plugins: {
-            legend: {
-                                            position: 'bottom',
-                                            labels: {
-                                                boxWidth: 12
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        max: 110,
+                                        ticks: {
+                                            stepSize: 10,
+                                            callback: function(value) {
+                                                return value;
                                             }
-                                        },
-            tooltip: {
-                                            mode: 'index',
-                                            intersect: false
                                         }
-        }
-    }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            boxWidth: 12
+                                        }
+                                    },
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false
+                                    }
+                                }
+                            }
                         });
                     }
                     

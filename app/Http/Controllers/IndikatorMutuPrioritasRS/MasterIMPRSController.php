@@ -10,6 +10,7 @@ use Validator;
 
 class MasterIMPRSController extends Controller
 {
+    // DISPLAY INDEX
     public function index()
     {
         $user = Auth::user();
@@ -33,6 +34,7 @@ class MasterIMPRSController extends Controller
         );
     }
 
+    // SHOW FORM CREATE
     public function create()
     {
         $user = Auth::user();
@@ -45,6 +47,7 @@ class MasterIMPRSController extends Controller
         return view('menu.IndikatorMutuPrioritasRS.master-imprs.create', compact('kategoris'));
     }
 
+    // PROSES SIMPAN DATA
     public function store(Request $request)
     {
         $request->validate([
@@ -76,6 +79,7 @@ class MasterIMPRSController extends Controller
             ->with('success', 'Indikator berhasil ditambahkan.');
     }
 
+    // SHOW FORM EDIT
     public function edit($id)
     {
         $imprs = DB::table('tbl_imprs')
@@ -96,7 +100,7 @@ class MasterIMPRSController extends Controller
         );
     }
 
-
+    // PROSES UPDATE DATA
     public function update(Request $request, string $id)
     {
         $request->validate([
@@ -128,6 +132,7 @@ class MasterIMPRSController extends Controller
             ->with('success', 'Indikator berhasil diperbarui.');
     }
 
+    // PROSES HAPUS DATA
     public function destroy(string $id)
     {
         DB::table('tbl_imprs')->where('id', $id)->delete();

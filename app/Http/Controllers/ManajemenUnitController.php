@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class ManajemenUnitController extends Controller
 {
+    // Display list of units
     public function index()
     {
         $units = tbl_unit::orderBy('id', 'ASC')->get();
@@ -29,6 +30,7 @@ class ManajemenUnitController extends Controller
         ));
     }
 
+    // Store new unit
     public function store(Request $request)
     {
         $request->validate([
@@ -54,6 +56,7 @@ class ManajemenUnitController extends Controller
             ->with('success', 'Unit berhasil ditambahkan.');
     }
 
+    // Edit unit
     public function edit($id)
     {
         $unit = tbl_unit::findOrFail($id);
@@ -61,6 +64,7 @@ class ManajemenUnitController extends Controller
         return view('menu.ManajemenUnit.edit', compact('unit'));
     }
 
+    // Update unit
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -81,6 +85,7 @@ class ManajemenUnitController extends Controller
             ->with('success', 'Unit berhasil diperbarui.');
     }
 
+    // Delete unit
     public function destroy($id)
     {
         $unit = tbl_unit::findOrFail($id);

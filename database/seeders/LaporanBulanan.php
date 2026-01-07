@@ -15,7 +15,6 @@ class LaporanBulanan extends Seeder
         $indikatorId = 1;
         $unitId      = 3;
 
-        // 🔒 KUNCI TAHUN KE 2025
         $tahun = 2025;
 
         // Batas akhir data (18 Desember 2025)
@@ -49,8 +48,7 @@ class LaporanBulanan extends Seeder
                 continue;
             }
 
-                                         // Dummy nilai bulanan (lebih stabil)
-            $numerator   = rand(30, 45); // lebih realistis
+            $numerator   = rand(30, 45);
             $denominator = 45;
 
             $nilai = round(($numerator / $denominator) * 100, 2);

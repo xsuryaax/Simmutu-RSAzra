@@ -9,6 +9,7 @@ use Carbon\Carbon;
 
 class LaporanAnalisIMPUController extends Controller
 {
+    // DISPLAY INDEX
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -30,7 +31,7 @@ class LaporanAnalisIMPUController extends Controller
         ]);
     }
 
-
+    // AMBIL DATA INDIKATOR
     private function getIndikator($user)
     {
         return DB::table('tbl_indikator_unit')
@@ -57,9 +58,9 @@ class LaporanAnalisIMPUController extends Controller
             ->get();
     }
 
+    // AMBIL DATA LAPORAN
     private function getLaporan($user, $bulan, $tahun)
     {
-        // Ambil data per row dengan paginate
         $laporan = DB::table('tbl_laporan_dan_analis_unit')
             ->select('indikator_unit_id', 'unit_id', 'nilai', 'tanggal_laporan', 'file_laporan')
             ->whereMonth('tanggal_laporan', $bulan)
@@ -78,7 +79,7 @@ class LaporanAnalisIMPUController extends Controller
         ];
     }
 
-
+    // AMBIL REKAP BULANAN
     private function getRekapBulanan($user, $bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis_unit as l')
@@ -100,6 +101,7 @@ class LaporanAnalisIMPUController extends Controller
             ->keyBy(fn($r) => $r->indikator_unit_id . '-' . $r->unit_id);
     }
 
+    // STORE DATA LAPORAN
     public function store(Request $request)
     {
         $request->validate([
@@ -113,14 +115,12 @@ class LaporanAnalisIMPUController extends Controller
             'file_laporan' => 'required|file|max:5120',
         ]);
 
-        /* ===================== BUAT TANGGAL ===================== */
         $tanggal = Carbon::createFromDate(
             $request->tahun,
             $request->bulan,
             $request->tanggal_laporan
         );
 
-        /* ===================== AMBIL INDIKATOR ===================== */
         $indikator = DB::table('tbl_indikator_unit')
             ->where('id', $request->indikator_unit_id)
             ->first();
@@ -132,7 +132,6 @@ class LaporanAnalisIMPUController extends Controller
             return back()->with('error', 'Tanggal laporan di luar periode indikator');
         }
 
-        /* ===================== CEK DUPLIKASI ===================== */
         $exists = DB::table('tbl_laporan_dan_analis_unit')
             ->where('indikator_unit_id', $request->indikator_unit_id)
             ->where('unit_id', $request->unit_id)
@@ -143,17 +142,14 @@ class LaporanAnalisIMPUController extends Controller
             return back()->with('error', 'Tanggal tersebut sudah diinput');
         }
 
-        /* ===================== HITUNG NILAI ===================== */
         $nilai = ($request->numerator / $request->denominator) * 100;
         $pencapaian = $nilai >= $indikator->target_indikator_unit
             ? 'tercapai'
             : 'tidak-tercapai';
 
-        /* ===================== UPLOAD FILE ===================== */
         $filePath = $request->file('file_laporan')
             ->store('laporan_indikator', 'public');
 
-        /* ===================== INSERT ===================== */
         DB::table('tbl_laporan_dan_analis_unit')->insert([
             'indikator_unit_id' => $request->indikator_unit_id,
             'unit_id' => $request->unit_id,

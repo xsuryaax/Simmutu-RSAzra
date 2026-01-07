@@ -24,9 +24,7 @@ class LaporanAnalisIMNController extends Controller
         ]);
     }
 
-    /* =============================
-     * CARD ATAS - REKAP BULANAN
-     * ============================= */
+    // CARD ATAS - REKAP BULANAN
     private function getIndikatorLaporan($bulan, $tahun)
     {
         return DB::table('tbl_indikator_nasional as i')
@@ -52,9 +50,7 @@ class LaporanAnalisIMNController extends Controller
             ->get();
     }
 
-    /* =============================
-     * CARD BAWAH - DETAIL LAPORAN
-     * ============================= */
+    // CARD BAWAH - DETAIL LAPORAN
     private function getLaporanNasional($bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis_nasional as l')
@@ -74,9 +70,7 @@ class LaporanAnalisIMNController extends Controller
             ->get();
     }
 
-    /* =============================
-     * STORE - SAMA DENGAN UNIT
-     * ============================= */
+    // STORE - SAMA DENGAN UNIT
     public function store(Request $request)
     {
         $request->validate([
@@ -89,14 +83,12 @@ class LaporanAnalisIMNController extends Controller
             'file_laporan' => 'required|file|max:5120',
         ]);
 
-        /* ===================== BUAT TANGGAL ===================== */
         $tanggal = Carbon::createFromDate(
             $request->tahun,
             $request->bulan,
             $request->tanggal_laporan
         );
 
-        /* ===================== AMBIL INDIKATOR ===================== */
         $indikator = DB::table('tbl_indikator_nasional')
             ->where('id', $request->indikator_nasional_id)
             ->first();
@@ -105,7 +97,6 @@ class LaporanAnalisIMNController extends Controller
             return back()->with('error', 'Indikator tidak ditemukan');
         }
 
-        /* ===================== VALIDASI PERIODE ===================== */
         if (
             $tanggal->lt(Carbon::parse($indikator->tanggal_mulai)) ||
             $tanggal->gt(Carbon::parse($indikator->tanggal_selesai))
@@ -113,7 +104,6 @@ class LaporanAnalisIMNController extends Controller
             return back()->with('error', 'Tanggal laporan di luar periode indikator');
         }
 
-        /* ===================== CEK DUPLIKASI (PER TANGGAL) ===================== */
         $exists = DB::table('tbl_laporan_dan_analis_nasional')
             ->where('indikator_nasional_id', $request->indikator_nasional_id)
             ->whereDate('tanggal_laporan', $tanggal)
@@ -123,22 +113,22 @@ class LaporanAnalisIMNController extends Controller
             return back()->with('error', 'Tanggal tersebut sudah diinput');
         }
 
-        /* ===================== HITUNG NILAI ===================== */
+        // HITUNG NILAI
         $nilai = round(
             ($request->numerator / $request->denominator) * 100,
             2
         );
 
-        /* ===================== PENCAPAIAN ===================== */
+        // PENCAPAIAN
         $pencapaian = $nilai >= $indikator->target_indikator_nasional
             ? 'tercapai'
             : 'tidak-tercapai';
 
-        /* ===================== UPLOAD FILE ===================== */
+        // UPLOAD FILE
         $filePath = $request->file('file_laporan')
             ->store('laporan_nasional', 'public');
 
-        /* ===================== INSERT ===================== */
+        // SIMPAN DATA
         DB::table('tbl_laporan_dan_analis_nasional')->insert([
             'indikator_nasional_id' => $request->indikator_nasional_id,
             'tanggal_laporan' => $tanggal->format('Y-m-d'),
