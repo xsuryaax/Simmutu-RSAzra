@@ -16,19 +16,15 @@ class HakAksesController extends Controller
             'icon' => 'ri-dashboard-line',
             'menus' => [
                 ['key' => 'dashboard', 'label' => 'Dashboard'],
-                ['key' => 'master_impu', 'label' => 'Master IMPU'],
-                ['key' => 'kamus_impu', 'label' => 'Kamus IMPU'],
-                ['key' => 'master_imprs', 'label' => 'Master IMPRS'],
-                ['key' => 'kamus_imprs', 'label' => 'Kamus IMPRS'],
-                ['key' => 'master_imn', 'label' => 'Master IMN'],
-                ['key' => 'kategori_imprs', 'label' => 'Kategori IMPRS'],
+                ['key' => 'master_indikator', 'label' => 'Master Indikator Mutu'],
+                ['key' => 'kamus_indikator', 'label' => 'Kamus Indikator Mutu'],
                 ['key' => 'laporan_analis_imprs', 'label' => 'Laporan Analis IMPRS'],
                 ['key' => 'laporan_analis_impu', 'label' => 'Laporan Analis IMPU'],
                 ['key' => 'laporan_analis_imn', 'label' => 'Laporan Analis IMN'],
             ]
         ],
         'manajemen_data_mutu' => [
-            'title' => 'Manajemen Data Mutu Unit',
+            'title' => 'Manajemen Data Mutu',
             'icon' => 'ri-list-check-2',
             'menus' => [
 

@@ -11,7 +11,7 @@ class tbl_laporan_dan_analis_imprs extends Model
     protected $table = 'tbl_laporan_dan_analis_imprs';
     protected $fillable = [
         'tanggal_laporan',
-        'imprs_id',
+        'indikator_id',
         'unit_id',
         'kategori_id',
         'nilai',

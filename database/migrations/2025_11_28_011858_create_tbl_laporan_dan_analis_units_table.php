@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tbl_laporan_dan_analis_unit', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal_laporan')->nullable();
-            $table->integer('indikator_unit_id');
+            $table->integer('indikator_id');
             $table->integer('unit_id');
             $table->decimal('nilai', 8, 2);
             $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);

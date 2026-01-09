@@ -9,7 +9,7 @@ class tbl_laporan_dan_analis_nasional extends Model
     protected $table = 'tbl_laporan_dan_analis_nasional';
     protected $fillable = [
         'tanggal_laporan',
-        'indikator_nasional_id',
+        'indikator_id',
         'nilai',
         'pencapaian',
         'status_laporan',

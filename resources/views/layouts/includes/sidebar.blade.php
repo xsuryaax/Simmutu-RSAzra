@@ -49,77 +49,32 @@
                     </a>
                 </li>
 
-                {{-- 1 level menu Indikator mutu Unit --}}
                 <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis-impu*') || request()->is('kamus-impu*') || request()->is('master-impu*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis-impu*') || request()->is('laporan-analis-imn*') || request()->is('laporan-analis-imprs*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
-                        <span>Indikator Mutu Unit</span>
+                        <span>Indikator Mutu</span>
                     </a>
                     <ul class="submenu">
+                        <li class="submenu-item {{ request()->is('kamus-indikator*') ? 'active' : '' }}">
+                            <a href="{{ route('kamus-indikator.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Kamus Indikator Mutu</a>
+                        </li>
+                        <li class="submenu-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
+                            <a href="{{ route('master-indikator.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Master Indikator Mutu</a>
+                        </li>
                         <li class="submenu-item {{ request()->is('laporan-analis-impu*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis-impu.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Laporan & Analisis</a>
+                                style="text-decoration: none;">Analisis Indikator Mutu Prioritas Unit</a>
                         </li>
-                        <li class="submenu-item {{ request()->is('kamus-impu*') ? 'active' : '' }}">
-                            <a href="{{ route('kamus-impu.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Kamus Indikator Mutu Unit</a>
-                        </li>
-                        <li class="submenu-item {{ request()->is('master-impu*') ? 'active' : '' }}">
-                            <a href="{{ route('master-impu.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Master Indikator Mutu Unit</a>
-                        </li>
-                    </ul>
-                </li>
-
-                {{-- 1 level menu Indikator mutu Nasional --}}
-                <li
-                    class="sidebar-item has-sub {{ request()->is('master-imn*') || request()->is('laporan-analis-imn*') ? 'active' : '' }}">
-                    <a href="#" class="sidebar-link">
-                        <i class="bi bi-globe2"></i>
-                        <span>Indikator Mutu Nasional</span>
-                    </a>
-
-                    <ul class="submenu">
                         <li class="submenu-item {{ request()->is('laporan-analis-imn*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis-imn.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Analisis Indikator Mutu Nasional</a>
                         </li>
-                        <li
-                            class="submenu-item {{ request()->is('master-imn*') ? 'active' : '' }}">
-                            <a href="{{ route('master-imn.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Master Indikator Mutu Nasional</a>
-                        </li>
-                    </ul>
-                </li>
-
-                {{-- 1 level menu Indikator mutu Prioritas RS --}}
-                <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis-imprs*') || request()->is('master-imprs*') || request()->is('kamus-imprs*') ? 'active' : '' }}">
-                    <a href="#" class="sidebar-link">
-                        <i class="bi bi-hospital-fill"></i>
-                        <span>Indikator Mutu Prioritas RS</span>
-                    </a>
-
-                    <ul class="submenu">
                         <li class="submenu-item {{ request()->is('laporan-analis-imprs*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis-imprs.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Analisis Indikator Mutu Prioritas RS</a>
-                        </li>
-                        <li
-                            class="submenu-item {{ request()->is('master-imprs*') ? 'active' : '' }}">
-                            <a href="{{ route('master-imprs.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Master Indikator Mutu Prioritas RS</a>
-                        </li>
-                        <li
-                            class="submenu-item {{ request()->is('kamus-imprs*') ? 'active' : '' }}">
-                            <a href="{{ route('kamus-imprs.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Kamus Indikator Mutu Prioritas RS</a>
-                        </li>
-                        <li
-                            class="submenu-item {{ request()->is('kategori-imprs*') ? 'active' : '' }}">
-                            <a href="{{ route('kategori-imprs.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Kategori Indikator Mutu Prioritas RS</a>
                         </li>
                     </ul>
                 </li>

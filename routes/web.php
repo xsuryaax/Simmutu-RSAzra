@@ -8,17 +8,11 @@ use App\Http\Controllers\ManajemenUnitController;
 use App\Http\Controllers\ManajemenUserController;
 use App\Http\Controllers\PDSAController;
 
-use App\Http\Controllers\IndikatorMutuPrioritasUnit\KamusIMPUController;
-use App\Http\Controllers\IndikatorMutuPrioritasUnit\LaporanAnalisIMPUController;
-use App\Http\Controllers\IndikatorMutuPrioritasUnit\MasterIMPUController;
-
-use App\Http\Controllers\IndikatorMutuNasional\MasterIMNController;
-use App\Http\Controllers\IndikatorMutuNasional\LaporanAnalisIMNController;
-
-use App\Http\Controllers\IndikatorMutuPrioritasRS\MasterIMPRSController;
-use App\Http\Controllers\IndikatorMutuPrioritasRS\KamusIMPRSController;
-use App\Http\Controllers\IndikatorMutuPrioritasRS\LaporanAnalisIMPRSController;
-use App\Http\Controllers\IndikatorMutuPrioritasRS\KategoriIMPRSController;
+use App\Http\Controllers\IndikatorMutu\KamusIndikatorController;
+use App\Http\Controllers\IndikatorMutu\MasterIndikatorController;
+use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMPUController;
+use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMNController;
+use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMPRSController;
 
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
@@ -63,26 +57,14 @@ Route::middleware('auth')->group(function () {
     });
 
     // Indikator Mutu Prioritas Unit
-    Route::resource('master-impu', MasterIMPUController::class)
-        ->middleware('check.role:master_impu');
-    Route::resource('kamus-impu', KamusIMPUController::class)
-        ->middleware('check.role:kamus_impu');
+    Route::resource('master-indikator', MasterIndikatorController::class)
+        ->middleware('check.role:master_indikator');
+    Route::resource('kamus-indikator', KamusIndikatorController::class)
+        ->middleware('check.role:kamus_indikator');
     Route::resource('laporan-analis-impu', LaporanAnalisIMPUController::class)
         ->middleware('check.role:laporan_analis_impu');
-
-    // Indikator Mutu Prioritas RS
-    Route::resource('master-imprs', MasterIMPRSController::class)
-        ->middleware('check.role:master_imprs');
-    Route::resource('kamus-imprs', KamusIMPRSController::class)
-        ->middleware('check.role:kamus_imprs');
     Route::resource('laporan-analis-imprs', LaporanAnalisIMPRSController::class)
         ->middleware('check.role:laporan_analis_imprs');
-    Route::resource('kategori-imprs', KategoriIMPRSController::class)
-        ->middleware('check.role:kategori_imprs');
-
-    // Indikator Mutu Nasional
-    Route::resource('master-imn', MasterIMNController::class)
-        ->middleware('check.role:master_imn');
     Route::resource('laporan-analis-imn', LaporanAnalisIMNController::class)
         ->middleware('check.role:laporan_analis_imn');
 

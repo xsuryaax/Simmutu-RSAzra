@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tbl_laporan_dan_analis_imprs', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal_laporan');
-            $table->integer('imprs_id');
+            $table->integer('indikator_id');
             $table->integer('unit_id');
             $table->integer('kategori_id');
             $table->decimal('nilai', 8, 2);
