@@ -21,7 +21,8 @@ return new class extends Migration
             $table->text('detail_pengukuran');
             $table->text('sumber_data');
             $table->text('penanggung_jawab');
-            $table->string('kategori_indikator');
+            $table->string('jenis_indikator');
+            $table->integer('kategori_id')->nullable();
             $table->integer('indikator_id');
             $table->integer('dimensi_mutu_id');
             $table->integer('metodologi_pengumpulan_data_id');

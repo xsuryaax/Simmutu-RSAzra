@@ -76,13 +76,14 @@
                             <a href="{{ route('laporan-analis-imprs.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Analisis Indikator Mutu Prioritas RS</a>
                         </li>
+                        
                     </ul>
                 </li>
 
                 <li class="sidebar-title">Menu</li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
 
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-stack"></i>
@@ -92,13 +93,17 @@
                     <ul class="submenu">
                         {{-- Level 1 Menu --}}
                         <li
-                            class="submenu-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') ? 'active' : '' }}">
+                            class="submenu-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('frekuensi-analisis-data*') || request()->is('frekuensi-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
 
                             <a href="#" class="submenu-link" style="text-decoration: none;">Master Indikator
                                 Mutu</a>
 
                             {{-- Level 2 --}}
                             <ul class="submenu submenu-level-2">
+
+                                <li class="submenu-item {{ request()->is('kategori-imprs*') ? 'active' : '' }}">
+                                    <a href="{{ route('kategori-imprs.index') }}" class="submenu-link" style="text-decoration: none;">Kategori IMPRS</a>
+                                </li>
 
                                 <li class="submenu-item {{ request()->is('cakupan-data*') ? 'active' : '' }}">
                                     <a href="{{ route('cakupan-data.index') }}" class="submenu-link"

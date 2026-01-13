@@ -99,8 +99,7 @@
                                     </td>
 
                                     <td>
-                                        <button class="btn btn-success btn-sm"
-                                            onclick="openInputModal({{ $row->id }})">
+                                        <button class="btn btn-success btn-sm" onclick="openInputModal({{ $row->id }})">
                                             + Input
                                         </button>
                                     </td>
@@ -180,11 +179,8 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tanggal</label>
-                            <select name="tanggal_laporan" class="form-select" required>
-                                @for ($i = 1; $i <= 31; $i++)
-                                    <option value="{{ $i }}">{{ $i }}</option>
-                                @endfor
-                            </select>
+                            <select name="tanggal_laporan" id="tanggal_laporan"
+                                class="form-select" required></select>
                         </div>
 
                         <div class="mb-3">
@@ -222,6 +218,24 @@
     <script>
         function openInputModal(indikatorId) {
             document.getElementById('modal_indikator_id').value = indikatorId;
+
+            const select = document.getElementById('tanggal_laporan');
+            select.innerHTML = '';
+
+            const today = new Date().getDate();
+
+            for (let i = 1; i <= 31; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+
+                if (i === today) {
+                    opt.selected = true;
+                }
+
+                select.appendChild(opt);
+            }
+
             new bootstrap.Modal(document.getElementById('modalInput')).show();
         }
     </script>

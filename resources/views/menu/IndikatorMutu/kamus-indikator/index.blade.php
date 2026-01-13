@@ -62,6 +62,7 @@
                                 <th>METODOLOGI ANALISA</th>
                                 <th>INTERPRETASI</th>
                                 <th>PUBLIKASI</th>
+                                <th>JENIS INDIKATOR</th>
                                 <th>KATEGORI INDIKATOR</th>
                                 <th>AKSI</th>
                             </tr>
@@ -79,6 +80,7 @@
                                     <td>{{ $m->nama_metodologi_analisis_data }}</td>
                                     <td>{{ $m->nama_interpretasi_data }}</td>
                                     <td>{{ $m->nama_publikasi_data }}</td>
+                                    <td>{{ $m->jenis_indikator }}</td>
                                     <td>{{ $m->kategori_indikator }}</td>
                                     <td>
                                         <div class="d-flex gap-2">

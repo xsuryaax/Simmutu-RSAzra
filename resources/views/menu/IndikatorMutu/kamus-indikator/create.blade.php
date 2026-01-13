@@ -280,27 +280,39 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                </div>
 
-                                <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-12 mb-3">
-                                            <label class="form-label">Kategori Indikator <span
-                                                    class="text-danger">*</span></label><br>
-                                            @php($categories = ['Prioritas Unit', 'Prioritas RS', 'Nasional'])
-                                            @foreach ($categories as $category)
-                                                @php($id = 'kategori_' . str_replace(' ', '_', strtolower($category)))
-                                                <input type="checkbox" class="btn-check"
-                                                    name="kategori_indikator[]" id="{{ $id }}"
-                                                    value="{{ $category }}">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                Jenis Indikator <span class="text-danger">*</span>
+                                            </label><br>
+                                            @foreach (['Prioritas Unit', 'Nasional', 'Prioritas RS'] as $jenis)
+                                                @php($id = 'jenis_' . strtolower(str_replace(' ', '_', $jenis)))
+                                                <input type="checkbox" class="btn-check jenis-indikator"name="jenis_indikator[]" id="{{ $id }}" value="{{ $jenis }}">
                                                 <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $category }}
+                                                    {{ $jenis }}
                                                 </label>
                                             @endforeach
                                         </div>
+                                    
+                                        <div class="col-md-6 mb-3">
+                                            <div id="kategoriImprsWrapper" class="d-none">
+                                                <label class="form-label">
+                                                    Kategori IMPRS <span class="text-danger">*</span>
+                                                </label>
+                                                <select name="kategori_id" class="form-select">
+                                                    <option value="">Pilih Kategori IMPRS</option>
+                                                    @foreach ($kategoriImprs as $item)
+                                                        <option value="{{ $item->id }}">
+                                                            {{ $item->nama_kategori_imprs }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="mt-4">
+                                <div class="ms-4">
                                     <button class="btn btn-primary">Simpan</button>
                                     <a href="{{ route('kamus-indikator.index') }}" class="btn btn-secondary">Kembali</a>
                                 </div>
@@ -312,3 +324,30 @@
         </div>
     </section>
 @endsection
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const indikatorCheckbox = document.querySelectorAll('.jenis-indikator');
+    const kategoriWrapper = document.getElementById('kategoriImprsWrapper');
+
+    function toggleKategori() {
+        let isPrioritasRS = false;
+
+        indikatorCheckbox.forEach(cb => {
+            if (cb.checked && cb.value === 'Prioritas RS') {
+                isPrioritasRS = true;
+            }
+        });
+
+        kategoriWrapper.classList.toggle('d-none', !isPrioritasRS);
+    }
+
+    indikatorCheckbox.forEach(cb => {
+        cb.addEventListener('change', toggleKategori);
+    });
+
+    toggleKategori(); // untuk reload / edit
+});
+</script>
+@endpush

@@ -363,7 +363,7 @@
                                             <option value="">-- Pilih Indikator --</option>
                                             @foreach ($indikatorNasionalList as $ind)
                                                 <option value="{{ $ind->id }}">
-                                                    {{ $ind->nama_indikator_nasional }}
+                                                    {{ $ind->nama_indikator }}
                                                 </option>
                                             @endforeach
                                         </select>

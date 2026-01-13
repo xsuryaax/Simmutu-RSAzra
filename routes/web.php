@@ -16,6 +16,7 @@ use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMPRSController;
 
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
+use App\Http\Controllers\ManajemenMutu\KategoriIMPRSController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiAnalisisDataController;
 use App\Http\Controllers\ManajemenMutu\FrekuensiPengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\InterpretasiDataController;
@@ -67,6 +68,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:laporan_analis_imprs');
     Route::resource('laporan-analis-imn', LaporanAnalisIMNController::class)
         ->middleware('check.role:laporan_analis_imn');
+    Route::resource('kategori-imprs', KategoriIMPRSController::class)
+        ->middleware('check.role:kategori_imprs');
 
     // Menu Manajemen Mutu
     Route::resource('cakupan-data', CakupanDataController::class)

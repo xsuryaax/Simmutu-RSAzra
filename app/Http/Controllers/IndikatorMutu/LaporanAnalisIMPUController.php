@@ -49,7 +49,7 @@ class LaporanAnalisIMPUController extends Controller
                 'u.nama_unit'
             )
             ->where('i.status_indikator', 'aktif')
-            ->where('k.kategori_indikator', 'LIKE', '%Prioritas Unit%')
+            ->whereRaw("k.jenis_indikator ILIKE '%prioritas unit%'")
             ->when(
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('i.unit_id', $user->unit_id)
@@ -73,7 +73,7 @@ class LaporanAnalisIMPUController extends Controller
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
-            ->where('k.kategori_indikator', 'LIKE', '%Prioritas Unit%')
+            ->whereRaw("k.jenis_indikator ILIKE '%prioritas unit%'")
             ->when(
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('l.unit_id', $user->unit_id)
@@ -108,7 +108,7 @@ class LaporanAnalisIMPUController extends Controller
         )
         ->whereMonth('l.tanggal_laporan', $bulan)
         ->whereYear('l.tanggal_laporan', $tahun)
-        ->where('k.kategori_indikator', 'LIKE', '%Prioritas Unit%')
+        ->whereRaw("k.jenis_indikator ILIKE '%Prioritas Unit%'")
         ->when(
             !in_array($user->unit_id, [1, 2]),
             fn ($q) => $q->where('l.unit_id', $user->unit_id)

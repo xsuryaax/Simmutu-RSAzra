@@ -2,6 +2,11 @@
 
 @section('title', 'Edit Kamus Indikator')
 
+@php
+    $jenisSelected = explode(',', $data->jenis_indikator ?? '');
+    $kategoriSelected = $data->kategori_id;
+@endphp
+
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
@@ -50,7 +55,7 @@
                     <div class="card-content">
                         <div class="card-body">
 
-                            <form action="{{ route('kamus-impu.update', $data->id) }}" method="POST">
+                            <form action="{{ route('kamus-indikator.update', $data->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
 
@@ -316,9 +321,49 @@
                                                 </label>
                                             @endforeach
                                         </div>
-
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">
+                                                Jenis Indikator <span class="text-danger">*</span>
+                                            </label><br>
+
+                                            @foreach (['Prioritas Unit', 'Nasional', 'Prioritas RS'] as $jenis)
+                                                @php($id = 'jenis_' . strtolower(str_replace(' ', '_', $jenis)))
+
+                                                <input type="checkbox" class="btn-check jenis-indikator"
+                                                    name="jenis_indikator[]" id="{{ $id }}"
+                                                    value="{{ $jenis }}"
+                                                    {{ in_array($jenis, $jenisSelected) ? 'checked' : '' }}>
+
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $jenis }}
+                                                </label>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <div id="kategoriImprsWrapper"
+                                                class="{{ in_array('Prioritas RS', $jenisSelected) ? '' : 'd-none' }}">
+                                                <label class="form-label">
+                                                    Kategori IMPRS <span class="text-danger">*</span>
+                                                </label>
+
+                                                <select name="kategori_id" class="form-select">
+                                                    <option value="">Pilih Kategori IMPRS</option>
+                                                    @foreach ($kategoriImprs as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            {{ $item->id == $kategoriSelected ? 'selected' : '' }}>
+                                                            {{ $item->nama_kategori_imprs }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
+
 
                                 {{-- BUTTON --}}
                                 <div class="mt-4">
@@ -337,3 +382,30 @@
         </div>
     </section>
 @endsection
+
+@push('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const indikatorCheckbox = document.querySelectorAll('.jenis-indikator');
+            const kategoriWrapper = document.getElementById('kategoriImprsWrapper');
+
+            function toggleKategori() {
+                let isPrioritasRS = false;
+
+                indikatorCheckbox.forEach(cb => {
+                    if (cb.checked && cb.value === 'Prioritas RS') {
+                        isPrioritasRS = true;
+                    }
+                });
+
+                kategoriWrapper.classList.toggle('d-none', !isPrioritasRS);
+            }
+
+            indikatorCheckbox.forEach(cb => {
+                cb.addEventListener('change', toggleKategori);
+            });
+
+            toggleKategori(); // untuk reload / edit
+        });
+    </script>
+@endpush

@@ -49,7 +49,7 @@ class DashboardController extends Controller
     private function getBaseData(): array
     {
         return [
-            'totalIndikator' => DB::table('tbl_indikator_unit')->count(),
+            'totalIndikator' => DB::table('tbl_indikator')->count(),
             'indikators' => $this->getIndikators(),
             'years' => $this->getYears(),
         ];
@@ -57,30 +57,31 @@ class DashboardController extends Controller
 
     private function getIndikators()
     {
-        return DB::table('tbl_indikator_unit')
-            ->leftJoin('tbl_kamus_indikator_mutu_unit', 'tbl_kamus_indikator_mutu_unit.id', '=', 'tbl_indikator_unit.kamus_indikator_unit_id')
+        return DB::table('tbl_indikator')
+            ->leftJoin('tbl_kamus_indikator', 'tbl_kamus_indikator.id', '=', 'tbl_indikator.kamus_indikator_id')
             ->select(
-                'tbl_indikator_unit.id',
-                'tbl_indikator_unit.nama_indikator_unit',
-                'tbl_indikator_unit.target_indikator_unit',
-                'tbl_indikator_unit.unit_id',
-                'tbl_kamus_indikator_mutu_unit.frekuensi_pengumpulan_data_id as frekuensi_id'
+                'tbl_indikator.id',
+                'tbl_indikator.nama_indikator',
+                'tbl_indikator.target_indikator',
+                'tbl_indikator.unit_id',
+                'tbl_kamus_indikator.frekuensi_pengumpulan_data_id as frekuensi_id'
             )
-            ->orderBy('nama_indikator_unit')
+            ->orderBy('nama_indikator')
+            ->where('tbl_kamus_indikator.jenis_indikator', 'Prioritas Unit')
             ->get();
     }
 
     private function getUnitIndikatorMap()
     {
         return DB::table('tbl_unit as u')
-            ->join('tbl_indikator_unit as i', 'i.unit_id', '=', 'u.id')
+            ->join('tbl_indikator as i', 'i.unit_id', '=', 'u.id')
             ->select(
                 'u.nama_unit',
                 'i.id as indikator_id',
-                'i.nama_indikator_unit'
+                'i.nama_indikator'
             )
             ->orderBy('u.nama_unit')
-            ->orderBy('i.nama_indikator_unit')
+            ->orderBy('i.nama_indikator')
             ->get()
             ->groupBy('nama_unit');
     }
@@ -107,7 +108,7 @@ class DashboardController extends Controller
         foreach ($units as $unit) {
 
             // 1️⃣ Ambil indikator MILIK UNIT
-            $indikatorUnit = DB::table('tbl_indikator_unit')
+            $indikatorUnit = DB::table('tbl_indikator')
                 ->where('unit_id', $unit->id)
                 ->pluck('id');
 
@@ -121,9 +122,9 @@ class DashboardController extends Controller
                 ->where('unit_id', $unit->id)
                 ->whereMonth('tanggal_laporan', $bulanWajib)
                 ->whereYear('tanggal_laporan', $tahunWajib)
-                ->whereIn('indikator_unit_id', $indikatorUnit)
+                ->whereIn('indikator_id', $indikatorUnit)
                 ->distinct()
-                ->count('indikator_unit_id');
+                ->count('indikator_id');
 
             // 3️⃣ Bandingkan
             if ($indikatorTerisi === $indikatorUnit->count()) {
@@ -204,7 +205,7 @@ class DashboardController extends Controller
                 foreach ($indikators->where('unit_id', $u->id) as $ind) {
                     $divisionData[$tahun][$u->nama_unit]['indikators'][$ind->id] = array_merge(
                         [
-                            'nama_indikator_unit' => $ind->nama_indikator_unit
+                            'nama_indikator' => $ind->nama_indikator
                         ],
                         $this->buildIndikatorData($ind, $tahun, $labels, $u->id)
                     );
@@ -219,10 +220,10 @@ class DashboardController extends Controller
     private function buildIndikatorData($ind, int $tahun, array $labels, $unitId = null): array
     {
         $hasil = array_fill(1, 12, null);
-        $target = array_fill(1, 12, $ind->target_indikator_unit);
+        $target = array_fill(1, 12, $ind->target_indikator);
 
         $query = DB::table('tbl_laporan_dan_analis_unit')
-            ->where('indikator_unit_id', $ind->id)
+            ->where('indikator_id', $ind->id)
             ->whereYear('tanggal_laporan', $tahun);
 
         if ($unitId) {
@@ -257,13 +258,17 @@ class DashboardController extends Controller
 
     private function getIndikatorNasional()
     {
-        return DB::table('tbl_indikator_nasional')
+        return DB::table('tbl_indikator')
             ->select(
                 'id',
-                'nama_indikator_nasional',
-                'target_indikator_nasional'
+                'nama_indikator',
+                'target_indikator'
             )
-            ->orderBy('nama_indikator_nasional')
+            ->whereIn('id', function ($query) {
+                $query->select('indikator_id')
+                    ->from('tbl_laporan_dan_analis_nasional');
+            })
+            ->orderBy('nama_indikator')
             ->get();
     }
 
@@ -299,10 +304,10 @@ class DashboardController extends Controller
     private function buildNasionalIndikatorData($ind, int $tahun, array $labels): array
     {
         $hasil = array_fill(1, 12, null);
-        $target = array_fill(1, 12, $ind->target_indikator_nasional);
+        $target = array_fill(1, 12, $ind->target_indikator);
 
         $rows = DB::table('tbl_laporan_dan_analis_nasional')
-            ->where('indikator_nasional_id', $ind->id)
+            ->where('indikator_id', $ind->id)
             ->whereYear('tanggal_laporan', $tahun)
             ->selectRaw('
             EXTRACT(MONTH FROM tanggal_laporan) as bulan,
@@ -325,16 +330,18 @@ class DashboardController extends Controller
 
     private function getIMPRSChartData(): array
     {
-        $indikators = DB::table('tbl_imprs as i')
-            ->join('tbl_kategori_imprs as k', 'k.id', '=', 'i.kategori_id')
+
+        $indikators = DB::table('tbl_indikator as i')
+            ->join('tbl_kamus_indikator as km', 'km.id', '=', 'i.kamus_indikator_id')
             ->select(
                 'i.id',
-                'i.nama_imprs',
-                'i.target_imprs',
-                'k.nama_kategori_imprs as kategori'
+                'i.nama_indikator',
+                'i.target_indikator',
+                'km.jenis_indikator',
+                'km.kategori_id'
             )
-            ->orderBy('k.nama_kategori_imprs')
-            ->orderBy('i.nama_imprs')
+            ->where('km.jenis_indikator', 'Prioritas RS')
+            ->orderBy('i.nama_indikator')
             ->get();
 
         $years = $this->getYears();
@@ -342,20 +349,22 @@ class DashboardController extends Controller
 
         foreach ($indikators as $ind) {
 
-            // 🔥 INI PENTING
-            if (!isset($data[$ind->kategori])) {
-                $data[$ind->kategori] = [
+            $kategoriKey = $ind->kategori_id ?? 'Tanpa Kategori';
+
+            if (!isset($data[$kategoriKey])) {
+                $data[$kategoriKey] = [
                     'indikators' => []
                 ];
             }
 
-            $data[$ind->kategori]['indikators'][$ind->id] = [
-                'judul' => $ind->nama_imprs,
+
+            $data[$kategoriKey]['indikators'][$ind->id] = [
+                'judul' => $ind->nama_indikator,
                 'data' => []
             ];
 
             foreach ($years as $tahun) {
-                $data[$ind->kategori]['indikators'][$ind->id]['data'][$tahun]
+                $data[$kategoriKey]['indikators'][$ind->id]['data'][$tahun]
                     = $this->buildImprsData($ind, $tahun);
             }
         }
@@ -364,10 +373,10 @@ class DashboardController extends Controller
 
     private function buildImprsData($imprs, int $tahun): array
     {
-        $target = array_fill(0, 12, (float) $imprs->target_imprs);
+        $target = array_fill(0, 12, (float) $imprs->target_indikator);
 
         $hasilDB = DB::table('tbl_laporan_dan_analis_imprs')
-            ->where('imprs_id', $imprs->id)
+            ->where('indikator_id', $imprs->id)
             ->whereYear('tanggal_laporan', $tahun)
             ->selectRaw('
             EXTRACT(MONTH FROM tanggal_laporan) AS bulan,

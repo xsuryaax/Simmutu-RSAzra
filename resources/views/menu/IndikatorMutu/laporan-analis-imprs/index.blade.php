@@ -93,9 +93,9 @@
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $indikator->nama_kategori_imprs }}</td>
-                            <td>{{ $indikator->nama_imprs }}</td>
+                            <td>{{ $indikator->nama_indikator }}</td>
                             <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}</td>
-                            <td>{{ number_format($indikator->target_imprs, 0) }} %</td>
+                            <td>{{ number_format($indikator->target_indikator, 0) }} %</td>
                             <td>
                                 @if ($nilaiRekap !== null)
                                     {{ $nilaiRekap }} %
@@ -105,7 +105,7 @@
                             </td>
                             <td>
                                 @if ($nilaiRekap !== null)
-                                    @if ($nilaiRekap >= $indikator->target_imprs)
+                                    @if ($nilaiRekap >= $indikator->target_indikator)
                                         <span class="badge bg-success">Tercapai</span>
                                     @else
                                         <span class="badge bg-danger">Tidak Tercapai</span>
@@ -158,10 +158,10 @@
                             <tr>
                                 <td>{{ $no }}</td>
                                 <td>{{ $indikator->nama_kategori_imprs }}</td>
-                                <td>{{ $indikator->nama_imprs }}</td>
+                                <td>{{ $indikator->nama_indikator }}</td>
                                 <td>{{ $lap->nama_unit }}</td>
                                 <td>{{ \Carbon\Carbon::parse($lap->tanggal_laporan)->format('d F Y') }}</td>
-                                <td>{{ number_format($indikator->target_imprs, 0) }} %</td>
+                                <td>{{ number_format($indikator->target_indikator, 0) }} %</td>
                                 <td>{{ $lap->nilai }} %</td>
                                 <td>
                                     <a href="{{ asset('storage/' . $lap->file_laporan) }}" target="_blank"
@@ -200,7 +200,7 @@
                     action="{{ route('laporan-analis-imprs.store') }}">
                     @csrf
                     <div class="modal-body">
-                        <input type="hidden" name="imprs_id" id="modal_indikator_id">
+                        <input type="hidden" name="indikator_id" id="modal_indikator_id">
                         <input type="hidden" name="bulan" value="{{ $bulan }}">
                         <input type="hidden" name="tahun" value="{{ $tahun }}">
 

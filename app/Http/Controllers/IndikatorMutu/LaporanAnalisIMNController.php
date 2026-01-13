@@ -42,7 +42,7 @@ class LaporanAnalisIMNController extends Controller
                 DB::raw('COUNT(l.id) > 0 as sudah_input')
             )
             ->where('i.status_indikator', 'aktif')
-            ->where('k.kategori_indikator', 'LIKE', '%Nasional%')
+            ->where('k.jenis_indikator', 'LIKE', '%Nasional%')
             ->groupBy(
                 'i.id',
                 'i.nama_indikator',
@@ -69,7 +69,7 @@ class LaporanAnalisIMNController extends Controller
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
-            ->where('k.kategori_indikator', 'LIKE', '%Nasional%')
+            ->where('k.jenis_indikator', 'LIKE', '%Nasional%')
             ->orderBy('l.tanggal_laporan', 'desc')
             ->get();
     }
@@ -78,6 +78,7 @@ class LaporanAnalisIMNController extends Controller
     // STORE - SAMA DENGAN UNIT
     public function store(Request $request)
     {
+        
         $request->validate([
             'indikator_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',

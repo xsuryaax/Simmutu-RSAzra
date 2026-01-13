@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\IndikatorMutuPrioritasRS;
+namespace App\Http\Controllers\ManajemenMutu;
 
 use App\Http\Controllers\Controller;
 use App\Models\tbl_kategori_imprs;
@@ -14,7 +14,7 @@ class KategoriIMPRSController extends Controller
     public function index()
     {
         $kategoriimprs = tbl_kategori_imprs::all();
-        return view('menu.IndikatorMutuPrioritasRS.kategori-imprs.index', compact('kategoriimprs'));
+        return view('menu.IndikatorMutu.kategori-imprs.index', compact('kategoriimprs'));
     }
 
     /**
@@ -22,7 +22,7 @@ class KategoriIMPRSController extends Controller
      */
     public function create()
     {
-        return view('menu.IndikatorMutuPrioritasRS.kategori-imprs.create');
+        return view('menu.IndikatorMutu.kategori-imprs.create');
     }
 
     /**
@@ -48,7 +48,7 @@ class KategoriIMPRSController extends Controller
     public function edit(string $id)
     {
         $kategoriimprs = tbl_kategori_imprs::findOrFail($id);
-        return view('menu.IndikatorMutuPrioritasRS.kategori-imprs.edit', compact('kategoriimprs'));
+        return view('menu.IndikatorMutu.kategori-imprs.edit', compact('kategoriimprs'));
     }
 
     /**

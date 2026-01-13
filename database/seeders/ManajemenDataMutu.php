@@ -70,5 +70,13 @@ class ManajemenDataMutu extends Seeder
             ['nama_role' => 'Marketing', 'deskripsi_role' => 'Mengelola data mutu, melakukan analisis, dan menyusun laporan.'],
             ['nama_role' => 'Kasir', 'deskripsi_role' => 'Mengumpulkan data dan melaksanakan prosedur sesuai standar mutu.'],
         ]);
+
+        DB::table('tbl_kategori_imprs')->insert([
+            ['nama_kategori_imprs' => 'Sasaran Keselamatan Pasien (SKP)'],
+            ['nama_kategori_imprs' => 'Klinis Prioritas'],
+            ['nama_kategori_imprs' => 'Tujuan Strategis'],
+            ['nama_kategori_imprs' => 'Perbaikan system'],
+            ['nama_kategori_imprs' => 'Manajemen risiko'],
+        ]);
     }
 }
