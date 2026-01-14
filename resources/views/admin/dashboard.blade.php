@@ -268,7 +268,7 @@
                                     const opt = document.createElement("option");
                                     opt.value = id;
 
-                                    opt.textContent = indikatorObj[id].nama_indikator_unit ?? `Indikator ${id}`;
+                                    opt.textContent = indikatorObj[id].nama_indikator ?? `Indikator ${id}`;
 
                                     indicatorFilterEl.appendChild(opt);
                                 });

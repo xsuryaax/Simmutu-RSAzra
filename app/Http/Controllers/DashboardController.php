@@ -67,7 +67,7 @@ class DashboardController extends Controller
                 'tbl_kamus_indikator.frekuensi_pengumpulan_data_id as frekuensi_id'
             )
             ->orderBy('nama_indikator')
-            ->where('tbl_kamus_indikator.jenis_indikator', 'Prioritas Unit')
+            ->where('tbl_kamus_indikator.jenis_indikator', 'LIKE', '%Prioritas Unit%')
             ->get();
     }
 
@@ -333,14 +333,17 @@ class DashboardController extends Controller
 
         $indikators = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as km', 'km.id', '=', 'i.kamus_indikator_id')
+            ->leftJoin('tbl_kategori_imprs as k', 'k.id', '=', 'km.kategori_id')
             ->select(
                 'i.id',
                 'i.nama_indikator',
                 'i.target_indikator',
                 'km.jenis_indikator',
-                'km.kategori_id'
+                'km.kategori_id',
+                'k.nama_kategori_imprs'
             )
-            ->where('km.jenis_indikator', 'Prioritas RS')
+            ->where('km.jenis_indikator', 'LIKE', '%Prioritas RS%')
+
             ->orderBy('i.nama_indikator')
             ->get();
 
@@ -349,7 +352,7 @@ class DashboardController extends Controller
 
         foreach ($indikators as $ind) {
 
-            $kategoriKey = $ind->kategori_id ?? 'Tanpa Kategori';
+            $kategoriKey = $ind->nama_kategori_imprs ?? 'Tanpa Kategori';
 
             if (!isset($data[$kategoriKey])) {
                 $data[$kategoriKey] = [

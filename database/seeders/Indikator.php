@@ -10,7 +10,7 @@ class Indikator extends Seeder
 {
     public function run(): void
     {
-        DB::table('tbl_indikator_unit')->insert([
+        DB::table('tbl_indikator')->insert([
             /*
             |--------------------------------------------------------------------------
             | SIMRS
