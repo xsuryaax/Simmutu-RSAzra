@@ -14,6 +14,7 @@
         <div class="page-header-right">
             <div class="justify-content-end d-flex">
                 <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
                     <button type="submit" class="btn btn-primary logout-btn">
                         <i class="bi bi-box-arrow-right"></i>
@@ -288,13 +289,15 @@
                                             </label><br>
                                             @foreach (['Prioritas Unit', 'Nasional', 'Prioritas RS'] as $jenis)
                                                 @php($id = 'jenis_' . strtolower(str_replace(' ', '_', $jenis)))
-                                                <input type="checkbox" class="btn-check jenis-indikator"name="jenis_indikator[]" id="{{ $id }}" value="{{ $jenis }}">
+                                                <input type="checkbox"
+                                                    class="btn-check jenis-indikator"name="jenis_indikator[]"
+                                                    id="{{ $id }}" value="{{ $jenis }}">
                                                 <label class="btn btn-outline-primary" for="{{ $id }}">
                                                     {{ $jenis }}
                                                 </label>
                                             @endforeach
                                         </div>
-                                    
+
                                         <div class="col-md-6 mb-3">
                                             <div id="kategoriImprsWrapper" class="d-none">
                                                 <label class="form-label">
@@ -326,28 +329,28 @@
 @endsection
 
 @push('js')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const indikatorCheckbox = document.querySelectorAll('.jenis-indikator');
-    const kategoriWrapper = document.getElementById('kategoriImprsWrapper');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const indikatorCheckbox = document.querySelectorAll('.jenis-indikator');
+            const kategoriWrapper = document.getElementById('kategoriImprsWrapper');
 
-    function toggleKategori() {
-        let isPrioritasRS = false;
+            function toggleKategori() {
+                let isPrioritasRS = false;
 
-        indikatorCheckbox.forEach(cb => {
-            if (cb.checked && cb.value === 'Prioritas RS') {
-                isPrioritasRS = true;
+                indikatorCheckbox.forEach(cb => {
+                    if (cb.checked && cb.value === 'Prioritas RS') {
+                        isPrioritasRS = true;
+                    }
+                });
+
+                kategoriWrapper.classList.toggle('d-none', !isPrioritasRS);
             }
+
+            indikatorCheckbox.forEach(cb => {
+                cb.addEventListener('change', toggleKategori);
+            });
+
+            toggleKategori(); // untuk reload / edit
         });
-
-        kategoriWrapper.classList.toggle('d-none', !isPrioritasRS);
-    }
-
-    indikatorCheckbox.forEach(cb => {
-        cb.addEventListener('change', toggleKategori);
-    });
-
-    toggleKategori(); // untuk reload / edit
-});
-</script>
+    </script>
 @endpush

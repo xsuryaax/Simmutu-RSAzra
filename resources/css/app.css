@@ -882,8 +882,8 @@
   min-width: 40px;
 }
 
-@media (min-width: 950px) {
-  .table-responsive-md, 
+@media (min-width: 735px) {
+  /* .table-responsive-md,  */
   .dt-row {
     overflow-x: hidden !important;
   }
@@ -1217,11 +1217,14 @@
   margin-left: 0.4rem;
 }
 .dataTable-table td,
-.dataTable-table thead th,
-.table td,
-.table thead th {
+.table td{
   vertical-align: middle;
   color: #252525;
+}
+.dataTable-table thead th,
+.table thead th {
+  background-color: #008885;
+  color: #fff;
 }
 .dataTable-table:not(.table-borderless) thead th,
 .table:not(.table-borderless) thead th {

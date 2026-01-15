@@ -14,6 +14,7 @@
         <div class="page-header-right">
             <div class="justify-content-end d-flex">
                 <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
                     <button type="submit" class="btn btn-primary logout-btn">
                         <i class="bi bi-box-arrow-right"></i>
@@ -98,7 +99,8 @@
                                     </td>
 
                                     <td>
-                                        <a href="{{ route('master-indikator.edit', $row->id) }}" class="btn btn-warning btn-sm">
+                                        <a href="{{ route('master-indikator.edit', $row->id) }}"
+                                            class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 

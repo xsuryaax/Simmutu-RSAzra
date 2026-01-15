@@ -1759,7 +1759,7 @@ progress {
     -webkit-overflow-scrolling: touch;
   }
 }
-@media (max-width: 950px) {
+@media (max-width: 1100px) {
   .table-responsive-md {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -9215,4 +9215,14 @@ fieldset:disabled .btn {
   .d-print-none {
     display: none !important;
   }
+}
+
+
+/* colors */
+.orange {
+  color: #fd7e14;
+}
+
+.bg-orange {
+  background-color: #fd7e14;
 }

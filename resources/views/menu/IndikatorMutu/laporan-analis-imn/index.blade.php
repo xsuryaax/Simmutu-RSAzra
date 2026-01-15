@@ -10,6 +10,30 @@
                 Halaman untuk mengelola laporan dan analisis indikator mutu nasional.
             </p>
         </div>
+        <div class="page-header-right">
+            <div class="justify-content-end d-flex">
+                <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
+                    @csrf
+                    <button type="submit" class="btn btn-primary logout-btn">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+            <div>
+                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{{ url('/') }}">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Laporan dan Analisis IMN
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -99,7 +123,8 @@
                                     </td>
 
                                     <td>
-                                        <button class="btn btn-success btn-sm" onclick="openInputModal({{ $row->id }})">
+                                        <button class="btn btn-success btn-sm"
+                                            onclick="openInputModal({{ $row->id }})">
                                             + Input
                                         </button>
                                     </td>
@@ -179,8 +204,7 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tanggal</label>
-                            <select name="tanggal_laporan" id="tanggal_laporan"
-                                class="form-select" required></select>
+                            <select name="tanggal_laporan" id="tanggal_laporan" class="form-select" required></select>
                         </div>
 
                         <div class="mb-3">

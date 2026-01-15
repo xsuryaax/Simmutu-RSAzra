@@ -14,6 +14,7 @@
         <div class="page-header-right">
             <div class="justify-content-end d-flex">
                 <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
                     <button type="submit" class="btn btn-primary logout-btn">
                         <i class="bi bi-box-arrow-right"></i>
@@ -28,7 +29,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Form Tambah Kategori 
+                            Form Tambah Kategori
                         </li>
                     </ol>
                 </nav>
@@ -54,8 +55,7 @@
                                 <label for="nama_kategori_imprs">Nama Kategori</label>
                                 <input type="text" id="nama_kategori_imprs" name="nama_kategori_imprs"
                                     class="form-control @error('nama_kategori_imprs') is-invalid @enderror"
-                                    value="{{ old('nama_kategori_imprs') }}" placeholder="Masukkan nama kategori"
-                                    required>
+                                    value="{{ old('nama_kategori_imprs') }}" placeholder="Masukkan nama kategori" required>
                                 @error('nama_kategori_imprs')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror

@@ -14,6 +14,7 @@
         <div class="page-header-right">
             <div class="justify-content-end d-flex">
                 <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
                     <button type="submit" class="btn btn-primary logout-btn">
                         <i class="bi bi-box-arrow-right"></i>
@@ -61,8 +62,8 @@
                                             <label for="nama_indikator">Nama Indikator</label>
                                             <input type="text" id="nama_indikator" name="nama_indikator"
                                                 class="form-control @error('nama_indikator') is-invalid @enderror"
-                                                value="{{ old('nama_indikator') }}"
-                                                placeholder="Masukkan nama indikator" required>
+                                                value="{{ old('nama_indikator') }}" placeholder="Masukkan nama indikator"
+                                                required>
                                             @error('nama_indikator')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
@@ -104,8 +105,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label for="tipe_indikator">Tipe Indikator</label>
                                             <select id="tipe_indikator" name="tipe_indikator"
-                                                class="form-control @error('tipe_indikator') is-invalid @enderror"
-                                                required>
+                                                class="form-control @error('tipe_indikator') is-invalid @enderror" required>
                                                 <option value="">-- Pilih Tipe --</option>
                                                 <option value="lokal"
                                                     {{ old('tipe_indikator') == 'lokal' ? 'selected' : '' }}>Lokal
@@ -195,8 +195,7 @@
 
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="radio"
-                                                        name="status_indikator" id="status_non_aktif"
-                                                        value="non-aktif"
+                                                        name="status_indikator" id="status_non_aktif" value="non-aktif"
                                                         {{ old('status_indikator') == 'non-aktif' ? 'checked' : '' }}>
                                                     <label class="form-check-label"
                                                         for="status_non_aktif">Non-Aktif</label>

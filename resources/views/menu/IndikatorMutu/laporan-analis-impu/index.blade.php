@@ -13,6 +13,7 @@
         <div class="page-header-right">
             <div class="logout-btn">
                 <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-box-arrow-right"></i>
@@ -178,7 +179,7 @@
                                         <td>
                                             @if ($lap->file_laporan)
                                                 <a href="{{ asset('storage/' . $lap->file_laporan) }}" target="_blank"
-                                                class="btn btn-sm btn-primary">
+                                                    class="btn btn-sm btn-primary">
                                                     <i class="bi bi-file-earmark-arrow-down"></i> Lihat File
                                                 </a>
                                             @else
@@ -289,7 +290,7 @@
                 select.appendChild(opt);
             }
 
-            
+
             new bootstrap.Modal(document.getElementById('modalInputData')).show();
         }
     </script>

@@ -14,6 +14,7 @@
         <div class="page-header-right">
             <div class="justify-content-end d-flex">
                 <form method="POST" action="/logout">
+                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
                     <button type="submit" class="btn btn-primary logout-btn">
                         <i class="bi bi-box-arrow-right"></i>
@@ -51,7 +52,7 @@
 
             <div class="card-body">
                 <div class="table-parent-container table-responsive-md table-dark">
-                    <table class="table table-striped"  id="table1">
+                    <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -68,7 +69,8 @@
                                     <td>{{ $row->nama_kategori_imprs }}</td>
 
                                     <td>
-                                        <a href="{{ route('kategori-imprs.edit', $row->id) }}" class="btn btn-warning btn-sm">
+                                        <a href="{{ route('kategori-imprs.edit', $row->id) }}"
+                                            class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
