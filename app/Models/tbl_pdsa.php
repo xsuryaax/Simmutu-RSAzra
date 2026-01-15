@@ -10,13 +10,16 @@ class tbl_pdsa extends Model
     use HasFactory;
     protected $table = 'tbl_pdsa';
     protected $fillable = [
+        'indikator_id',
+        'unit_id',
+        'tahun',
+        'quarter',
+        'realisasi',
         'plan',
         'do',
         'study',
-        'act',
-        'file_pdsa',
-        'triwulan',
-        'tahun',
-        'indikator_id'
+        'action',
+        'status',
+        'created_by',
     ];
 }

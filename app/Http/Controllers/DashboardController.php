@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Auth;
 use DB;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -13,24 +12,27 @@ class DashboardController extends Controller
         $user = Auth::user();
         $roleId = $user->role_id;
 
+        // 🔑 AMBIL SEKALI
+        $indikators = $this->getIndikators();
+
         if (in_array($roleId, [1, 2])) {
-            // Admin / Mutu
-            $indikatorsForChart = $this->getIndikators();
+            $indikatorsForChart = $indikators;
         } else {
-            // User biasa → hanya indikator unit sendiri
-            $indikatorsForChart = $this->getIndikators()
-                ->where('unit_id', $user->unit_id);
+            $indikatorsForChart = $indikators->where('unit_id', $user->unit_id);
         }
 
         $data = [
             'roleId' => $roleId,
 
-            ...$this->getBaseData(),
+            'totalIndikator' => $indikators->count(),
+            'indikators' => $indikators,
+            'years' => $this->getYears(),
+
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),
 
             'indikatorsForChart' => $indikatorsForChart,
-            'allDataJson' => json_encode($this->getUserChartData()),
+            'allDataJson' => json_encode($this->getUserChartData($indikators)),
             'indikatorNasionalList' => $this->getIndikatorNasional(),
             'nasionalYears' => $this->getNasionalYears(),
             'nasionalChartJson' => $this->getNasionalChartData(),
@@ -40,11 +42,12 @@ class DashboardController extends Controller
 
         if (in_array($roleId, [1, 2])) {
             $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
-            $data['divisionData'] = $this->getDivisionData();
+            $data['divisionData'] = $this->getDivisionData($indikators);
         }
 
         return view('admin.dashboard', $data);
     }
+
 
     private function getBaseData(): array
     {
@@ -102,32 +105,32 @@ class DashboardController extends Controller
 
         $units = DB::table('tbl_unit')->get();
 
+        $indikatorPerUnit = DB::table('tbl_indikator')
+            ->select('unit_id', DB::raw('COUNT(id) as total'))
+            ->groupBy('unit_id')
+            ->pluck('total', 'unit_id');
+
+        $terisiPerUnit = DB::table('tbl_laporan_dan_analis_unit')
+            ->whereMonth('tanggal_laporan', $bulanWajib)
+            ->whereYear('tanggal_laporan', $tahunWajib)
+            ->select('unit_id', DB::raw('COUNT(DISTINCT indikator_id) as total'))
+            ->groupBy('unit_id')
+            ->pluck('total', 'unit_id');
+
         $unitsSudah = [];
         $unitsBelum = [];
 
         foreach ($units as $unit) {
+            $totalIndikator = $indikatorPerUnit[$unit->id] ?? 0;
 
-            // 1️⃣ Ambil indikator MILIK UNIT
-            $indikatorUnit = DB::table('tbl_indikator')
-                ->where('unit_id', $unit->id)
-                ->pluck('id');
-
-            // ❗ Jika unit TIDAK punya indikator → SKIP
-            if ($indikatorUnit->isEmpty()) {
+            // ❗ jika unit tidak punya indikator → skip (sama seperti sebelumnya)
+            if ($totalIndikator === 0) {
                 continue;
             }
 
-            // 2️⃣ Hitung indikator yang SUDAH diisi bulan wajib
-            $indikatorTerisi = DB::table('tbl_laporan_dan_analis_unit')
-                ->where('unit_id', $unit->id)
-                ->whereMonth('tanggal_laporan', $bulanWajib)
-                ->whereYear('tanggal_laporan', $tahunWajib)
-                ->whereIn('indikator_id', $indikatorUnit)
-                ->distinct()
-                ->count('indikator_id');
+            $totalTerisi = $terisiPerUnit[$unit->id] ?? 0;
 
-            // 3️⃣ Bandingkan
-            if ($indikatorTerisi === $indikatorUnit->count()) {
+            if ($totalIndikator === $totalTerisi) {
                 $unitsSudah[] = $unit;
             } else {
                 $unitsBelum[] = $unit;
@@ -143,6 +146,7 @@ class DashboardController extends Controller
         ];
     }
 
+
     private function getRecentIsi(): array
     {
         return [
@@ -154,20 +158,14 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getUserChartData(): array
+    private function getUserChartData($indikators): array
     {
         $user = Auth::user();
         $years = $this->getYears();
         $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        // 🔑 FILTER INDIKATOR DI AWAL
-        if (in_array($user->role_id, [1, 2])) {
-            // Admin / Mutu → semua indikator
-            $indikators = $this->getIndikators();
-        } else {
-            // User biasa → hanya indikator unit sendiri
-            $indikators = $this->getIndikators()
-                ->where('unit_id', $user->unit_id);
+        if (!in_array($user->role_id, [1, 2])) {
+            $indikators = $indikators->where('unit_id', $user->unit_id);
         }
 
         $data = [];
@@ -187,9 +185,8 @@ class DashboardController extends Controller
         return $data;
     }
 
-    private function getDivisionData(): array
+    private function getDivisionData($indikators): array
     {
-        $indikators = $this->getIndikators();
         $units = DB::table('tbl_unit')->orderBy('nama_unit')->get();
         $years = $this->getYears();
         $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];

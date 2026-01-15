@@ -697,7 +697,7 @@
                                         {{-- FILTER INDIKATOR --}}
                                         <select id="filterIndikator" class="form-select form-select-sm">
                                             @foreach ($indikatorsForChart as $ind)
-                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator_unit }}
+                                                <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -728,7 +728,7 @@
                                         Data belum tersedia untuk indikator & tahun ini
                                     </div>
 
-                                    <canvas id="chart-line-indikator"></canvas>
+                                    <canvas id="chart-line-indikator" style="height:400px;"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -824,7 +824,7 @@
                                         y: {
                                             beginAtZero: true,
                                             min: 0,
-                                            max: 120
+                                            max: 100
                                         }
                                     }
                                 }
