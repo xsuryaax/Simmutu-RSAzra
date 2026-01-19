@@ -679,7 +679,7 @@
   padding: 0.85rem 1rem;
   font-size: 1.2rem;
 }
-.form-check .form-check-input[class*="bg-"] {
+/* .form-check .form-check-input[class*="bg-"] {
   border: 0;
 }
 .form-check .form-check-input:focus {
@@ -845,7 +845,7 @@
 .form-check.form-check-dark .form-check-input {
   background-color: #212529;
   border-color: #212529;
-}
+} */
 .dataTable-input {
   min-height: calc(1.5em + 0.934rem + 2px);
   padding: 0.467rem 0.6rem;
@@ -882,15 +882,52 @@
   min-width: 40px;
 }
 
-@media (min-width: 735px) {
-  /* .table-responsive-md,  */
-  .dt-row {
-    overflow-x: hidden !important;
-  }
-  
-  #table1 {
-    width: 100% !important;
-  }
+
+/* table responsive md */
+.table-responsive-md {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive-md::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-responsive-md::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-responsive-md::-webkit-scrollbar-thumb {
+  background-color: #d1d1d1;
+  border-radius: 10px;
+}
+
+.table-responsive-md::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+.table-responsive-md {
+  scrollbar-width: none;
+  scrollbar-color: #d1d1d1 transparent;
+}
+
+#table1 {
+  width: 100% !important;
+  min-width: 800px;
+  border-collapse: collapse;
+}
+
+.add-input{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.left-input {
+  width: 40%;
+}
+.right-input {
+  width: 60%;
 }
 
 .modal .modal-content {
@@ -1223,8 +1260,8 @@
 }
 .dataTable-table thead th,
 .table thead th {
-  background-color: #008885;
-  color: #fff;
+  background-color: #d2e9e9;
+  color: #252525;
 }
 .dataTable-table:not(.table-borderless) thead th,
 .table:not(.table-borderless) thead th {

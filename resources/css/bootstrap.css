@@ -44,10 +44,10 @@
 }
 body {
   margin: 0;
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito";
   font-size: 1rem;
   font-weight: 400;
-  line-height: 1.5;
+  /* line-height: 1.5; */
   color: #607080;
   background-color: #EBF8F8;
   -webkit-text-size-adjust: 100%;
@@ -1763,7 +1763,7 @@ progress {
     -webkit-overflow-scrolling: touch;
   }
 }
-@media (max-width: 1100px) {
+@media (max-width: 773px) {
   .table-responsive-md {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -5037,7 +5037,7 @@ fieldset:disabled .btn {
   z-index: 1070;
   display: block;
   margin: 0;
-  font-family: 'Nunito';
+  font-family: "Nunito";
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -5138,14 +5138,14 @@ fieldset:disabled .btn {
   background-color: #000;
   border-radius: 0.25rem;
 }
-.popover {
+/* .popover {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1060;
   display: block;
   max-width: 276px;
-  font-family: 'Nunito';
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
@@ -5294,7 +5294,7 @@ fieldset:disabled .btn {
 .popover-body {
   padding: 1rem;
   color: #607080;
-}
+} */
 .carousel {
   position: relative;
 }

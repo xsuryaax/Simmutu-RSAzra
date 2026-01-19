@@ -53,19 +53,19 @@
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
-                                <th>NO</th>
-                                <th style="width: 300px;">INDIKATOR</th>
-                                <th>DIMENSI MUTU</th>
-                                <th>METODOLOGI PENGUMPULAN</th>
-                                <th>CAKUPAN DATA</th>
-                                <th>FREKUENSI PENGUMPULAN</th>
-                                <th>FREKUENSI ANALISA</th>
-                                <th>METODOLOGI ANALISA</th>
-                                <th>INTERPRETASI</th>
-                                <th>PUBLIKASI</th>
-                                <th>JENIS INDIKATOR</th>
-                                <th>KATEGORI INDIKATOR</th>
-                                <th>AKSI</th>
+                                <th>No</th>
+                                <th style="width: 300px;">Indikator</th>
+                                <th>Dimensi Mutu</th>
+                                <th>Metodologi Pengumpulan</th>
+                                <th>Cakupan Data</th>
+                                <th>Frekuensi Pengumpulan</th>
+                                <th>Frekuensi Analisa</th>
+                                <th>Metodologi Analisa</th>
+                                <th>Interpretasi</th>
+                                <th>Publikasi</th>
+                                <th>Jenis Indikator</th>
+                                <th>Kategori Indikator</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
