@@ -29,7 +29,7 @@
                 {{-- ===== CHART ADMIN ===== --}}
                 @if (in_array($roleId, [1, 2]))
                     <div class="row mb-4">
-                        <div class="col-5 col-lg-2 col-md-5">
+                        <div class="col-5 col-lg-2a col-md-5">
                             <div class="card">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
@@ -47,7 +47,7 @@
                             </div>
                         </div>
 
-                        <div class="col-5 col-lg-2 col-md-5">
+                        <div class="col-5 col-lg-2a col-md-5">
                             <div class="card" style="cursor: pointer" data-bs-toggle="modal"
                                 data-bs-target="#modalSudahIsi">
                                 <div class="card-body px-4 py-4-5">
@@ -66,7 +66,7 @@
                             </div>
                         </div>
 
-                        <div class="col-5 col-lg-2 col-md-5">
+                        <div class="col-5 col-lg-2a col-md-5">
                             <div class="card" style="cursor: pointer" data-bs-toggle="modal"
                                 data-bs-target="#modalBelumIsi">
                                 <div class="card-body px-4 py-4-5">
@@ -85,7 +85,7 @@
                             </div>
                         </div>
 
-                        <div class="col-5 col-lg-2 col-md-5">
+                        <div class="col-5 col-lg-2a col-md-5">
                             <div class="card">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
@@ -103,7 +103,7 @@
                             </div>
                         </div>
 
-                        <div class="col-5 col-lg-2 col-md-5">
+                        <div class="col-5 col-lg-2a col-md-5">
                             <div class="card">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">

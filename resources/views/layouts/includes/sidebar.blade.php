@@ -66,17 +66,17 @@
                         </li>
                         <li class="submenu-item {{ request()->is('laporan-analis-impu*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis-impu.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Analisis Indikator Mutu Prioritas Unit</a>
+                                style="text-decoration: none;">Pengisian Indikator Mutu Prioritas Unit</a>
                         </li>
                         <li class="submenu-item {{ request()->is('laporan-analis-imn*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis-imn.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Analisis Indikator Mutu Nasional</a>
+                                style="text-decoration: none;">Pengisian Indikator Mutu Nasional</a>
                         </li>
                         <li class="submenu-item {{ request()->is('laporan-analis-imprs*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis-imprs.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Analisis Indikator Mutu Prioritas RS</a>
+                                style="text-decoration: none;">Pengisian Indikator Mutu Prioritas RS</a>
                         </li>
-                        
+
                     </ul>
                 </li>
 
@@ -102,7 +102,8 @@
                             <ul class="submenu submenu-level-2">
 
                                 <li class="submenu-item {{ request()->is('kategori-imprs*') ? 'active' : '' }}">
-                                    <a href="{{ route('kategori-imprs.index') }}" class="submenu-link" style="text-decoration: none;">Kategori IMPRS</a>
+                                    <a href="{{ route('kategori-imprs.index') }}" class="submenu-link"
+                                        style="text-decoration: none;">Kategori IMPRS</a>
                                 </li>
 
                                 <li class="submenu-item {{ request()->is('cakupan-data*') ? 'active' : '' }}">
