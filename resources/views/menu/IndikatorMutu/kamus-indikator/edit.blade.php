@@ -7,6 +7,13 @@
     $kategoriSelected = $data->kategori_id;
 @endphp
 
+@php
+        // Ambil array dari database, misal "1,3" => [1,3]
+        $selectedDimensi = isset($data->dimensi_mutu_id) 
+            ? explode(',', $data->dimensi_mutu_id) 
+            : [];
+    @endphp
+
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
@@ -113,20 +120,24 @@
                                         <div class="row">
 
                                             {{-- Dimensi Mutu --}}
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Dimensi Mutu <span
-                                                        class="text-danger">*</span></label>
-                                                <select name="dimensi_mutu_id" class="form-select right-input">
-                                                    <option value="">Pilih Dimensi Mutu</option>
+<div class="col-md-12 mb-3 add-input">
+    <label class="form-label left-input">Dimensi Mutu <span class="text-danger">*</span></label>
+    
+    
 
-                                                    @foreach ($dimensi as $d)
-                                                        <option value="{{ $d->id }}"
-                                                            {{ $d->id == $data->dimensi_mutu_id ? 'selected' : '' }}>
-                                                            {{ $d->nama_dimensi_mutu }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+    <div class="form-check">
+        @foreach ($dimensi as $d)
+            <input class="form-check-input" type="checkbox" name="dimensi_mutu_id[]" 
+                   value="{{ $d->id }}" id="dimensi_{{ $d->id }}"
+                   {{ in_array($d->id, $selectedDimensi) ? 'checked' : '' }}>
+            <label class="form-check-label" for="dimensi_{{ $d->id }}">
+                {{ $d->nama_dimensi_mutu }}
+            </label>
+            <br>
+        @endforeach
+    </div>
+</div>
+
 
                                             {{-- Dasar Pemikiran --}}
                                             <div class="col-md-12 mb-3 add-input">

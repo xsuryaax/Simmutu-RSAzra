@@ -17,7 +17,6 @@ class KamusIndikatorController extends Controller
 
         $query = DB::table('tbl_kamus_indikator')
             ->leftJoin('tbl_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
-            ->leftJoin('tbl_dimensi_mutu', 'tbl_kamus_indikator.dimensi_mutu_id', '=', 'tbl_dimensi_mutu.id')
             ->leftJoin('tbl_metodologi_pengumpulan_data', 'tbl_kamus_indikator.metodologi_pengumpulan_data_id', '=', 'tbl_metodologi_pengumpulan_data.id')
             ->leftJoin('tbl_cakupan_data', 'tbl_kamus_indikator.cakupan_data_id', '=', 'tbl_cakupan_data.id')
             ->leftJoin('tbl_frekuensi_pengumpulan_data', 'tbl_kamus_indikator.frekuensi_pengumpulan_data_id', '=', 'tbl_frekuensi_pengumpulan_data.id')
@@ -26,11 +25,15 @@ class KamusIndikatorController extends Controller
             ->leftJoin('tbl_interpretasi_data', 'tbl_kamus_indikator.interpretasi_data_id', '=', 'tbl_interpretasi_data.id')
             ->leftJoin('tbl_publikasi_data', 'tbl_kamus_indikator.publikasi_data_id', '=', 'tbl_publikasi_data.id')
             ->leftJoin('tbl_kategori_imprs', 'tbl_kamus_indikator.kategori_id', '=', 'tbl_kategori_imprs.id')
+            // LEFT JOIN dimensi_mutu dengan string_agg
+            ->leftJoin('tbl_dimensi_mutu as d', function ($join) {
+                $join->on(DB::raw("d.id::text"), 'like', DB::raw("ANY(string_to_array(tbl_kamus_indikator.dimensi_mutu_id, ',')::text[])"));
+            })
             ->select(
                 'tbl_kamus_indikator.*',
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.unit_id',
-                'tbl_dimensi_mutu.nama_dimensi_mutu',
+                DB::raw("string_agg(d.nama_dimensi_mutu, ', ') as nama_dimensi_mutu"),
                 'tbl_metodologi_pengumpulan_data.nama_metodologi_pengumpulan_data',
                 'tbl_cakupan_data.nama_cakupan_data',
                 'tbl_frekuensi_pengumpulan_data.nama_frekuensi_pengumpulan_data',
@@ -40,9 +43,22 @@ class KamusIndikatorController extends Controller
                 'tbl_publikasi_data.nama_publikasi_data',
                 'tbl_kategori_imprs.nama_kategori_imprs as kategori_indikator'
             )
+            ->groupBy(
+                'tbl_kamus_indikator.id',
+                'tbl_indikator.nama_indikator',
+                'tbl_indikator.unit_id',
+                'tbl_metodologi_pengumpulan_data.nama_metodologi_pengumpulan_data',
+                'tbl_cakupan_data.nama_cakupan_data',
+                'tbl_frekuensi_pengumpulan_data.nama_frekuensi_pengumpulan_data',
+                'tbl_frekuensi_analisis_data.nama_frekuensi_analisis_data',
+                'tbl_metodologi_analisis_data.nama_metodologi_analisis_data',
+                'tbl_interpretasi_data.nama_interpretasi_data',
+                'tbl_publikasi_data.nama_publikasi_data',
+                'tbl_kategori_imprs.nama_kategori_imprs'
+            )
             ->orderBy('tbl_kamus_indikator.id', 'asc');
 
-        // Jika bukan admin / mutu, batasi unit sendiri
+        // Batasi untuk unit bukan admin/mutu
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
@@ -51,6 +67,8 @@ class KamusIndikatorController extends Controller
 
         return view('menu.IndikatorMutu.kamus-indikator.index', compact('mutu'));
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -111,7 +129,8 @@ class KamusIndikatorController extends Controller
             'jenis_indikator.*' => 'in:Prioritas Unit,Prioritas RS,Nasional',
 
             'indikator_id' => 'required',
-            'dimensi_mutu_id' => 'required',
+            'dimensi_mutu_id' => 'required|array|min:1',
+            'dimensi_mutu_id.*' => 'integer|exists:tbl_dimensi_mutu,id',
             'metodologi_pengumpulan_data_id' => 'required',
             'cakupan_data_id' => 'required',
             'frekuensi_pengumpulan_data_id' => 'required',
@@ -146,7 +165,8 @@ class KamusIndikatorController extends Controller
             'kategori_id' => $kategoriId,
 
             'indikator_id' => $request->indikator_id,
-            'dimensi_mutu_id' => $request->dimensi_mutu_id,
+            'dimensi_mutu_id' => implode(',', $request->dimensi_mutu_id),
+
             'metodologi_pengumpulan_data_id' => $request->metodologi_pengumpulan_data_id,
             'cakupan_data_id' => $request->cakupan_data_id,
             'frekuensi_pengumpulan_data_id' => $request->frekuensi_pengumpulan_data_id,
@@ -177,7 +197,8 @@ class KamusIndikatorController extends Controller
         $data = DB::table('tbl_kamus_indikator')->where('id', $id)->first();
 
         $indikator = DB::table('tbl_indikator')->get();
-        $dimensi = DB::table('tbl_dimensi_mutu')->get();
+        $dimensi = DB::table('tbl_dimensi_mutu')->get(); // <-- tambahkan ini
+        $selectedDimensi = explode(',', $data->dimensi_mutu_id);
         $metodologiPengumpulan = DB::table('tbl_metodologi_pengumpulan_data')->get();
         $cakupan = DB::table('tbl_cakupan_data')->get();
         $frekuensiPengumpulan = DB::table('tbl_frekuensi_pengumpulan_data')->get();
@@ -190,7 +211,8 @@ class KamusIndikatorController extends Controller
         return view('menu.IndikatorMutu.kamus-indikator.edit', compact(
             'data',
             'indikator',
-            'dimensi',
+            'dimensi',          // sekarang sudah ada
+            'selectedDimensi',  // kirim juga array yang dipilih
             'metodologiPengumpulan',
             'cakupan',
             'frekuensiPengumpulan',
@@ -202,6 +224,7 @@ class KamusIndikatorController extends Controller
         ));
     }
 
+
     /**
      * Update the specified resource in storage.
      */
@@ -211,7 +234,7 @@ class KamusIndikatorController extends Controller
             ->where('id', $id)
             ->update([
                 'indikator_id' => $request->indikator_id,
-                'dimensi_mutu_id' => $request->dimensi_mutu_id,
+                'dimensi_mutu_id' => $request->dimensi_mutu_id ? implode(',', $request->dimensi_mutu_id) : null,
                 'metodologi_pengumpulan_data_id' => $request->metodologi_pengumpulan_data_id,
                 'cakupan_data_id' => $request->cakupan_data_id,
                 'frekuensi_pengumpulan_data_id' => $request->frekuensi_pengumpulan_data_id,

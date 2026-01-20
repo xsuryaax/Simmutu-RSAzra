@@ -71,7 +71,8 @@ class LaporanAnalisIMPRSController extends Controller
                 'l.pencapaian',
                 'l.tanggal_laporan',
                 'u.nama_unit',
-                'l.file_laporan'
+                'l.file_laporan',
+                'l.created_at'
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
@@ -135,7 +136,7 @@ class LaporanAnalisIMPRSController extends Controller
             'indikator_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
-            'tanggal_laporan' => 'required|integer|min:1|max:31',
+            'tanggal_laporan' => 'required|date',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000',
             'file_laporan' => 'required|file|max:5120',
@@ -146,11 +147,9 @@ class LaporanAnalisIMPRSController extends Controller
             return back()->with('error', 'Unit user belum ditentukan');
         }
 
-        $tanggal = Carbon::createFromDate(
-            $request->tahun,
-            $request->bulan,
-            $request->tanggal_laporan
-        );
+        $today = now();
+        $day = min($today->day, Carbon::create($request->tahun, $request->bulan, 1)->daysInMonth);
+        $tanggal = Carbon::create($request->tahun, $request->bulan, $day);
 
         $indikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')

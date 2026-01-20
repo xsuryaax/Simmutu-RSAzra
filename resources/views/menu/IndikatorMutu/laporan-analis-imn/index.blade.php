@@ -84,33 +84,35 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>NO</th>
+                                <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
-                                <th>PERIODE</th>
-                                <th>TARGET</th>
-                                <th>NILAI</th>
-                                <th>STATUS</th>
-                                <th>AKSI</th>
+                                <th class="text-center">TARGET</th>
+                                <th class="text-center">NILAI</th>
+                                <th class="text-center">STATUS</th>
+                                <th class="text-center">AKSI</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($indikatorLaporan as $i => $row)
                                 <tr>
-                                    <td>{{ $i + 1 }}</td>
+                                    <td class="text-center">{{ $i + 1 }}</td>
                                     <td>{{ $row->nama_indikator }}</td>
-                                    <td>{{ \DateTime::createFromFormat('!m', $bulan)->format('F') }} {{ $tahun }}
-                                    </td>
-                                    <td>{{ rtrim(rtrim($row->target, '0'), '.') }}%</td>
+                                    <td class="text-center">{{ rtrim(rtrim($row->target, '0'), '.') }}%</td>
 
-                                    <td>
+                                    <td class="text-center">
                                         @if ($row->nilai !== null)
-                                            {{ rtrim(rtrim($row->nilai, '0'), '.') }}%
+                                                                <span class="fw-semibold text-dark">
+                                                                    {{ floor($row->nilai) == $row->nilai
+                                            ? number_format($row->nilai, 0)
+                                            : number_format($row->nilai, 2) }}%
+                                                                </span>
                                         @else
-                                            <span class="badge bg-secondary">Belum Input</span>
+                                            <span class="text-muted fst-italic">-</span>
                                         @endif
                                     </td>
 
-                                    <td>
+
+                                    <td class="text-center">
                                         @if ($row->nilai !== null)
                                             @if ($row->nilai >= $row->target)
                                                 <span class="badge bg-success">Tercapai</span>
@@ -118,15 +120,15 @@
                                                 <span class="badge bg-danger">Tidak Tercapai</span>
                                             @endif
                                         @else
-                                            <span class="badge bg-secondary">Belum Lengkap</span>
+                                            <span class="badge bg-warning">Belum Mengisi</span>
                                         @endif
                                     </td>
 
-                                    <td>
-                                        <button class="btn btn-success btn-sm"
-                                            onclick="openInputModal({{ $row->id }})">
-                                            + Input
-                                        </button>
+                                    <td class="text-center">
+                                        <a href="javascript:void(0)" onclick="openInputModal({{ $row->id }})"
+                                            class="text-primary" title="Input / Edit Nilai">
+                                            <i class="bi bi-pencil-square fs-5 text-dark action-icon"></i>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -148,30 +150,32 @@
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
-                                <th>NO</th>
+                                <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
-                                <th>TANGGAL</th>
-                                <th>TARGET</th>
-                                <th>NILAI</th>
-                                <th>FILE</th>
+                                <th class="text-center">TANGGAL</th>
+                                <th class="text-center">TARGET</th>
+                                <th class="text-center">NILAI</th>
+                                <th class="text-center">FILE</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($laporanNasional as $i => $row)
                                 <tr>
-                                    <td>{{ $i + 1 }}</td>
+                                    <td class="text-center">{{ $i + 1 }}</td>
                                     <td>{{ $row->nama_indikator }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($row->tanggal_laporan)->format('d F Y') }}</td>
-                                    <td>{{ rtrim(rtrim($row->target, '0'), '.') }}%</td>
-                                    <td>{{ rtrim(rtrim($row->nilai, '0'), '.') }}%</td>
-                                    <td>
-                                        @if ($row->file_laporan)
+                                    <td class="text-center">
+                                        {{ \Carbon\Carbon::parse($row->created_at)->format('d F Y') }}
+                                    </td>
+                                    <td class="text-center">{{ rtrim(rtrim($row->target, '0'), '.') }}%</td>
+                                    <td class="text-center">{{ rtrim(rtrim($row->nilai, '0'), '.') }}%</td>
+                                    <td class="text-center">
+                                        @if(!empty($row->file_laporan))
                                             <a href="{{ asset('storage/' . $row->file_laporan) }}" target="_blank"
-                                                class="btn btn-sm btn-primary">
-                                                <i class="bi bi-file-earmark-arrow-down"></i> Lihat File
+                                                class="btn btn-lg text-primary" title="Download File Laporan">
+                                                <i class="bi bi-file-earmark-arrow-down fs-5"></i>
                                             </a>
                                         @else
-                                            <span class="badge bg-secondary">Tidak Ada File</span>
+                                            <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -201,10 +205,11 @@
                         <input type="hidden" name="indikator_id" id="modal_indikator_id">
                         <input type="hidden" name="bulan" value="{{ $bulan }}">
                         <input type="hidden" name="tahun" value="{{ $tahun }}">
+                        <input type="hidden" name="tanggal_laporan" id="tanggal_laporan">
 
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Tanggal</label>
-                            <select name="tanggal_laporan" id="tanggal_laporan" class="form-select" required></select>
+                            <label class="form-label fw-semibold">Tanggal Input</label>
+                            <input type="text" id="tanggal_laporan_view" class="form-control" disabled>
                         </div>
 
                         <div class="mb-3">
@@ -241,24 +246,25 @@
 @push('js')
     <script>
         function openInputModal(indikatorId) {
+            // reset form
+            const form = document.querySelector('#modalInput form');
+            form.reset();
+
             document.getElementById('modal_indikator_id').value = indikatorId;
 
-            const select = document.getElementById('tanggal_laporan');
-            select.innerHTML = '';
+            const today = new Date();
 
-            const today = new Date().getDate();
+            // tampilkan tanggal hari ini (read-only)
+            document.getElementById('tanggal_laporan_view').value =
+                today.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
 
-            for (let i = 1; i <= 31; i++) {
-                const opt = document.createElement('option');
-                opt.value = i;
-                opt.textContent = i;
-
-                if (i === today) {
-                    opt.selected = true;
-                }
-
-                select.appendChild(opt);
-            }
+            // backend tetap terima tanggal hari ini
+            document.getElementById('tanggal_laporan').value =
+                today.toISOString().slice(0, 10); // YYYY-MM-DD
 
             new bootstrap.Modal(document.getElementById('modalInput')).show();
         }

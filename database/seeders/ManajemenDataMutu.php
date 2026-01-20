@@ -65,10 +65,25 @@ class ManajemenDataMutu extends Seeder
 
         DB::table('tbl_role')->insert([
             ['nama_role' => 'Administrator', 'deskripsi_role' => 'Memiliki akses penuh ke semua fitur dan pengaturan sistem.'],
-            ['nama_role' => 'Tim Mutu', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
+            ['nama_role' => 'Mutu', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
             ['nama_role' => 'SIMRS', 'deskripsi_role' => 'Mengawasi pelaksanaan program unit dan analisis data mutu.'],
             ['nama_role' => 'Marketing', 'deskripsi_role' => 'Mengelola data mutu, melakukan analisis, dan menyusun laporan.'],
             ['nama_role' => 'Kasir', 'deskripsi_role' => 'Mengumpulkan data dan melaksanakan prosedur sesuai standar mutu.'],
+        ]);
+
+        DB::table('tbl_unit')->insert([
+            [
+                'id' => 1,
+                'kode_unit' => 'UNIT001',
+                'nama_unit' => 'Administrator',
+                'status_unit' => 'aktif',
+            ],
+            [
+                'id' => 2,
+                'kode_unit' => 'UNIT002',
+                'nama_unit' => 'Mutu',
+                'status_unit' => 'aktif',
+            ],
         ]);
 
         DB::table('tbl_kategori_imprs')->insert([

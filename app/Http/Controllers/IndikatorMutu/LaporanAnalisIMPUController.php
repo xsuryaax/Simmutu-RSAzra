@@ -69,7 +69,8 @@ class LaporanAnalisIMPUController extends Controller
                 'l.unit_id',
                 'l.nilai',
                 'l.tanggal_laporan',
-                'l.file_laporan'
+                'l.file_laporan',
+                'l.created_at',
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
@@ -92,30 +93,30 @@ class LaporanAnalisIMPUController extends Controller
     private function getRekapBulanan($user, $bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis_unit as l')
-        ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-        ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-        ->select(
-            'l.indikator_id',
-            'l.unit_id',
-            DB::raw('ROUND(AVG(l.nilai)::numeric, 2) as nilai_rekap'),
-            DB::raw("
+            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
+            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
+            ->select(
+                'l.indikator_id',
+                'l.unit_id',
+                DB::raw('ROUND(AVG(l.nilai)::numeric, 2) as nilai_rekap'),
+                DB::raw("
                 CASE 
                     WHEN ROUND(AVG(l.nilai)::numeric, 2) >= i.target_indikator 
                     THEN 'tercapai' 
                     ELSE 'tidak tercapai' 
                 END as status
             ")
-        )
-        ->whereMonth('l.tanggal_laporan', $bulan)
-        ->whereYear('l.tanggal_laporan', $tahun)
-        ->whereRaw("k.jenis_indikator ILIKE '%Prioritas Unit%'")
-        ->when(
-            !in_array($user->unit_id, [1, 2]),
-            fn ($q) => $q->where('l.unit_id', $user->unit_id)
-        )
-        ->groupBy('l.indikator_id', 'l.unit_id', 'i.target_indikator')
-        ->get()
-        ->keyBy(fn ($r) => $r->indikator_id . '-' . $r->unit_id);
+            )
+            ->whereMonth('l.tanggal_laporan', $bulan)
+            ->whereYear('l.tanggal_laporan', $tahun)
+            ->whereRaw("k.jenis_indikator ILIKE '%Prioritas Unit%'")
+            ->when(
+                !in_array($user->unit_id, [1, 2]),
+                fn($q) => $q->where('l.unit_id', $user->unit_id)
+            )
+            ->groupBy('l.indikator_id', 'l.unit_id', 'i.target_indikator')
+            ->get()
+            ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
     }
 
     // STORE DATA LAPORAN
@@ -126,17 +127,16 @@ class LaporanAnalisIMPUController extends Controller
             'unit_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
-            'tanggal_laporan' => 'required|integer|min:1|max:31',
+            'tanggal_laporan' => 'required|date',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000',
             'file_laporan' => 'required|file|max:5120',
         ]);
 
-        $tanggal = Carbon::createFromDate(
-            $request->tahun,
-            $request->bulan,
-            $request->tanggal_laporan
-        );
+        $today = now();
+        $day = min($today->day, Carbon::create($request->tahun, $request->bulan, 1)->daysInMonth);
+        $tanggal = Carbon::create($request->tahun, $request->bulan, $day);
+
 
         $indikator = DB::table('tbl_indikator')
             ->where('id', $request->indikator_id)

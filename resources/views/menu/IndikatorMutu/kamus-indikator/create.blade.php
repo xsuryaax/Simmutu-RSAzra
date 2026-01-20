@@ -96,15 +96,18 @@
                                         <div class="row">
 
                                             <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Dimensi Mutu <span
-                                                        class="text-danger">*</span></label>
-                                                <select name="dimensi_mutu_id" class="form-select right-input">
-                                                    <option value="">Pilih Dimensi Mutu</option>
-                                                    @foreach ($dimensi as $d)
-                                                        <option value="{{ $d->id }}">{{ $d->nama_dimensi_mutu }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <label class="form-label left-input">Dimensi Mutu <span class="text-danger">*</span></label>
+                                                    <div class="right-input">
+                                                        @foreach ($dimensi as $d)
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" name="dimensi_mutu_id[]" value="{{ $d->id }}" id="dimensi_{{ $d->id }}">
+                                                                <label class="form-check-label" for="dimensi_{{ $d->id }}">
+                                                                    {{ $d->nama_dimensi_mutu }}
+                                                                </label>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-12 mb-3 add-input">

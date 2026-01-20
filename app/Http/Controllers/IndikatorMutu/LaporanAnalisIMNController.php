@@ -65,7 +65,8 @@ class LaporanAnalisIMNController extends Controller
                 'i.target_indikator as target',
                 'l.file_laporan',
                 'l.nilai',
-                'l.pencapaian'
+                'l.pencapaian',
+                'l.created_at'
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
@@ -78,22 +79,22 @@ class LaporanAnalisIMNController extends Controller
     // STORE - SAMA DENGAN UNIT
     public function store(Request $request)
     {
-        
+
         $request->validate([
             'indikator_id' => 'required|integer',
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
-            'tanggal_laporan' => 'required|integer|min:1|max:31',
+            'tanggal_laporan' => 'required|date',
             'bulan' => 'required|integer|min:1|max:12',
             'tahun' => 'required|integer|min:2000',
             'file_laporan' => 'required|file|max:5120',
         ]);
 
-        $tanggal = Carbon::createFromDate(
-            $request->tahun,
-            $request->bulan,
-            $request->tanggal_laporan
-        );
+        $today = now(); // hari ini
+        $day = min($today->day, Carbon::create($request->tahun, $request->bulan, 1)->daysInMonth);
+
+        $tanggal = Carbon::create($request->tahun, $request->bulan, $day);
+
 
         $indikator = DB::table('tbl_indikator')
             ->where('id', $request->indikator_id)

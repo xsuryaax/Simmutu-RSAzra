@@ -38,22 +38,40 @@ class MasterIndikatorController extends Controller
     {
         $user = Auth::user();
 
-        $queryUnits = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC');
+        // default
+        $units = null;
+        $unitUser = null;
 
-        if (!in_array($user->unit_id, [1, 2])) {
-            $queryUnits->where('id', $user->unit_id);
+        if (in_array($user->unit_id, [1, 2])) {
+            // ADMIN / MUTU → ambil semua unit
+            $units = DB::table('tbl_unit')
+                ->orderBy('nama_unit', 'ASC')
+                ->get();
+        } else {
+            // USER BIASA → ambil unit dia sendiri
+            $unitUser = DB::table('tbl_unit')
+                ->where('id', $user->unit_id)
+                ->first();
         }
 
-        $units = $queryUnits->get();
-
-        return view('menu.IndikatorMutu.master-indikator.create', compact('units'));
+        return view(
+            'menu.IndikatorMutu.master-indikator.create',
+            compact('units', 'unitUser')
+        );
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+        if (!in_array(auth()->user()->role_id, [1, 2])) {
+            $request->merge([
+                'unit_id' => auth()->user()->unit_id
+            ]);
+        }
+
         $request->validate([
             'nama_indikator' => 'required',
             'unit_id' => 'required|exists:tbl_unit,id',

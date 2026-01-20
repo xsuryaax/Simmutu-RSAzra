@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\tbl_unit;
+use DB;
 use Illuminate\Http\Request;
 
 class ManajemenUnitController extends Controller
@@ -41,9 +42,13 @@ class ManajemenUnitController extends Controller
 
         $status = $request->status_unit ? 'aktif' : 'non-aktif';
 
-        $last = tbl_unit::orderBy('id', 'DESC')->first();
-        $num = $last ? (int) substr($last->kode_unit, 4) + 1 : 1;
+        $last = tbl_unit::where('id', '>=', 3)->orderBy('id', 'DESC')->first();
+        $num = $last
+            ? (int) substr($last->kode_unit, 4) + 1
+            : 3; // mulai dari UNIT003
         $kode = 'UNIT' . str_pad($num, 3, '0', STR_PAD_LEFT);
+
+        DB::statement("SELECT setval('tbl_unit_id_seq', (SELECT GREATEST(MAX(id), 2) FROM tbl_unit))");
 
         tbl_unit::create([
             'kode_unit' => $kode,
@@ -55,6 +60,7 @@ class ManajemenUnitController extends Controller
         return redirect()->route('manajemen-unit.index')
             ->with('success', 'Unit berhasil ditambahkan.');
     }
+
 
     // Edit unit
     public function edit($id)

@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-{{-- Bagian Title Halaman --}}
 @section('title', 'Tambah Data Indikator')
 
 @section('page-title')
@@ -11,220 +10,228 @@
                 Halaman untuk mengelola indikator mutu dalam sistem.
             </p>
         </div>
+
         <div class="page-header-right">
-            <div class="justify-content-end d-flex">
+            <div class="d-flex justify-content-end align-items-center gap-3">
+                <span class="greeting-card">
+                    <strong>👋 Hello, {{ Auth::user()->username }}</strong>
+                </span>
+
                 <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
                     @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-right"></i> Logout
                     </button>
                 </form>
             </div>
-            <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Form Tambah Master Indikator Mutu
-                        </li>
-                    </ol>
-                </nav>
-            </div>
+
+            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end mt-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url('/') }}">Dashboard</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        Form Tambah Master Indikator Mutu
+                    </li>
+                </ol>
+            </nav>
         </div>
     </div>
 @endsection
 
 @section('content')
+    @php
+        $user = Auth::user();
+    @endphp
+
     <section id="basic-vertical-layouts">
         <div class="row match-height">
 
-            <div class="col-md-12 col-12">
+            <div class="col-12">
                 <div class="card">
+
                     <div class="card-header">
                         <h4 class="card-title">Form Tambah Indikator Mutu</h4>
                     </div>
 
-                    <div class="card-content">
-                        <div class="card-body">
+                    <div class="card-body">
 
-                            <form action="{{ route('master-indikator.store') }}" method="POST" class="form form-vertical">
-                                @csrf
+                        <form action="{{ route('master-indikator.store') }}" method="POST">
+                            @csrf
 
-                                <div class="form-body">
-                                    <div class="row">
+                            {{-- ================= NAMA INDIKATOR ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Nama Indikator</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" name="nama_indikator"
+                                        class="form-control @error('nama_indikator') is-invalid @enderror"
+                                        value="{{ old('nama_indikator') }}" required>
+                                    @error('nama_indikator')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
-                                        {{-- Nama Indikator --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="nama_indikator">Nama Indikator</label>
-                                            <input type="text" id="nama_indikator" name="nama_indikator"
-                                                class="form-control @error('nama_indikator') is-invalid @enderror"
-                                                value="{{ old('nama_indikator') }}" placeholder="Masukkan nama indikator"
-                                                required>
-                                            @error('nama_indikator')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
+                            {{-- ================= UNIT ================= --}}
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label>Unit</label>
+                                </div>
+                                <div class="col-md-8">
 
-                                        {{-- Unit --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="unit_id">Unit</label>
-                                            <select id="unit_id" name="unit_id"
-                                                class="form-control @error('unit_id') is-invalid @enderror" required>
-                                                <option value="">-- Pilih Unit --</option>
-
-                                                @foreach ($units as $unit)
-                                                    <option value="{{ $unit->id }}"
-                                                        {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
-                                                        {{ $unit->nama_unit }}
-                                                    </option>
-                                                @endforeach
-
-                                            </select>
-                                            @error('unit_id')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-
-                                        {{-- Target --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="target_indikator">Target</label>
-                                            <input type="number" id="target_indikator" name="target_indikator"
-                                                class="form-control @error('target_indikator') is-invalid @enderror"
-                                                value="{{ old('target_indikator') }}"
-                                                placeholder="Masukkan target indikator" required>
-                                            @error('target_indikator')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-
-                                        {{-- Tipe Indikator --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="tipe_indikator">Tipe Indikator</label>
-                                            <select id="tipe_indikator" name="tipe_indikator"
-                                                class="form-control @error('tipe_indikator') is-invalid @enderror" required>
-                                                <option value="">-- Pilih Tipe --</option>
-                                                <option value="lokal"
-                                                    {{ old('tipe_indikator') == 'lokal' ? 'selected' : '' }}>Lokal
+                                    {{-- ADMIN / MUTU --}}
+                                    @if ($units)
+                                        <select name="unit_id" class="form-control" required>
+                                            <option value="">-- Pilih Unit --</option>
+                                            @foreach ($units as $unit)
+                                                <option value="{{ $unit->id }}">
+                                                    {{ $unit->nama_unit }}
                                                 </option>
-                                                <option value="nasional"
-                                                    {{ old('tipe_indikator') == 'nasional' ? 'selected' : '' }}>
-                                                    Nasional</option>
+                                            @endforeach
+                                        </select>
 
-                                            </select>
-                                            @error('tipe_indikator')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
+                                        {{-- USER BIASA --}}
+                                    @else
+                                        <input type="text" class="form-control" value="{{ $unitUser->nama_unit }}" readonly>
 
-                                        {{-- Periode Tahun --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="periode_tahun">Periode Tahun</label>
-                                            <input type="number" id="periode_tahun" name="periode_tahun"
-                                                class="form-control @error('periode_tahun') is-invalid @enderror"
-                                                value="{{ old('periode_tahun') }}" placeholder="Masukkan periode tahun"
-                                                required>
-                                            @error('periode_tahun')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
+                                        <input type="hidden" name="unit_id" value="{{ $unitUser->id }}">
+                                    @endif
 
-                                        {{-- Tanggal Mulai --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="tanggal_mulai">Tanggal Mulai</label>
-                                            <input type="date" id="tanggal_mulai" name="tanggal_mulai"
-                                                class="form-control @error('tanggal_mulai') is-invalid @enderror"
-                                                value="{{ old('tanggal_mulai') }}" required>
-                                            @error('tanggal_mulai')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
+                                </div>
+                            </div>
 
-                                        {{-- Tanggal Selesai --}}
-                                        <div class="col-md-6 mb-3">
-                                            <label for="tanggal_selesai">Tanggal Selesai</label>
-                                            <input type="date" id="tanggal_selesai" name="tanggal_selesai"
-                                                class="form-control @error('tanggal_selesai') is-invalid @enderror"
-                                                value="{{ old('tanggal_selesai') }}" required>
-                                            @error('tanggal_selesai')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
+                            {{-- ================= TARGET ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Target Indikator</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" name="target_indikator"
+                                        class="form-control @error('target_indikator') is-invalid @enderror"
+                                        value="{{ old('target_indikator') }}" required>
+                                    @error('target_indikator')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
-                                        {{-- Status Periode --}}
-                                        <div class="col-md-12 mb-3">
-                                            <label>Status Periode</label>
-                                            <div class="d-flex gap-4 mt-1">
+                            {{-- ================= TIPE INDIKATOR ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Tipe Indikator</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="tipe_indikator"
+                                        class="form-control @error('tipe_indikator') is-invalid @enderror" required>
+                                        <option value="">-- Pilih --</option>
+                                        <option value="lokal" {{ old('tipe_indikator') == 'lokal' ? 'selected' : '' }}>Lokal
+                                        </option>
+                                        <option value="nasional" {{ old('tipe_indikator') == 'nasional' ? 'selected' : '' }}>
+                                            Nasional</option>
+                                    </select>
+                                    @error('tipe_indikator')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="status_periode"
-                                                        id="status_aktif" value="aktif"
-                                                        {{ old('status_periode', 'aktif') == 'aktif' ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="status_aktif">Aktif</label>
-                                                </div>
+                            {{-- ================= PERIODE TAHUN ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Periode Tahun</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="number" name="periode_tahun"
+                                        class="form-control @error('periode_tahun') is-invalid @enderror"
+                                        value="{{ old('periode_tahun') }}" required>
+                                    @error('periode_tahun')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" name="status_periode"
-                                                        id="status_non_aktif" value="non-aktif"
-                                                        {{ old('status_periode') == 'non-aktif' ? 'checked' : '' }}>
-                                                    <label class="form-check-label"
-                                                        for="status_non_aktif">Non-Aktif</label>
-                                                </div>
+                            {{-- ================= TANGGAL MULAI ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Tanggal Mulai</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="date" name="tanggal_mulai"
+                                        class="form-control @error('tanggal_mulai') is-invalid @enderror"
+                                        value="{{ old('tanggal_mulai') }}" required>
+                                    @error('tanggal_mulai')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
-                                            </div>
+                            {{-- ================= TANGGAL SELESAI ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Tanggal Selesai</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="date" name="tanggal_selesai"
+                                        class="form-control @error('tanggal_selesai') is-invalid @enderror"
+                                        value="{{ old('tanggal_selesai') }}" required>
+                                    @error('tanggal_selesai')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
 
-                                            @error('status_indikator_unit')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-
-                                        {{-- Status Indikator --}}
-                                        <div class="col-md-12 mb-3">
-                                            <label>Status Indikator</label>
-                                            <div class="d-flex gap-4 mt-1">
-
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="status_indikator" id="status_aktif" value="aktif"
-                                                        {{ old('status_indikator', 'aktif') == 'aktif' ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="status_aktif">Aktif</label>
-                                                </div>
-
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio"
-                                                        name="status_indikator" id="status_non_aktif" value="non-aktif"
-                                                        {{ old('status_indikator') == 'non-aktif' ? 'checked' : '' }}>
-                                                    <label class="form-check-label"
-                                                        for="status_non_aktif">Non-Aktif</label>
-                                                </div>
-
-                                            </div>
-
-                                            @error('status_indikator')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div>
-
-                                        {{-- Tombol --}}
-                                        <div class="col-12 d-flex justify-content-end">
-                                            <a href="{{ route('master-indikator.index') }}"
-                                                class="btn btn-light-secondary me-2">
-                                                Kembali
-                                            </a>
-                                            <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-check-circle"></i> Simpan
-                                            </button>
-                                        </div>
-
+                            {{-- ================= STATUS PERIODE ================= --}}
+                            <div class="row mb-3 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Status Periode</label>
+                                </div>
+                                <div class="col-md-8 d-flex gap-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status_periode" value="aktif"
+                                            checked>
+                                        <label class="form-check-label">Aktif</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status_periode"
+                                            value="non-aktif">
+                                        <label class="form-check-label">Non-Aktif</label>
                                     </div>
                                 </div>
+                            </div>
 
-                            </form>
+                            {{-- ================= STATUS INDIKATOR ================= --}}
+                            <div class="row mb-4 align-items-center">
+                                <div class="col-md-4">
+                                    <label>Status Indikator</label>
+                                </div>
+                                <div class="col-md-8 d-flex gap-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status_indikator" value="aktif"
+                                            checked>
+                                        <label class="form-check-label">Aktif</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status_indikator"
+                                            value="non-aktif">
+                                        <label class="form-check-label">Non-Aktif</label>
+                                    </div>
+                                </div>
+                            </div>
 
-                        </div>
+                            {{-- ================= BUTTON ================= --}}
+                            <div class="d-flex justify-content-end">
+                                <a href="{{ route('master-indikator.index') }}" class="btn btn-light-secondary me-2">
+                                    Kembali
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i> Simpan
+                                </button>
+                            </div>
+
+                        </form>
+
                     </div>
                 </div>
             </div>

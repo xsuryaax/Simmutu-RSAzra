@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('jenis_indikator');
             $table->integer('kategori_id')->nullable();
             $table->integer('indikator_id');
-            $table->integer('dimensi_mutu_id');
+            $table->string('dimensi_mutu_id');
             $table->integer('metodologi_pengumpulan_data_id');
             $table->integer('cakupan_data_id');
             $table->integer('frekuensi_pengumpulan_data_id');
