@@ -10,6 +10,44 @@
     <link rel="stylesheet" href="{{ asset('style/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('style/assets/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('style/assets/css/pages/auth.css') }}">
+    <style>
+        #auth-right {
+            min-width: 60vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-content: center
+        }
+
+        #auth-right h1 {
+            color: #fff;
+        }
+
+        .hospital-logo img {
+            width: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .login-title {
+            font-size: 6rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .login-subtitle {
+            color: #fff;
+            font-size: 0.875rem;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -42,8 +80,7 @@
 
                         {{-- Full Name --}}
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="text" name="nama_lengkap"
-                                class="form-control form-control-xl"
+                            <input type="text" name="nama_lengkap" class="form-control form-control-xl"
                                 placeholder="Full Name" required value="{{ old('nama_lengkap') }}">
                             <div class="form-control-icon">
                                 <i class="bi bi-person"></i>
@@ -52,8 +89,7 @@
 
                         {{-- EMAIL --}}
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="email" name="email"
-                                class="form-control form-control-xl"
+                            <input type="email" name="email" class="form-control form-control-xl"
                                 placeholder="Email" required value="{{ old('email') }}">
                             <div class="form-control-icon">
                                 <i class="bi bi-envelope"></i>
@@ -62,8 +98,7 @@
 
                         {{-- USERNAME --}}
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="text" name="username"
-                                class="form-control form-control-xl"
+                            <input type="text" name="username" class="form-control form-control-xl"
                                 placeholder="Username" required value="{{ old('username') }}">
                             <div class="form-control-icon">
                                 <i class="bi bi-person"></i>
@@ -72,8 +107,7 @@
 
                         {{-- PASSWORD --}}
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="password" name="password"
-                                class="form-control form-control-xl"
+                            <input type="password" name="password" class="form-control form-control-xl"
                                 placeholder="Password" required>
                             <div class="form-control-icon">
                                 <i class="bi bi-shield-lock"></i>
@@ -82,8 +116,7 @@
 
                         {{-- CONFIRM PASSWORD --}}
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="password" name="password_confirmation"
-                                class="form-control form-control-xl"
+                            <input type="password" name="password_confirmation" class="form-control form-control-xl"
                                 placeholder="Confirm Password" required>
                             <div class="form-control-icon">
                                 <i class="bi bi-shield-lock"></i>
@@ -101,8 +134,14 @@
                 </div>
             </div>
 
-            <div class="col-lg-7 d-none d-lg-block">
-                <div id="auth-right"></div>
+            <div class="col-lg-7 d-flex">
+                <div id="auth-right">
+                    <div class="hospital-logo">
+                        <img src="{{ asset('assets/logo/logo-azra.png') }}" alt="Logo RS Azra">
+                    </div>
+                    <h1 class="login-title">SIMMUTU</h1>
+                    <p class="login-subtitle">Register ke sistem manajemen mutu rumah sakit</p>
+                </div>
             </div>
         </div>
 
