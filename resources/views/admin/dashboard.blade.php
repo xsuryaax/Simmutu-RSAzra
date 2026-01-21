@@ -892,40 +892,83 @@
 
     {{-- modal untuk card --}}
     <div class="modal fade" id="modalSudahIsi" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white">Daftar Unit Sudah Mengisi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="text-white">Daftar Progress Indikator Terisi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <ul class="list-group">
-                        @foreach ($unitsSudah as $unit)
-                            <li class="list-group-item">
-                                {{ $unit->nama_unit }}
-                            </li>
-                        @endforeach
-                    </ul>
+                <div class="modal-body p-0" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th style="width: 30%;">Nama Unit</th>
+                                <th>Indikator Sudah Terisi</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($unitsSudah as $unit)
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ $unit->nama_unit }}</td>
+                                    <td>
+                                        <ul class="mb-0 ps-3">
+                                            @foreach ($unit->list_sudah as $ind)
+                                                <li>{{ $ind }} <i
+                                                        class="bi bi-check-circle text-success ms-1"></i></li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <div class="fw-normal text-primary">
+                                            {{ count($unit->list_sudah) }} / {{ $unit->total_indikator }}
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="modal fade" id="modalBelumIsi" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white">Daftar Unit Belum Mengisi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="text-white">Daftar Indikator Belum Terisi</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <ul class="list-group">
-                        @foreach ($unitsBelum as $unit)
-                            <li class="list-group-item">
-                                {{ $unit->nama_unit }}
-                            </li>
-                        @endforeach
-                    </ul>
+                <div class="modal-body p-0" style="max-height: 500px; overflow-y: auto;">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th style="width: 30%;">Nama Unit</th>
+                                <th>Indikator Belum Terisi</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($unitsBelum as $unit)
+                                <tr>
+                                    <td class="fw-bold text-danger">{{ $unit->nama_unit }}</td>
+                                    <td>
+                                        <ul class="mb-0 ps-3">
+                                            @foreach ($unit->list_belum as $ind)
+                                                <li>{{ $ind }} <i class="bi bi-x-circle text-danger ms-1"></i>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td class="fw-bold text-danger">
+                                        <div class="fw-normal">{{ count($unit->list_sudah) }} /
+                                            {{ count($unit->list_sudah) + count($unit->list_belum) }}</div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

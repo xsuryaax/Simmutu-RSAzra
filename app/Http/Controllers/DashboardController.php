@@ -105,35 +105,50 @@ class DashboardController extends Controller
 
         $units = DB::table('tbl_unit')->get();
 
-        $indikatorPerUnit = DB::table('tbl_indikator')
-            ->select('unit_id', DB::raw('COUNT(id) as total'))
-            ->groupBy('unit_id')
-            ->pluck('total', 'unit_id');
+        $semuaIndikator = DB::table('tbl_indikator as i')
+            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
+            ->where('ki.jenis_indikator', 'LIKE', '%Prioritas Unit%')
+            ->select('i.id', 'i.nama_indikator', 'i.unit_id')
+            ->get()
+            ->groupBy('unit_id');
 
-        $terisiPerUnit = DB::table('tbl_laporan_dan_analis_unit')
+        $totalTerisi = DB::table('tbl_laporan_dan_analis_unit')
             ->whereMonth('tanggal_laporan', $bulanWajib)
             ->whereYear('tanggal_laporan', $tahunWajib)
-            ->select('unit_id', DB::raw('COUNT(DISTINCT indikator_id) as total'))
-            ->groupBy('unit_id')
-            ->pluck('total', 'unit_id');
+            ->pluck('indikator_id')
+            ->toArray();
 
         $unitsSudah = [];
         $unitsBelum = [];
 
         foreach ($units as $unit) {
-            $totalIndikator = $indikatorPerUnit[$unit->id] ?? 0;
+            $indikators = $semuaIndikator->get($unit->id, collect());
+            if ($indikators->isEmpty()) continue;
 
-            // ❗ jika unit tidak punya indikator → skip (sama seperti sebelumnya)
-            if ($totalIndikator === 0) {
-                continue;
+            $sudah = [];
+            $belum = [];
+
+            foreach ($indikators as $ind) {
+                if (in_array($ind->id, $totalTerisi)) {
+                    $sudah[] = $ind->nama_indikator;
+                } else {
+                    $belum[] = $ind->nama_indikator;
+                }
             }
 
-            $totalTerisi = $terisiPerUnit[$unit->id] ?? 0;
+            if (count($sudah) > 0) {
+                $uSudah = clone $unit;
+                $uSudah->list_sudah = $sudah;
+                $uSudah->total_indikator = count($indikators);
+                $unitsSudah[] = $uSudah;
+            }
 
-            if ($totalIndikator === $totalTerisi) {
-                $unitsSudah[] = $unit;
-            } else {
-                $unitsBelum[] = $unit;
+            if (count($belum) > 0) {
+                $uBelum = clone $unit;
+                $uBelum->list_belum = $belum;
+                $uBelum->list_sudah = $sudah;
+                $uBelum->total_indikator = count($indikators);
+                $unitsBelum[] = $uBelum;
             }
         }
 
@@ -145,7 +160,6 @@ class DashboardController extends Controller
             'unitsBelum' => $unitsBelum,
         ];
     }
-
 
     private function getRecentIsi(): array
     {
