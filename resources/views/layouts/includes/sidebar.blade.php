@@ -80,6 +80,13 @@
                     </ul>
                 </li>
 
+                <li class="sidebar-item {{ Request::is('/pdsa') ? 'active' : '' }}">
+                    <a href="{{ url('/pdsa') }}" class='sidebar-link'>
+                        <i class="bi bi-grid-fill"></i>
+                        <span>PDSA</span>
+                    </a>
+                </li>
+
                 @if(auth()->user()->id == 1)
                     <li class="sidebar-title">Menu</li>
 

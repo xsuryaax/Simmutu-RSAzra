@@ -48,8 +48,7 @@
                         </div>
 
                         <div class="col-5 col-lg-2a col-md-5">
-                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
-                                data-bs-target="#modalSudahIsi">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalSudahIsi">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
                                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -67,8 +66,7 @@
                         </div>
 
                         <div class="col-5 col-lg-2a col-md-5">
-                            <div class="card" style="cursor: pointer" data-bs-toggle="modal"
-                                data-bs-target="#modalBelumIsi">
+                            <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalBelumIsi">
                                 <div class="card-body px-4 py-4-5">
                                     <div class="row">
                                         <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
@@ -124,8 +122,7 @@
                     <div class="row adm-chart">
                         <div class="col-9 left-chart">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Semua Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -324,17 +321,17 @@
                                     data: {
                                         labels,
                                         datasets: [{
-                                                label: "Target",
-                                                data: target,
-                                                backgroundColor: "rgba(255,159,64,0.7)",
-                                                borderColor: "rgba(255, 159, 64, 1)"
-                                            },
-                                            {
-                                                label: "Realisasi",
-                                                data: hasil,
-                                                backgroundColor: "rgba(75,192,192,0.7)",
-                                                borderColor: "rgba(75, 192, 192, 1)"
-                                            }
+                                            label: "Target",
+                                            data: target,
+                                            backgroundColor: "rgba(255,159,64,0.7)",
+                                            borderColor: "rgba(255, 159, 64, 1)"
+                                        },
+                                        {
+                                            label: "Realisasi",
+                                            data: hasil,
+                                            backgroundColor: "rgba(75,192,192,0.7)",
+                                            borderColor: "rgba(75, 192, 192, 1)"
+                                        }
                                         ]
                                     },
                                     options: {
@@ -373,8 +370,7 @@
                     <div class="row adm-chart">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Indikator Mutu Nasional</h4>
                                     <div class="d-flex gap-2">
                                         <select id="indicatorsFilter" class="form-select form-select-sm">
@@ -479,23 +475,23 @@
                                     data: {
                                         labels: view.labels,
                                         datasets: [{
-                                                label: 'Target',
-                                                data: view.target,
-                                                borderColor: '#3498db',
-                                                backgroundColor: '#3498db',
-                                                borderWidth: 2,
-                                                pointStyle: 'diamond',
-                                                pointRadius: type === 'line' ? 6 : 0
-                                            },
-                                            {
-                                                label: 'Realisasi',
-                                                data: view.hasil,
-                                                borderColor: '#e74c3c',
-                                                backgroundColor: '#e74c3c',
-                                                borderWidth: 2,
-                                                pointStyle: 'diamond',
-                                                pointRadius: type === 'line' ? 6 : 0
-                                            }
+                                            label: 'Target',
+                                            data: view.target,
+                                            borderColor: '#3498db',
+                                            backgroundColor: '#3498db',
+                                            borderWidth: 2,
+                                            pointStyle: 'diamond',
+                                            pointRadius: type === 'line' ? 6 : 0
+                                        },
+                                        {
+                                            label: 'Realisasi',
+                                            data: view.hasil,
+                                            borderColor: '#e74c3c',
+                                            backgroundColor: '#e74c3c',
+                                            borderWidth: 2,
+                                            pointStyle: 'diamond',
+                                            pointRadius: type === 'line' ? 6 : 0
+                                        }
                                         ]
                                     },
                                     options: {
@@ -533,8 +529,7 @@
                     <div class="row adm-chart">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Indikator Mutu Prioritas Rumah Sakit</h4>
                                     <div class="d-flex gap-2">
                                         <select id="catFilter" class="form-select form-select-sm">
@@ -654,18 +649,18 @@
                                 data: {
                                     labels: labelsBulan.slice(start, end),
                                     datasets: [{
-                                            label: 'Standar',
-                                            data: dataObj.target.slice(start, end),
-                                            borderColor: '#3498db',
-                                            backgroundColor: '#3498db',
+                                        label: 'Standar',
+                                        data: dataObj.target.slice(start, end),
+                                        borderColor: '#3498db',
+                                        backgroundColor: '#3498db',
 
-                                        },
-                                        {
-                                            label: 'Capaian',
-                                            data: dataObj.hasil.slice(start, end),
-                                            borderColor: '#e74c3c',
-                                            backgroundColor: '#e74c3c',
-                                        }
+                                    },
+                                    {
+                                        label: 'Capaian',
+                                        data: dataObj.hasil.slice(start, end),
+                                        borderColor: '#e74c3c',
+                                        backgroundColor: '#e74c3c',
+                                    }
                                     ]
                                 },
                                 options: {
@@ -677,7 +672,7 @@
                                             max: 110,
                                             ticks: {
                                                 stepSize: 10,
-                                                callback: function(value) {
+                                                callback: function (value) {
                                                     return value;
                                                 }
                                             }
@@ -731,11 +726,74 @@
                         init();
                     </script>
                 @else
+                    {{-- ===== CARD PDSA ===== --}}
+                    <div class="col-5 col-lg-2a col-md-5">
+                        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalPDSA">
+                            <div class="card-body px-4 py-4-5">
+                                <div class="row">
+                                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                                        <div class="stats-icon bg-orange">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-8 col-xxl-7">
+                                        <h6 class="text-muted font-semibold mb-1">PDSA Perlu Ditindaklanjuti</h6>
+                                        <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ===== MODAL PDSA ===== --}}
+                    <div class="modal fade" id="modalPDSA" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header bg-orange">
+                                    <h5 class="text-white">Daftar PDSA Perlu Ditindaklanjuti</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body p-0" style="max-height: 500px; overflow-y: auto;">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light sticky-top">
+                                            <tr>
+                                                <th class="text-center">NO</th>
+                                                <th>Indikator Perlu PDSA</th>
+                                                <th class="text-center">Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($pdsaList as $unit)
+                                                <tr>
+                                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                                    <td>
+                                                        <ul class="mb-0 ps-3 list-unstyled">
+                                                            @foreach ($pdsaList as $ind)
+                                                                <li>{{ $ind->nama_indikator }}</li>
+                                                            @endforeach
+                                                        </ul>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @foreach ($pdsaList as $ind)
+                                                            <a href="{{ route('pdsa.fill', $ind->id) }}"
+                                                                class="btn btn-sm btn-primary mb-1" title="Isi PDSA">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                        @endforeach
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div
-                                    class="card-header d-flex justify-content-between align-items-center chart-card-header">
+                                <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                                     <h4>Hasil Indikator Unit</h4>
 
                                     <div class="d-flex gap-2">
@@ -845,21 +903,21 @@
                                 data: {
                                     labels: viewData.labels,
                                     datasets: [{
-                                            label: "Target",
-                                            data: viewData.target,
-                                            borderColor: 'rgba(255,99,132,1)',
-                                            backgroundColor: 'rgba(255,99,132,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        },
-                                        {
-                                            label: "Realisasi",
-                                            data: viewData.hasil,
-                                            borderColor: 'rgba(54,162,235,1)',
-                                            backgroundColor: 'rgba(54,162,235,0.6)',
-                                            tension: 0.2,
-                                            fill: type === 'bar'
-                                        }
+                                        label: "Target",
+                                        data: viewData.target,
+                                        borderColor: 'rgba(255,99,132,1)',
+                                        backgroundColor: 'rgba(255,99,132,0.6)',
+                                        tension: 0.2,
+                                        fill: type === 'bar'
+                                    },
+                                    {
+                                        label: "Realisasi",
+                                        data: viewData.hasil,
+                                        borderColor: 'rgba(54,162,235,1)',
+                                        backgroundColor: 'rgba(54,162,235,0.6)',
+                                        tension: 0.2,
+                                        fill: type === 'bar'
+                                    }
                                     ]
                                 },
                                 options: {
@@ -914,8 +972,7 @@
                                     <td>
                                         <ul class="mb-0 ps-3">
                                             @foreach ($unit->list_sudah as $ind)
-                                                <li>{{ $ind }} <i
-                                                        class="bi bi-check-circle text-success ms-1"></i></li>
+                                                <li>{{ $ind }} <i class="bi bi-check-circle text-success ms-1"></i></li>
                                             @endforeach
                                         </ul>
                                     </td>
@@ -963,7 +1020,8 @@
                                     </td>
                                     <td class="fw-bold text-danger">
                                         <div class="fw-normal">{{ count($unit->list_sudah) }} /
-                                            {{ count($unit->list_sudah) + count($unit->list_belum) }}</div>
+                                            {{ count($unit->list_sudah) + count($unit->list_belum) }}
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

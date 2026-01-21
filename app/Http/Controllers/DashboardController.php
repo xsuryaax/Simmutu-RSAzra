@@ -23,6 +23,8 @@ class DashboardController extends Controller
 
         $data = [
             'roleId' => $roleId,
+            'pdsaTotal' => 0,
+            'pdsaList' => collect(),
 
             'totalIndikator' => $indikators->count(),
             'indikators' => $indikators,
@@ -40,10 +42,21 @@ class DashboardController extends Controller
             'chartIMPRSYears' => $this->getYears(),
         ];
 
+        // ambil PDSA notification
+        $pdsaData = in_array($roleId, [1, 2])
+            ? $this->getPdsaNotification() // admin → semua unit
+            : $this->getPdsaNotification($user->unit_id); // user biasa → unit sendiri
+
+        $data['pdsaTotal'] = $pdsaData['pdsaTotal'];
+        $data['pdsaList'] = $pdsaData['pdsaList'];
+
+
+        // tetap untuk admin tambah data tambahan
         if (in_array($roleId, [1, 2])) {
             $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
             $data['divisionData'] = $this->getDivisionData($indikators);
         }
+
 
         return view('admin.dashboard', $data);
     }
@@ -123,7 +136,8 @@ class DashboardController extends Controller
 
         foreach ($units as $unit) {
             $indikators = $semuaIndikator->get($unit->id, collect());
-            if ($indikators->isEmpty()) continue;
+            if ($indikators->isEmpty())
+                continue;
 
             $sudah = [];
             $belum = [];
@@ -410,4 +424,36 @@ class DashboardController extends Controller
             'hasil' => $hasil
         ];
     }
+
+    private function getPdsaNotification($unitId = null): array
+    {
+        $query = DB::table('tbl_pdsa_assignments as p')
+            ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
+            ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
+            ->whereIn('p.status_pdsa', ['assigned', 'submitted']);
+
+        if ($unitId) {
+            $query->where('p.unit_id', $unitId);
+        }
+
+        $total = (clone $query)->count();
+
+        $list = $query->select(
+            'p.id',
+            'p.status_pdsa',
+            'i.nama_indikator',
+            'p.unit_id',
+            'p.created_at',
+            'tbl_unit.nama_unit'
+        )
+            ->orderByDesc('p.created_at')
+            ->limit(5)
+            ->get();
+
+        return [
+            'pdsaTotal' => $total,
+            'pdsaList' => $list
+        ];
+    }
+
 }

@@ -105,9 +105,39 @@ Route::middleware('auth')->group(function () {
         ->name('hak-akses.update')
         ->middleware('check.role:hak_akses');
 
-    // PDSA
-    Route::resource('pdsa', PDSAController::class)
+    // Hanya index dengan middleware check.role
+    Route::get('/pdsa', [PDSAController::class, 'index'])
+        ->name('pdsa.index')
         ->middleware('check.role:pdsa');
+
+    // Tambahan route khusus
+    Route::prefix('pdsa')->group(function () {
+
+        // Halaman isi PDSA (unit / mutu melihat detail)
+        Route::get('/show/{id}', [PDSAController::class, 'show'])->name('pdsa.show');
+
+        // Halaman isi PDSA (unit / mutu melihat detail)
+        Route::get('/fill/{id}', [PDSAController::class, 'show'])->name('pdsa.fill');
+
+        // Unit submit PDSA
+        Route::post('/submit/{id}', [PDSAController::class, 'submit'])->name('pdsa.submit');
+
+        // Mutu approve PDSA
+        Route::post('/approve/{id}', [PDSAController::class, 'approve'])->name('pdsa.approve');
+
+        // Mutu menugaskan PDSA
+        Route::post('/store', [PDSAController::class, 'store'])->name('pdsa.store');
+
+        // Unit menyimpan PDSA sementara (update plan/do/study/action)
+        Route::post('/update/{id}', [PDSAController::class, 'updateByUnit'])->name('pdsa.update');
+
+        // Mutu/Admin simpan edit
+        Route::post('/update/mutu/{id}', [PDSAController::class, 'updateByMutu'])->name('pdsa.update.mutu');
+
+        Route::post('/pdsa/{id}/update', [PDSAController::class, 'update'])->name('pdsa.update');
+
+    });
+
 
     Route::resource('dashboard', DashboardController::class)
         ->middleware('check.role:dashboard');
