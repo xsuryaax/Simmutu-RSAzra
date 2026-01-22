@@ -8,6 +8,10 @@ html.dark #sidebar {
     border-right: 1px solid #333; 
 }
 
+html.dark #sidebar .logo {
+    color: #fff;
+}
+
 html.dark .sidebar-wrapper {
     background-color: #1e2023;
 }
@@ -64,7 +68,10 @@ html.dark .card-header {
     background-color: #2b2f34;
 }
 
-html.dark .table-dark th,
+html.dark .table-dark th {
+    color: #007774;
+}
+
 html.dark .table-dark td {
     color: #e1f0ff;
 }
