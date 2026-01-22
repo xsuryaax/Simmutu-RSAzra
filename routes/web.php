@@ -105,39 +105,27 @@ Route::middleware('auth')->group(function () {
         ->name('hak-akses.update')
         ->middleware('check.role:hak_akses');
 
-    // Hanya index dengan middleware check.role
+    // PDSA (Plan-Do-Study-Act)
     Route::get('/pdsa', [PDSAController::class, 'index'])
         ->name('pdsa.index')
         ->middleware('check.role:pdsa');
 
-    // Tambahan route khusus
-    Route::prefix('pdsa')->group(function () {
+    Route::get('/pdsa/{id}', [PDSAController::class, 'show'])
+        ->name('pdsa.show')
+        ->middleware('check.role:pdsa');
 
-        // Halaman isi PDSA (unit / mutu melihat detail)
-        Route::get('/show/{id}', [PDSAController::class, 'show'])->name('pdsa.show');
+    // FORM SUBMIT (UNIT)
+    Route::get('/pdsa/{id}/submit', [PDSAController::class, 'formSubmit'])->name('pdsa.submit.form');
+    Route::post('/pdsa/{id}/submit', [PDSAController::class, 'submit'])->name('pdsa.submit');
 
-        // Halaman isi PDSA (unit / mutu melihat detail)
-        Route::get('/fill/{id}', [PDSAController::class, 'show'])->name('pdsa.fill');
+    // FORM EDIT (UNIT & MUTU)
+    Route::get('/pdsa/{id}/edit', [PDSAController::class, 'edit'])->name('pdsa.edit');
+    Route::put('/pdsa/{id}', [PDSAController::class, 'update'])->name('pdsa.update');
 
-        // Unit submit PDSA
-        Route::post('/submit/{id}', [PDSAController::class, 'submit'])->name('pdsa.submit');
-
-        // Mutu approve PDSA
-        Route::post('/approve/{id}', [PDSAController::class, 'approve'])->name('pdsa.approve');
-
-        // Mutu menugaskan PDSA
-        Route::post('/store', [PDSAController::class, 'store'])->name('pdsa.store');
-
-        // Unit menyimpan PDSA sementara (update plan/do/study/action)
-        Route::post('/update/{id}', [PDSAController::class, 'updateByUnit'])->name('pdsa.update');
-
-        // Mutu/Admin simpan edit
-        Route::post('/update/mutu/{id}', [PDSAController::class, 'updateByMutu'])->name('pdsa.update.mutu');
-
-        Route::post('/pdsa/{id}/update', [PDSAController::class, 'update'])->name('pdsa.update');
-
-    });
-
+    // APPROVE (MUTU)
+    Route::post('/pdsa/{id}/approve', [PDSAController::class, 'approve'])
+    ->name('pdsa.approve')
+    ->middleware('check.role:pdsa');
 
     Route::resource('dashboard', DashboardController::class)
         ->middleware('check.role:dashboard');

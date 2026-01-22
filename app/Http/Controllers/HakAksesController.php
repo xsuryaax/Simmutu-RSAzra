@@ -21,6 +21,7 @@ class HakAksesController extends Controller
                 ['key' => 'laporan_analis_imprs', 'label' => 'Laporan Analis IMPRS'],
                 ['key' => 'laporan_analis_impu', 'label' => 'Laporan Analis IMPU'],
                 ['key' => 'laporan_analis_imn', 'label' => 'Laporan Analis IMN'],
+                ['key'=> 'pdsa', 'label'=> 'PDSA'],
             ]
         ],
         'manajemen_data_mutu' => [

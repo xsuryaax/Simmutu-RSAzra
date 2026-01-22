@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\tbl_unit;
 
 class User extends Authenticatable
 {
@@ -49,4 +50,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // app/Models/User.php
+    public function unit()
+    {
+        return $this->belongsTo(tbl_unit::class, 'unit_id');
+    }
+
 }

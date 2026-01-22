@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class PDSAController extends Controller
 {
     /**
-     * Menampilkan indikator yang tidak tercapai
+     * LIST INDIKATOR (MUTU)
      */
     public function index(Request $request)
     {
@@ -39,7 +39,6 @@ class PDSAController extends Controller
                 'i.target_indikator',
                 'u.nama_unit',
                 DB::raw('ROUND(AVG(l.nilai), 2) as nilai_quarter'),
-                DB::raw('COUNT(l.id) as jumlah_laporan'),
                 'p.id as pdsa_id',
                 'p.status_pdsa'
             )
@@ -55,7 +54,7 @@ class PDSAController extends Controller
                 'p.id',
                 'p.status_pdsa'
             )
-            ->havingRaw('AVG(l.nilai) < i.target_indikator') // 🔥 hanya yang TIDAK tercapai
+            ->havingRaw('AVG(l.nilai) < i.target_indikator')
             ->orderBy('nilai_quarter', 'asc')
             ->get();
 
@@ -65,70 +64,78 @@ class PDSAController extends Controller
     /**
      * MUTU - TUGASKAN PDSA
      */
-    public function store(Request $request)
+    public function assign(Request $request)
     {
         DB::table('tbl_pdsa_assignments')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id,
             'tahun' => $request->tahun,
             'quarter' => $request->quarter,
-            'catatan_mutu' => $request->catatan_mutu,
             'status_pdsa' => 'assigned',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'PDSA berhasil ditugaskan');
+        return back()->with('success', 'PDSA berhasil ditugaskan');
     }
 
     /**
-     * DETAIL PDSA (MUTU & UNIT)
+     * DETAIL PDSA (MUTU & ADMIN - READ ONLY)
      */
     public function show($id)
     {
+        $user = Auth::user();
+        if (!in_array($user->unit_id, [1, 2]))
+            abort(403);
+
         $pdsa = DB::table('tbl_pdsa_assignments as a')
             ->leftJoin('tbl_pdsa as p', 'a.id', '=', 'p.assignment_id')
-            ->select(
-                'a.*',
-                'p.plan',
-                'p.do',
-                'p.study',
-                'p.action'
-            )
+            ->select('a.*', 'p.plan', 'p.do', 'p.study', 'p.action')
             ->where('a.id', $id)
             ->first();
 
-        if (!$pdsa) {
+        if (!$pdsa)
             abort(404);
-        }
 
         return view('menu.IndikatorMutu.pdsa.show', compact('pdsa'));
     }
 
     /**
-     * UNIT - SUBMIT PDSA
+     * FORM SUBMIT (UNIT)
+     */
+    public function formSubmit($id)
+    {
+        $user = Auth::user();
+
+        $assignment = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
+
+        if (
+            !$assignment ||
+            $assignment->unit_id != $user->unit_id ||
+            $assignment->status_pdsa !== 'assigned'
+        ) {
+            abort(403);
+        }
+
+        return view('menu.IndikatorMutu.pdsa.submit', compact('assignment'));
+    }
+
+    /**
+     * SUBMIT PDSA (UNIT)
      */
     public function submit(Request $request, $id)
     {
-        $user = Auth::user();
-        $assignment = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
-
-        if (!$assignment || $assignment->unit_id != $user->unit_id || $assignment->status_pdsa != 'assigned') {
-            abort(403, "Anda tidak dapat submit PDSA ini.");
-        }
-
-        // Validasi input
         $data = $request->validate([
-            'plan' => 'nullable|string',
-            'do' => 'nullable|string',
-            'study' => 'nullable|string',
-            'action' => 'nullable|string',
+            'plan' => 'required',
+            'do' => 'required',
+            'study' => 'required',
+            'action' => 'required',
         ]);
 
         DB::table('tbl_pdsa')->updateOrInsert(
             ['assignment_id' => $id],
             array_merge($data, [
-                'created_by' => 1,
+                'created_by' => Auth::id(),
                 'updated_at' => now()
             ])
         );
@@ -137,85 +144,93 @@ class PDSAController extends Controller
             ->where('id', $id)
             ->update([
                 'status_pdsa' => 'submitted',
-                'updated_at' => now(),
+                'updated_at' => now()
             ]);
 
-        return redirect()->back()->with('success', 'PDSA berhasil dikirim');
-    }
-
-
-    public function updateByMutu(Request $request, $id)
-    {
-        $pdsa = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
-
-        // Cek role Mutu/Admin
-        $user = Auth::user();
-        if (!in_array($user->unit_id, [1, 2])) {
-            abort(403, "Anda tidak berhak mengedit PDSA ini.");
-        }
-
-        $data = $request->validate([
-            'plan' => 'nullable|string',
-            'do' => 'nullable|string',
-            'study' => 'nullable|string',
-            'action' => 'nullable|string',
-        ]);
-
-        DB::table('tbl_pdsa_assignments')
-            ->where('id', $id)
-            ->update(array_merge($data, ['updated_at' => now()]));
-
-        return redirect()->back()->with('success', 'PDSA berhasil diperbarui oleh Mutu/Admin');
+        return redirect()->route('pdsa.index')->with('success', 'PDSA berhasil disubmit');
     }
 
     /**
-     * UPDATE PDSA (Unit & Mutu/Admin)
+     * FORM EDIT (UNIT & MUTU)
+     */
+    public function edit($id)
+    {
+        $user = Auth::user();
+
+        $pdsa = DB::table('tbl_pdsa_assignments as a')
+            ->leftJoin('tbl_pdsa as p', 'a.id', '=', 'p.assignment_id')
+            ->select('a.*', 'p.plan', 'p.do', 'p.study', 'p.action')
+            ->where('a.id', $id)
+            ->first();
+
+        if (!$pdsa)
+            abort(404);
+
+        $isMutu = in_array($user->unit_id, [1, 2]);
+
+        if (!$isMutu) {
+            if ($pdsa->unit_id != $user->unit_id)
+                abort(403);
+            if ($pdsa->status_pdsa === 'approved')
+                abort(403);
+        }
+
+        return view('menu.IndikatorMutu.pdsa.edit', compact('pdsa', 'isMutu'));
+    }
+
+    /**
+     * UPDATE PDSA (UNIT & MUTU)
      */
     public function update(Request $request, $id)
     {
-        $pdsa = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
         $user = Auth::user();
 
-        $isMutu = in_array($user->unit_id, [1, 2]);
-        $isUnit = !in_array($user->unit_id, [1, 2]);
-
-        // UNIT hanya bisa edit jika status belum approved dan milik unitnya
-        if ($isUnit) {
-            if ($pdsa->unit_id != $user->unit_id) {
-                abort(403, "Unit hanya bisa mengedit PDSA unitnya sendiri.");
-            }
-            if ($pdsa->status_pdsa === 'approved') {
-                abort(403, "Unit tidak bisa mengedit PDSA yang sudah approved.");
-            }
-        }
-
-        // MUTU/Admin bisa edit kapan saja
-        if ($isMutu) {
-            // opsional: bisa kasih validasi tambahan
-        }
-
-        // Validasi input
         $data = $request->validate([
-            'plan' => 'nullable|string',
-            'do' => 'nullable|string',
-            'study' => 'nullable|string',
-            'action' => 'nullable|string',
+            'plan' => 'required',
+            'do' => 'required',
+            'study' => 'required',
+            'action' => 'required',
         ]);
 
-        // Update
-        DB::table('tbl_pdsa_assignments')
-            ->where('id', $id)
-            ->update(array_merge($data, ['updated_at' => now()]));
+        DB::table('tbl_pdsa')
+            ->where('assignment_id', $id)
+            ->update(array_merge($data, [
+                'updated_at' => now()
+            ]));
 
-        return redirect()->back()->with('success', 'PDSA berhasil diperbarui');
+        // cek apakah admin / mutu
+        $isMutu = in_array($user->unit_id, [1, 2]);
+
+        if ($isMutu) {
+            return redirect()
+                ->route('pdsa.show', $id)
+                ->with('success', 'PDSA berhasil diperbarui');
+        }
+
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'PDSA berhasil diperbarui');
     }
 
-
-    /**
-     * MUTU - APPROVE PDSA
-     */
     public function approve($id)
     {
+        $user = Auth::user();
+
+        // Validasi hanya mutu / admin
+        if (!in_array($user->unit_id, [1, 2])) {
+            abort(403, 'Anda tidak berhak melakukan approve');
+        }
+
+        // Pastikan data assignment ada
+        $assignment = DB::table('tbl_pdsa_assignments')
+            ->where('id', $id)
+            ->first();
+
+        if (!$assignment) {
+            abort(404);
+        }
+
+        // Update status PDSA
         DB::table('tbl_pdsa_assignments')
             ->where('id', $id)
             ->update([
@@ -223,6 +238,9 @@ class PDSAController extends Controller
                 'updated_at' => now(),
             ]);
 
-        return redirect()->back()->with('success', 'PDSA disetujui');
+        return redirect()
+            ->route('pdsa.show', $id)
+            ->with('success', 'PDSA berhasil di-approve');
     }
+
 }

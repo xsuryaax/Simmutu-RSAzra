@@ -10,7 +10,7 @@
         </div>
         <div class="dash-header-right">
             <form method="POST" action="/logout">
-                <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
+                <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
                 @csrf
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-box-arrow-right"></i>
@@ -112,7 +112,7 @@
                                         </div>
                                         <div class="col-8 col-xxl-7">
                                             <h6 class="text-muted font-semibold mb-1">Total PDSA</h6>
-                                            <h6 class="font-extrabold mb-0">{{ $totalIndikator }}</h6>
+                                            <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
                                         </div>
                                     </div>
                                 </div>
@@ -758,28 +758,31 @@
                                         <thead class="table-light sticky-top">
                                             <tr>
                                                 <th class="text-center">NO</th>
-                                                <th>Indikator Perlu PDSA</th>
-                                                <th class="text-center">Aksi</th>
+                                                <th>INDIKATOR</th>
+                                                <th class="text-center">QUARTER</th>
+                                                <th class="text-center">TAHUN</th>
+                                                <th class="text-center">AKSI</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($pdsaList as $unit)
+                                            @foreach ($pdsaList as $ind)
                                                 <tr>
                                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                                    <td>
-                                                        <ul class="mb-0 ps-3 list-unstyled">
-                                                            @foreach ($pdsaList as $ind)
-                                                                <li>{{ $ind->nama_indikator }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </td>
+                                                    <td>{{ $ind->nama_indikator }}</td>
+                                                    <td class="text-center">{{ $ind->quarter }}</td>
+                                                    <td class="text-center">{{ $ind->tahun }}</td>
                                                     <td class="text-center">
-                                                        @foreach ($pdsaList as $ind)
-                                                            <a href="{{ route('pdsa.fill', $ind->id) }}"
-                                                                class="btn btn-sm btn-primary mb-1" title="Isi PDSA">
+                                                        {{-- BELUM DIISI --}}
+                                                        @if ($ind->status_pdsa === 'assigned')
+                                                            <a href="{{ route('pdsa.submit.form', $ind->id) }}"
+                                                            class="btn btn-sm btn-primary" title="Isi PDSA">
                                                                 <i class="bi bi-pencil"></i>
                                                             </a>
-                                                        @endforeach
+                                                        @else ($ind->status_pdsa === 'submitted')
+                                                            <a href="{{ route('pdsa.edit', $ind->id) }}" class="btn btn-sm btn-warning" title="Edit PDSA">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </a>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach

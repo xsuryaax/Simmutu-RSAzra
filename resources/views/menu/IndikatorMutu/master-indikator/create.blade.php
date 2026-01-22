@@ -14,7 +14,7 @@
         <div class="page-header-right">
             <div class="d-flex justify-content-end align-items-center gap-3">
                 <span class="greeting-card">
-                    <strong>👋 Hello, {{ Auth::user()->username }}</strong>
+                    <strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong>
                 </span>
 
                 <form method="POST" action="/logout">

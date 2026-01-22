@@ -15,7 +15,7 @@
             </p>
         </div>
         <div class="page-header-right d-flex gap-3 align-items-center">
-            <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->username }}</strong></span>
+            <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
             <form method="POST" action="/logout">
                 @csrf
                 <button type="submit" class="btn btn-primary">

@@ -23,7 +23,7 @@ class DashboardController extends Controller
 
         $data = [
             'roleId' => $roleId,
-            'pdsaTotal' => 0,
+            'pdsaTotal' => $this->getTotalPdsa(),
             'pdsaList' => collect(),
 
             'totalIndikator' => $indikators->count(),
@@ -444,7 +444,9 @@ class DashboardController extends Controller
             'i.nama_indikator',
             'p.unit_id',
             'p.created_at',
-            'tbl_unit.nama_unit'
+            'tbl_unit.nama_unit',
+            'p.quarter',
+            'p.tahun',
         )
             ->orderByDesc('p.created_at')
             ->limit(5)
@@ -454,6 +456,17 @@ class DashboardController extends Controller
             'pdsaTotal' => $total,
             'pdsaList' => $list
         ];
+    }
+
+    private function getTotalPdsa($unitId = null): int
+    {
+        $query = DB::table('tbl_pdsa_assignments');
+
+        if ($unitId) {
+            $query->where('unit_id', $unitId);
+        }
+
+        return $query->count();
     }
 
 }

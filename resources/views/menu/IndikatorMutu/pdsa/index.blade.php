@@ -16,7 +16,7 @@
             <div class="justify-content-end d-flex">
                 <form method="POST" action="/logout">
                     <span class="greeting-card">
-                        <strong>👋 Hello, {{ Auth::user()->username }}</strong>
+                        <strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong>
                     </span>
                     @csrf
                     <button type="submit" class="btn btn-primary logout-btn">
@@ -54,24 +54,54 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
+                <form method="GET" action="{{ route('pdsa.index') }}" class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Tahun</label>
+                        <select name="tahun" class="form-select">
+                            @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
+                                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>
+                                    {{ $y }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Quarter</label>
+                        <select name="quarter" class="form-select">
+                            @foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $q)
+                                <option value="{{ $q }}" {{ $quarter === $q ? 'selected' : '' }}>
+                                    {{ $q }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 align-self-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-filter"></i> Filter
+                        </button>
+                    </div>
+                </form>
+
                 <div class="table-parent-container table-responsive-md table-dark">
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
-                                <th class="text-center">No</th>
-                                <th>Indikator</th>
-                                <th class="text-center">Unit</th>
-                                <th class="text-center">Tahun</th>
-                                <th class="text-center">Quarter</th>
-                                <th class="text-center">Target</th>
-                                <th class="text-center">Nilai</th>
-                                <th class="text-center">Status PDSA</th>
-                                <th class="text-center">Aksi</th>
+                                <th class="text-center">NO</th>
+                                <th>INDIKATOR</th>
+                                <th class="text-center">UNTI</th>
+                                <th class="text-center">TAHUN</th>
+                                <th class="text-center">QUARTER</th>
+                                <th class="text-center">TARGET</th>
+                                <th class="text-center">NILAI</th>
+                                <th class="text-center">STATUS</th>
+                                <th class="text-center">AKSI</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @forelse ($data as $i => $row)
+                            @foreach ($data as $i => $row)
                                 <tr>
                                     <td class="text-center">{{ $i + 1 }}</td>
 
@@ -101,7 +131,7 @@
                                         @elseif ($row->status_pdsa === 'assigned')
                                             <span class="badge bg-warning">Ditugaskan</span>
                                         @elseif ($row->status_pdsa === 'submitted')
-                                            <span class="badge bg-info">Disubmit</span>
+                                            <span class="badge bg-info">Sudah Isi</span>
                                         @elseif ($row->status_pdsa === 'approved')
                                             <span class="badge bg-success">Disetujui</span>
                                         @endif
@@ -110,35 +140,27 @@
                                     <td class="text-center">
                                         @if ($row->pdsa_id === null)
                                             {{-- Mutu menugaskan PDSA --}}
-                                            <form action="{{ route('pdsa.store') }}" method="POST">
+                                            <form action="{{ route('pdsa.assign') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="indikator_id" value="{{ $row->indikator_id }}">
                                                 <input type="hidden" name="unit_id" value="{{ $row->unit_id }}">
                                                 <input type="hidden" name="tahun" value="{{ $tahun }}">
                                                 <input type="hidden" name="quarter" value="{{ $quarter }}">
 
-                                                <button type="submit" class="btn btn-link p-0" title="Tugaskan PDSA"> 
+                                                <button type="submit" class="btn btn-link p-0" title="Tugaskan PDSA">
                                                     <i class="bi bi-send fs-5 text-primary"></i>
                                                 </button>
                                             </form>
                                         @else
                                             {{-- Lihat / Isi PDSA --}}
-                                            <a href="{{ route('pdsa.show', $row->pdsa_id) }}"
-                                                class="btn btn-outline-secondary btn-sm">
-                                                Lihat
+                                            <a href="{{ route('pdsa.show', $row->pdsa_id) }}" class="btn btn-link p-0" title="Lihat PDSA">
+                                                <i class="bi bi-eye fs-5 text-primary"></i>
                                             </a>
                                         @endif
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">
-                                        Tidak ada indikator yang perlu PDSA
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                         </tbody>
-
                     </table>
                 </div>
             </div>
