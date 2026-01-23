@@ -27,7 +27,7 @@
                         </div>
                     </div>
                     <div class="col-8 col-xxl-7">
-                        <h6 class="text-muted font-semibold mb-1">Unit Sudah Mengisi</h6>
+                        <h6 class="text-muted font-semibold mb-1">Indikator Sudah Terisi</h6>
                         <h6 class="font-extrabold mb-0">{{ $unitSudahIsi }}</h6>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
                         </div>
                     </div>
                     <div class="col-8 col-xxl-7">
-                        <h6 class="text-muted font-semibold mb-1">Unit Belum Mengisi</h6>
+                        <h6 class="text-muted font-semibold mb-1">Indikator Belum Terisi</h6>
                         <h6 class="font-extrabold mb-0">{{ $unitBelumIsi }}</h6>
                     </div>
                 </div>
@@ -296,14 +296,14 @@
                             data: target,
                             backgroundColor: "rgba(255,159,64,0.7)",
                             borderColor: "rgba(255, 159, 64, 1)",
-                            order : 2
+                            order: 2
                         },
                         {
                             label: "Realisasi",
                             data: hasil,
                             backgroundColor: "rgba(75,192,192,0.7)",
                             borderColor: "rgba(75, 192, 192, 1)",
-                            order : 1
+                            order: 1
                         }
                     ]
                 },

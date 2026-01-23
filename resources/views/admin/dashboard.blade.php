@@ -50,7 +50,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
-                    <h5 class="text-white">Daftar Progress Indikator Terisi</h5>
+                    <h5 class="text-white">Daftar Indikator Sudah Terisi</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0" style="max-height: 500px; overflow-y: auto;">

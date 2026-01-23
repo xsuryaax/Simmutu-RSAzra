@@ -1,4 +1,4 @@
-<div class="col-5 col-lg-2a col-md-5">
+<div class="col-5 col-lg-3 col-md-5">
     <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalPDSA">
         <div class="card-body px-4 py-4-5">
             <div class="row">

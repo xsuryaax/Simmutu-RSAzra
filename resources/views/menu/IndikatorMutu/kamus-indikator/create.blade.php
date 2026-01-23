@@ -39,7 +39,7 @@
 @endsection
 
 @section('content')
-    <section id="basic-vertical-layouts">
+    <section id="basic-vertical-layouts" class="overflow-hidden">
         <div class="row match-height">
 
             <div class="col-md-12 col-12">
@@ -61,27 +61,39 @@
 
                                         <div class="row">
                                             <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Indikator <span
-                                                        class="text-danger">*</span></label>
-                                                <select name="indikator_id" class="form-select right-input">
-                                                    <option value="">Pilih Indikator</option>
-                                                    @foreach ($indikator as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->nama_indikator }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="col-md-3">
+                                                    <label class="form-label left-input text-nowrap">Indikator <span
+                                                            class="text-danger">*</span></label>
+                                                </div>
+                                                <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                                    <select name="indikator_id" class="form-select right-input">
+                                                        <option value="">Pilih Indikator</option>
+                                                        @foreach ($indikator as $item)
+                                                            <option value="{{ $item->id }}">{{ $item->nama_indikator }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Definisi Operasional <span
-                                                        class="text-danger">*</span></label>
-                                                <textarea name="definisi_operasional" class="form-control right-input" rows="4"></textarea>
+                                                <div class="col-md-3">
+                                                    <label class="form-label left-input text-nowrap">Definisi Operasional
+                                                        <span class="text-danger">*</span></label>
+                                                </div>
+                                                <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                                    <textarea name="definisi_operasional" class="form-control right-input" rows="4"></textarea>
+                                                </div>
                                             </div>
 
                                             <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Tujuan <span
-                                                        class="text-danger">*</span></label>
-                                                <textarea name="tujuan" class="form-control right-input" rows="4"></textarea>
+                                                <div class="col-md-3">
+                                                    <label class="form-label left-input text-nowrap">Tujuan <span
+                                                            class="text-danger">*</span></label>
+                                                </div>
+                                                <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                                    <textarea name="tujuan" class="form-control right-input" rows="4"></textarea>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -96,12 +108,19 @@
                                         <div class="row">
 
                                             <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Dimensi Mutu <span class="text-danger">*</span></label>
+                                                <div class="col-md-3">
+                                                    <label class="form-label left-input text-nowrap">Dimensi Mutu <span
+                                                            class="text-danger">*</span></label>
+                                                </div>
+                                                <div class="col-md-9 border-start border-2 border-primary ps-4">
                                                     <div class="right-input">
                                                         @foreach ($dimensi as $d)
                                                             <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="dimensi_mutu_id[]" value="{{ $d->id }}" id="dimensi_{{ $d->id }}">
-                                                                <label class="form-check-label" for="dimensi_{{ $d->id }}">
+                                                                <input class="form-check-input" type="checkbox"
+                                                                    name="dimensi_mutu_id[]" value="{{ $d->id }}"
+                                                                    id="dimensi_{{ $d->id }}">
+                                                                <label class="form-check-label"
+                                                                    for="dimensi_{{ $d->id }}">
                                                                     {{ $d->nama_dimensi_mutu }}
                                                                 </label>
                                                             </div>
@@ -109,231 +128,292 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Dasar Pemikiran <span
+                                        <div class="col-md-12 mb-3 add-input">
+                                            <div class="col-md-3">
+                                                <label class="form-label left-input text-nowrap">Dasar Pemikiran <span
                                                         class="text-danger">*</span></label>
+                                            </div>
+                                            <div class="col-md-9 border-start border-2 border-primary ps-4">
                                                 <textarea name="dasar_pemikiran" class="form-control right-input" rows="3"></textarea>
                                             </div>
+                                        </div>
 
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Formula Pengukuran <span
+                                        <div class="col-md-12 mb-3 add-input">
+                                            <div class="col-md-3">
+                                                <label class="form-label left-input text-nowrap">Formula Pengukuran <span
                                                         class="text-danger">*</span></label>
+                                            </div>
+                                            <div class="col-md-9 border-start border-2 border-primary ps-4">
                                                 <textarea name="formula_pengukuran" class="form-control right-input" rows="3"></textarea>
                                             </div>
-
                                         </div>
+
                                     </div>
                                 </div>
-                                <div class="card mt-4">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Pengumpulan Data</h5>
-                                    </div>
+                        </div>
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Pengumpulan Data</h5>
+                            </div>
 
-                                    <div class="card-body">
-                                        <div class="row">
+                            <div class="card-body">
+                                <div class="row">
 
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Metodologi <span
-                                                        class="text-danger">*</span></label>
-                                                <textarea name="metodologi" class="form-control right-input" rows="3"></textarea>
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Jenis Metodologi <span
-                                                        class="text-danger">*</span></label><br>
-
-                                                @foreach ($metodologiPengumpulan as $item)
-                                                    @php($id = 'jenis_' . $item->id)
-
-                                                    <input type="radio" class="btn-check right-input"
-                                                        name="metodologi_pengumpulan_data_id" id="{{ $id }}"
-                                                        value="{{ $item->id }}" autocomplete="off">
-
-                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                        {{ $item->nama_metodologi_pengumpulan_data }}
-                                                    </label>
-                                                @endforeach
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Cakupan Data <span
-                                                        class="text-danger">*</span></label><br>
-
-                                                @foreach ($cakupan as $item)
-                                                    @php($id = 'cakupan_' . $item->id)
-
-                                                    <input type="radio" class="btn-check right-input"
-                                                        name="cakupan_data_id" id="{{ $id }}"
-                                                        value="{{ $item->id }}">
-
-                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                        {{ $item->nama_cakupan_data }}
-                                                    </label>
-                                                @endforeach
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Detail Pengukuran <span
-                                                        class="text-danger">*</span></label>
-                                                <textarea name="detail_pengukuran" class="form-control" rows="3"></textarea>
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Frekuensi Pengumpulan *</label>
-
-                                                <select class="form-select right-input"
-                                                    name="frekuensi_pengumpulan_data_id" required>
-                                                    <option value="">Pilih Frekuensi</option>
-
-                                                    @foreach ($frekuensiPengumpulan as $item)
-                                                        <option value="{{ $item->id }}">
-                                                            {{ $item->nama_frekuensi_pengumpulan_data }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Sumber Data <span
-                                                        class="text-danger">*</span></label>
-                                                <textarea name="sumber_data" class="form-control right-input" rows="3"></textarea>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card mt-4">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Analisis Data</h5>
-                                    </div>
-
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Frekuensi Analisa <span
-                                                        class="text-danger">*</span></label>
-
-                                                <select class="form-select right-input" name="frekuensi_analisis_data_id"
-                                                    required>
-                                                    <option value="">Pilih Frekuensi</option>
-
-                                                    @foreach ($frekuensiAnalisis as $item)
-                                                        <option value="{{ $item->id }}">
-                                                            {{ $item->nama_frekuensi_analisis_data }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Metodologi Analisa <span
-                                                        class="text-danger">*</span></label><br>
-
-                                                @foreach ($metodologiAnalisis as $item)
-                                                    @php($id = 'analisis_' . $item->id)
-
-                                                    <input type="radio" class="btn-check right-input"
-                                                        name="metodologi_analisis_data_id" id="{{ $id }}"
-                                                        value="{{ $item->id }}">
-
-                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                        {{ $item->nama_metodologi_analisis_data }}
-                                                    </label>
-                                                @endforeach
-                                            </div>
-
-                                            <div class="col-md-12 mb-3 add-input">
-                                                <label class="form-label left-input">Interpretasi Data <span
-                                                        class="text-danger">*</span></label><br>
-
-                                                @foreach ($interpretasi as $item)
-                                                    @php($id = 'interpretasi_' . $item->id)
-
-                                                    <input type="radio" class="btn-check right-input"
-                                                        name="interpretasi_data_id" id="{{ $id }}"
-                                                        value="{{ $item->id }}">
-
-                                                    <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                        {{ $item->nama_interpretasi_data }}
-                                                    </label>
-                                                @endforeach
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-12 mb-3 add-input">
-                                            <label class="form-label left-input">Penanggung Jawab <span
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Metodologi <span
                                                     class="text-danger">*</span></label>
-                                            <textarea name="penanggung_jawab" class="form-control right-input" rows="4"
-                                                placeholder="Isi penanggung jawab..."></textarea>
+                                        </div>
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            <textarea name="metodologi" class="form-control right-input" rows="3"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Jenis Metodologi <span
+                                                    class="text-danger">*</span></label><br>
                                         </div>
 
-                                        <div class="col-md-12 mb-3 add-input">
-                                            <label class="form-label left-input">Publikasi Data <span
-                                                    class="text-danger">*</span></label><br>
-
-                                            @foreach ($publikasi as $item)
-                                                @php($id = 'publikasi_' . $item->id)
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            @foreach ($metodologiPengumpulan as $item)
+                                                @php($id = 'jenis_' . $item->id)
 
                                                 <input type="radio" class="btn-check right-input"
-                                                    name="publikasi_data_id" id="{{ $id }}"
+                                                    name="metodologi_pengumpulan_data_id" id="{{ $id }}"
+                                                    value="{{ $item->id }}" autocomplete="off">
+
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $item->nama_metodologi_pengumpulan_data }}
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Cakupan Data <span
+                                                    class="text-danger">*</span></label><br>
+                                        </div>
+
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            @foreach ($cakupan as $item)
+                                                @php($id = 'cakupan_' . $item->id)
+
+                                                <input type="radio" class="btn-check right-input"
+                                                    name="cakupan_data_id" id="{{ $id }}"
                                                     value="{{ $item->id }}">
 
                                                 <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $item->nama_publikasi_data }}
+                                                    {{ $item->nama_cakupan_data }}
                                                 </label>
                                             @endforeach
                                         </div>
                                     </div>
 
-                                    <div class="row">
-                                        <div class="col-md-12 mb-3 add-input">
-                                            <label class="form-label left-input">
-                                                Jenis Indikator <span class="text-danger">*</span>
-                                            </label>
-                                            @foreach (['Prioritas Unit', 'Nasional', 'Prioritas RS'] as $jenis)
-                                                @php($id = 'jenis_' . strtolower(str_replace(' ', '_', $jenis)))
-                                                <input type="checkbox"
-                                                    class="btn-check jenis-indikator right-input"name="jenis_indikator[]"
-                                                    id="{{ $id }}" value="{{ $jenis }}">
-                                                <label class="btn btn-outline-primary" for="{{ $id }}">
-                                                    {{ $jenis }}
-                                                </label>
-                                            @endforeach
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Detail Pengukuran <span
+                                                    class="text-danger">*</span></label>
                                         </div>
-
-                                        <div class="col-md-12 mb-3 add-input">
-                                            <div id="kategoriImprsWrapper" class="d-none">
-                                                <label class="form-label left-input">
-                                                    Kategori IMPRS <span class="text-danger">*</span>
-                                                </label>
-                                                <select name="kategori_id" class="form-select right-input">
-                                                    <option value="">Pilih Kategori IMPRS</option>
-                                                    @foreach ($kategoriImprs as $item)
-                                                        <option value="{{ $item->id }}">
-                                                            {{ $item->nama_kategori_imprs }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            <textarea name="detail_pengukuran" class="form-control" rows="3"></textarea>
                                         </div>
                                     </div>
+
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Frekuensi Pengumpulan
+                                                *</label>
+                                        </div>
+
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            <select class="form-select right-input" name="frekuensi_pengumpulan_data_id"
+                                                required>
+                                                <option value="">Pilih Frekuensi</option>
+
+                                                @foreach ($frekuensiPengumpulan as $item)
+                                                    <option value="{{ $item->id }}">
+                                                        {{ $item->nama_frekuensi_pengumpulan_data }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Sumber Data <span
+                                                    class="text-danger">*</span></label>
+                                        </div>
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            <textarea name="sumber_data" class="form-control right-input" rows="3"></textarea>
+                                        </div>
+                                    </div>
+
                                 </div>
-                                <div class="ms-4">
-                                    <button class="btn btn-primary">Simpan</button>
-                                    <a href="{{ route('kamus-indikator.index') }}" class="btn btn-secondary">Kembali</a>
-                                </div>
-                            </form>
+                            </div>
                         </div>
+
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Analisis Data</h5>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Frekuensi Analisa <span
+                                                    class="text-danger">*</span></label>
+                                        </div>
+
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            <select class="form-select right-input" name="frekuensi_analisis_data_id"
+                                                required>
+                                                <option value="">Pilih Frekuensi</option>
+
+                                                @foreach ($frekuensiAnalisis as $item)
+                                                    <option value="{{ $item->id }}">
+                                                        {{ $item->nama_frekuensi_analisis_data }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Metodologi Analisa <span
+                                                    class="text-danger">*</span></label><br>
+                                        </div>
+
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            @foreach ($metodologiAnalisis as $item)
+                                                @php($id = 'analisis_' . $item->id)
+
+                                                <input type="radio" class="btn-check right-input"
+                                                    name="metodologi_analisis_data_id" id="{{ $id }}"
+                                                    value="{{ $item->id }}">
+
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $item->nama_metodologi_analisis_data }}
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">Interpretasi Data <span
+                                                    class="text-danger">*</span></label><br>
+                                        </div>
+
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            @foreach ($interpretasi as $item)
+                                                @php($id = 'interpretasi_' . $item->id)
+
+                                                <input type="radio" class="btn-check right-input"
+                                                    name="interpretasi_data_id" id="{{ $id }}"
+                                                    value="{{ $item->id }}">
+
+                                                <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                    {{ $item->nama_interpretasi_data }}
+                                                </label>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3 add-input">
+                                    <div class="col-md-3">
+                                        <label class="form-label left-input text-nowrap">Penanggung Jawab <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                        <textarea name="penanggung_jawab" class="form-control right-textarea" rows="4"
+                                            placeholder="Isi penanggung jawab..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 mb-3 add-input">
+                                    <div class="col-md-3">
+                                        <label class="form-label left-input text-nowrap">Publikasi Data <span
+                                                class="text-danger">*</span></label><br>
+                                    </div>
+
+                                    <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                        @foreach ($publikasi as $item)
+                                            @php($id = 'publikasi_' . $item->id)
+
+                                            <input type="radio" class="btn-check right-input" name="publikasi_data_id"
+                                                id="{{ $id }}" value="{{ $item->id }}">
+
+                                            <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                {{ $item->nama_publikasi_data }}
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3 add-input">
+                                    <div class="col-md-3">
+                                        <label class="form-label left-input text-nowrap">
+                                            Jenis Indikator <span class="text-danger">*</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                        @foreach (['Prioritas Unit', 'Nasional', 'Prioritas RS'] as $jenis)
+                                            @php($id = 'jenis_' . strtolower(str_replace(' ', '_', $jenis)))
+                                            <input type="checkbox"
+                                                class="btn-check jenis-indikator right-input"name="jenis_indikator[]"
+                                                id="{{ $id }}" value="{{ $jenis }}">
+                                            <label class="btn btn-outline-primary" for="{{ $id }}">
+                                                {{ $jenis }}
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div class="">
+                                    <div id="kategoriImprsWrapper" class="d-none col-md-12 mb-3 add-input">
+                                        <div class="col-md-3">
+                                            <label class="form-label left-input text-nowrap">
+                                                Kategori IMPRS <span class="text-danger">*</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-9 border-start border-2 border-primary ps-4">
+                                            <select name="kategori_id" class="form-select right-input">
+                                                <option value="">Pilih Kategori IMPRS</option>
+                                                @foreach ($kategoriImprs as $item)
+                                                    <option value="{{ $item->id }}">
+                                                        {{ $item->nama_kategori_imprs }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ms-4 pb-4">
+                            <button class="btn btn-primary">Simpan</button>
+                            <a href="{{ route('kamus-indikator.index') }}" class="btn btn-secondary">Kembali</a>
+                        </div>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 @endsection

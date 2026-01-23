@@ -53,7 +53,7 @@
             <div class="hospital-logo">
                 <img src="{{ asset('assets/logo/logo-azra.png') }}" alt="Logo RS Azra">
             </div>
-            <h1 class="login-title">SIMMUTU</h1>
+            <h1 class="login-title">SISTEM INFORMASI MANAJEMEN MUTU</h1>
             <p class="login-subtitle">Masuk ke sistem manajemen mutu rumah sakit</p>
         </div>
     </div>
