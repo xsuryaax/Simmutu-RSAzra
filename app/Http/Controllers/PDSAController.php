@@ -147,7 +147,7 @@ class PDSAController extends Controller
                 'updated_at' => now()
             ]);
 
-        return redirect()->route('pdsa.index')->with('success', 'PDSA berhasil disubmit');
+        return redirect()->route('dashboard')->with('success', 'PDSA berhasil disubmit');
     }
 
     /**

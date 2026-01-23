@@ -125,6 +125,7 @@
                         data: dataObj.target.slice(start, end),
                         borderColor: '#3498db',
                         backgroundColor: '#3498db',
+                        order : 2
 
                     },
                     {
@@ -132,6 +133,7 @@
                         data: dataObj.hasil.slice(start, end),
                         borderColor: '#e74c3c',
                         backgroundColor: '#e74c3c',
+                        order : 1
                     }
                 ]
             },

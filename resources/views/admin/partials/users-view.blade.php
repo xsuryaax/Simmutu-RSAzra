@@ -50,7 +50,6 @@
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                     @else
-                                        ($ind->status_pdsa === 'submitted')
                                         <a href="{{ route('pdsa.edit', $ind->id) }}" class="btn btn-sm btn-warning"
                                             title="Edit PDSA">
                                             <i class="bi bi-pencil-square"></i>

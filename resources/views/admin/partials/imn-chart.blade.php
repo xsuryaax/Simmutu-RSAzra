@@ -112,7 +112,8 @@
                             backgroundColor: '#3498db',
                             borderWidth: 2,
                             pointStyle: 'diamond',
-                            pointRadius: type === 'line' ? 6 : 0
+                            pointRadius: type === 'line' ? 6 : 0,
+                            order : 2
                         },
                         {
                             label: 'Realisasi',
@@ -121,7 +122,8 @@
                             backgroundColor: '#e74c3c',
                             borderWidth: 2,
                             pointStyle: 'diamond',
-                            pointRadius: type === 'line' ? 6 : 0
+                            pointRadius: type === 'line' ? 6 : 0,
+                            order : 1
                         }
                     ]
                 },

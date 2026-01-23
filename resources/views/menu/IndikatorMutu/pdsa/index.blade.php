@@ -90,7 +90,7 @@
                             <tr>
                                 <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
-                                <th class="text-center">UNTI</th>
+                                <th class="text-center">UNIT</th>
                                 <th class="text-center">TAHUN</th>
                                 <th class="text-center">QUARTER</th>
                                 <th class="text-center">TARGET</th>
@@ -147,8 +147,8 @@
                                                 <input type="hidden" name="tahun" value="{{ $tahun }}">
                                                 <input type="hidden" name="quarter" value="{{ $quarter }}">
 
-                                                <button type="submit" class="btn btn-link p-0" title="Tugaskan PDSA">
-                                                    <i class="bi bi-send fs-5 text-primary"></i>
+                                                <button type="submit" class="btn btn-primary btn-sm" title="Tugaskan PDSA">
+                                                    Tugaskan
                                                 </button>
                                             </form>
                                         @else

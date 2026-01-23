@@ -110,6 +110,7 @@ Route::middleware('auth')->group(function () {
         ->name('pdsa.index')
         ->middleware('check.role:pdsa');
 
+        Route::post('/pdsa/assign', [PDSAController::class,'assign'])->name('pdsa.assign');
     Route::get('/pdsa/{id}', [PDSAController::class, 'show'])
         ->name('pdsa.show')
         ->middleware('check.role:pdsa');

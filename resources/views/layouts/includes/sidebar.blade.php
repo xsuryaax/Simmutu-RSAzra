@@ -82,13 +82,16 @@
 
 
 
-                @if(auth()->user()->id == 1)
+                @if(in_array(auth()->user()->unit_id, [1, 2]))
                     <li class="sidebar-item {{ Request::is('pdsa*') ? 'active' : '' }}">
                         <a href="{{ url('/pdsa') }}" class='sidebar-link'>
                             <i class="bi-clipboard-fill"></i>
                             <span>PDSA</span>
                         </a>
                     </li>
+                @endif
+
+                @if(auth()->user()->unit_id == 1)
                     <li class="sidebar-title">Menu</li>
 
                     <li

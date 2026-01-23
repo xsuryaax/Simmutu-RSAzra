@@ -295,13 +295,15 @@
                             label: "Target",
                             data: target,
                             backgroundColor: "rgba(255,159,64,0.7)",
-                            borderColor: "rgba(255, 159, 64, 1)"
+                            borderColor: "rgba(255, 159, 64, 1)",
+                            order : 2
                         },
                         {
                             label: "Realisasi",
                             data: hasil,
                             backgroundColor: "rgba(75,192,192,0.7)",
-                            borderColor: "rgba(75, 192, 192, 1)"
+                            borderColor: "rgba(75, 192, 192, 1)",
+                            order : 1
                         }
                     ]
                 },

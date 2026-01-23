@@ -55,42 +55,46 @@
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Unit</th>
-                                <th>Target</th>
-                                <th>Tipe</th>
-                                <th>Periode</th>
-                                <th>Rentang Waktu</th>
-                                <th>Status</th>
-                                <th>Aksi</th>
+                                <th class="text-center">NO</th>
+                                <th>INDIKATOR</th>
+                                @if(in_array(auth()->user()->unit_id, [1, 2]))
+                                    <th class="text-center">UNIT</th>
+                                @endif
+                                <th class="text-center">TARGET</th>
+                                <th class="text-center">TIPE</th>
+                                <th class="text-center">PERIODE</th>
+                                <th class="text-center">RENTANG WAKTU</th>
+                                <th class="text-center">STATUS</th>
+                                <th class="text-center">AKSI</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             @foreach ($indikators as $i => $row)
                                 <tr>
-                                    <td>{{ $i + 1 }}</td>
+                                    <td class="text-center">{{ $i + 1 }}</td>
 
                                     <td>{{ $row->nama_indikator }}</td>
 
-                                    <td>{{ $row->nama_unit ?? '-' }}</td>
+                                    @if(in_array(auth()->user()->unit_id, [1, 2]))
+                                        <td class="text-center">{{ $row->nama_unit ?? '-' }}</td>
+                                    @endif
 
-                                    <td>{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
-                                    <td>
-                                        <span class="badge bg-info">{{ ucfirst($row->tipe_indikator) }}</span>
+                                    <td class="text-center">{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
+                                    <td class="text-center">
+                                        <span>{{ ucfirst($row->tipe_indikator) }}</span>
                                     </td>
 
-                                    <td>
+                                    <td class="text-center">
                                         {{ $row->periode_tahun }}
                                     </td>
 
-                                    <td>
+                                    <td class="text-center">
                                         {{ \Carbon\Carbon::parse($row->tanggal_mulai)->format('j') }} -
                                         {{ \Carbon\Carbon::parse($row->tanggal_selesai)->format('j') }}
                                     </td>
 
-                                    <td>
+                                    <td class="text-center">
                                         @if ($row->status_indikator == 'aktif')
                                             <span class="badge bg-success">Aktif</span>
                                         @else
@@ -98,9 +102,8 @@
                                         @endif
                                     </td>
 
-                                    <td>
-                                        <a href="{{ route('master-indikator.edit', $row->id) }}"
-                                            class="btn btn-warning btn-sm">
+                                    <td class="text-center">
+                                        <a href="{{ route('master-indikator.edit', $row->id) }}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
