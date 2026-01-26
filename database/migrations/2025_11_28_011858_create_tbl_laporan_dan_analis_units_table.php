@@ -16,6 +16,8 @@ return new class extends Migration
             $table->date('tanggal_laporan')->nullable();
             $table->integer('indikator_id');
             $table->integer('unit_id');
+            $table->integer('numerator');
+            $table->integer('denominator');
             $table->decimal('nilai', 8, 2);
             $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);
             $table->enum('status_laporan', ['menunggu', 'disetujui', 'ditolak', 'pdsa'])->default('menunggu');

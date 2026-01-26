@@ -77,10 +77,6 @@ class MasterIndikatorController extends Controller
             'unit_id' => 'required|exists:tbl_unit,id',
             'target_indikator' => 'required|numeric',
             'tipe_indikator' => 'required|in:lokal,nasional',
-            'periode_tahun' => 'required',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'status_periode' => 'required|in:aktif,non-aktif',
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
@@ -89,10 +85,6 @@ class MasterIndikatorController extends Controller
             'unit_id' => $request->unit_id,
             'target_indikator' => $request->target_indikator,
             'tipe_indikator' => $request->tipe_indikator,
-            'periode_tahun' => $request->periode_tahun,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'status_periode' => $request->status_periode,
             'status_indikator' => $request->status_indikator,
             'created_at' => now(),
         ]);
@@ -135,10 +127,6 @@ class MasterIndikatorController extends Controller
             'unit_id' => 'required|exists:tbl_unit,id',
             'target_indikator' => 'required|numeric',
             'tipe_indikator' => 'required|in:lokal,nasional',
-            'periode_tahun' => 'required',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'status_periode' => 'required|in:aktif,non-aktif',
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
@@ -147,10 +135,6 @@ class MasterIndikatorController extends Controller
             'unit_id' => $request->unit_id,
             'target_indikator' => $request->target_indikator,
             'tipe_indikator' => $request->tipe_indikator,
-            'periode_tahun' => $request->periode_tahun,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'status_periode' => $request->status_periode,
             'status_indikator' => $request->status_indikator,
             'updated_at' => now(),
         ]);

@@ -24,6 +24,7 @@ use App\Http\Controllers\ManajemenMutu\MetodologiAnalisisDataController;
 use App\Http\Controllers\ManajemenMutu\MetodologiPengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\PublikasiDataController;
 
+use App\Http\Controllers\PeriodeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -109,25 +110,34 @@ Route::middleware('auth')->group(function () {
     Route::get('/pdsa', [PDSAController::class, 'index'])
         ->name('pdsa.index')
         ->middleware('check.role:pdsa');
-
-        Route::post('/pdsa/assign', [PDSAController::class,'assign'])->name('pdsa.assign');
+    Route::post('/pdsa/assign', [PDSAController::class, 'assign'])->name('pdsa.assign');
     Route::get('/pdsa/{id}', [PDSAController::class, 'show'])
         ->name('pdsa.show')
         ->middleware('check.role:pdsa');
-
     // FORM SUBMIT (UNIT)
     Route::get('/pdsa/{id}/submit', [PDSAController::class, 'formSubmit'])->name('pdsa.submit.form');
     Route::post('/pdsa/{id}/submit', [PDSAController::class, 'submit'])->name('pdsa.submit');
-
     // FORM EDIT (UNIT & MUTU)
     Route::get('/pdsa/{id}/edit', [PDSAController::class, 'edit'])->name('pdsa.edit');
     Route::put('/pdsa/{id}', [PDSAController::class, 'update'])->name('pdsa.update');
-
     // APPROVE (MUTU)
     Route::post('/pdsa/{id}/approve', [PDSAController::class, 'approve'])
-    ->name('pdsa.approve')
-    ->middleware('check.role:pdsa');
+        ->name('pdsa.approve')
+        ->middleware('check.role:pdsa');
 
     Route::resource('dashboard', DashboardController::class)
         ->middleware('check.role:dashboard');
+
+    Route::get('/periode-mutu', [PeriodeController::class, 'index'])
+        ->name('periode-mutu.index');
+    Route::get('/periode-mutu/create', [PeriodeController::class, 'create'])
+        ->name('periode-mutu.create');
+    Route::post('/periode-mutu', [PeriodeController::class, 'store'])
+        ->name('periode-mutu.store');
+    Route::patch('/periode-mutu/{id}/aktif', [PeriodeController::class, 'setAktif'])
+        ->name('periode-mutu.aktif');
+    Route::get('/periode-mutu/{id}/edit', [PeriodeController::class, 'edit'])->name('periode-mutu.edit');
+    Route::patch('/periode-mutu/{id}', [PeriodeController::class, 'update'])->name('periode-mutu.update');
+    Route::delete('/periode-mutu/{id}', [PeriodeController::class, 'destroy'])->name('periode-mutu.destroy');
+
 });

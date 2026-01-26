@@ -13,60 +13,75 @@ class LaporanAnalisIMPRSController extends Controller
     // DISPLAY INDEX
     public function index(Request $request)
     {
-        $bulan = (int) ($request->bulan ?? date('m'));
-        $tahun = (int) ($request->tahun ?? date('Y'));
+        $user = auth()->user();
+        $periodeAktif = $this->getPeriodeAktif();
 
-        $laporan = $this->getLaporan($bulan, $tahun);
+        if (!$periodeAktif) {
+            return back()->with('error', 'Periode mutu aktif belum disetting');
+        }
+
+        $bulan = $request->bulan ?? Carbon::parse($periodeAktif->tanggal_mulai)->month;
+        $tahun = $request->tahun ?? Carbon::parse($periodeAktif->tanggal_mulai)->year;
+
+        $indikators = $this->getIndikator($user);
+        $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun);
+        $laporan = $this->getLaporan($user, $periodeAktif, $bulan, $tahun);
+        $laporanAll = $this->getLaporan($user, $periodeAktif, null, null, true); // Untuk export all
 
         return view('menu.IndikatorMutu.laporan-analis-imprs.index', [
-            'indikators' => $this->getIndikator(),
-            'rekapBulanan' => $this->getRekapBulanan($bulan, $tahun),
+            'indikators' => $indikators,
+            'rekapBulanan' => $rekapBulanan,
             'laporanHarian' => $laporan['grouped'],
             'paginate' => $laporan['paginator'],
-            'usedDates' => $this->getUsedDates($bulan, $tahun),
-            'bulan' => $bulan,
-            'tahun' => $tahun,
+            'periodeAktif' => $periodeAktif,
+            'periode' => $periodeAktif,
+            'laporanAll' => $laporanAll['grouped'],
         ]);
     }
 
     // AMBIL DATA INDIKATOR
-    private function getIndikator()
+    private function getIndikator($user)
     {
         return DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->leftJoin('tbl_kategori_imprs as ki', 'ki.id', '=', 'k.kategori_id')
-            ->leftJoin(
-                'tbl_frekuensi_pengumpulan_data as f',
-                'f.id',
-                '=',
-                'k.frekuensi_pengumpulan_data_id'
-            )
+            ->leftJoin('tbl_frekuensi_pengumpulan_data as f', 'f.id', '=', 'k.frekuensi_pengumpulan_data_id')
+            ->join('tbl_periode as p', function ($join) {
+                $join->where('p.status', 'aktif');
+            })
             ->select(
                 'i.id',
                 'i.nama_indikator',
+                'i.unit_id',
                 'i.target_indikator',
-                'i.tanggal_mulai',
-                'i.tanggal_selesai',
+                'p.tanggal_mulai',
+                'p.tanggal_selesai',
                 'k.jenis_indikator',
                 'f.nama_frekuensi_pengumpulan_data',
                 'ki.nama_kategori_imprs'
             )
             ->where('i.status_indikator', 'aktif')
             ->whereRaw("k.jenis_indikator ILIKE '%prioritas rs%'")
+            ->when(
+                !in_array($user->unit_id, [1, 2]),
+                fn($q) => $q->where('i.unit_id', $user->unit_id)
+            )
             ->orderBy('ki.nama_kategori_imprs')
             ->orderBy('i.id')
             ->get();
     }
 
     // AMBIL DATA LAPORAN
-    private function getLaporan($bulan, $tahun)
+    private function getLaporan($user, $periode = null, $bulan = null, $tahun = null, $all = false)
     {
-        $laporan = DB::table('tbl_laporan_dan_analis_imprs as l')
+        $query = DB::table('tbl_laporan_dan_analis_imprs as l')
             ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->join('tbl_unit as u', 'u.id', '=', 'l.unit_id')
             ->select(
                 'l.indikator_id',
+                'l.numerator',
+                'l.denominator',
                 'l.nilai',
                 'l.pencapaian',
                 'l.tanggal_laporan',
@@ -74,20 +89,27 @@ class LaporanAnalisIMPRSController extends Controller
                 'l.file_laporan',
                 'l.created_at'
             )
-            ->whereMonth('l.tanggal_laporan', $bulan)
-            ->whereYear('l.tanggal_laporan', $tahun)
             ->whereRaw("k.jenis_indikator ILIKE '%prioritas rs%'")
-            ->orderBy('l.tanggal_laporan', 'desc')
-            ->paginate(10);
+            ->when(!in_array($user->unit_id, [1, 2]), fn($q) => $q->where('l.unit_id', $user->unit_id))
+            ->orderBy('l.tanggal_laporan', 'desc');
+
+        if (!$all) {
+            // Hanya untuk tabel atas
+            $query->whereMonth('l.tanggal_laporan', $bulan)
+                ->whereYear('l.tanggal_laporan', $tahun)
+                ->whereBetween('l.tanggal_laporan', [$periode->tanggal_mulai, $periode->tanggal_selesai]);
+        }
+
+        $laporan = $all ? $query->get() : $query->paginate(10);
 
         return [
-            'paginator' => $laporan,
-            'grouped' => $laporan->getCollection()->groupBy('indikator_id'),
+            'paginator' => $all ? null : $laporan,
+            'grouped' => $laporan->groupBy('indikator_id'),
         ];
     }
 
     // AMBIL REKAP BULANAN
-    private function getRekapBulanan($bulan, $tahun)
+    private function getRekapBulanan($user, $bulan, $tahun)
     {
         return DB::table('tbl_laporan_dan_analis_imprs as l')
             ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
@@ -96,12 +118,12 @@ class LaporanAnalisIMPRSController extends Controller
                 'l.indikator_id',
                 DB::raw('ROUND(AVG(l.nilai)::numeric, 2) as nilai_rekap'),
                 DB::raw("
-                CASE
-                    WHEN ROUND(AVG(l.nilai)::numeric, 2) >= i.target_indikator
-                    THEN 'tercapai'
-                    ELSE 'tidak tercapai'
-                END as status
-            ")
+                    CASE
+                        WHEN ROUND(AVG(l.nilai)::numeric, 2) >= i.target_indikator
+                        THEN 'tercapai'
+                        ELSE 'tidak tercapai'
+                    END as status
+                ")
             )
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
@@ -111,25 +133,17 @@ class LaporanAnalisIMPRSController extends Controller
             ->keyBy('indikator_id');
     }
 
-    // AMBIL TANGGAL YANG SUDAH DIGUNAKAN
-    private function getUsedDates($bulan, $tahun)
+    // AMBIL PERIODE AKTIF
+    private function getPeriodeAktif()
     {
-        return DB::table('tbl_laporan_dan_analis_imprs as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-            ->select(
-                'l.indikator_id',
-                DB::raw('EXTRACT(DAY FROM l.tanggal_laporan)::int as hari')
-            )
-            ->whereMonth('l.tanggal_laporan', $bulan)
-            ->whereYear('l.tanggal_laporan', $tahun)
-            ->whereRaw("k.jenis_indikator ILIKE '%prioritas rs%'")
-            ->get()
-            ->groupBy('indikator_id')
-            ->map(fn($rows) => $rows->pluck('hari')->values());
+        return DB::table('tbl_periode')
+            ->where('status', 'aktif')
+            ->select('tanggal_mulai', 'tanggal_selesai')
+            ->first();
+
     }
 
-    // PROSES SIMPAN LAPORAN
+    // STORE DATA LAPORAN
     public function store(Request $request)
     {
         $request->validate([
@@ -137,47 +151,37 @@ class LaporanAnalisIMPRSController extends Controller
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
             'tanggal_laporan' => 'required|date',
-            'bulan' => 'required|integer|min:1|max:12',
-            'tahun' => 'required|integer|min:2000',
             'file_laporan' => 'required|file|max:5120',
         ]);
 
-        $unitId = Auth::user()->unit_id;
-        if (!$unitId) {
-            return back()->with('error', 'Unit user belum ditentukan');
+        $periode = $this->getPeriodeAktif();
+        if (!$periode) {
+            return back()->with('error', 'Periode mutu aktif belum tersedia');
         }
 
-        $today = now();
-        $day = min($today->day, Carbon::create($request->tahun, $request->bulan, 1)->daysInMonth);
-        $tanggal = Carbon::create($request->tahun, $request->bulan, $day);
+        $tanggal = Carbon::parse($request->tanggal_laporan);
 
+        // VALIDASI PERIODE
+        if ($tanggal->lt($periode->tanggal_mulai) || $tanggal->gt($periode->tanggal_selesai)) {
+            return back()->with('error', 'Tanggal laporan di luar periode mutu aktif');
+        }
+
+        $unitId = Auth::user()->unit_id;
+
+        // Ambil indikator + kategori_id
         $indikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-            ->select(
-                'i.id',
-                'k.kategori_id',
-                'i.target_indikator',
-                'i.tanggal_mulai',
-                'i.tanggal_selesai',
-
-            )
+            ->select('i.id', 'i.target_indikator', 'k.kategori_id')
             ->where('i.id', $request->indikator_id)
             ->where('i.status_indikator', 'aktif')
             ->whereRaw("k.jenis_indikator ILIKE '%prioritas rs%'")
             ->first();
 
         if (!$indikator) {
-            return back()->with('error', 'Indikator bukan Prioritas RS atau tidak aktif');
+            return back()->with('error', 'Indikator tidak aktif atau bukan prioritas RS');
         }
 
-        if (!$indikator) {
-            return back()->with('error', 'Indikator tidak ditemukan');
-        }
-
-        if ($tanggal < $indikator->tanggal_mulai || $tanggal > $indikator->tanggal_selesai) {
-            return back()->with('error', 'Tanggal di luar periode Indikator');
-        }
-
+        // Cek data sudah ada
         if (
             DB::table('tbl_laporan_dan_analis_imprs')
                 ->where('indikator_id', $indikator->id)
@@ -189,17 +193,16 @@ class LaporanAnalisIMPRSController extends Controller
         }
 
         $nilai = ($request->numerator / $request->denominator) * 100;
-        $pencapaian = $nilai >= $indikator->target_indikator
-            ? 'tercapai'
-            : 'tidak tercapai';
+        $pencapaian = $nilai >= $indikator->target_indikator ? 'tercapai' : 'tidak tercapai';
 
-        $filePath = $request->file('file_laporan')
-            ->store('laporan_imprs', 'public');
+        $filePath = $request->file('file_laporan')->store('laporan_imprs', 'public');
 
         DB::table('tbl_laporan_dan_analis_imprs')->insert([
             'indikator_id' => $indikator->id,
-            'kategori_id' => $indikator->kategori_id,
+            'kategori_id' => $indikator->kategori_id, // 🔹 penting!
             'unit_id' => $unitId,
+            'numerator' => $request->numerator,
+            'denominator' => $request->denominator,
             'nilai' => round($nilai, 2),
             'pencapaian' => $pencapaian,
             'tanggal_laporan' => $tanggal,
@@ -210,4 +213,5 @@ class LaporanAnalisIMPRSController extends Controller
 
         return back()->with('success', 'Data berhasil disimpan');
     }
+
 }

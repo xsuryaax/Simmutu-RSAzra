@@ -17,6 +17,8 @@ return new class extends Migration
             $table->integer('indikator_id');
             $table->integer('unit_id');
             $table->integer('kategori_id');
+            $table->integer('numerator');
+            $table->integer('denominator');
             $table->decimal('nilai', 8, 2);
             $table->enum('pencapaian', ['tercapai', 'tidak tercapai']);
             $table->string('file_laporan');

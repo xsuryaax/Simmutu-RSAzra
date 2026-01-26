@@ -16,10 +16,6 @@ return new class extends Migration
             $table->string('nama_indikator');
             $table->decimal('target_indikator', 5, 2);
             $table->enum('tipe_indikator', ['lokal', 'nasional']);
-            $table->string('periode_tahun');
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai');
-            $table->enum('status_periode', ['aktif', 'non-aktif']);
             $table->enum('status_indikator', ['aktif', 'non-aktif']);
             $table->integer('unit_id');
             $table->integer('kamus_indikator_id')->nullable();

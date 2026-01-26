@@ -50,25 +50,45 @@
 
                 {{-- FILTER --}}
                 <form method="GET" class="row g-2 align-items-end mb-4">
+
+                    {{-- BULAN --}}
                     <div class="col-md-2">
                         <label class="form-label">Bulan</label>
                         <select name="bulan" class="form-control">
-                            @foreach (range(1, 12) as $b)
+                            @php
+                                use Carbon\Carbon;
+
+                                $periodeMulai = Carbon::parse($periode->tanggal_mulai);
+                                $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
+
+                                $tahunDipilih = $tahun;
+
+                                $bulanMulai = ($tahunDipilih == $periodeMulai->year)
+                                    ? $periodeMulai->month
+                                    : 1;
+
+                                $bulanSelesai = ($tahunDipilih == $periodeSelesai->year)
+                                    ? $periodeSelesai->month
+                                    : 12;
+                            @endphp
+
+                            @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
                                 <option value="{{ $b }}" {{ $bulan == $b ? 'selected' : '' }}>
-                                    {{ \DateTime::createFromFormat('!m', $b)->format('F') }}
+                                    {{ Carbon::create()->month($b)->translatedFormat('F') }}
                                 </option>
-                            @endforeach
+                            @endfor
                         </select>
                     </div>
 
+                    {{-- TAHUN --}}
                     <div class="col-md-2">
                         <label class="form-label">Tahun</label>
                         <select name="tahun" class="form-control">
-                            @foreach (range(date('Y') - 5, date('Y') + 2) as $t)
+                            @for ($t = $periodeMulai->year; $t <= $periodeSelesai->year; $t++)
                                 <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>
                                     {{ $t }}
                                 </option>
-                            @endforeach
+                            @endfor
                         </select>
                     </div>
 
@@ -153,6 +173,7 @@
                                 <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
                                 <th class="text-center">TANGGAL</th>
+                                <th class="text-center">CAPAIAN</th>
                                 <th class="text-center">TARGET</th>
                                 <th class="text-center">NILAI</th>
                                 <th class="text-center">FILE</th>
@@ -164,8 +185,13 @@
                                     <td class="text-center">{{ $i + 1 }}</td>
                                     <td>{{ $row->nama_indikator }}</td>
                                     <td class="text-center">
-                                        {{ \Carbon\Carbon::parse($row->created_at)->format('d F Y') }}
+                                        {{ Carbon::parse($row->tanggal_laporan)->translatedFormat('F Y') }}
+
                                     </td>
+                                    <td class="text-center">
+                                        {{ $row->numerator }} / {{ $row->denominator }}
+                                    </td>
+
                                     <td class="text-center">{{ rtrim(rtrim($row->target, '0'), '.') }}%</td>
                                     <td class="text-center">{{ rtrim(rtrim($row->nilai, '0'), '.') }}%</td>
                                     <td class="text-center">

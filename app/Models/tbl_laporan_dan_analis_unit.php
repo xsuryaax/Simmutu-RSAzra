@@ -12,6 +12,7 @@ class tbl_laporan_dan_analis_unit extends Model
     protected $fillable = [
         'tanggal_laporan',
         'indikator_unit_id',
+        
         'unit_id',
         'nilai',
         'pencapaian',

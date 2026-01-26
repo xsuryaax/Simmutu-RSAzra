@@ -186,8 +186,14 @@
                     </li>
                     <li class="sidebar-item {{ Request::is('manajemen-unit*') ? 'active' : '' }}">
                         <a href="{{ route('manajemen-unit.index') }}" class='sidebar-link'>
-                            <i class="bi bi-buildings"></i>
+                            <i class="bi bi-buildings-fill"></i>
                             <span>Manajemen Unit</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item {{ Request::is('periode-mutu*') ? 'active' : '' }}">
+                        <a href="{{ route('periode-mutu.index') }}" class='sidebar-link'>
+                            <i class="bi bi-calendar-event-fill"></i>
+                            <span>Manajemen Periode</span>
                         </a>
                     </li>
                     <li class="sidebar-item {{ Request::is('hak-akses*') ? 'active' : '' }}">

@@ -122,62 +122,6 @@
                                         @enderror
                                     </div>
 
-                                    {{-- Periode Tahun --}}
-                                    <div class="col-md-4">
-                                        <label for="periode_tahun">Periode Tahun</label>
-                                    </div>
-                                    <div class="col-md-8 mb-3">
-                                        <input type="number" id="periode_tahun" name="periode_tahun"
-                                            class="form-control @error('periode_tahun') is-invalid @enderror"
-                                            value="{{ old('periode_tahun', $indikator->periode_tahun) }}" required>
-                                        @error('periode_tahun')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-
-                                    {{-- Tanggal Mulai --}}
-                                    <div class="col-md-4">
-                                        <label for="tanggal_mulai">Tanggal Mulai</label>
-                                    </div>
-                                    <div class="col-md-8 mb-3">
-                                        <input type="date" id="tanggal_mulai" name="tanggal_mulai"
-                                            class="form-control @error('tanggal_mulai') is-invalid @enderror"
-                                            value="{{ old('tanggal_mulai', $indikator->tanggal_mulai) }}" required>
-                                        @error('tanggal_mulai')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-
-                                    {{-- Tanggal Selesai --}}
-                                    <div class="col-md-4">
-                                        <label for="tanggal_selesai">Tanggal Selesai</label>
-                                    </div>
-                                    <div class="col-md-8 mb-3">
-                                        <input type="date" id="tanggal_selesai" name="tanggal_selesai"
-                                            class="form-control @error('tanggal_selesai') is-invalid @enderror"
-                                            value="{{ old('tanggal_selesai', $indikator->tanggal_selesai) }}" required>
-                                        @error('tanggal_selesai')
-                                            <small class="text-danger">{{ $message }}</small>
-                                        @enderror
-                                    </div>
-
-                                    {{-- Status Periode --}}
-                                    <div class="col-md-4">
-                                        <label>Status Periode</label>
-                                    </div>
-                                    <div class="col-md-8 mb-3 d-flex gap-4">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="status_periode" value="aktif"
-                                                {{ old('status_periode', $indikator->status_periode) == 'aktif' ? 'checked' : '' }}>
-                                            <label class="form-check-label">Aktif</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="status_periode" value="non-aktif"
-                                                {{ old('status_periode', $indikator->status_periode) == 'non-aktif' ? 'checked' : '' }}>
-                                            <label class="form-check-label">Non-Aktif</label>
-                                        </div>
-                                    </div>
-
                                     {{-- Status Indikator --}}
                                     <div class="col-md-4">
                                         <label>Status Indikator</label>

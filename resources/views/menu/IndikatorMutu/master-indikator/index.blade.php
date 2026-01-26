@@ -62,8 +62,6 @@
                                 @endif
                                 <th class="text-center">TARGET</th>
                                 <th class="text-center">TIPE</th>
-                                <th class="text-center">PERIODE</th>
-                                <th class="text-center">RENTANG WAKTU</th>
                                 <th class="text-center">STATUS</th>
                                 <th class="text-center">AKSI</th>
                             </tr>
@@ -83,15 +81,6 @@
                                     <td class="text-center">{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
                                     <td class="text-center">
                                         <span>{{ ucfirst($row->tipe_indikator) }}</span>
-                                    </td>
-
-                                    <td class="text-center">
-                                        {{ $row->periode_tahun }}
-                                    </td>
-
-                                    <td class="text-center">
-                                        {{ \Carbon\Carbon::parse($row->tanggal_mulai)->format('j') }} -
-                                        {{ \Carbon\Carbon::parse($row->tanggal_selesai)->format('j') }}
                                     </td>
 
                                     <td class="text-center">

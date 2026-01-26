@@ -6,6 +6,15 @@
     $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
 @endphp
 
+@php
+    use Carbon\Carbon;
+
+    $periodeMulai = Carbon::parse($periode->tanggal_mulai);
+    $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
+
+    $tahunAktif = range($periodeMulai->year, $periodeSelesai->year);
+@endphp
+
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
@@ -57,23 +66,35 @@
                     <div class="alert alert-danger">{{ session('error') }}</div>
                 @endif
 
-                <form method="GET" class="row g-2 align-items-end mb-4">
-                    <div class="col-md-2">
-                        <label class="form-label">Bulan</label>
-                        <select name="bulan" class="form-control">
-                            @foreach (range(1, 12) as $b)
-                                <option value="{{ $b }}" {{ $bulan == $b ? 'selected' : '' }}>
-                                    {{ \DateTime::createFromFormat('!m', $b)->format('F') }}
+                <form method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Bulan</label>
+                        <select name="bulan" class="form-select">
+                            @php
+                                $tahunDipilih = request('tahun', $periodeMulai->year);
+
+                                $bulanMulai = ($tahunDipilih == $periodeMulai->year)
+                                    ? $periodeMulai->month
+                                    : 1;
+
+                                $bulanSelesai = ($tahunDipilih == $periodeSelesai->year)
+                                    ? $periodeSelesai->month
+                                    : 12;
+                            @endphp
+
+                            @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
+                                <option value="{{ $b }}" {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
+                                    {{ Carbon::create()->month($b)->translatedFormat('F') }}
                                 </option>
-                            @endforeach
+                            @endfor
                         </select>
                     </div>
 
-                    <div class="col-md-2">
-                        <label class="form-label">Tahun</label>
-                        <select name="tahun" class="form-control">
-                            @foreach (range(date('Y') - 5, date('Y') + 2) as $t)
-                                <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Tahun</label>
+                        <select name="tahun" class="form-select">
+                            @foreach ($tahunAktif as $t)
+                                <option value="{{ $t }}" {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
                                     {{ $t }}
                                 </option>
                             @endforeach
@@ -81,11 +102,12 @@
                     </div>
 
                     <div class="col-md-2">
-                        <button class="btn btn-primary w-100">
+                        <button type="submit" class="btn btn-primary w-100">
                             <i class="bi bi-funnel"></i> Filter
                         </button>
                     </div>
                 </form>
+
 
                 <div class="table-responsive table-dark">
                     <table class="table table-striped">
@@ -165,29 +187,38 @@
                             <tr>
                                 <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
-                                <th class="text-center">TANGGAL</th>
                                 @if ($isAdminMutu)
                                     <th class="text-center">UNIT</th>
                                 @endif
+                                <th class="text-center">PERIODE</th>
+                                <th class="text-center">CAPAIAN</th>
                                 <th class="text-center">TARGET</th>
                                 <th class="text-center">NILAI</th>
                                 <th class="text-center">FILE</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = ($paginate->currentPage() - 1) * $paginate->perPage(); @endphp
+                            @php $no = 0; @endphp
                             @foreach ($indikators as $indikator)
                                 @foreach ($laporanHarian[$indikator->id] ?? [] as $lap)
                                     @php $no++; @endphp
                                     <tr>
                                         <td class="text-center">{{ $no }}</td>
+
                                         <td>{{ $indikator->nama_indikator }}</td>
-                                        <td class="text-center">{{ \Carbon\Carbon::parse($lap->created_at)->format('d F Y') }}</td>
                                         @if ($isAdminMutu)
                                             <td class="text-center">{{ $indikator->nama_unit }}</td>
                                         @endif
+                                        <td class="text-center">
+                                            {{ Carbon::parse($lap->tanggal_laporan)->translatedFormat('F Y') }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ $lap->numerator }} / {{ $lap->denominator }}
+                                        </td>
                                         <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
-                                        <td class="text-center">{{ $lap->nilai }}%</td>
+                                        <td class="text-center">
+                                            {{ number_format($lap->nilai, 0) }}%
+                                        </td>
                                         <td class="text-center">
                                             @if(!empty($lap->file_laporan))
                                                 <a href="{{ asset('storage/' . $lap->file_laporan) }}" target="_blank"
@@ -204,18 +235,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        Showing {{ $paginate->firstItem() }} to {{ $paginate->lastItem() }} of {{ $paginate->total() }}
-                        results
-                    </div>
-                    <div>
-                        {{ $paginate->withQueryString()->links('pagination::bootstrap-5') }}
-                    </div>
-                </div>
-
-
             </div>
         </div>
 
@@ -233,12 +252,14 @@
                         <div class="modal-body">
                             <input type="hidden" name="indikator_id" id="modal_indikator_id">
                             <input type="hidden" name="unit_id" id="modal_unit_id">
-                            <input type="hidden" name="bulan" value="{{ $bulan }}">
-                            <input type="hidden" name="tahun" value="{{ $tahun }}">
+                            <input type="hidden" name="bulan" id="modal_bulan"
+                                value="{{ request('bulan', $periodeMulai->month) }}">
+                            <input type="hidden" name="tahun" id="modal_tahun"
+                                value="{{ request('tahun', $periodeMulai->year) }}">
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Tanggal Pengisian</label>
-                                <input type="text" id="tanggal_laporan_view" class="form-control" disabled>
+                                <input type="text" id="tanggal_input_view" class="form-control" readonly>
                             </div>
                             <input type="hidden" name="tanggal_laporan" id="tanggal_laporan">
 
@@ -281,19 +302,31 @@
             document.getElementById('modal_indikator_id').value = indikatorId;
             document.getElementById('modal_unit_id').value = unitId;
 
-            const today = new Date();
+            const bulan = String(document.getElementById('modal_bulan').value).padStart(2, '0');
+            const tahun = document.getElementById('modal_tahun').value;
 
-            document.getElementById('tanggal_laporan_view').value =
-                today.toLocaleDateString('id-ID', {
+            /* =========================
+               TANGGAL LAPORAN
+               → SELALU TANGGAL 1
+               → SESUAI FILTER BULAN & TAHUN
+            ========================== */
+            const tanggalLaporan = `${tahun}-${bulan}-01`;
+            document.getElementById('tanggal_laporan').value = tanggalLaporan;
+
+            /* =========================
+               TANGGAL INPUT (TAMPILAN SAJA)
+            ========================== */
+            const now = new Date();
+            document.getElementById('tanggal_input_view').value =
+                now.toLocaleDateString('id-ID', {
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric'
                 });
 
-            document.getElementById('tanggal_laporan').value =
-                today.toISOString().slice(0, 10);
-
-            new bootstrap.Modal(document.getElementById('modalInputData')).show();
+            new bootstrap.Modal(
+                document.getElementById('modalInputData')
+            ).show();
         }
     </script>
 

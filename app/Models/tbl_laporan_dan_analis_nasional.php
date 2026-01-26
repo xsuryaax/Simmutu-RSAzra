@@ -10,6 +10,8 @@ class tbl_laporan_dan_analis_nasional extends Model
     protected $fillable = [
         'tanggal_laporan',
         'indikator_id',
+        'numerator',
+        'denominator',
         'nilai',
         'pencapaian',
         'status_laporan',
