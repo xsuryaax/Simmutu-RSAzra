@@ -264,7 +264,7 @@
                     </div>
 
                     <form id="formInputData" method="POST" enctype="multipart/form-data"
-                        action="{{ route('laporan-analis-impu.store') }}">
+                        action="{{ route('laporan-analis.store') }}">
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="indikator_id" id="modal_indikator_id">
@@ -285,17 +285,17 @@
 
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Numerator</label>
+                                <label class="form-label fw-semibold">Numerator<span style="color:red">*</span></label>
                                 <input type="number" name="numerator" class="form-control" required>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Denominator</label>
+                                <label class="form-label fw-semibold">Denominator<span style="color:red">*</span></label>
                                 <input type="number" name="denominator" class="form-control" required>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Unggah File</label>
+                                <label class="form-label fw-semibold">Unggah File<span style="color:red">*</span></label>
                                 <input type="file" name="file_laporan" class="form-control" required>
                             </div>
                         </div>

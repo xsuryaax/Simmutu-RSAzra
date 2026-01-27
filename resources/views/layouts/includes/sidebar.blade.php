@@ -50,7 +50,7 @@
                 </li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis-impu*') || request()->is('laporan-analis-imn*') || request()->is('laporan-analis-imprs*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-analis-imn*') || request()->is('laporan-analis-imprs*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
                         <span>Indikator Mutu</span>
@@ -58,25 +58,16 @@
                     <ul class="submenu">
                         <li class="submenu-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
                             <a href="{{ route('master-indikator.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Master Indikator Mutu</a>
+                                style="text-decoration: none;">Master Indikator</a>
                         </li>
                         <li class="submenu-item {{ request()->is('kamus-indikator*') ? 'active' : '' }}">
                             <a href="{{ route('kamus-indikator.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Kamus Indikator Mutu</a>
+                                style="text-decoration: none;">Kamus Indikator</a>
                         </li>
-                        <li class="submenu-item {{ request()->is('laporan-analis-impu*') ? 'active' : '' }}">
-                            <a href="{{ route('laporan-analis-impu.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Pengisian Indikator Mutu Prioritas Unit</a>
+                        <li class="submenu-item {{ request()->is('laporan-analis*') ? 'active' : '' }}">
+                            <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Pengisian Indikator</a>
                         </li>
-                        <li class="submenu-item {{ request()->is('laporan-analis-imn*') ? 'active' : '' }}">
-                            <a href="{{ route('laporan-analis-imn.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Pengisian Indikator Mutu Nasional</a>
-                        </li>
-                        <li class="submenu-item {{ request()->is('laporan-analis-imprs*') ? 'active' : '' }}">
-                            <a href="{{ route('laporan-analis-imprs.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Pengisian Indikator Mutu Prioritas RS</a>
-                        </li>
-
                     </ul>
                 </li>
 

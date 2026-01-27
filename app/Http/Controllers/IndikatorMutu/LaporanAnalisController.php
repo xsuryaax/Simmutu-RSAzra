@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class LaporanAnalisIMPUController extends Controller
+class LaporanAnalisController extends Controller
 {
     public function index(Request $request)
     {
@@ -34,7 +34,7 @@ class LaporanAnalisIMPUController extends Controller
             ->orderBy('jenis_indikator')
             ->pluck('jenis_indikator');
 
-        return view('menu.IndikatorMutu.laporan-analis-impu.index', [
+        return view('menu.IndikatorMutu.laporan-analis.index', [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
             'laporanHarian' => $laporan['grouped'],

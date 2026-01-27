@@ -10,9 +10,7 @@ use App\Http\Controllers\PDSAController;
 
 use App\Http\Controllers\IndikatorMutu\KamusIndikatorController;
 use App\Http\Controllers\IndikatorMutu\MasterIndikatorController;
-use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMPUController;
-use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMNController;
-use App\Http\Controllers\IndikatorMutu\LaporanAnalisIMPRSController;
+use App\Http\Controllers\IndikatorMutu\LaporanAnalisController;
 
 use App\Http\Controllers\ManajemenMutu\CakupanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
@@ -63,12 +61,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:master_indikator');
     Route::resource('kamus-indikator', KamusIndikatorController::class)
         ->middleware('check.role:kamus_indikator');
-    Route::resource('laporan-analis-impu', LaporanAnalisIMPUController::class)
-        ->middleware('check.role:laporan_analis_impu');
-    Route::resource('laporan-analis-imprs', LaporanAnalisIMPRSController::class)
-        ->middleware('check.role:laporan_analis_imprs');
-    Route::resource('laporan-analis-imn', LaporanAnalisIMNController::class)
-        ->middleware('check.role:laporan_analis_imn');
+    Route::resource('laporan-analis', LaporanAnalisController::class)
+        ->middleware('check.role:laporan_analis');
     Route::resource('kategori-imprs', KategoriIMPRSController::class)
         ->middleware('check.role:kategori_imprs');
 
