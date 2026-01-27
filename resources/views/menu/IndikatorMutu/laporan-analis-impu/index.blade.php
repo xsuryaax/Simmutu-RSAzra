@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan dan Analisis IMPU')
+@section('title', 'Laporan dan Analisis')
 
 @php
     $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
@@ -18,9 +18,9 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Laporan dan Analisis IMPU</h3>
+            <h3>Laporan dan Analisis</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola laporan dan analisis Indikator Mutu Prioritas Unit.
+                Halaman untuk mengelola laporan dan analisis.
             </p>
         </div>
         <div class="page-header-right">
@@ -41,7 +41,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Laporan dan Analisis IMPU
+                            Laporan dan Analisis
                         </li>
                     </ol>
                 </nav>
@@ -54,7 +54,7 @@
     <section class="section">
         <div class="card">
             <div class="card-header">
-                <h5>Data Indikator Laporan IMPU</h5>
+                <h5>Data Indikator Laporan</h5>
             </div>
 
             <div class="card-body">
@@ -67,6 +67,22 @@
                 @endif
 
                 <form method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Jenis Indikator</label>
+                        <select name="jenis_indikator" class="form-select">
+                            <option value="prioritas unit" {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                                Prioritas Unit
+                            </option>
+                            <option value="nasional" {{ request('jenis_indikator') == 'nasional' ? 'selected' : '' }}>
+                                Nasional
+                            </option>
+                            <option value="prioritas rs" {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                                Prioritas RS
+                            </option>
+
+                        </select>
+                    </div>
+
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Bulan</label>
                         <select name="bulan" class="form-select">
@@ -127,6 +143,7 @@
                         <tbody>
                             @foreach ($indikators as $indikator)
                                 @php
+                                    // 🔥 SEMUA pakai format key yang sama
                                     $key = $indikator->id . '-' . $indikator->unit_id;
                                     $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
                                 @endphp
@@ -257,6 +274,9 @@
                             <input type="hidden" name="tahun" id="modal_tahun"
                                 value="{{ request('tahun', $periodeMulai->year) }}">
 
+                            <input type="hidden" name="jenis_indikator" id="modal_jenis_indikator"
+                                value="{{ request('jenis_indikator', '') }}">
+
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Tanggal Pengisian</label>
                                 <input type="text" id="tanggal_input_view" class="form-control" readonly>
@@ -301,6 +321,7 @@
 
             document.getElementById('modal_indikator_id').value = indikatorId;
             document.getElementById('modal_unit_id').value = unitId;
+            document.getElementById('modal_jenis_indikator').value = document.querySelector('select[name="jenis_indikator"]').value;
 
             const bulan = String(document.getElementById('modal_bulan').value).padStart(2, '0');
             const tahun = document.getElementById('modal_tahun').value;

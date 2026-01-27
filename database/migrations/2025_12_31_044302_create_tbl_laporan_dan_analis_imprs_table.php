@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('numerator');
             $table->integer('denominator');
             $table->decimal('nilai', 8, 2);
-            $table->enum('pencapaian', ['tercapai', 'tidak tercapai']);
+            $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);
             $table->string('file_laporan');
             $table->timestamps();
         });
