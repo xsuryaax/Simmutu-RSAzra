@@ -17,9 +17,11 @@ class ManajemenDataMutu extends Seeder
         DB::table('tbl_dimensi_mutu')->insert([
             ['nama_dimensi_mutu' => 'Keselamatan'],
             ['nama_dimensi_mutu' => 'Efektivitas'],
-            ['nama_dimensi_mutu' => 'Fokus Kepada Pasien'],
-            ['nama_dimensi_mutu' => 'Kesinambungan'],
-            ['nama_dimensi_mutu' => 'Aksesibilitas'],
+            ['nama_dimensi_mutu' => 'Berfokus pada Pasien'],
+            ['nama_dimensi_mutu' => 'Ketepatan Waktu'],
+            ['nama_dimensi_mutu' => 'Efisiensi'],
+            ['nama_dimensi_mutu' => 'Keadilan / Kesetaraan'],
+            ['nama_dimensi_mutu' => 'Kesinambungan / Integrasi Pelayanan'],
         ]);
 
         DB::table('tbl_cakupan_data')->insert([

@@ -143,7 +143,7 @@
                         <tbody>
                             @foreach ($indikators as $indikator)
                                 @php
-                                    // 🔥 SEMUA pakai format key yang sama
+
                                     $key = $indikator->id . '-' . $indikator->unit_id;
                                     $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
                                 @endphp
@@ -158,9 +158,9 @@
                                     <td class="text-center">
                                         @if ($nilaiRekap !== null)
                                                                 <span class="fw-semibold text-dark">
-                                                                    {{ floor($nilaiRekap) == $nilaiRekap
-                                            ? number_format($nilaiRekap, 0)
-                                            : number_format($nilaiRekap, 2) }}%
+                                                                    {{ $nilaiRekap == 100
+                                            ? '100'
+                                            : number_format($nilaiRekap, 1) }}%
                                                                 </span>
                                         @else
                                             <span class="text-muted fst-italic">-</span>
@@ -234,7 +234,7 @@
                                         </td>
                                         <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
                                         <td class="text-center">
-                                            {{ number_format($lap->nilai, 0) }}%
+                                            {{ $lap->nilai == 100 ? '100' : number_format($lap->nilai, 1) }}%
                                         </td>
                                         <td class="text-center">
                                             @if(!empty($lap->file_laporan))

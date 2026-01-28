@@ -93,38 +93,55 @@
 <div class="row adm-chart">
     <div class="col-9 left-chart">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
-                <h4>Hasil Indikator Semua Unit</h4>
+            <div class="card-header">
+                {{-- BARIS 1 --}}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="mb-0">Indikator Mutu Prioritas Unit</h4>
 
-                <div class="d-flex gap-2">
-                    <select id="divisionFilter" class="form-select form-select-sm">
-                        <option value="">-- Pilih Unit --</option>
-                        @foreach ($unitIndikatorMap as $unitName => $items)
-                            <option value="{{ $unitName }}">{{ $unitName }}</option>
-                        @endforeach
-                    </select>
+                    <button class="btn btn-danger btn-sm" onclick="exportChart(divisionChart, 'Grafik Indikator Unit')">
+                        Export PDF
+                    </button>
 
-                    <select id="indicatorFilter" class="form-select form-select-sm" disabled>
-                        <option value="">-- Pilih Indikator --</option>
-                    </select>
-
-                    <select id="admFilterTahun" class="form-select form-select-sm">
-                    </select>
-
-                    <select id="admFilterPeriode" class="form-select form-select-sm">
-                        <option value="Tahun" selected>Data Satu Tahun</option>
-                        <option value="Q1">Q1 (Jan-Mar)</option>
-                        <option value="Q2">Q2 (Apr-Jun)</option>
-                        <option value="Q3">Q3 (Jul-Sep)</option>
-                        <option value="Q4">Q4 (Okt-Des)</option>
-                    </select>
-
-                    <select id="admFilterTipeChart" class="form-select form-select-sm">
-                        <option value="line" selected>Line Chart</option>
-                        <option value="bar">Bar Chart</option>
-                    </select>
                 </div>
 
+                {{-- BARIS 2 --}}
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-2">
+                        <select id="admFilterTahun" class="form-select form-select-sm"></select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select id="divisionFilter" class="form-select form-select-sm">
+                            <option value="">-- Pilih Unit --</option>
+                            @foreach ($unitIndikatorMap as $unitName => $items)
+                                <option value="{{ $unitName }}">{{ $unitName }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select id="indicatorFilter" class="form-select form-select-sm" disabled>
+                            <option value="">-- Pilih Indikator --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="admFilterPeriode" class="form-select form-select-sm">
+                            <option value="Tahun">Data Satu Tahun</option>
+                            <option value="Q1">Q1</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3">Q3</option>
+                            <option value="Q4">Q4</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="admFilterTipeChart" class="form-select form-select-sm">
+                            <option value="line">Line</option>
+                            <option value="bar">Bar</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <canvas id="chartDivisionAchievement"></canvas>
@@ -156,6 +173,12 @@
             </div>
         </div>
     </div>
+
+    <form id="exportPdfForm" method="POST" action="{{ route('export.pdf.chart') }}" target="_blank">
+        @csrf
+        <input type="hidden" name="chart_image">
+        <input type="hidden" name="judul">
+    </form>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
@@ -226,7 +249,9 @@
                     }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: true, // ✅ Tetap responsive untuk tampilan
+                    maintainAspectRatio: true,
+                    devicePixelRatio: 2, // ✅ Naikkan dikit biar lebih tajam
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -292,23 +317,24 @@
                 data: {
                     labels,
                     datasets: [{
-                            label: "Target",
-                            data: target,
-                            backgroundColor: "rgba(255,159,64,0.7)",
-                            borderColor: "rgba(255, 159, 64, 1)",
-                            order: 2
-                        },
-                        {
-                            label: "Realisasi",
-                            data: hasil,
-                            backgroundColor: "rgba(75,192,192,0.7)",
-                            borderColor: "rgba(75, 192, 192, 1)",
-                            order: 1
-                        }
-                    ]
+                        label: "Target",
+                        data: target,
+                        backgroundColor: "rgba(255,159,64,0.7)",
+                        borderColor: "rgba(255, 159, 64, 1)",
+                        order: 2
+                    },
+                    {
+                        label: "Realisasi",
+                        data: hasil,
+                        backgroundColor: "rgba(75,192,192,0.7)",
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        order: 1
+                    }]
                 },
                 options: {
-                    responsive: true,
+                    responsive: true, // ✅ Tetap responsive
+                    maintainAspectRatio: true,
+                    devicePixelRatio: 2, // ✅ Naikkan dikit
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -319,6 +345,71 @@
                 }
             });
         }
+
+        /* ==================== EXPORT CHART (YANG PALING PENTING) ======================= */
+        function exportChart(chartInstance, judul) {
+            if (!chartInstance) {
+                alert('Chart belum tersedia');
+                return;
+            }
+
+            // Validasi chart tidak kosong
+            const hasData = chartInstance.data.datasets.some(dataset =>
+                dataset.data && dataset.data.some(v => v !== null && v !== undefined)
+            );
+
+            if (!hasData) {
+                alert('Silakan pilih unit & indikator terlebih dahulu');
+                return;
+            }
+
+            // 🔥 KUNCI: Buat canvas HD temporary tanpa ganggu tampilan
+            const originalCanvas = chartInstance.canvas;
+
+            // Ukuran HD untuk export (landscape A4 optimal)
+            const exportWidth = 1600;  // Lebar HD
+            const exportHeight = 900;  // Tinggi HD (ratio 16:9)
+
+            // Buat canvas temporary
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = exportWidth;
+            tempCanvas.height = exportHeight;
+
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // Background putih
+            tempCtx.fillStyle = 'white';
+            tempCtx.fillRect(0, 0, exportWidth, exportHeight);
+
+            // Hitung scale ratio
+            const scaleX = exportWidth / originalCanvas.width;
+            const scaleY = exportHeight / originalCanvas.height;
+
+            // Gunakan scale yang lebih kecil agar proporsional
+            const scale = Math.min(scaleX, scaleY);
+
+            // Hitung posisi center
+            const x = (exportWidth - (originalCanvas.width * scale)) / 2;
+            const y = (exportHeight - (originalCanvas.height * scale)) / 2;
+
+            // Render chart dengan kualitas tinggi
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+            tempCtx.drawImage(
+                originalCanvas,
+                x, y,
+                originalCanvas.width * scale,
+                originalCanvas.height * scale
+            );
+
+            // Convert ke base64 dengan kualitas maksimal
+            const base64Image = tempCanvas.toDataURL('image/png', 1.0);
+
+            document.querySelector('[name=chart_image]').value = base64Image;
+            document.querySelector('[name=judul]').value = judul;
+            document.getElementById('exportPdfForm').submit();
+        }
+
 
         /* ==================== EVENT ======================= */
         unitFilterEl.addEventListener("change", () => {

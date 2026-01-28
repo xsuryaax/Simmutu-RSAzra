@@ -12,7 +12,7 @@ class MasterIndikatorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
@@ -21,15 +21,31 @@ class MasterIndikatorController extends Controller
             ->select('tbl_indikator.*', 'tbl_unit.nama_unit')
             ->orderBy('tbl_indikator.created_at', 'DESC');
 
+        // 🔐 User biasa → hanya lihat unit sendiri
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
 
+        // 🔥 FILTER UNIT (khusus admin/mutu)
+        if (
+            in_array($user->unit_id, [1, 2]) &&
+            $request->filled('unit_id')
+        ) {
+            $query->where('tbl_indikator.unit_id', $request->unit_id);
+        }
+
         $indikators = $query->get();
 
-        return view('menu.IndikatorMutu.master-indikator.index', compact('indikators'));
-    }
+        // 🔽 Data unit untuk dropdown filter
+        $units = DB::table('tbl_unit')
+            ->orderBy('nama_unit', 'ASC')
+            ->get();
 
+        return view(
+            'menu.IndikatorMutu.master-indikator.index',
+            compact('indikators', 'units')
+        );
+    }
 
     /**
      * Show the form for creating a new resource.

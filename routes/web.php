@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\HakAksesController;
 use App\Http\Controllers\ManajemenRoleController;
 use App\Http\Controllers\ManajemenUnitController;
@@ -134,4 +135,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/periode-mutu/{id}', [PeriodeController::class, 'update'])->name('periode-mutu.update');
     Route::delete('/periode-mutu/{id}', [PeriodeController::class, 'destroy'])->name('periode-mutu.destroy');
 
+    Route::post('/export/pdf/chart', [ExportPdfController::class, 'exportChart'])
+        ->name('export.pdf.chart');
 });

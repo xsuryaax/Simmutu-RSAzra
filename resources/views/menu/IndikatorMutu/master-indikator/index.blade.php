@@ -52,14 +52,38 @@
 
             <div class="card-body">
                 <div class="table-parent-container table-responsive-md table-dark">
+                    @php
+                        $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
+                    @endphp
+
+                    @if ($isAdminMutu)
+                        <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3">
+                            <div class="col-md-4">
+                                <select name="unit_id" class="form-select">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-auto">
+                                <button class="btn btn-primary">
+                                    <i class="bi bi-funnel"></i> Filter
+                                </button>
+                                <a href="{{ route('master-indikator.index') }}" class="btn btn-secondary">
+                                    Reset
+                                </a>
+                            </div>
+                        </form>
+                    @endif
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
-                                @if(in_array(auth()->user()->unit_id, [1, 2]))
-                                    <th class="text-center">UNIT</th>
-                                @endif
                                 <th class="text-center">TARGET</th>
                                 <th class="text-center">TIPE</th>
                                 <th class="text-center">STATUS</th>
@@ -73,10 +97,6 @@
                                     <td class="text-center">{{ $i + 1 }}</td>
 
                                     <td>{{ $row->nama_indikator }}</td>
-
-                                    @if(in_array(auth()->user()->unit_id, [1, 2]))
-                                        <td class="text-center">{{ $row->nama_unit ?? '-' }}</td>
-                                    @endif
 
                                     <td class="text-center">{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
                                     <td class="text-center">
