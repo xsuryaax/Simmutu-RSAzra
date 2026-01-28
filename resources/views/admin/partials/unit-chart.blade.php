@@ -27,8 +27,8 @@
                         </div>
                     </div>
                     <div class="col-8 col-xxl-7">
-                        <h6 class="text-muted font-semibold mb-1">Indikator Sudah Terisi</h6>
-                        <h6 class="font-extrabold mb-0">{{ $unitSudahIsi }}</h6>
+                        <h6 class="text-muted font-semibold mb-1">Indikator Terisi</h6>
+                        <h6 class="font-extrabold mb-0">{{ $totalIndikatorSudah }}</h6>
                     </div>
                 </div>
             </div>
@@ -45,8 +45,8 @@
                         </div>
                     </div>
                     <div class="col-8 col-xxl-7">
-                        <h6 class="text-muted font-semibold mb-1">Indikator Belum Terisi</h6>
-                        <h6 class="font-extrabold mb-0">{{ $unitBelumIsi }}</h6>
+                        <h6 class="text-muted font-semibold mb-1">Indikator Belum</h6>
+                        <h6 class="font-extrabold mb-0">{{ $totalIndikatorBelum }}</h6>
                     </div>
                 </div>
             </div>
