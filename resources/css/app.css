@@ -908,7 +908,7 @@
 }
 
 .table-responsive-md {
-  scrollbar-width: none;
+  scrollbar-width: thin;
   scrollbar-color: #d1d1d1 transparent;
 }
 

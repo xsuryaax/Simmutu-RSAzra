@@ -46,7 +46,7 @@
             <div class="card-body table-responsive table-dark">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Daftar Periode Mutu</h5>
-                    <a href="{{ route('periode-mutu.create') }}" class="btn btn-success btn-sm">
+                    <a href="{{ route('periode-mutu.create') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus-circle"></i> Tambah Periode
                     </a>
                 </div>
@@ -68,12 +68,14 @@
                                 <td class="text-center">{{ $i + 1 }}</td>
                                 <td>{{ $periode->nama_periode }}</td>
                                 <td class="text-center">{{ $periode->tahun }}</td>
-                                <td class="text-center">{{ \Carbon\Carbon::parse($periode->tanggal_mulai)->format('d M Y') }}
-                                </td>
-                                <td class="text-center">{{ \Carbon\Carbon::parse($periode->tanggal_selesai)->format('d M Y') }}
+                                <td class="text-center">
+                                    {{ \Carbon\Carbon::parse($periode->tanggal_mulai)->format('d M Y') }}
                                 </td>
                                 <td class="text-center">
-                                    @if($periode->status === 'aktif')
+                                    {{ \Carbon\Carbon::parse($periode->tanggal_selesai)->format('d M Y') }}
+                                </td>
+                                <td class="text-center">
+                                    @if ($periode->status === 'aktif')
                                         <span class="badge bg-success">Aktif</span>
                                     @else
                                         <span class="badge bg-secondary">Non Aktif</span>
