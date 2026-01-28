@@ -18,9 +18,7 @@ class HakAksesController extends Controller
                 ['key' => 'dashboard', 'label' => 'Dashboard'],
                 ['key' => 'master_indikator', 'label' => 'Master Indikator Mutu'],
                 ['key' => 'kamus_indikator', 'label' => 'Kamus Indikator Mutu'],
-                ['key' => 'laporan_analis_imprs', 'label' => 'Laporan Analis IMPRS'],
-                ['key' => 'laporan_analis_impu', 'label' => 'Laporan Analis IMPU'],
-                ['key' => 'laporan_analis_imn', 'label' => 'Laporan Analis IMN'],
+                ['key' => 'laporan_analis', 'label' => 'Laporan Analis'],
                 ['key'=> 'pdsa', 'label'=> 'PDSA'],
             ]
         ],
