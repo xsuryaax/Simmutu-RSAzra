@@ -69,8 +69,7 @@
                                     <td>
                                         <ul class="mb-0 ps-3">
                                             @foreach ($unit->list_sudah as $ind)
-                                                <li>{{ $ind }} <i class="bi bi-check-circle text-success ms-1"></i>
-                                                </li>
+                                                <li>{{ $ind }} </li>
                                             @endforeach
                                         </ul>
                                     </td>
@@ -111,8 +110,7 @@
                                     <td>
                                         <ul class="mb-0 ps-3">
                                             @foreach ($unit->list_belum as $ind)
-                                                <li>{{ $ind }} <i class="bi bi-x-circle text-danger ms-1"></i>
-                                                </li>
+                                                <li>{{ $ind }}</li>
                                             @endforeach
                                         </ul>
                                     </td>

@@ -125,7 +125,7 @@ class DashboardController extends Controller
             ->get()
             ->groupBy('unit_id');
 
-        $totalTerisi = DB::table('tbl_laporan_dan_analis_unit')
+        $totalTerisiIds = DB::table('tbl_laporan_dan_analis_unit')
             ->whereMonth('tanggal_laporan', $bulanWajib)
             ->whereYear('tanggal_laporan', $tahunWajib)
             ->pluck('indikator_id')
@@ -134,22 +134,28 @@ class DashboardController extends Controller
         $unitsSudah = [];
         $unitsBelum = [];
 
+        // Inisialisasi counter untuk Card
+        $totalIndikatorSudah = 0;
+        $totalIndikatorBelum = 0;
+
         foreach ($units as $unit) {
             $indikators = $semuaIndikator->get($unit->id, collect());
-            if ($indikators->isEmpty())
-                continue;
+            if ($indikators->isEmpty()) continue;
 
             $sudah = [];
             $belum = [];
 
             foreach ($indikators as $ind) {
-                if (in_array($ind->id, $totalTerisi)) {
+                if (in_array($ind->id, $totalTerisiIds)) {
                     $sudah[] = $ind->nama_indikator;
+                    $totalIndikatorSudah++; // Tambah total akumulasi
                 } else {
                     $belum[] = $ind->nama_indikator;
+                    $totalIndikatorBelum++; // Tambah total akumulasi
                 }
             }
 
+            // Simpan data per unit untuk Modal
             if (count($sudah) > 0) {
                 $uSudah = clone $unit;
                 $uSudah->list_sudah = $sudah;
@@ -167,11 +173,11 @@ class DashboardController extends Controller
         }
 
         return [
-            'totalUnit' => count($unitsSudah) + count($unitsBelum),
-            'unitSudahIsi' => count($unitsSudah),
-            'unitBelumIsi' => count($unitsBelum),
-            'unitsSudah' => $unitsSudah,
-            'unitsBelum' => $unitsBelum,
+            'totalUnit' => count($units),
+            'totalIndikatorSudah' => $totalIndikatorSudah, // Untuk Card
+            'totalIndikatorBelum' => $totalIndikatorBelum, // Untuk Card
+            'unitsSudah' => $unitsSudah, // Untuk Modal
+            'unitsBelum' => $unitsBelum, // Untuk Modal
         ];
     }
 
@@ -468,5 +474,4 @@ class DashboardController extends Controller
 
         return $query->count();
     }
-
 }
