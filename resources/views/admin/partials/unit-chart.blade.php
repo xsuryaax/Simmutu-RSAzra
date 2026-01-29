@@ -71,8 +71,8 @@
         </div>
     </div>
 
-    <div class="col-5 col-lg-2a col-md-5" data-bs-toggle="modal" data-bs-target="#modalPdsaList"
-        style="cursor: pointer;">
+    <a class="col-5 col-lg-2a col-md-5" href="{{ route('pdsa.index') }}"
+        style="cursor: pointer; text-decoration: none;">
         <div class="card">
             <div class="card-body px-4 py-4-5">
                 <div class="row">
@@ -88,7 +88,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </a>
 </div>
 <div class="row adm-chart">
     <div class="col-9 left-chart">

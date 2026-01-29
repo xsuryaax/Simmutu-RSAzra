@@ -34,6 +34,28 @@ class LaporanAnalisController extends Controller
             ->orderBy('jenis_indikator')
             ->pluck('jenis_indikator');
 
+        $table = $this->getTabelLaporan($jenisIndikator);
+        $dataPengisian = DB::table($table)
+            ->select('tanggal_laporan', DB::raw('count(id) as total_input'))
+            ->whereMonth('tanggal_laporan', $bulan)
+            ->whereYear('tanggal_laporan', $tahun)
+            ->when(!in_array($user->unit_id, [1, 2]), function ($q) use ($user) {
+                return $q->where('unit_id', $user->unit_id);
+            })
+            ->groupBy('tanggal_laporan')
+            ->get()
+            ->keyBy(function ($item) {
+                return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
+            });
+
+        // 2. Hitung total indikator yang seharusnya diisi (untuk benchmark warna dot)
+        $totalHarusIsi = $this->getIndikator($user, $jenisIndikator)->count();
+
+        // 3. Logic Kalender
+        $startOfMonth = Carbon::create($tahun, $bulan, 1);
+        $daysInMonth = $startOfMonth->daysInMonth;
+        $skip = $startOfMonth->dayOfWeekIso - 1;
+
         return view('menu.IndikatorMutu.laporan-analis.index', [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
@@ -43,6 +65,12 @@ class LaporanAnalisController extends Controller
             'periode' => $periodeAktif,
             'jenisIndikatorList' => $jenisIndikatorList,
             'jenisIndikator' => $jenisIndikator,
+            'daysInMonth' => $daysInMonth,
+            'skip' => $skip,
+            'dataPengisian' => $dataPengisian,
+            'totalHarusIsi' => $totalHarusIsi,
+            'bulan' => $bulan,
+            'tahun' => $tahun,
         ]);
     }
 
@@ -103,7 +131,7 @@ class LaporanAnalisController extends Controller
                 ->whereBetween('l.tanggal_laporan', [$periode->tanggal_mulai, $periode->tanggal_selesai])
                 ->when(
                     in_array($jenis, ['prioritas unit', 'prioritas rs'])
-                    && !in_array($user->unit_id, [1, 2]),
+                        && !in_array($user->unit_id, [1, 2]),
                     fn($q) => $q->where('l.unit_id', $user->unit_id)
                 )
                 ->orderBy('l.indikator_id')
@@ -150,7 +178,6 @@ class LaporanAnalisController extends Controller
                     ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
 
                 $rekap = $rekap->merge($rekapJenis);
-
             } else {
                 $query = DB::table("$table as l")
                     ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')

@@ -1707,3 +1707,39 @@ a {
   align-items: center;
   gap: 0.5rem;
 }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border: 1px solid #e9ecef;
+}
+.calendar-header {
+  background: #f8f9fa;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+.calendar-day {
+  min-height: 80px;
+  border: 0.5px solid #f1f1f1;
+  padding: 5px;
+  text-align: center;
+  position: relative;
+}
+.dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-top: 5px;
+}
+.today-highlight {
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  line-height: 30px;
+}

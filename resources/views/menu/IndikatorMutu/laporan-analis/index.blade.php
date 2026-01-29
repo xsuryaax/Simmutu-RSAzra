@@ -70,13 +70,15 @@
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Jenis Indikator</label>
                         <select name="jenis_indikator" class="form-select">
-                            <option value="prioritas unit" {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                            <option value="prioritas unit"
+                                {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
                                 Prioritas Unit
                             </option>
                             <option value="nasional" {{ request('jenis_indikator') == 'nasional' ? 'selected' : '' }}>
                                 Nasional
                             </option>
-                            <option value="prioritas rs" {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                            <option value="prioritas rs"
+                                {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
                                 Prioritas RS
                             </option>
 
@@ -89,17 +91,14 @@
                             @php
                                 $tahunDipilih = request('tahun', $periodeMulai->year);
 
-                                $bulanMulai = ($tahunDipilih == $periodeMulai->year)
-                                    ? $periodeMulai->month
-                                    : 1;
+                                $bulanMulai = $tahunDipilih == $periodeMulai->year ? $periodeMulai->month : 1;
 
-                                $bulanSelesai = ($tahunDipilih == $periodeSelesai->year)
-                                    ? $periodeSelesai->month
-                                    : 12;
+                                $bulanSelesai = $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
                             @endphp
 
                             @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
-                                <option value="{{ $b }}" {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
+                                <option value="{{ $b }}"
+                                    {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
                                     {{ Carbon::create()->month($b)->translatedFormat('F') }}
                                 </option>
                             @endfor
@@ -110,7 +109,8 @@
                         <label class="form-label fw-semibold">Tahun</label>
                         <select name="tahun" class="form-select">
                             @foreach ($tahunAktif as $t)
-                                <option value="{{ $t }}" {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
+                                <option value="{{ $t }}"
+                                    {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
                                     {{ $t }}
                                 </option>
                             @endforeach
@@ -157,11 +157,9 @@
                                     <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
                                     <td class="text-center">
                                         @if ($nilaiRekap !== null)
-                                                                <span class="fw-semibold text-dark">
-                                                                    {{ $nilaiRekap == 100
-                                            ? '100'
-                                            : number_format($nilaiRekap, 1) }}%
-                                                                </span>
+                                            <span class="fw-semibold text-dark">
+                                                {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
+                                            </span>
                                         @else
                                             <span class="text-muted fst-italic">-</span>
                                         @endif
@@ -188,6 +186,51 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="text-center mb-4">{{ Carbon::create($tahun, $bulan)->translatedFormat('F Y') }}</h5>
+
+                <div class="calendar-grid">
+                    @foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $hari)
+                        <div class="calendar-header">{{ $hari }}</div>
+                    @endforeach
+
+                    @for ($i = 0; $i < $skip; $i++)
+                        <div class="calendar-day bg-light"></div>
+                    @endfor
+
+                    @for ($d = 1; $d <= $daysInMonth; $d++)
+                        @php
+                            $tglFull = Carbon::create($tahun, $bulan, $d)->format('Y-m-d');
+                            $isToday = $tglFull == date('Y-m-d');
+
+                            // ambil data pengisian tanggal 1 (sesuai script)
+                            $tglSatu = Carbon::create($tahun, $bulan, 1)->format('Y-m-d');
+                            $pengisianSatu = $dataPengisian->get($tglSatu);
+                            $jumlahTerisi = $pengisianSatu ? $pengisianSatu->total_input : 0;
+                        @endphp
+
+                        <div class="calendar-day" onclick="filterTanggal('{{ $tglFull }}')" style="cursor:pointer">
+                            <span class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
+
+                            <div class="d-block">
+                                {{-- dot cuma muncul di hari ini, ngga bisa muncul dot sesuai tanggal isi laporan karena di script laporan selalu tanggal 1 --}}
+                                @if ($isToday)
+                                    @if ($jumlahTerisi == 0)
+                                        <span class="dot border"></span>
+                                    @elseif($jumlahTerisi < $totalHarusIsi)
+                                        <span class="dot bg-warning"></span>
+                                    @else
+                                        <span class="dot bg-success"></span>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                    @endfor
                 </div>
             </div>
         </div>
@@ -237,7 +280,7 @@
                                             {{ $lap->nilai == 100 ? '100' : number_format($lap->nilai, 1) }}%
                                         </td>
                                         <td class="text-center">
-                                            @if(!empty($lap->file_laporan))
+                                            @if (!empty($lap->file_laporan))
                                                 <a href="{{ asset('storage/' . $lap->file_laporan) }}" target="_blank"
                                                     class="btn btn-lg text-primary" title="Download File Laporan">
                                                     <i class="bi bi-file-earmark-arrow-down fs-5"></i>
@@ -321,7 +364,8 @@
 
             document.getElementById('modal_indikator_id').value = indikatorId;
             document.getElementById('modal_unit_id').value = unitId;
-            document.getElementById('modal_jenis_indikator').value = document.querySelector('select[name="jenis_indikator"]').value;
+            document.getElementById('modal_jenis_indikator').value = document.querySelector(
+                'select[name="jenis_indikator"]').value;
 
             const bulan = String(document.getElementById('modal_bulan').value).padStart(2, '0');
             const tahun = document.getElementById('modal_tahun').value;
@@ -349,6 +393,15 @@
                 document.getElementById('modalInputData')
             ).show();
         }
+
+        // filter tanggal buat kalender, belum berfungsi karena di script atas ada aturan laporan selalu tanggal 1
+        // function filterTanggal(tgl) {
+        //     const d = new Date(tgl);
+        //     const bulan = d.getMonth() + 1;
+        //     const tahun = d.getFullYear();
+        //     const jenis = document.querySelector('select[name="jenis_indikator"]').value;
+        //     window.location.href = `?jenis_indikator=${jenis}&bulan=${bulan}&tahun=${tahun}&tanggal_filter=${tgl}`;
+        // }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
