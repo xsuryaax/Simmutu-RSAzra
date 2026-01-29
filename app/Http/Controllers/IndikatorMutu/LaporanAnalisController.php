@@ -48,10 +48,11 @@ class LaporanAnalisController extends Controller
                 return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
             });
 
-        // 2. Hitung total indikator yang seharusnya diisi (untuk benchmark warna dot)
+        // hitung total indikator yang seharusnya diisi (untuk benchmark warna dot)
+        // dot oren berarti ada yang belum diisi, dot hijau sudah diisi semua
         $totalHarusIsi = $this->getIndikator($user, $jenisIndikator)->count();
 
-        // 3. Logic Kalender
+        // buat kalender
         $startOfMonth = Carbon::create($tahun, $bulan, 1);
         $daysInMonth = $startOfMonth->daysInMonth;
         $skip = $startOfMonth->dayOfWeekIso - 1;
@@ -65,6 +66,7 @@ class LaporanAnalisController extends Controller
             'periode' => $periodeAktif,
             'jenisIndikatorList' => $jenisIndikatorList,
             'jenisIndikator' => $jenisIndikator,
+            // tambahan data untuk kalender
             'daysInMonth' => $daysInMonth,
             'skip' => $skip,
             'dataPengisian' => $dataPengisian,
