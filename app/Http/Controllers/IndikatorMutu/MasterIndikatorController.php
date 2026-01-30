@@ -18,33 +18,27 @@ class MasterIndikatorController extends Controller
 
         $query = DB::table('tbl_indikator')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
-            ->select('tbl_indikator.*', 'tbl_unit.nama_unit')
+            ->leftJoin('tbl_kamus_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
+            ->select(
+                'tbl_indikator.*',
+                'tbl_unit.nama_unit',
+                'tbl_kamus_indikator.jenis_indikator'
+            )
             ->orderBy('tbl_indikator.created_at', 'DESC');
 
-        // 🔐 User biasa → hanya lihat unit sendiri
+        // Filter unit
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
 
-        // 🔥 FILTER UNIT (khusus admin/mutu)
-        if (
-            in_array($user->unit_id, [1, 2]) &&
-            $request->filled('unit_id')
-        ) {
+        if (in_array($user->unit_id, [1, 2]) && $request->filled('unit_id')) {
             $query->where('tbl_indikator.unit_id', $request->unit_id);
         }
 
         $indikators = $query->get();
+        $units = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC')->get();
 
-        // 🔽 Data unit untuk dropdown filter
-        $units = DB::table('tbl_unit')
-            ->orderBy('nama_unit', 'ASC')
-            ->get();
-
-        return view(
-            'menu.IndikatorMutu.master-indikator.index',
-            compact('indikators', 'units')
-        );
+        return view('menu.IndikatorMutu.master-indikator.index', compact('indikators', 'units'));
     }
 
     /**

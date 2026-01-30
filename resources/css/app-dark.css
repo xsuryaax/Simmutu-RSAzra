@@ -75,3 +75,47 @@ html.dark .table-dark th {
 html.dark .table-dark td {
     color: #e1f0ff;
 }
+
+html.dark .text-primary-dark {
+    color: #fff !important;
+}
+
+html.dark .table-danger {
+    --bs-table-bg: #cf7d85;
+    --bs-table-striped-bg: #cf7d85;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #cf7d85;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #cf7d85;
+    --bs-table-hover-color: #fff;
+    color: #fff;
+    --border-color: #cf7d85;
+}
+
+html.dark .table-success {
+    --bs-table-bg: #68b090;
+    --bs-table-striped-bg: #68b090;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #68b090;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #68b090;
+    --bs-table-hover-color: #fff;
+    color: #fff;
+    --border-color: #68b090;
+}
+
+html.dark .table-light {
+    --bs-table-bg: #3e4042;
+    --bs-table-striped-bg: #3e4042;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #3e4042;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #3e4042;
+    --bs-table-hover-color: #fff;
+    color: #fff;
+    --border-color: #3e4042;
+}
+
+html.dark .bg-light {
+    background-color: #35404a !important;
+}

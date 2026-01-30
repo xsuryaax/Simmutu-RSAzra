@@ -81,7 +81,6 @@
                                 {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
                                 Prioritas RS
                             </option>
-
                         </select>
                     </div>
 
@@ -124,6 +123,24 @@
                     </div>
                 </form>
 
+                <div class="mb-3 d-flex flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-danger me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Nasional</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas RS</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-light me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas Unit</small>
+                    </div>
+                </div>
+
 
                 <div class="table-responsive table-dark">
                     <table class="table table-striped">
@@ -143,14 +160,28 @@
                         <tbody>
                             @foreach ($indikators as $indikator)
                                 @php
-
                                     $key = $indikator->id . '-' . $indikator->unit_id;
                                     $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
+
+                                    $colColor = '';
+                                    $jenis = $indikator->jenis_indikator ?? '';
+
+                                    if (str_contains($jenis, 'Nasional')) {
+                                        $colColor = 'table-danger';
+                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
+                                        $colColor = 'table-success';
+                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
+                                        $colColor = 'table-secondary';
+                                    }
                                 @endphp
 
-                                <tr class="table table-striped">
+                                <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td>{{ $indikator->nama_indikator }}</td>
+
+                                    <td class="{{ $colColor }} fw-semibold">
+                                        {{ $indikator->nama_indikator }}
+                                    </td>
+
                                     @if ($isAdminMutu)
                                         <td class="text-center">{{ $indikator->nama_unit }}</td>
                                     @endif
