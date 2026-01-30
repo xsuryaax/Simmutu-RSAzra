@@ -123,6 +123,24 @@
                     </div>
                 </form>
 
+                <div class="mb-3 d-flex flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-danger me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Nasional</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas RS</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-light me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas Unit</small>
+                    </div>
+                </div>
+
 
                 <div class="table-responsive table-dark">
                     <table class="table table-striped">
@@ -141,6 +159,7 @@
                         </thead>
                         <tbody>
                             @foreach ($indikators as $indikator)
+<<<<<<< HEAD
                                                     @php
                                                         $key = $indikator->id . '-' . $indikator->unit_id;
                                                         $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
@@ -187,6 +206,63 @@
                                                             </a>
                                                         </td>
                                                     </tr>
+=======
+                                @php
+                                    $key = $indikator->id . '-' . $indikator->unit_id;
+                                    $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
+
+                                    $colColor = '';
+                                    $jenis = $indikator->jenis_indikator ?? '';
+
+                                    if (str_contains($jenis, 'Nasional')) {
+                                        $colColor = 'table-danger';
+                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
+                                        $colColor = 'table-success';
+                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
+                                        $colColor = 'table-secondary';
+                                    }
+                                @endphp
+
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+
+                                    <td class="{{ $colColor }} fw-semibold">
+                                        {{ $indikator->nama_indikator }}
+                                    </td>
+
+                                    @if ($isAdminMutu)
+                                        <td class="text-center">{{ $indikator->nama_unit }}</td>
+                                    @endif
+                                    <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
+                                    <td class="text-center">
+                                        @if ($nilaiRekap !== null)
+                                            <span class="fw-semibold text-dark">
+                                                {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
+                                            </span>
+                                        @else
+                                            <span class="text-muted fst-italic">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if ($nilaiRekap !== null)
+                                            @if ($nilaiRekap >= $indikator->target_indikator)
+                                                <span class="badge bg-success bg-opacity-75">Tercapai</span>
+                                            @else
+                                                <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="javascript:void(0)"
+                                            onclick="openInputModal({{ $indikator->id }}, {{ $indikator->unit_id }})"
+                                            class="text-primary" title="Input / Edit Nilai">
+                                            <i class="bi bi-pencil-square fs-5 text-dark action-icon"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+>>>>>>> a71edf961bcf3ba18dc697a3fd4209b956428235
                             @endforeach
                         </tbody>
                     </table>

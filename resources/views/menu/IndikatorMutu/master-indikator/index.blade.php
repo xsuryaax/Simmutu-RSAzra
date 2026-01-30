@@ -62,7 +62,8 @@
                                 <select name="unit_id" class="form-select">
                                     <option value="">-- Semua Unit --</option>
                                     @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                        <option value="{{ $unit->id }}"
+                                            {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
                                             {{ $unit->nama_unit }}
                                         </option>
                                     @endforeach
@@ -79,6 +80,25 @@
                             </div>
                         </form>
                     @endif
+
+                    <div class="mb-3 d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2"
+                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                            <small class="text-primary text-primary-dark">Nasional</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2"
+                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                            <small class="text-primary text-primary-dark">Prioritas RS</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-light me-2"
+                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                            <small class="text-primary text-primary-dark">Prioritas Unit</small>
+                        </div>
+                    </div>
+
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
@@ -93,10 +113,23 @@
 
                         <tbody>
                             @foreach ($indikators as $i => $row)
+                                @php
+                                    $colColor = '';
+                                    $jenis = $row->jenis_indikator ?? '';
+
+                                    // Hierarki Warna: Nasional (Red) > Prioritas RS (Green) > Prioritas Unit (Light/No color)
+                                    if (str_contains($jenis, 'Nasional')) {
+                                        $colColor = 'table-danger';
+                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
+                                        $colColor = 'table-success';
+                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
+                                        $colColor = 'table-light';
+                                    }
+                                @endphp
+
                                 <tr>
                                     <td class="text-center">{{ $i + 1 }}</td>
-
-                                    <td>{{ $row->nama_indikator }}</td>
+                                    <td class="{{ $colColor }}">{{ $row->nama_indikator }}</td>
 
                                     <td class="text-center">{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
                                     <td class="text-center">
@@ -112,24 +145,14 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="{{ route('master-indikator.edit', $row->id) }}" class="btn btn-warning btn-sm">
+                                        <a href="{{ route('master-indikator.edit', $row->id) }}"
+                                            class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-
-                                        <form action="{{ route('master-indikator.destroy', $row->id) }}" method="POST"
-                                            style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Hapus data ini?')">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
             </div>
