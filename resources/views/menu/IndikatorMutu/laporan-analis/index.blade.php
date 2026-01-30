@@ -141,9 +141,8 @@
                     </div>
                 </div>
 
-
-                <div class="table-responsive table-dark">
-                    <table class="table table-striped">
+                <div class="table-parent-container table-responsive-md table-dark">
+                    <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th class="text-center">NO</th>
@@ -159,16 +158,26 @@
                         </thead>
                         <tbody>
                             @foreach ($indikators as $indikator)
-<<<<<<< HEAD
                                                     @php
                                                         $key = $indikator->id . '-' . $indikator->unit_id;
                                                         $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
                                                         $isSelected = $selectedIndikatorId == $indikator->id && $selectedUnitId == $indikator->unit_id;
+
+                                                        $colColor = '';
+                                                        $jenis = $indikator->jenis_indikator ?? '';
+
+                                                        if (str_contains($jenis, 'Nasional')) {
+                                                            $colColor = 'table-danger';
+                                                        } elseif (str_contains($jenis, 'Prioritas RS')) {
+                                                            $colColor = 'table-success';
+                                                        } elseif (str_contains($jenis, 'Prioritas Unit')) {
+                                                            $colColor = 'table-secondary';
+                                                        }
                                                     @endphp
 
                                                     <tr>
                                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                                        <td>{{ $indikator->nama_indikator }}</td>
+                                                        <td class="{{ $colColor }} fw-semibold">{{ $indikator->nama_indikator }}</td>
                                                         @if ($isAdminMutu)
                                                             <td class="text-center">{{ $indikator->nama_unit }}</td>
                                                         @endif
@@ -200,69 +209,13 @@
                                     'tahun' => request('tahun', $periodeMulai->year),
                                     'indikator_id' => $indikator->id,
                                     'unit_id' => $indikator->unit_id
-                                ]) }}" class="text-primary" title="Lihat Kalender">
+                                ]) }}" class="text-primary"
+                                                                title="Lihat Kalender">
                                                                 <i
                                                                     class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
                                                             </a>
                                                         </td>
                                                     </tr>
-=======
-                                @php
-                                    $key = $indikator->id . '-' . $indikator->unit_id;
-                                    $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
-
-                                    $colColor = '';
-                                    $jenis = $indikator->jenis_indikator ?? '';
-
-                                    if (str_contains($jenis, 'Nasional')) {
-                                        $colColor = 'table-danger';
-                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
-                                        $colColor = 'table-success';
-                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
-                                        $colColor = 'table-secondary';
-                                    }
-                                @endphp
-
-                                <tr>
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-
-                                    <td class="{{ $colColor }} fw-semibold">
-                                        {{ $indikator->nama_indikator }}
-                                    </td>
-
-                                    @if ($isAdminMutu)
-                                        <td class="text-center">{{ $indikator->nama_unit }}</td>
-                                    @endif
-                                    <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
-                                    <td class="text-center">
-                                        @if ($nilaiRekap !== null)
-                                            <span class="fw-semibold text-dark">
-                                                {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
-                                            </span>
-                                        @else
-                                            <span class="text-muted fst-italic">-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if ($nilaiRekap !== null)
-                                            @if ($nilaiRekap >= $indikator->target_indikator)
-                                                <span class="badge bg-success bg-opacity-75">Tercapai</span>
-                                            @else
-                                                <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
-                                            @endif
-                                        @else
-                                            <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="javascript:void(0)"
-                                            onclick="openInputModal({{ $indikator->id }}, {{ $indikator->unit_id }})"
-                                            class="text-primary" title="Input / Edit Nilai">
-                                            <i class="bi bi-pencil-square fs-5 text-dark action-icon"></i>
-                                        </a>
-                                    </td>
-                                </tr>
->>>>>>> a71edf961bcf3ba18dc697a3fd4209b956428235
                             @endforeach
                         </tbody>
                     </table>
