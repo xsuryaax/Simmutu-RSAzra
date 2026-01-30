@@ -24,6 +24,11 @@
                         <option value="line" selected>Line Chart</option>
                         <option value="bar">Bar Chart</option>
                     </select>
+
+                    <button class="btn btn-danger btn-sm" onclick="exportIMPRSChart()">
+                        Export PDF
+                    </button>
+
                 </div>
             </div>
             <div class="card-body">
@@ -121,20 +126,20 @@
             data: {
                 labels: labelsBulan.slice(start, end),
                 datasets: [{
-                        label: 'Standar',
-                        data: dataObj.target.slice(start, end),
-                        borderColor: '#3498db',
-                        backgroundColor: '#3498db',
-                        order : 2
+                    label: 'Standar',
+                    data: dataObj.target.slice(start, end),
+                    borderColor: '#3498db',
+                    backgroundColor: '#3498db',
+                    order: 2
 
-                    },
-                    {
-                        label: 'Capaian',
-                        data: dataObj.hasil.slice(start, end),
-                        borderColor: '#e74c3c',
-                        backgroundColor: '#e74c3c',
-                        order : 1
-                    }
+                },
+                {
+                    label: 'Capaian',
+                    data: dataObj.hasil.slice(start, end),
+                    borderColor: '#e74c3c',
+                    backgroundColor: '#e74c3c',
+                    order: 1
+                }
                 ]
             },
             options: {
@@ -143,10 +148,10 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 110,
+                        max: 100,
                         ticks: {
                             stepSize: 10,
-                            callback: function(value) {
+                            callback: function (value) {
                                 return value;
                             }
                         }
@@ -198,4 +203,21 @@
     }
 
     init();
+
+    function exportIMPRSChart() {
+        if (!chart) {
+            alert('Chart belum tersedia');
+            return;
+        }
+
+        const kategori = catFilter.selectedOptions[0]?.text ?? 'IMPRS';
+        const indikator = indFilter.selectedOptions[0]?.text ?? '';
+        const tahun = tahunFilter.value;
+        const periode = periodeFilter.value;
+
+        const judul = `Indikator Mutu Prioritas RS - ${kategori} - ${indikator} (${periode} ${tahun})`;
+
+        exportChart(chart, judul);
+    }
+
 </script>

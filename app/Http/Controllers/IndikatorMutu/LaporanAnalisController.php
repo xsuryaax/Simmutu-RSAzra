@@ -5,6 +5,7 @@ namespace App\Http\Controllers\IndikatorMutu;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class LaporanAnalisController extends Controller
@@ -20,12 +21,14 @@ class LaporanAnalisController extends Controller
 
         $bulan = $request->bulan ?? Carbon::parse($periodeAktif->tanggal_mulai)->month;
         $tahun = $request->tahun ?? Carbon::parse($periodeAktif->tanggal_mulai)->year;
-
         $jenisIndikator = $request->jenis_indikator ?? 'prioritas unit';
+
+        // Indikator yang dipilih untuk kalender
+        $selectedIndikatorId = $request->indikator_id;
+        $selectedUnitId = $request->unit_id;
 
         $indikators = $this->getIndikator($user, $jenisIndikator);
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $jenisIndikator);
-        $laporan = $this->getLaporan($user, $periodeAktif, $jenisIndikator);
 
         $jenisIndikatorList = DB::table('tbl_kamus_indikator')
             ->select('jenis_indikator')
@@ -34,45 +37,60 @@ class LaporanAnalisController extends Controller
             ->orderBy('jenis_indikator')
             ->pluck('jenis_indikator');
 
-        $table = $this->getTabelLaporan($jenisIndikator);
-        $dataPengisian = DB::table($table)
-            ->select('tanggal_laporan', DB::raw('count(id) as total_input'))
-            ->whereMonth('tanggal_laporan', $bulan)
-            ->whereYear('tanggal_laporan', $tahun)
-            ->when(!in_array($user->unit_id, [1, 2]), function ($q) use ($user) {
-                return $q->where('unit_id', $user->unit_id);
-            })
-            ->groupBy('tanggal_laporan')
-            ->get()
-            ->keyBy(function ($item) {
-                return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
-            });
+        // Data kalender (hanya jika ada indikator yang dipilih)
+        $kalenderData = null;
+        $selectedIndikator = null;
 
-        // hitung total indikator yang seharusnya diisi (untuk benchmark warna dot)
-        // dot oren berarti ada yang belum diisi, dot hijau sudah diisi semua
-        $totalHarusIsi = $this->getIndikator($user, $jenisIndikator)->count();
+        if ($selectedIndikatorId) {
+            $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
 
-        // buat kalender
-        $startOfMonth = Carbon::create($tahun, $bulan, 1);
-        $daysInMonth = $startOfMonth->daysInMonth;
-        $skip = $startOfMonth->dayOfWeekIso - 1;
+            if ($selectedIndikator) {
+                $table = $this->getTabelLaporan($jenisIndikator);
+
+                if ($table) {
+                    // Ambil data pengisian untuk indikator ini di bulan & tahun tertentu
+                    $query = DB::table($table)
+                        ->select('tanggal_laporan', 'numerator', 'denominator', 'nilai', 'id')
+                        ->where('indikator_id', $selectedIndikatorId)
+                        ->whereMonth('tanggal_laporan', $bulan)
+                        ->whereYear('tanggal_laporan', $tahun);
+
+                    // Filter unit untuk jenis tertentu
+                    if (in_array(strtolower($jenisIndikator), ['prioritas unit', 'prioritas rs'])) {
+                        $query->where('unit_id', $selectedUnitId);
+                    }
+
+                    $dataPengisian = $query->get()
+                        ->keyBy(function ($item) {
+                            return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
+                        });
+
+                    // Buat struktur kalender
+                    $startOfMonth = Carbon::create($tahun, $bulan, 1);
+
+                    $kalenderData = [
+                        'daysInMonth' => $startOfMonth->daysInMonth,
+                        'skip' => $startOfMonth->dayOfWeekIso - 1,
+                        'dataPengisian' => $dataPengisian,
+                        'bulanNama' => $startOfMonth->translatedFormat('F Y'),
+                    ];
+                }
+            }
+        }
 
         return view('menu.IndikatorMutu.laporan-analis.index', [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
-            'laporanHarian' => $laporan['grouped'],
-            'paginate' => $laporan['paginator'],
             'periodeAktif' => $periodeAktif,
             'periode' => $periodeAktif,
             'jenisIndikatorList' => $jenisIndikatorList,
             'jenisIndikator' => $jenisIndikator,
-            // tambahan data untuk kalender
-            'daysInMonth' => $daysInMonth,
-            'skip' => $skip,
-            'dataPengisian' => $dataPengisian,
-            'totalHarusIsi' => $totalHarusIsi,
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'kalenderData' => $kalenderData,
+            'selectedIndikator' => $selectedIndikator,
+            'selectedIndikatorId' => $selectedIndikatorId,
+            'selectedUnitId' => $selectedUnitId,
         ]);
     }
 
@@ -83,7 +101,6 @@ class LaporanAnalisController extends Controller
             ->leftJoin('tbl_frekuensi_pengumpulan_data as f', 'f.id', '=', 'k.frekuensi_pengumpulan_data_id')
             ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
             ->join('tbl_periode as p', fn($join) => $join->where('p.status', 'aktif'))
-
             ->select(
                 'i.id',
                 'i.nama_indikator',
@@ -95,58 +112,19 @@ class LaporanAnalisController extends Controller
                 'u.nama_unit',
                 'k.jenis_indikator'
             )
-
             ->where('i.status_indikator', 'aktif')
-
             ->when($jenisIndikator, function ($q) use ($jenisIndikator) {
                 $q->whereRaw(
                     "LOWER(k.jenis_indikator) LIKE ?",
                     ['%' . strtolower($jenisIndikator) . '%']
                 );
             })
-
             ->when(
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('i.unit_id', $user->unit_id)
             )
-
             ->orderBy('i.id')
             ->get();
-    }
-
-    private function getLaporan($user, $periode, $jenisIndikator = null)
-    {
-        $jenisList = $jenisIndikator
-            ? [strtolower($jenisIndikator)]
-            : ['nasional', 'prioritas unit', 'prioritas rs'];
-
-        $laporanAll = collect();
-
-        foreach ($jenisList as $jenis) {
-            $table = $this->getTabelLaporan($jenis);
-            if (!$table)
-                continue;
-
-            $query = DB::table("$table as l")
-                ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-                ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-                ->whereBetween('l.tanggal_laporan', [$periode->tanggal_mulai, $periode->tanggal_selesai])
-                ->when(
-                    in_array($jenis, ['prioritas unit', 'prioritas rs'])
-                        && !in_array($user->unit_id, [1, 2]),
-                    fn($q) => $q->where('l.unit_id', $user->unit_id)
-                )
-                ->orderBy('l.indikator_id')
-                ->orderBy('l.tanggal_laporan', 'asc');
-
-            $laporanJenis = $query->get();
-            $laporanAll = $laporanAll->merge($laporanJenis);
-        }
-
-        return [
-            'paginator' => $laporanAll,
-            'grouped' => $laporanAll->groupBy('indikator_id'),
-        ];
     }
 
     private function getRekapBulanan($user, $bulan, $tahun, $jenisIndikator = null)
@@ -208,7 +186,6 @@ class LaporanAnalisController extends Controller
 
         return $rekap;
     }
-
 
     public function store(Request $request)
     {
@@ -287,7 +264,47 @@ class LaporanAnalisController extends Controller
 
         DB::table($tableTujuan)->insert($dataInsert);
 
-        return back()->with('success', 'Data berhasil disimpan');
+        // Redirect kembali dengan parameter indikator yang sama agar kalender tetap muncul
+        return redirect()->route('laporan-analis.index', [
+            'jenis_indikator' => $request->jenis_indikator,
+            'bulan' => $request->bulan,
+            'tahun' => $request->tahun,
+            'indikator_id' => $request->indikator_id,
+            'unit_id' => $request->unit_id,
+        ])->with('success', 'Data berhasil disimpan');
+    }
+
+    public function getDetail($id)
+    {
+        // Cari di semua tabel laporan
+        $tables = [
+            'tbl_laporan_dan_analis_unit',
+            'tbl_laporan_dan_analis_imprs',
+            'tbl_laporan_dan_analis_nasional'
+        ];
+
+        foreach ($tables as $table) {
+            $data = DB::table($table)
+                ->where('id', $id)
+                ->first();
+
+            if ($data) {
+                return response()->json([
+                    'id' => $data->id,
+                    'indikator_id' => $data->indikator_id,
+                    'unit_id' => $data->unit_id ?? null,
+                    'numerator' => $data->numerator,
+                    'denominator' => $data->denominator,
+                    'nilai' => $data->nilai,
+                    'pencapaian' => $data->pencapaian,
+                    'tanggal_laporan' => $data->tanggal_laporan,
+                    'file_laporan' => $data->file_laporan,
+                    'table' => $table
+                ]);
+            }
+        }
+
+        return response()->json(['error' => 'Data tidak ditemukan'], 404);
     }
 
     private function getPeriodeAktif()
@@ -305,5 +322,14 @@ class LaporanAnalisController extends Controller
             'nasional' => 'tbl_laporan_dan_analis_nasional',
             default => null,
         };
+    }
+
+    public function show($id)
+    {
+        $data = DB::table('laporan_indikator')
+            ->where('id', $id)
+            ->first();
+
+        return response()->json($data);
     }
 }

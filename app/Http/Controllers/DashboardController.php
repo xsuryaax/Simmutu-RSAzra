@@ -23,7 +23,6 @@ class DashboardController extends Controller
 
         $data = [
             'roleId' => $roleId,
-            'pdsaTotal' => $this->getTotalPdsa(),
             'pdsaList' => collect(),
 
             'totalIndikator' => $indikators->count(),
@@ -42,10 +41,15 @@ class DashboardController extends Controller
             'chartIMPRSYears' => $this->getYears(),
         ];
 
-        // ambil PDSA notification
         $pdsaData = in_array($roleId, [1, 2])
-            ? $this->getPdsaNotification() // admin → semua unit
-            : $this->getPdsaNotification($user->unit_id); // user biasa → unit sendiri
+            ? [
+                'pdsaTotal' => $this->getTotalPdsa(),  // ← Gunakan ini
+                'pdsaList' => $this->getPdsaList()     // ← Buat function baru untuk list
+            ]
+            : [
+                'pdsaTotal' => $this->getTotalPdsa($user->unit_id),
+                'pdsaList' => $this->getPdsaList($user->unit_id)
+            ];
 
         $data['pdsaTotal'] = $pdsaData['pdsaTotal'];
         $data['pdsaList'] = $pdsaData['pdsaList'];
@@ -140,7 +144,8 @@ class DashboardController extends Controller
 
         foreach ($units as $unit) {
             $indikators = $semuaIndikator->get($unit->id, collect());
-            if ($indikators->isEmpty()) continue;
+            if ($indikators->isEmpty())
+                continue;
 
             $sudah = [];
             $belum = [];
@@ -464,14 +469,91 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getTotalPdsa($unitId = null): int
+    private function getTotalPdsa($unitId = null)
     {
-        $query = DB::table('tbl_pdsa_assignments');
+        $query = DB::table('tbl_laporan_dan_analis_unit as l')
+            ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
+            ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
+            ->leftJoin('tbl_pdsa_assignments as p', function ($join) {
+                $join->on('l.indikator_id', '=', 'p.indikator_id')
+                    ->on('l.unit_id', '=', 'p.unit_id')
+                    ->on(DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'), '=', 'p.tahun')
+                    ->on(DB::raw("
+                    CASE
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
+                        ELSE 'Q4'
+                    END
+                "), '=', 'p.quarter');
+            });
 
         if ($unitId) {
-            $query->where('unit_id', $unitId);
+            $query->where('l.unit_id', $unitId);
         }
 
-        return $query->count();
+        $result = $query->select(
+            'l.indikator_id',
+            'l.unit_id',
+            'i.nama_indikator',
+            'u.nama_unit',
+            'i.target_indikator',
+            DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
+            DB::raw("
+                CASE
+                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
+                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
+                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
+                    ELSE 'Q4'
+                END as quarter
+            "),
+            DB::raw('AVG(l.nilai) as nilai_avg')
+        )
+            ->groupBy(
+                'l.indikator_id',
+                'l.unit_id',
+                'i.nama_indikator',
+                'u.nama_unit',
+                'i.target_indikator',
+                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
+                DB::raw("
+                CASE
+                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
+                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
+                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
+                    ELSE 'Q4'
+                END
+            ")
+            )
+            ->havingRaw('AVG(l.nilai) < i.target_indikator')
+            ->get();
+
+        return $result->count();
+    }
+
+    private function getPdsaList($unitId = null)
+    {
+        $query = DB::table('tbl_pdsa_assignments as p')
+            ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
+            ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
+            ->whereIn('p.status_pdsa', ['assigned', 'submitted']);
+
+        if ($unitId) {
+            $query->where('p.unit_id', $unitId);
+        }
+
+        return $query->select(
+            'p.id',
+            'p.status_pdsa',
+            'i.nama_indikator',
+            'p.unit_id',
+            'p.created_at',
+            'tbl_unit.nama_unit',
+            'p.quarter',
+            'p.tahun',
+        )
+            ->orderByDesc('p.created_at')
+            ->limit(5)
+            ->get();
     }
 }

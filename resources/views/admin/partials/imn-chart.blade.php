@@ -3,34 +3,40 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                 <h4>Indikator Mutu Nasional</h4>
-                <div class="d-flex gap-2">
+
+                <div class="d-flex gap-2 align-items-center">
                     <select id="indicatorsFilter" class="form-select form-select-sm">
                         <option value="">-- Pilih Indikator --</option>
                         @foreach ($indikatorNasionalList as $ind)
-                            <option value="{{ $ind->id }}">
-                                {{ $ind->nama_indikator }}
-                            </option>
+                            <option value="{{ $ind->id }}">{{ $ind->nama_indikator }}</option>
                         @endforeach
                     </select>
+
                     <select id="inmFilterTahun" class="form-select form-select-sm">
                         @foreach ($nasionalYears as $th)
                             <option value="{{ $th }}">{{ $th }}</option>
                         @endforeach
                     </select>
+
                     <select id="inmFilterPeriode" class="form-select form-select-sm">
-                        <option value="Tahun" selected>Data Satu Tahun</option>
-                        <option value="Q1">Q1 (Jan-Mar)</option>
-                        <option value="Q2">Q2 (Apr-Jun)</option>
-                        <option value="Q3">Q3 (Jul-Sep)</option>
-                        <option value="Q4">Q4 (Okt-Des)</option>
+                        <option value="Tahun">Data Satu Tahun</option>
+                        <option value="Q1">Q1</option>
+                        <option value="Q2">Q2</option>
+                        <option value="Q3">Q3</option>
+                        <option value="Q4">Q4</option>
                     </select>
 
                     <select id="inmFilterTipeChart" class="form-select form-select-sm">
-                        <option value="line" selected>Line Chart</option>
-                        <option value="bar">Bar Chart</option>
+                        <option value="line">Line</option>
+                        <option value="bar">Bar</option>
                     </select>
+
+                    <button class="btn btn-danger btn-sm" onclick="exportINMChart()">
+                        Export PDF
+                    </button>
                 </div>
             </div>
+
             <div class="card-body">
                 <div style="height: 400px;">
                     <canvas id="chartINM"></canvas>
@@ -106,25 +112,25 @@
                 data: {
                     labels: view.labels,
                     datasets: [{
-                            label: 'Target',
-                            data: view.target,
-                            borderColor: '#3498db',
-                            backgroundColor: '#3498db',
-                            borderWidth: 2,
-                            pointStyle: 'diamond',
-                            pointRadius: type === 'line' ? 6 : 0,
-                            order : 2
-                        },
-                        {
-                            label: 'Realisasi',
-                            data: view.hasil,
-                            borderColor: '#e74c3c',
-                            backgroundColor: '#e74c3c',
-                            borderWidth: 2,
-                            pointStyle: 'diamond',
-                            pointRadius: type === 'line' ? 6 : 0,
-                            order : 1
-                        }
+                        label: 'Target',
+                        data: view.target,
+                        borderColor: '#3498db',
+                        backgroundColor: '#3498db',
+                        borderWidth: 2,
+                        pointStyle: 'diamond',
+                        pointRadius: type === 'line' ? 6 : 0,
+                        order: 2
+                    },
+                    {
+                        label: 'Realisasi',
+                        data: view.hasil,
+                        borderColor: '#e74c3c',
+                        backgroundColor: '#e74c3c',
+                        borderWidth: 2,
+                        pointStyle: 'diamond',
+                        pointRadius: type === 'line' ? 6 : 0,
+                        order: 1
+                    }
                     ]
                 },
                 options: {
@@ -155,5 +161,23 @@
 
         // auto render pertama
         updateINMChart();
+
+        function exportINMChart() {
+            if (!inmChart) {
+                alert('Chart belum tersedia');
+                return;
+            }
+
+            const indikatorText =
+                document.getElementById('indicatorsFilter')
+                    .selectedOptions[0]?.text ?? 'Indikator Nasional';
+
+            const tahun = document.getElementById('inmFilterTahun').value;
+            const periode = document.getElementById('inmFilterPeriode').value;
+
+            const judul = `Indikator Mutu Nasional - ${indikatorText} (${periode} ${tahun})`;
+
+            exportChart(inmChart, judul);
+        }
     </script>
 </div>

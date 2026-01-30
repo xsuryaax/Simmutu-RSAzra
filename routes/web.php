@@ -62,10 +62,17 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:master_indikator');
     Route::resource('kamus-indikator', KamusIndikatorController::class)
         ->middleware('check.role:kamus_indikator');
-    Route::resource('laporan-analis', LaporanAnalisController::class)
-        ->middleware('check.role:laporan_analis');
     Route::resource('kategori-imprs', KategoriIMPRSController::class)
         ->middleware('check.role:kategori_imprs');
+
+    Route::resource('laporan-analis', LaporanAnalisController::class)
+        ->middleware('check.role:laporan_analis');
+    Route::get('/laporan-analis/kalender', [LaporanAnalisController::class, 'getKalenderIndikator'])
+        ->name('laporan-analis.kalender');
+    // Route untuk Laporan Analis
+    Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])
+        ->name('laporan-analis.detail');
+
 
     // Menu Manajemen Mutu
     Route::resource('cakupan-data', CakupanDataController::class)
@@ -137,4 +144,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/export/pdf/chart', [ExportPdfController::class, 'exportChart'])
         ->name('export.pdf.chart');
+
+    Route::get('/laporan-analis/kalender', [LaporanAnalisController::class, 'getKalenderIndikator'])->name('laporan-analis.kalender');
+    // Route untuk Laporan Analis
+    Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])->name('laporan-analis.detail');
+    Route::put('/laporan-analis/{id}', [LaporanAnalisController::class, 'update'])->name('laporan-analis.update');
+
 });

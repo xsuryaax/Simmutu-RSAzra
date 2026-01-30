@@ -54,36 +54,6 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                <form method="GET" action="{{ route('pdsa.index') }}" class="row g-2 mb-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Tahun</label>
-                        <select name="tahun" class="form-select">
-                            @for ($y = date('Y'); $y >= date('Y') - 5; $y--)
-                                <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>
-                                    {{ $y }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label">Quarter</label>
-                        <select name="quarter" class="form-select">
-                            @foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $q)
-                                <option value="{{ $q }}" {{ $quarter === $q ? 'selected' : '' }}>
-                                    {{ $q }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-3 align-self-end">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-filter"></i> Filter
-                        </button>
-                    </div>
-                </form>
-
                 <div class="table-parent-container table-responsive-md table-dark">
                     <table class="table table-striped" id="table1">
                         <thead>
@@ -113,8 +83,9 @@
                                         {{ $row->nama_unit ?? 'ID: ' . $row->unit_id }}
                                     </td>
 
-                                    <td class="text-center">{{ $tahun }}</td>
-                                    <td class="text-center">{{ $quarter }}</td>
+                                    <td class="text-center">{{ $row->tahun }}</td>
+                                    <td class="text-center">{{ $row->quarter }}</td>
+
                                     <td class="text-center">
                                         {{ rtrim(rtrim(number_format($row->target_indikator, 2), '0'), '.') }}%
                                     </td>
@@ -144,8 +115,8 @@
                                                 @csrf
                                                 <input type="hidden" name="indikator_id" value="{{ $row->indikator_id }}">
                                                 <input type="hidden" name="unit_id" value="{{ $row->unit_id }}">
-                                                <input type="hidden" name="tahun" value="{{ $tahun }}">
-                                                <input type="hidden" name="quarter" value="{{ $quarter }}">
+                                                <input type="hidden" name="tahun" value="{{ $row->tahun }}">
+                                                <input type="hidden" name="quarter" value="{{ $row->quarter }}">
 
                                                 <button type="submit" class="btn btn-primary btn-sm" title="Tugaskan PDSA">
                                                     Tugaskan
@@ -153,7 +124,8 @@
                                             </form>
                                         @else
                                             {{-- Lihat / Isi PDSA --}}
-                                            <a href="{{ route('pdsa.show', $row->pdsa_id) }}" class="btn btn-link p-0" title="Lihat PDSA">
+                                            <a href="{{ route('pdsa.show', $row->pdsa_id) }}" class="btn btn-link p-0"
+                                                title="Lihat PDSA">
                                                 <i class="bi bi-eye fs-5 text-primary"></i>
                                             </a>
                                         @endif

@@ -183,13 +183,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
     <script>
-        /* ==================== DATA ======================= */
         const allUnitData = @json($divisionData);
 
         const adminAvailableYears = Object.keys(allUnitData).reverse();
         const defaultYear = adminAvailableYears[0];
 
-        /* ==================== ELEMENT ======================= */
         const unitFilterEl = document.getElementById("divisionFilter");
         const admFilterTahunEl = document.getElementById("admFilterTahun");
         const admFilterPeriodeEl = document.getElementById("admFilterPeriode");
@@ -199,9 +197,6 @@
         const ctx2 = document.getElementById("chartDivisionAchievement");
         let divisionChart = null;
 
-        /* ==================== INIT DROPDOWN ======================= */
-
-        // isi tahun
         adminAvailableYears.forEach(year => {
             const opt = document.createElement("option");
             opt.value = year;
@@ -212,7 +207,6 @@
 
         indicatorFilterEl.disabled = true;
 
-        /* ==================== UTIL ======================= */
         function getFilteredData(data, periode) {
             let start = 0,
                 end = 12;
@@ -232,7 +226,6 @@
             return data.slice(start, end);
         }
 
-        /* ==================== EMPTY CHART ======================= */
         function renderEmptyDivisionChart() {
             const labels = allUnitData[defaultYear].labels;
 
@@ -249,9 +242,9 @@
                     }]
                 },
                 options: {
-                    responsive: true, // ✅ Tetap responsive untuk tampilan
+                    responsive: true,
                     maintainAspectRatio: true,
-                    devicePixelRatio: 2, // ✅ Naikkan dikit biar lebih tajam
+                    devicePixelRatio: 2,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -263,7 +256,6 @@
             });
         }
 
-        /* ==================== UPDATE INDIKATOR ======================= */
         function updateIndicatorDropdown() {
             const unit = unitFilterEl.value;
             const tahun = admFilterTahunEl.value;
@@ -287,7 +279,6 @@
             indicatorFilterEl.disabled = false;
         }
 
-        /* ==================== UPDATE CHART ======================= */
         function updateDivisionChart() {
             const unit = unitFilterEl.value;
             const tahun = admFilterTahunEl.value;
@@ -332,9 +323,9 @@
                     }]
                 },
                 options: {
-                    responsive: true, // ✅ Tetap responsive
+                    responsive: true,
                     maintainAspectRatio: true,
-                    devicePixelRatio: 2, // ✅ Naikkan dikit
+                    devicePixelRatio: 2,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -346,7 +337,6 @@
             });
         }
 
-        /* ==================== EXPORT CHART (YANG PALING PENTING) ======================= */
         function exportChart(chartInstance, judul) {
             if (!chartInstance) {
                 alert('Chart belum tersedia');
@@ -363,36 +353,28 @@
                 return;
             }
 
-            // 🔥 KUNCI: Buat canvas HD temporary tanpa ganggu tampilan
             const originalCanvas = chartInstance.canvas;
 
-            // Ukuran HD untuk export (landscape A4 optimal)
-            const exportWidth = 1600;  // Lebar HD
-            const exportHeight = 900;  // Tinggi HD (ratio 16:9)
+            const exportWidth = 1600;
+            const exportHeight = 900;
 
-            // Buat canvas temporary
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = exportWidth;
             tempCanvas.height = exportHeight;
 
             const tempCtx = tempCanvas.getContext('2d');
 
-            // Background putih
             tempCtx.fillStyle = 'white';
             tempCtx.fillRect(0, 0, exportWidth, exportHeight);
 
-            // Hitung scale ratio
             const scaleX = exportWidth / originalCanvas.width;
             const scaleY = exportHeight / originalCanvas.height;
 
-            // Gunakan scale yang lebih kecil agar proporsional
             const scale = Math.min(scaleX, scaleY);
 
-            // Hitung posisi center
             const x = (exportWidth - (originalCanvas.width * scale)) / 2;
             const y = (exportHeight - (originalCanvas.height * scale)) / 2;
 
-            // Render chart dengan kualitas tinggi
             tempCtx.imageSmoothingEnabled = true;
             tempCtx.imageSmoothingQuality = 'high';
             tempCtx.drawImage(
@@ -402,7 +384,6 @@
                 originalCanvas.height * scale
             );
 
-            // Convert ke base64 dengan kualitas maksimal
             const base64Image = tempCanvas.toDataURL('image/png', 1.0);
 
             document.querySelector('[name=chart_image]').value = base64Image;
@@ -410,8 +391,6 @@
             document.getElementById('exportPdfForm').submit();
         }
 
-
-        /* ==================== EVENT ======================= */
         unitFilterEl.addEventListener("change", () => {
             updateIndicatorDropdown();
             updateDivisionChart();
