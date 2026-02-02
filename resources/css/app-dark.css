@@ -76,6 +76,10 @@ html.dark .table-dark td {
     color: #e1f0ff;
 }
 
+html.dark #table1_info {
+  color: #fff;
+}
+
 html.dark .text-primary-dark {
     color: #fff !important;
 }
@@ -118,4 +122,8 @@ html.dark .table-light {
 
 html.dark .bg-light {
     background-color: #35404a !important;
+}
+
+html.dark .text-dark {
+    color: #fff !important;
 }

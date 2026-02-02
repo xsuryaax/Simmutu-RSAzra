@@ -882,6 +882,9 @@
   min-width: 40px;
 }
 
+#table1_info {
+  color: #000;
+}
 
 /* table responsive md */
 .table-responsive-md {
