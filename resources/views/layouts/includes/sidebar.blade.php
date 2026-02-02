@@ -6,8 +6,8 @@
                     SIMMUTU
                 </div>
                 <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17" height="17"
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"
+                        role="img" class="iconify iconify--system-uicons" width="17" height="17"
                         preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
                         <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
                             stroke-linejoin="round">
@@ -62,7 +62,7 @@
                         </li>
                         <li class="submenu-item {{ request()->is('kamus-indikator*') ? 'active' : '' }}">
                             <a href="{{ route('kamus-indikator.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Kamus Indikator</a>
+                                style="text-decoration: none;">Profil Indikator Mutu</a>
                         </li>
                         <li class="submenu-item {{ request()->is('laporan-analis*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
@@ -73,7 +73,7 @@
 
 
 
-                @if(in_array(auth()->user()->unit_id, [1, 2]))
+                @if (in_array(auth()->user()->unit_id, [1, 2]))
                     <li class="sidebar-item {{ Request::is('pdsa*') ? 'active' : '' }}">
                         <a href="{{ url('/pdsa') }}" class='sidebar-link'>
                             <i class="bi-clipboard-fill"></i>
@@ -82,7 +82,7 @@
                     </li>
                 @endif
 
-                @if(auth()->user()->unit_id == 1)
+                @if (auth()->user()->unit_id == 1)
                     <li class="sidebar-title">Menu</li>
 
                     <li
@@ -127,11 +127,13 @@
 
                                     <li
                                         class="submenu-item {{ request()->is('frekuensi-pengumpulan-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('frekuensi-pengumpulan-data.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Frekuensi Pengumpulan Data</a>
+                                        <a href="{{ route('frekuensi-pengumpulan-data.index') }}"
+                                            class="submenu-link" style="text-decoration: none;">Frekuensi Pengumpulan
+                                            Data</a>
                                     </li>
 
-                                    <li class="submenu-item {{ request()->is('interpretasi-data*') ? 'active' : '' }}">
+                                    <li
+                                        class="submenu-item {{ request()->is('interpretasi-data*') ? 'active' : '' }}">
                                         <a href="{{ route('interpretasi-data.index') }}" class="submenu-link"
                                             style="text-decoration: none;">Interpretasi
                                             Data</a>
@@ -145,8 +147,9 @@
 
                                     <li
                                         class="submenu-item {{ request()->is('metodologi-pengumpulan-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('metodologi-pengumpulan-data.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Metodologi Pengumpulan Data</a>
+                                        <a href="{{ route('metodologi-pengumpulan-data.index') }}"
+                                            class="submenu-link" style="text-decoration: none;">Metodologi Pengumpulan
+                                            Data</a>
                                     </li>
 
                                     <li class="submenu-item {{ request()->is('publikasi-data*') ? 'active' : '' }}">

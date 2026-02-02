@@ -5,7 +5,7 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Kamus Indikator Mutu </h3>
+            <h3>Profil Indikator Mutu </h3>
             <p class="text-subtitle text-muted">
                 Halaman untuk mengelola kamus indikator mutu dalam sistem.
             </p>
@@ -28,7 +28,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Kamus Indikator Mutu
+                            Profil Indikator Mutu
                         </li>
                     </ol>
                 </nav>
@@ -42,7 +42,7 @@
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center gap-3">
-                <h5 class="card-title mb-0">Kamus Indikator Mutu</h5>
+                <h5 class="card-title mb-0">Profil Indikator Mutu</h5>
 
                 <a href="{{ route('kamus-indikator.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data
