@@ -74,9 +74,6 @@
                                 <button class="btn btn-primary">
                                     <i class="bi bi-funnel"></i> Filter
                                 </button>
-                                <a href="{{ route('master-indikator.index') }}" class="btn btn-secondary">
-                                    Reset
-                                </a>
                             </div>
                         </form>
                     @endif

@@ -3,7 +3,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
                 <h4>Indikator Mutu Prioritas Rumah Sakit</h4>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 align-items-center">
                     <select id="catFilter" class="form-select form-select-sm">
                         <option value="">-- Pilih Kategori --</option>
                     </select>

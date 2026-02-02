@@ -21,7 +21,9 @@ class LaporanAnalisController extends Controller
 
         $bulan = $request->bulan ?? Carbon::parse($periodeAktif->tanggal_mulai)->month;
         $tahun = $request->tahun ?? Carbon::parse($periodeAktif->tanggal_mulai)->year;
-        $jenisIndikator = $request->jenis_indikator ?? 'prioritas unit';
+        $jenisIndikator = $request->filled('jenis_indikator')
+            ? $request->jenis_indikator
+            : null;
 
         // Indikator yang dipilih untuk kalender
         $selectedIndikatorId = $request->indikator_id;
@@ -45,7 +47,9 @@ class LaporanAnalisController extends Controller
             $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
 
             if ($selectedIndikator) {
-                $table = $this->getTabelLaporan($jenisIndikator);
+                // ✅ PERBAIKAN: Ambil jenis indikator dari data indikator yang dipilih
+                $jenisIndikatorKalender = strtolower($selectedIndikator->jenis_indikator);
+                $table = $this->getTabelLaporan($jenisIndikatorKalender);
 
                 if ($table) {
                     // Ambil data pengisian untuk indikator ini di bulan & tahun tertentu
@@ -56,7 +60,7 @@ class LaporanAnalisController extends Controller
                         ->whereYear('tanggal_laporan', $tahun);
 
                     // Filter unit untuk jenis tertentu
-                    if (in_array(strtolower($jenisIndikator), ['prioritas unit', 'prioritas rs'])) {
+                    if (in_array($jenisIndikatorKalender, ['prioritas unit', 'prioritas rs'])) {
                         $query->where('unit_id', $selectedUnitId);
                     }
 
@@ -195,7 +199,6 @@ class LaporanAnalisController extends Controller
             'denominator' => 'required|numeric|min:1',
             'tanggal_laporan' => 'required|date',
             'file_laporan' => 'required|file|max:5120',
-            'jenis_indikator' => 'required|string',
         ]);
 
         $periode = $this->getPeriodeAktif();
@@ -208,7 +211,18 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Tanggal laporan di luar periode mutu aktif');
         }
 
-        $jenis = strtolower(trim($request->jenis_indikator));
+        // ✅ PERBAIKAN: Ambil jenis indikator dari database
+        $indikator = DB::table('tbl_indikator as i')
+            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
+            ->where('i.id', $request->indikator_id)
+            ->select('k.jenis_indikator', 'k.kategori_id')
+            ->first();
+
+        if (!$indikator) {
+            return back()->with('error', 'Indikator tidak ditemukan');
+        }
+
+        $jenis = strtolower(trim($indikator->jenis_indikator));
 
         $tableMap = [
             'prioritas unit' => 'tbl_laporan_dan_analis_unit',
@@ -216,13 +230,21 @@ class LaporanAnalisController extends Controller
             'nasional' => 'tbl_laporan_dan_analis_nasional',
         ];
 
-        if (!isset($tableMap[$jenis])) {
+        // Cari tabel yang sesuai menggunakan str_contains
+        $tableTujuan = null;
+        foreach ($tableMap as $key => $table) {
+            if (str_contains($jenis, $key)) {
+                $tableTujuan = $table;
+                break;
+            }
+        }
+
+        if (!$tableTujuan) {
             return back()->with('error', 'Jenis indikator tidak valid');
         }
 
-        $tableTujuan = $tableMap[$jenis];
-
-        if (in_array($jenis, ['prioritas unit', 'prioritas rs'])) {
+        // Validasi unit_id untuk jenis tertentu
+        if (str_contains($jenis, 'prioritas unit') || str_contains($jenis, 'prioritas rs')) {
             $request->validate([
                 'unit_id' => 'required|exists:tbl_unit,id',
             ]);
@@ -247,26 +269,18 @@ class LaporanAnalisController extends Controller
             'updated_at' => now(),
         ];
 
-        if (in_array($jenis, ['prioritas unit', 'prioritas rs'])) {
+        if (str_contains($jenis, 'prioritas unit') || str_contains($jenis, 'prioritas rs')) {
             $dataInsert['unit_id'] = $request->unit_id;
         }
 
-        if ($jenis === 'prioritas rs') {
-            $dataInsert['unit_id'] = $request->unit_id;
-
-            $kategoriId = DB::table('tbl_indikator as i')
-                ->leftJoin('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-                ->where('i.id', $request->indikator_id)
-                ->value('k.kategori_id');
-
-            $dataInsert['kategori_id'] = $kategoriId;
+        if (str_contains($jenis, 'prioritas rs')) {
+            $dataInsert['kategori_id'] = $indikator->kategori_id;
         }
 
         DB::table($tableTujuan)->insert($dataInsert);
 
-        // Redirect kembali dengan parameter indikator yang sama agar kalender tetap muncul
+        // ✅ Redirect tanpa jenis_indikator agar filter tetap kosong
         return redirect()->route('laporan-analis.index', [
-            'jenis_indikator' => $request->jenis_indikator,
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
             'indikator_id' => $request->indikator_id,
@@ -292,6 +306,7 @@ class LaporanAnalisController extends Controller
                 return response()->json([
                     'id' => $data->id,
                     'indikator_id' => $data->indikator_id,
+                    'tanggal_pengisian' => $data->created_at,
                     'unit_id' => $data->unit_id ?? null,
                     'numerator' => $data->numerator,
                     'denominator' => $data->denominator,
@@ -316,12 +331,20 @@ class LaporanAnalisController extends Controller
 
     private function getTabelLaporan($jenis)
     {
-        return match ($jenis) {
-            'prioritas unit' => 'tbl_laporan_dan_analis_unit',
-            'prioritas rs' => 'tbl_laporan_dan_analis_imprs',
-            'nasional' => 'tbl_laporan_dan_analis_nasional',
-            default => null,
-        };
+        if (!$jenis)
+            return null;
+
+        $jenisLower = strtolower(trim($jenis));
+
+        if (str_contains($jenisLower, 'prioritas unit')) {
+            return 'tbl_laporan_dan_analis_unit';
+        } elseif (str_contains($jenisLower, 'prioritas rs')) {
+            return 'tbl_laporan_dan_analis_imprs';
+        } elseif (str_contains($jenisLower, 'nasional')) {
+            return 'tbl_laporan_dan_analis_nasional';
+        }
+
+        return null;
     }
 
     public function show($id)

@@ -76,6 +76,7 @@
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Jenis Indikator</label>
                         <select name="jenis_indikator" class="form-select">
+                            <option value="">-- Semua Jenis Indikator --</option>
                             <option value="prioritas unit" {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
                                 Prioritas Unit
                             </option>
@@ -204,13 +205,12 @@
                                                         </td>
                                                         <td class="text-center">
                                                             <a href="{{ route('laporan-analis.index', [
-                                    'jenis_indikator' => request('jenis_indikator', 'prioritas unit'),
+                                    'jenis_indikator' => request()->has('jenis_indikator') && request('jenis_indikator') !== '' ? request('jenis_indikator') : null,
                                     'bulan' => request('bulan', $periodeMulai->month),
                                     'tahun' => request('tahun', $periodeMulai->year),
                                     'indikator_id' => $indikator->id,
                                     'unit_id' => $indikator->unit_id
-                                ]) }}" class="text-primary"
-                                                                title="Lihat Kalender">
+                                ]) }}" class="text-primary" title="Lihat Kalender">
                                                                 <i
                                                                     class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
                                                             </a>
@@ -300,9 +300,9 @@
                                 <p class="form-control-plaintext" id="detail_tanggal">-</p>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Nilai</label>
+                                <label class="form-label fw-semibold text-dark">Tanggal Pengisian</label>
                                 <p class="form-control-plaintext">
-                                    <span class="fs-6 text-muted" id="detail_nilai">-</span>
+                                    <span class="fs-6 text-muted" id="detail_tanggal_pengisian">-</span>
                                 </p>
                             </div>
                         </div>
@@ -318,11 +318,19 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-dark">Status Pencapaian</label>
-                            <p class="form-control-plaintext">
-                                <span class="badge" id="detail_pencapaian">-</span>
-                            </p>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark">Nilai</label>
+                                <p class="form-control-plaintext">
+                                    <span class="fs-6 text-muted" id="detail_nilai">-</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark">Status Pencapaian</label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge" id="detail_pencapaian">-</span>
+                                </p>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -441,6 +449,15 @@
             fetch(`/laporan-analis/${dataId}/detail`)
                 .then(response => response.json())
                 .then(data => {
+
+                    const tglIsi = new Date(data.tanggal_pengisian);
+                    document.getElementById('detail_tanggal_pengisian').textContent =
+                        tglIsi.toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+
                     const tgl = new Date(data.tanggal_laporan);
                     document.getElementById('detail_tanggal').textContent = tgl.toLocaleDateString('id-ID', {
                         day: 'numeric',
