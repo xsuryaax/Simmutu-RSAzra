@@ -25,10 +25,6 @@ class LaporanAnalisController extends Controller
             ? $request->jenis_indikator
             : null;
 
-        // Indikator yang dipilih untuk kalender
-        $selectedIndikatorId = $request->indikator_id;
-        $selectedUnitId = $request->unit_id;
-
         $indikators = $this->getIndikator($user, $jenisIndikator);
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $jenisIndikator);
 
@@ -39,7 +35,18 @@ class LaporanAnalisController extends Controller
             ->orderBy('jenis_indikator')
             ->pluck('jenis_indikator');
 
-        // Data kalender (hanya jika ada indikator yang dipilih)
+        // ✅ BARU: Jika tidak ada indikator yang dipilih, ambil indikator pertama
+        $selectedIndikatorId = $request->indikator_id;
+        $selectedUnitId = $request->unit_id;
+
+        // Jika tidak ada indikator yang dipilih dan ada indikator di list
+        if (!$selectedIndikatorId && $indikators->isNotEmpty()) {
+            $firstIndikator = $indikators->first();
+            $selectedIndikatorId = $firstIndikator->id;
+            $selectedUnitId = $firstIndikator->unit_id;
+        }
+
+        // Data kalender
         $kalenderData = null;
         $selectedIndikator = null;
 
@@ -47,19 +54,16 @@ class LaporanAnalisController extends Controller
             $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
 
             if ($selectedIndikator) {
-                // ✅ PERBAIKAN: Ambil jenis indikator dari data indikator yang dipilih
                 $jenisIndikatorKalender = strtolower($selectedIndikator->jenis_indikator);
                 $table = $this->getTabelLaporan($jenisIndikatorKalender);
 
                 if ($table) {
-                    // Ambil data pengisian untuk indikator ini di bulan & tahun tertentu
                     $query = DB::table($table)
                         ->select('tanggal_laporan', 'numerator', 'denominator', 'nilai', 'id')
                         ->where('indikator_id', $selectedIndikatorId)
                         ->whereMonth('tanggal_laporan', $bulan)
                         ->whereYear('tanggal_laporan', $tahun);
 
-                    // Filter unit untuk jenis tertentu
                     if (in_array($jenisIndikatorKalender, ['prioritas unit', 'prioritas rs'])) {
                         $query->where('unit_id', $selectedUnitId);
                     }
@@ -69,7 +73,6 @@ class LaporanAnalisController extends Controller
                             return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
                         });
 
-                    // Buat struktur kalender
                     $startOfMonth = Carbon::create($tahun, $bulan, 1);
 
                     $kalenderData = [

@@ -76,7 +76,7 @@
                     <div class="col-md-3">
                         <label class="form-label fw-semibold">Jenis Indikator</label>
                         <select name="jenis_indikator" class="form-select">
-                            <option value="">-- Semua Jenis Indikator --</option>
+                            <option value="">-- Semua Indikator --</option>
                             <option value="prioritas unit" {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
                                 Prioritas Unit
                             </option>
@@ -397,7 +397,6 @@
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Unggah File<span class="text-danger">*</span></label>
                                 <input type="file" name="file_laporan" class="form-control" required>
-                                <small class="text-muted">Max: 5MB</small>
                             </div>
                         </div>
 
@@ -472,7 +471,7 @@
 
                     const nilai = Number(data.nilai);
                     document.getElementById('detail_nilai').textContent =
-                        (nilai === 100 ? '100' : nilai.toFixed(1)) + '%';
+                        (Number.isInteger(nilai) ? nilai : nilai.toFixed(1)) + '%';
 
 
                     const badgePencapaian = document.getElementById('detail_pencapaian');
@@ -493,20 +492,6 @@
                     alert('Gagal memuat detail data');
                 });
         }
-
-        @if ($kalenderData)
-            document.addEventListener('DOMContentLoaded', function () {
-                const kalenderSection = document.getElementById('kalenderSection');
-                if (kalenderSection) {
-                    setTimeout(() => {
-                        kalenderSection.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 100);
-                }
-            });
-        @endif
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
