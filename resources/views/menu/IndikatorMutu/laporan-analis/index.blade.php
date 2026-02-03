@@ -52,240 +52,257 @@
 
 @section('content')
     <section class="section">
-        <div class="card">
-            <div class="card-header">
-                <h5>Data Indikator Laporan</h5>
-            </div>
+        <div class="col-12 col-md-12 col-lg-12">
+            <div class="row mb-4">
+                <div class="col-5 col-lg-7 col-md-5 px-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Data Indikator Laporan</h5>
+                        </div>
 
-            <div class="card-body">
+                        <div class="card-body">
 
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
+                            @if (session('error'))
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ session('error') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            @endif
 
-                <form method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold">Jenis Indikator</label>
-                        <select name="jenis_indikator" class="form-select">
-                            <option value="">-- Semua Indikator --</option>
-                            <option value="prioritas unit"
-                                {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
-                                Prioritas Unit
-                            </option>
-                            <option value="nasional" {{ request('jenis_indikator') == 'nasional' ? 'selected' : '' }}>
-                                Nasional
-                            </option>
-                            <option value="prioritas rs"
-                                {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
-                                Prioritas RS
-                            </option>
-                        </select>
-                    </div>
+                            <form method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Jenis Indikator</label>
+                                    <select name="jenis_indikator" class="form-select">
+                                        <option value="">-- Semua Indikator --</option>
+                                        <option value="prioritas unit"
+                                            {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                                            Prioritas Unit
+                                        </option>
+                                        <option value="nasional"
+                                            {{ request('jenis_indikator') == 'nasional' ? 'selected' : '' }}>
+                                            Nasional
+                                        </option>
+                                        <option value="prioritas rs"
+                                            {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                                            Prioritas RS
+                                        </option>
+                                    </select>
+                                </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold">Bulan</label>
-                        <select name="bulan" class="form-select">
-                            @php
-                                $tahunDipilih = request('tahun', $periodeMulai->year);
-                                $bulanMulai = $tahunDipilih == $periodeMulai->year ? $periodeMulai->month : 1;
-                                $bulanSelesai = $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
-                            @endphp
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Bulan</label>
+                                    <select name="bulan" class="form-select">
+                                        @php
+                                            $tahunDipilih = request('tahun', $periodeMulai->year);
+                                            $bulanMulai =
+                                                $tahunDipilih == $periodeMulai->year ? $periodeMulai->month : 1;
+                                            $bulanSelesai =
+                                                $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
+                                        @endphp
 
-                            @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
-                                <option value="{{ $b }}"
-                                    {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
-                                    {{ Carbon::create()->month($b)->translatedFormat('F') }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
+                                        @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
+                                            <option value="{{ $b }}"
+                                                {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
+                                                {{ Carbon::create()->month($b)->translatedFormat('F') }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label fw-semibold">Tahun</label>
-                        <select name="tahun" class="form-select">
-                            @foreach ($tahunAktif as $t)
-                                <option value="{{ $t }}"
-                                    {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
-                                    {{ $t }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Tahun</label>
+                                    <select name="tahun" class="form-select">
+                                        @foreach ($tahunAktif as $t)
+                                            <option value="{{ $t }}"
+                                                {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
+                                                {{ $t }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-funnel"></i> Filter
-                        </button>
-                    </div>
-                </form>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="bi bi-funnel"></i> Filter
+                                    </button>
+                                </div>
+                            </form>
 
-                <div class="mb-3 d-flex flex-wrap gap-3">
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-danger me-2"
-                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Nasional</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-success me-2"
-                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Prioritas RS</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-light me-2"
-                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Unit</small>
-                    </div>
-                </div>
+                            <div class="mb-3 d-flex flex-wrap gap-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger me-2"
+                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <small class="text-primary text-primary-dark">Nasional</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-2"
+                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <small class="text-primary text-primary-dark">Prioritas RS</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-light me-2"
+                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <small class="text-primary text-primary-dark">Unit</small>
+                                </div>
+                            </div>
 
-                <div class="table-parent-container table-responsive-md table-dark">
-                    <table class="table" id="table1">
-                        <thead>
-                            <tr>
-                                <th class="text-center">NO</th>
-                                <th>INDIKATOR</th>
-                                @if ($isAdminMutu)
-                                    <th class="text-center">UNIT</th>
-                                @endif
-                                <th class="text-center">TARGET</th>
-                                <th class="text-center">NILAI</th>
-                                <th class="text-center">STATUS</th>
-                                <th class="text-center">AKSI</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($indikators as $indikator)
-                                @php
-                                    $key = $indikator->id . '-' . $indikator->unit_id;
-                                    $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
-                                    $isSelected =
-                                        $selectedIndikatorId == $indikator->id &&
-                                        $selectedUnitId == $indikator->unit_id;
-
-                                    $colColor = '';
-                                    $jenis = $indikator->jenis_indikator ?? '';
-
-                                    if (str_contains($jenis, 'Nasional')) {
-                                        $colColor = 'table-danger';
-                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
-                                        $colColor = 'table-success';
-                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
-                                        $colColor = 'table-light';
-                                    }
-                                @endphp
-
-                                <tr>
-                                    <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td class="{{ $colColor }} fw-semibold">{{ $indikator->nama_indikator }}</td>
-                                    @if ($isAdminMutu)
-                                        <td class="text-center">{{ $indikator->nama_unit }}</td>
-                                    @endif
-                                    <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
-                                    <td class="text-center">
-                                        @if ($nilaiRekap !== null)
-                                            <span>
-                                                {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
-                                            </span>
-                                        @else
-                                            <span>-</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if ($nilaiRekap !== null)
-                                            @if ($nilaiRekap >= $indikator->target_indikator)
-                                                <span class="badge bg-success bg-opacity-75">Tercapai</span>
-                                            @else
-                                                <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
+                            <div class="table-parent-container table-responsive-md table-dark">
+                                <table class="table" id="table1">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">NO</th>
+                                            <th>INDIKATOR</th>
+                                            @if ($isAdminMutu)
+                                                <th class="text-center">UNIT</th>
                                             @endif
-                                        @else
-                                            <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="{{ route('laporan-analis.index', [
-                                            'jenis_indikator' =>
-                                                request()->has('jenis_indikator') && request('jenis_indikator') !== '' ? request('jenis_indikator') : null,
-                                            'bulan' => request('bulan', $periodeMulai->month),
-                                            'tahun' => request('tahun', $periodeMulai->year),
-                                            'indikator_id' => $indikator->id,
-                                            'unit_id' => $indikator->unit_id,
-                                        ]) }}"
-                                            class="text-primary" title="Lihat Kalender">
-                                            <i
-                                                class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                                            <th class="text-center">TARGET</th>
+                                            <th class="text-center">NILAI</th>
+                                            <th class="text-center">STATUS</th>
+                                            <th class="text-center">AKSI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($indikators as $indikator)
+                                            @php
+                                                $key = $indikator->id . '-' . $indikator->unit_id;
+                                                $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
+                                                $isSelected =
+                                                    $selectedIndikatorId == $indikator->id &&
+                                                    $selectedUnitId == $indikator->unit_id;
 
-        @if ($kalenderData)
-            <div class="card" id="kalenderSection">
-                <div class="card-header">
-                    <div class="d-flex justify-content-center align-items-center text-center">
-                        <div>
-                            <h5 class="mb-1">{{ $selectedIndikator->nama_indikator }}</h5>
-                            <small class="text-muted">
-                                @if ($isAdminMutu)
-                                    {{ $selectedIndikator->nama_unit }} -
-                                @endif
-                                {{ $kalenderData['bulanNama'] }}
-                            </small>
+                                                $colColor = '';
+                                                $jenis = $indikator->jenis_indikator ?? '';
+
+                                                if (str_contains($jenis, 'Nasional')) {
+                                                    $colColor = 'table-danger';
+                                                } elseif (str_contains($jenis, 'Prioritas RS')) {
+                                                    $colColor = 'table-success';
+                                                } elseif (str_contains($jenis, 'Prioritas Unit')) {
+                                                    $colColor = 'table-light';
+                                                }
+                                            @endphp
+
+                                            <tr>
+                                                <td class="text-center">{{ $loop->iteration }}</td>
+                                                <td class="{{ $colColor }} fw-semibold">
+                                                    {{ $indikator->nama_indikator }}
+                                                </td>
+                                                @if ($isAdminMutu)
+                                                    <td class="text-center">{{ $indikator->nama_unit }}</td>
+                                                @endif
+                                                <td class="text-center">
+                                                    {{ number_format($indikator->target_indikator, 0) }}%
+                                                </td>
+                                                <td class="text-center">
+                                                    @if ($nilaiRekap !== null)
+                                                        <span>
+                                                            {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
+                                                        </span>
+                                                    @else
+                                                        <span>-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if ($nilaiRekap !== null)
+                                                        @if ($nilaiRekap >= $indikator->target_indikator)
+                                                            <span class="badge bg-success bg-opacity-75">Tercapai</span>
+                                                        @else
+                                                            <span class="badge bg-danger bg-opacity-75">Tidak
+                                                                Tercapai</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="{{ route('laporan-analis.index', [
+                                                        'jenis_indikator' =>
+                                                            request()->has('jenis_indikator') && request('jenis_indikator') !== '' ? request('jenis_indikator') : null,
+                                                        'bulan' => request('bulan', $periodeMulai->month),
+                                                        'tahun' => request('tahun', $periodeMulai->year),
+                                                        'indikator_id' => $indikator->id,
+                                                        'unit_id' => $indikator->unit_id,
+                                                    ]) }}"
+                                                        class="text-primary" title="Lihat Kalender">
+                                                        <i
+                                                            class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-body">
-                    <div class="calendar-grid border-0 shadow-sm rounded-3">
-                        @foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $hari)
-                            <div class="calendar-header">{{ $hari }}</div>
-                        @endforeach
-
-                        @for ($i = 0; $i < $kalenderData['skip']; $i++)
-                            <div class="calendar-day bg-light"></div>
-                        @endfor
-
-                        @for ($d = 1; $d <= $kalenderData['daysInMonth']; $d++)
-                            @php
-                                $tglFull = Carbon::create($tahun, $bulan, $d)->format('Y-m-d');
-                                $isToday = $tglFull == date('Y-m-d');
-                                $pengisian = $kalenderData['dataPengisian']->get($tglFull);
-                                $sudahIsi = $pengisian !== null;
-                            @endphp
-
-                            <div class="calendar-day"
-                                onclick="handleDateClick('{{ $tglFull }}', {{ $sudahIsi ? 'true' : 'false' }}, {{ $sudahIsi ? $pengisian->id : 'null' }})"
-                                style="cursor:pointer">
-                                <span class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
-
-                                <div class="d-block mt-1 text-center">
-                                    @if ($sudahIsi)
-                                        <span class="dot bg-success d-block mx-auto mb-1"></span>
-                                        <small class="text-muted fw-semibold">
-                                            {{ $pengisian->numerator }} / {{ $pengisian->denominator }}
+                @if ($kalenderData)
+                    <div class="col-5 col-lg-5 col-md-5 px-2">
+                        <div class="card" id="kalenderSection">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-center align-items-center text-center">
+                                    <div>
+                                        <h5 class="mb-1">{{ $selectedIndikator->nama_indikator }}</h5>
+                                        <small class="text-muted">
+                                            @if ($isAdminMutu)
+                                                {{ $selectedIndikator->nama_unit }} -
+                                            @endif
+                                            {{ $kalenderData['bulanNama'] }}
                                         </small>
-                                    @else
-                                        <span class="dot border d-block mx-auto"></span>
-                                    @endif
+                                    </div>
                                 </div>
                             </div>
-                        @endfor
+
+                            <div class="card-body">
+                                <div class="calendar-grid border-0 shadow-sm rounded-3">
+                                    @foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $hari)
+                                        <div class="calendar-header">{{ $hari }}</div>
+                                    @endforeach
+
+                                    @for ($i = 0; $i < $kalenderData['skip']; $i++)
+                                        <div class="calendar-day bg-light"></div>
+                                    @endfor
+
+                                    @for ($d = 1; $d <= $kalenderData['daysInMonth']; $d++)
+                                        @php
+                                            $tglFull = Carbon::create($tahun, $bulan, $d)->format('Y-m-d');
+                                            $isToday = $tglFull == date('Y-m-d');
+                                            $pengisian = $kalenderData['dataPengisian']->get($tglFull);
+                                            $sudahIsi = $pengisian !== null;
+                                        @endphp
+
+                                        <div class="calendar-day"
+                                            onclick="handleDateClick('{{ $tglFull }}', {{ $sudahIsi ? 'true' : 'false' }}, {{ $sudahIsi ? $pengisian->id : 'null' }})"
+                                            style="cursor:pointer">
+                                            <span
+                                                class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
+
+                                            <div class="d-block mt-1 text-center">
+                                                @if ($sudahIsi)
+                                                    <span class="dot bg-success d-block mx-auto mb-1"></span>
+                                                    <small class="text-muted fw-semibold">
+                                                        {{ $pengisian->numerator }} / {{ $pengisian->denominator }}
+                                                    </small>
+                                                @else
+                                                    <span class="dot border d-block mx-auto"></span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endfor
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
-        @endif
+        </div>
 
         {{-- MODAL DETAIL DATA --}}
         <div class="modal fade" id="modalDetailData" tabindex="-1">
