@@ -10,24 +10,30 @@ class tbl_kamus_indikator extends Model
     use HasFactory;
     protected $table = 'tbl_kamus_indikator';
     protected $fillable = [
-        'definisi_operasional',
-        'tujuan',
+        'kategori_indikator',
         'dasar_pemikiran',
-        'formula_pengukuran',
-        'metodologi',
-        'detail_pengukuran',
+        'tujuan',
+        'definisi_operasional',
+        'jenis_indikator_id',
+        'satuan_pengukuran',
+        'numerator',
+        'denominator',
+        'target_pencapaian',
+        'kriteria_inklusi',
+        'kriteria_eksklusi',
+        'formula',
+        'metode_pengumpulan_data',
         'sumber_data',
+        'instrumen_pengambilan_data',
+        'populasi',
+        'sampel',
         'penanggung_jawab',
-        'jenis_indikator',
+
         'indikator_id',
         'kategori_id',
         'dimensi_mutu_id',
-        'metodologi_pengumpulan_data_id',
-        'cakupan_data_id',
-        'frekuensi_pengumpulan_data_id',
-        'frekuensi_analisis_data_id',
-        'metodologi_analisis_data_id',
-        'interpretasi_data_id',
-        'publikasi_data_id'
+        'periode_pengumpulan_data_id',
+        'periode_analisis_data_id',
+        'penyajian_data_id',
     ];
 }

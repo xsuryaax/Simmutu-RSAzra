@@ -21,19 +21,19 @@ class LaporanAnalisController extends Controller
 
         $bulan = $request->bulan ?? Carbon::parse($periodeAktif->tanggal_mulai)->month;
         $tahun = $request->tahun ?? Carbon::parse($periodeAktif->tanggal_mulai)->year;
-        $jenisIndikator = $request->filled('jenis_indikator')
-            ? $request->jenis_indikator
+        $jenisIndikator = $request->filled('kategori_indikator')
+            ? $request->kategori_indikator
             : null;
 
         $indikators = $this->getIndikator($user, $jenisIndikator);
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $jenisIndikator);
 
         $jenisIndikatorList = DB::table('tbl_kamus_indikator')
-            ->select('jenis_indikator')
-            ->whereNotNull('jenis_indikator')
+            ->select('kategori_indikator')
+            ->whereNotNull('kategori_indikator')
             ->distinct()
-            ->orderBy('jenis_indikator')
-            ->pluck('jenis_indikator');
+            ->orderBy('kategori_indikator')
+            ->pluck('kategori_indikator');
 
         // ✅ BARU: Jika tidak ada indikator yang dipilih, ambil indikator pertama
         $selectedIndikatorId = $request->indikator_id;
@@ -54,7 +54,7 @@ class LaporanAnalisController extends Controller
             $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
 
             if ($selectedIndikator) {
-                $jenisIndikatorKalender = strtolower($selectedIndikator->jenis_indikator);
+                $jenisIndikatorKalender = strtolower($selectedIndikator->kategori_indikator);
                 $table = $this->getTabelLaporan($jenisIndikatorKalender);
 
                 if ($table) {
@@ -117,12 +117,12 @@ class LaporanAnalisController extends Controller
                 'p.tanggal_selesai',
                 'f.nama_frekuensi_pengumpulan_data',
                 'u.nama_unit',
-                'k.jenis_indikator'
+                'k.kategori_indikator'
             )
             ->where('i.status_indikator', 'aktif')
             ->when($jenisIndikator, function ($q) use ($jenisIndikator) {
                 $q->whereRaw(
-                    "LOWER(k.jenis_indikator) LIKE ?",
+                    "LOWER(k.kategori_indikator) LIKE ?",
                     ['%' . strtolower($jenisIndikator) . '%']
                 );
             })
@@ -154,7 +154,7 @@ class LaporanAnalisController extends Controller
                     ->whereMonth('l.tanggal_laporan', $bulan)
                     ->whereYear('l.tanggal_laporan', $tahun)
                     ->where('i.status_indikator', 'aktif')
-                    ->whereRaw("LOWER(k.jenis_indikator) LIKE ?", ['%nasional%'])
+                    ->whereRaw("LOWER(k.kategori_indikator) LIKE ?", ['%nasional%'])
                     ->select(
                         'l.indikator_id',
                         'i.unit_id',
@@ -172,7 +172,7 @@ class LaporanAnalisController extends Controller
                     ->whereMonth('l.tanggal_laporan', $bulan)
                     ->whereYear('l.tanggal_laporan', $tahun)
                     ->where('i.status_indikator', 'aktif')
-                    ->whereRaw("LOWER(k.jenis_indikator) LIKE ?", ['%' . $jenis . '%'])
+                    ->whereRaw("LOWER(k.kategori_indikator) LIKE ?", ['%' . $jenis . '%'])
                     ->when(
                         !in_array($user->unit_id, [1, 2]),
                         fn($q) => $q->where('l.unit_id', $user->unit_id)
@@ -218,14 +218,14 @@ class LaporanAnalisController extends Controller
         $indikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->where('i.id', $request->indikator_id)
-            ->select('k.jenis_indikator', 'k.kategori_id')
+            ->select('k.kategori_indikator', 'k.kategori_id')
             ->first();
 
         if (!$indikator) {
             return back()->with('error', 'Indikator tidak ditemukan');
         }
 
-        $jenis = strtolower(trim($indikator->jenis_indikator));
+        $jenis = strtolower(trim($indikator->kategori_indikator));
 
         $tableMap = [
             'prioritas unit' => 'tbl_laporan_dan_analis_unit',
@@ -282,7 +282,7 @@ class LaporanAnalisController extends Controller
 
         DB::table($tableTujuan)->insert($dataInsert);
 
-        // ✅ Redirect tanpa jenis_indikator agar filter tetap kosong
+        // ✅ Redirect tanpa kategori_indikator agar filter tetap kosong
         return redirect()->route('laporan-analis.index', [
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,

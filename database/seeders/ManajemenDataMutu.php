@@ -24,45 +24,36 @@ class ManajemenDataMutu extends Seeder
             ['nama_dimensi_mutu' => 'Kesinambungan / Integrasi Pelayanan'],
         ]);
 
-        DB::table('tbl_cakupan_data')->insert([
-            ['nama_cakupan_data' => 'Total'],
-            ['nama_cakupan_data' => 'Sampel'],
+        DB::table('tbl_periode_analisis_data')->insert([
+            ['nama_periode_analisis_data' => 'Bulanan'],
+            ['nama_periode_analisis_data' => 'Triwulanan'],
+            ['nama_periode_analisis_data' => 'Tahunan'],
         ]);
 
-        DB::table('tbl_frekuensi_analisis_data')->insert([
-            ['nama_frekuensi_analisis_data' => 'Bulanan'],
-            ['nama_frekuensi_analisis_data' => 'Triwulanan'],
-            ['nama_frekuensi_analisis_data' => 'Tahunan'],
+        DB::table('tbl_periode_pengumpulan_data')->insert([
+            ['nama_periode_pengumpulan_data' => 'Harian'],
+            ['nama_periode_pengumpulan_data' => 'Mingguan'],
+            ['nama_periode_pengumpulan_data' => 'Bulanan'],
         ]);
 
-        DB::table('tbl_frekuensi_pengumpulan_data')->insert([
-            ['nama_frekuensi_pengumpulan_data' => 'Harian'],
-            ['nama_frekuensi_pengumpulan_data' => 'Mingguan'],
-            ['nama_frekuensi_pengumpulan_data' => 'Bulanan'],
+        DB::table('tbl_penyajian_data')->insert([
+            ['nama_penyajian_data' => 'Statistik'],
+            ['nama_penyajian_data' => 'Run Chart'],
+            ['nama_penyajian_data' => 'Control Chart'],
+            ['nama_penyajian_data' => 'Pareto'],
+            ['nama_penyajian_data' => 'Bar Diagram'],
         ]);
 
-        DB::table('tbl_interpretasi_data')->insert([
-            ['nama_interpretasi_data' => 'Trend Dibandingkan Dengan Standar'],
-            ['nama_interpretasi_data' => 'Trend Dibandingkan Dengan RS Lain'],
-            ['nama_interpretasi_data' => 'Trend Dibandingkan Dengan Praktek Terbaik'],
+        DB::table('tbl_metode_pengumpulan_data')->insert([
+            ['nama_metode_pengumpulan_data' => 'Sensus Harian'],
+            ['nama_metode_pengumpulan_data' => 'Retrospektif'],
         ]);
 
-        DB::table('tbl_metodologi_analisis_data')->insert([
-            ['nama_metodologi_analisis_data' => 'Statistik'],
-            ['nama_metodologi_analisis_data' => 'Run Chart'],
-            ['nama_metodologi_analisis_data' => 'Control Chart'],
-            ['nama_metodologi_analisis_data' => 'Pareto'],
-            ['nama_metodologi_analisis_data' => 'Bar Diagram'],
-        ]);
-
-        DB::table('tbl_metodologi_pengumpulan_data')->insert([
-            ['nama_metodologi_pengumpulan_data' => 'Sensus Harian'],
-            ['nama_metodologi_pengumpulan_data' => 'Retrospektif'],
-        ]);
-
-        DB::table('tbl_publikasi_data')->insert([
-            ['nama_publikasi_data' => 'Internal'],
-            ['nama_publikasi_data' => 'Eksternal'],
+        DB::table('tbl_jenis_indikator')->insert([
+            ['nama_jenis_indikator' => 'Struktur'],
+            ['nama_jenis_indikator' => 'Proses'],
+            ['nama_jenis_indikator' => 'Output'],
+            ['nama_jenis_indikator' => 'Outcome'],
         ]);
 
         DB::table('tbl_role')->insert([

@@ -27,14 +27,13 @@ class HakAksesController extends Controller
             'icon' => 'ri-list-check-2',
             'menus' => [
 
-                ['key' => 'cakupan_data', 'label' => 'Cakupan Data'],
+                ['key' => 'kategori_imprs', 'label' => 'Kategori IMPRS'],
+                ['key' => 'jenis_indikator', 'label' => 'Jenis Indikator'],
                 ['key' => 'dimensi_mutu', 'label' => 'Dimensi Mutu'],
-                ['key' => 'frekuensi_analisis_data', 'label' => 'Frekuensi Analisis Data'],
-                ['key' => 'frekuensi_pengumpulan_data', 'label' => 'Frekuensi Pengumpulan Data'],
-                ['key' => 'interpretasi_data', 'label' => 'Interpretasi Data'],
-                ['key' => 'metodologi_analisis_data', 'label' => 'Metodologi Analisis Data'],
-                ['key' => 'metodologi_pengumpulan_data', 'label' => 'Metodologi Pengumpulan Data'],
-                ['key' => 'publikasi_data', 'label' => 'Publikasi Data'],
+                ['key' => 'periode_analisis_data', 'label' => 'Periode Analisis Data'],
+                ['key' => 'periode_pengumpulan_data', 'label' => 'Periode Pengumpulan Data'],
+                ['key' => 'penyajian_data', 'label' => 'Penyajian Data'],
+                ['key' => 'metode_pengumpulan_data', 'label' => 'Metode Pengumpulan Data'],
             ]
         ],
         'pengaturan' => [

@@ -53,37 +53,31 @@
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
-                                <th>No</th>
+                                <th class="text-center">No</th>
                                 <th style="width: 300px;">Indikator</th>
-                                <th>Dimensi Mutu</th>
-                                <th>Metodologi Pengumpulan</th>
-                                <th>Cakupan Data</th>
-                                <th>Frekuensi Pengumpulan</th>
-                                <th>Frekuensi Analisa</th>
-                                <th>Metodologi Analisa</th>
-                                <th>Interpretasi</th>
-                                <th>Publikasi</th>
-                                <th>Jenis Indikator</th>
-                                <th>Kategori Indikator</th>
-                                <th>Aksi</th>
+                                <th class="text-center">Kategori Indikator</th>
+                                <th class="text-center">Kategori IMPRS</th>
+                                <th class="text-center">Dimensi Mutu</th>
+                                <th class="text-center">Periode Pengumpulan</th>
+                                <th class="text-center">Periode Analisis</th>
+                                <th class="text-center">Penyajian Data</th>
+                                <th class="text-center">Penanggung Jawab</th>
+                                <th class="text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($mutu as $m)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>{{ $m->nama_indikator }}</td>
-                                    <td>{{ $m->nama_dimensi_mutu }}</td>
-                                    <td>{{ $m->nama_metodologi_pengumpulan_data }}</td>
-                                    <td>{{ $m->nama_cakupan_data }}</td>
-                                    <td>{{ $m->nama_frekuensi_pengumpulan_data }}</td>
-                                    <td>{{ $m->nama_frekuensi_analisis_data }}</td>
-                                    <td>{{ $m->nama_metodologi_analisis_data }}</td>
-                                    <td>{{ $m->nama_interpretasi_data }}</td>
-                                    <td>{{ $m->nama_publikasi_data }}</td>
-                                    <td>{{ $m->jenis_indikator }}</td>
-                                    <td>{{ $m->kategori_indikator }}</td>
-                                    <td>
+                                    <td class="text-center">{{ $m->kategori_indikator }}</td>
+                                    <td class="text-center">{{ $m->nama_kategori_imprs }}</td>
+                                    <td class="text-center">{{ $m->nama_dimensi_mutu }}</td>
+                                    <td class="text-center">{{ $m->nama_periode_pengumpulan_data }}</td>
+                                    <td class="text-center">{{ $m->nama_periode_analisis_data }}</td>
+                                    <td class="text-center">{{ $m->nama_penyajian_data }}</td>
+                                    <td class="text-center">{{ $m->penanggung_jawab }}</td>
+                                    <td class="text-center">
                                         <div class="d-flex gap-2">
                                             <a href="{{ route('kamus-indikator.edit', $m->id) }}"
                                                 class="btn btn-warning btn-sm">

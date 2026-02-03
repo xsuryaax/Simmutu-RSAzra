@@ -22,9 +22,9 @@ class MasterIndikatorController extends Controller
             ->select(
                 'tbl_indikator.*',
                 'tbl_unit.nama_unit',
-                'tbl_kamus_indikator.jenis_indikator'
+                'tbl_kamus_indikator.kategori_indikator'
             )
-            ->orderBy('tbl_indikator.created_at', 'DESC');
+            ->orderBy('tbl_indikator.created_at', 'ASC');
 
         // Filter unit
         if (!in_array($user->unit_id, [1, 2])) {
@@ -90,18 +90,32 @@ class MasterIndikatorController extends Controller
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
+        // ambil periode aktif
+        $periodeAktif = DB::table('tbl_periode')
+            ->where('status', 'aktif')
+            ->first();
+
+        if (!$periodeAktif) {
+            return back()->withErrors([
+                'periode' => 'Tidak ada periode aktif. Silakan aktifkan periode terlebih dahulu.'
+            ]);
+        }
+
         DB::table('tbl_indikator')->insert([
             'nama_indikator' => $request->nama_indikator,
             'unit_id' => $request->unit_id,
             'target_indikator' => $request->target_indikator,
             'tipe_indikator' => $request->tipe_indikator,
             'status_indikator' => $request->status_indikator,
+            'periode_id' => $periodeAktif->id,
             'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect()->route('master-indikator.index')
             ->with('success', 'Indikator berhasil ditambahkan.');
     }
+
 
     /**
      * Show the form for editing the specified resource.

@@ -13,15 +13,13 @@ use App\Http\Controllers\IndikatorMutu\KamusIndikatorController;
 use App\Http\Controllers\IndikatorMutu\MasterIndikatorController;
 use App\Http\Controllers\IndikatorMutu\LaporanAnalisController;
 
-use App\Http\Controllers\ManajemenMutu\CakupanDataController;
+use App\Http\Controllers\ManajemenMutu\JenisIndikatorController;
+use App\Http\Controllers\ManajemenMutu\MetodePengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\DimensiMutuController;
 use App\Http\Controllers\ManajemenMutu\KategoriIMPRSController;
-use App\Http\Controllers\ManajemenMutu\FrekuensiAnalisisDataController;
-use App\Http\Controllers\ManajemenMutu\FrekuensiPengumpulanDataController;
-use App\Http\Controllers\ManajemenMutu\InterpretasiDataController;
-use App\Http\Controllers\ManajemenMutu\MetodologiAnalisisDataController;
-use App\Http\Controllers\ManajemenMutu\MetodologiPengumpulanDataController;
-use App\Http\Controllers\ManajemenMutu\PublikasiDataController;
+use App\Http\Controllers\ManajemenMutu\PeriodeAnalisisDataController;
+use App\Http\Controllers\ManajemenMutu\PeriodePengumpulanDataController;
+use App\Http\Controllers\ManajemenMutu\PenyajianDataController;
 
 use App\Http\Controllers\PeriodeController;
 use Illuminate\Support\Facades\Route;
@@ -75,22 +73,18 @@ Route::middleware('auth')->group(function () {
 
 
     // Menu Manajemen Mutu
-    Route::resource('cakupan-data', CakupanDataController::class)
-        ->middleware('check.role:cakupan_data');
     Route::resource('dimensi-mutu', DimensiMutuController::class)
         ->middleware('check.role:dimensi_mutu');
-    Route::resource('frekuensi-analisis-data', FrekuensiAnalisisDataController::class)
-        ->middleware('check.role:frekuensi_analisis_data');
-    Route::resource('frekuensi-pengumpulan-data', FrekuensiPengumpulanDataController::class)
-        ->middleware('check.role:frekuensi_pengumpulan_data');
-    Route::resource('interpretasi-data', InterpretasiDataController::class)
-        ->middleware('check.role:interpretasi_data');
-    Route::resource('metodologi-pengumpulan-data', MetodologiPengumpulanDataController::class)
-        ->middleware('check.role:metodologi_pengumpulan_data');
-    Route::resource('metodologi-analisis-data', MetodologiAnalisisDataController::class)
-        ->middleware('check.role:metodologi_analisis_data');
-    Route::resource('publikasi-data', PublikasiDataController::class)
-        ->middleware('check.role:publikasi_data');
+    Route::resource('periode-analisis-data', PeriodeAnalisisDataController::class)
+        ->middleware('check.role:periode_analisis_data');
+    Route::resource('periode-pengumpulan-data', PeriodePengumpulanDataController::class)
+        ->middleware('check.role:periode_pengumpulan_data');
+    Route::resource('metode-pengumpulan-data', MetodePengumpulanDataController::class)
+        ->middleware('check.role:metode_pengumpulan_data');
+    Route::resource('penyajian-data', PenyajianDataController::class)
+        ->middleware('check.role:penyajian_data');
+    Route::resource('jenis-indikator', JenisIndikatorController::class)
+        ->middleware('check.role:jenis_indikator');
 
     // Manajemen Role, User, Unit
     Route::resource('manajemen-role', ManajemenRoleController::class)

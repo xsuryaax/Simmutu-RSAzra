@@ -6,9 +6,9 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Master Indikator Mutu</h3>
+            <h3>Master Indikator</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola master indikator mutu dalam sistem.
+                Halaman untuk mengelola master indikator dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
@@ -29,7 +29,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Master Indikator Mutu
+                            Master Indikator
                         </li>
                     </ol>
                 </nav>
@@ -43,7 +43,7 @@
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Data Indikator Mutu</h5>
+                <h5>Data Indikator</h5>
 
                 <a href="{{ route('master-indikator.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data
@@ -59,48 +59,26 @@
                     @if ($isAdminMutu)
                         <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3">
                             <div class="col-md-4">
-                                <select name="unit_id" class="form-select">
+                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
                                     <option value="">-- Semua Unit --</option>
                                     @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}"
-                                            {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
                                             {{ $unit->nama_unit }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
-
-                            <div class="col-md-auto">
-                                <button class="btn btn-primary">
-                                    <i class="bi bi-funnel"></i> Filter
-                                </button>
-                            </div>
                         </form>
                     @endif
-
-                    <div class="mb-3 d-flex flex-wrap gap-3">
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-danger me-2"
-                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                            <small class="text-primary text-primary-dark">Nasional</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-success me-2"
-                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                            <small class="text-primary text-primary-dark">Prioritas RS</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-light me-2"
-                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                            <small class="text-primary text-primary-dark">Prioritas Unit</small>
-                        </div>
-                    </div>
 
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th class="text-center">NO</th>
                                 <th>INDIKATOR</th>
+                                @if ($isAdminMutu)
+                                    <th class="text-center">UNIT</th>
+                                @endif
                                 <th class="text-center">TARGET</th>
                                 <th class="text-center">TIPE</th>
                                 <th class="text-center">STATUS</th>
@@ -110,23 +88,12 @@
 
                         <tbody>
                             @foreach ($indikators as $i => $row)
-                                @php
-                                    $colColor = '';
-                                    $jenis = $row->jenis_indikator ?? '';
-
-                                    // Hierarki Warna: Nasional (Red) > Prioritas RS (Green) > Prioritas Unit (Light/No color)
-                                    if (str_contains($jenis, 'Nasional')) {
-                                        $colColor = 'table-danger';
-                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
-                                        $colColor = 'table-success';
-                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
-                                        $colColor = 'table-light';
-                                    }
-                                @endphp
-
                                 <tr>
                                     <td class="text-center">{{ $i + 1 }}</td>
-                                    <td class="{{ $colColor }}">{{ $row->nama_indikator }}</td>
+                                    <td>{{ $row->nama_indikator }}</td>
+                                    @if ($isAdminMutu)
+                                        <td class="text-center">{{ $row->nama_unit ?? '-' }}</td>
+                                    @endif
 
                                     <td class="text-center">{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
                                     <td class="text-center">
@@ -142,10 +109,18 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="{{ route('master-indikator.edit', $row->id) }}"
-                                            class="btn btn-warning btn-sm">
+                                        <a href="{{ route('master-indikator.edit', $row->id) }}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+
+                                        <form action="{{ route('master-indikator.destroy', $row->id) }}" method="POST"
+                                            class="d-inline" onsubmit="return confirm('Yakin ingin menghapus indikator ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach

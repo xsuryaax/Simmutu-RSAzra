@@ -84,10 +84,10 @@ class DashboardController extends Controller
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.target_indikator',
                 'tbl_indikator.unit_id',
-                'tbl_kamus_indikator.frekuensi_pengumpulan_data_id as frekuensi_id'
+                'tbl_kamus_indikator.periode_pengumpulan_data_id as periode_id'
             )
             ->orderBy('nama_indikator')
-            ->where('tbl_kamus_indikator.jenis_indikator', 'LIKE', '%Prioritas Unit%')
+            ->where('tbl_kamus_indikator.kategori_indikator', 'LIKE', '%Prioritas Unit%')
             ->get();
     }
 
@@ -124,7 +124,7 @@ class DashboardController extends Controller
 
         $semuaIndikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.jenis_indikator', 'LIKE', '%Prioritas Unit%')
+            ->where('ki.kategori_indikator', 'LIKE', '%Prioritas Unit%')
             ->select('i.id', 'i.nama_indikator', 'i.unit_id')
             ->get()
             ->groupBy('unit_id');
@@ -266,7 +266,7 @@ class DashboardController extends Controller
             $query->where('unit_id', $unitId);
         }
 
-        if (in_array($ind->frekuensi_id, [1, 2])) {
+        if (in_array($ind->periode_id, [1, 2])) {
             $query = $query
                 ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, SUM(nilai) as total, COUNT(*) as jumlah')
                 ->groupBy('bulan')
@@ -374,11 +374,11 @@ class DashboardController extends Controller
                 'i.id',
                 'i.nama_indikator',
                 'i.target_indikator',
-                'km.jenis_indikator',
+                'km.kategori_indikator',
                 'km.kategori_id',
                 'k.nama_kategori_imprs'
             )
-            ->where('km.jenis_indikator', 'LIKE', '%Prioritas RS%')
+            ->where('km.kategori_indikator', 'LIKE', '%Prioritas RS%')
 
             ->orderBy('i.nama_indikator')
             ->get();

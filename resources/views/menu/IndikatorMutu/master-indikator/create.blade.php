@@ -62,7 +62,7 @@
                             {{-- ================= NAMA INDIKATOR ================= --}}
                             <div class="row mb-3 align-items-center">
                                 <div class="col-md-4">
-                                    <label>Nama Indikator</label>
+                                    <label>Nama Indikator <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="col-md-8">
                                     <input type="text" name="nama_indikator"
@@ -77,7 +77,7 @@
                             {{-- ================= UNIT ================= --}}
                             <div class="row mb-3">
                                 <div class="col-md-4">
-                                    <label>Unit</label>
+                                    <label>Unit <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -105,7 +105,7 @@
                             {{-- ================= TARGET ================= --}}
                             <div class="row mb-3 align-items-center">
                                 <div class="col-md-4">
-                                    <label>Target Indikator</label>
+                                    <label>Target Indikator <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="col-md-8">
                                     <input type="number" name="target_indikator"
@@ -120,19 +120,30 @@
                             {{-- ================= TIPE INDIKATOR ================= --}}
                             <div class="row mb-3 align-items-center">
                                 <div class="col-md-4">
-                                    <label>Tipe Indikator</label>
+                                    <label>Tipe Indikator <span class="text-danger">*</span></label>
                                 </div>
+                                
                                 <div class="col-md-8">
-                                    <select name="tipe_indikator"
-                                        class="form-control @error('tipe_indikator') is-invalid @enderror" required>
-                                        <option value="">-- Pilih --</option>
-                                        <option value="lokal" {{ old('tipe_indikator') == 'lokal' ? 'selected' : '' }}>Lokal
-                                        </option>
-                                        <option value="nasional" {{ old('tipe_indikator') == 'nasional' ? 'selected' : '' }}>
-                                            Nasional</option>
-                                    </select>
+                                    <div class="d-flex gap-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input @error('tipe_indikator') is-invalid @enderror"
+                                                type="radio" name="tipe_indikator" id="tipe_lokal" value="lokal"
+                                                    {{ old('tipe_indikator') == 'lokal' ? 'checked' : '' }} required>
+                                            <label class="form-check-label" for="tipe_lokal">
+                                                Lokal
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input @error('tipe_indikator') is-invalid @enderror"
+                                                type="radio" name="tipe_indikator" id="tipe_nasional" value="nasional"
+                                                    {{ old('tipe_indikator') == 'nasional' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="tipe_nasional">
+                                                Nasional
+                                            </label>
+                                        </div>
+                                    </div>
                                     @error('tipe_indikator')
-                                        <small class="text-danger">{{ $message }}</small>
+                                        <small class="text-danger d-block mt-1">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
@@ -140,7 +151,7 @@
                             {{-- ================= STATUS INDIKATOR ================= --}}
                             <div class="row mb-4 align-items-center">
                                 <div class="col-md-4">
-                                    <label>Status Indikator</label>
+                                    <label>Status Indikator <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="col-md-8 d-flex gap-4">
                                     <div class="form-check">
