@@ -77,13 +77,15 @@
                         <label class="form-label fw-semibold">Jenis Indikator</label>
                         <select name="jenis_indikator" class="form-select">
                             <option value="">-- Semua Indikator --</option>
-                            <option value="prioritas unit" {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                            <option value="prioritas unit"
+                                {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
                                 Prioritas Unit
                             </option>
                             <option value="nasional" {{ request('jenis_indikator') == 'nasional' ? 'selected' : '' }}>
                                 Nasional
                             </option>
-                            <option value="prioritas rs" {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                            <option value="prioritas rs"
+                                {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
                                 Prioritas RS
                             </option>
                         </select>
@@ -99,7 +101,8 @@
                             @endphp
 
                             @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
-                                <option value="{{ $b }}" {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
+                                <option value="{{ $b }}"
+                                    {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
                                     {{ Carbon::create()->month($b)->translatedFormat('F') }}
                                 </option>
                             @endfor
@@ -110,7 +113,8 @@
                         <label class="form-label fw-semibold">Tahun</label>
                         <select name="tahun" class="form-select">
                             @foreach ($tahunAktif as $t)
-                                <option value="{{ $t }}" {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
+                                <option value="{{ $t }}"
+                                    {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
                                     {{ $t }}
                                 </option>
                             @endforeach
@@ -138,12 +142,12 @@
                     <div class="d-flex align-items-center">
                         <span class="badge bg-light me-2"
                             style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Prioritas Unit</small>
+                        <small class="text-primary text-primary-dark">Unit</small>
                     </div>
                 </div>
 
                 <div class="table-parent-container table-responsive-md table-dark">
-                    <table class="table table-striped" id="table1">
+                    <table class="table" id="table1">
                         <thead>
                             <tr>
                                 <th class="text-center">NO</th>
@@ -159,65 +163,67 @@
                         </thead>
                         <tbody>
                             @foreach ($indikators as $indikator)
-                                                    @php
-                                                        $key = $indikator->id . '-' . $indikator->unit_id;
-                                                        $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
-                                                        $isSelected =
-                                                            $selectedIndikatorId == $indikator->id &&
-                                                            $selectedUnitId == $indikator->unit_id;
+                                @php
+                                    $key = $indikator->id . '-' . $indikator->unit_id;
+                                    $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
+                                    $isSelected =
+                                        $selectedIndikatorId == $indikator->id &&
+                                        $selectedUnitId == $indikator->unit_id;
 
-                                                        $colColor = '';
-                                                        $jenis = $indikator->jenis_indikator ?? '';
+                                    $colColor = '';
+                                    $jenis = $indikator->jenis_indikator ?? '';
 
-                                                        if (str_contains($jenis, 'Nasional')) {
-                                                            $colColor = 'table-danger';
-                                                        } elseif (str_contains($jenis, 'Prioritas RS')) {
-                                                            $colColor = 'table-success';
-                                                        } elseif (str_contains($jenis, 'Prioritas Unit')) {
-                                                            $colColor = 'table-light';
-                                                        }
-                                                    @endphp
+                                    if (str_contains($jenis, 'Nasional')) {
+                                        $colColor = 'table-danger';
+                                    } elseif (str_contains($jenis, 'Prioritas RS')) {
+                                        $colColor = 'table-success';
+                                    } elseif (str_contains($jenis, 'Prioritas Unit')) {
+                                        $colColor = 'table-light';
+                                    }
+                                @endphp
 
-                                                    <tr>
-                                                        <td class="text-center">{{ $loop->iteration }}</td>
-                                                        <td class="{{ $colColor }} fw-semibold">{{ $indikator->nama_indikator }}</td>
-                                                        @if ($isAdminMutu)
-                                                            <td class="text-center">{{ $indikator->nama_unit }}</td>
-                                                        @endif
-                                                        <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
-                                                        <td class="text-center">
-                                                            @if ($nilaiRekap !== null)
-                                                                <span>
-                                                                    {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
-                                                                </span>
-                                                            @else
-                                                                <span>-</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if ($nilaiRekap !== null)
-                                                                @if ($nilaiRekap >= $indikator->target_indikator)
-                                                                    <span class="badge bg-success bg-opacity-75">Tercapai</span>
-                                                                @else
-                                                                    <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
-                                                                @endif
-                                                            @else
-                                                                <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <a href="{{ route('laporan-analis.index', [
-                                    'jenis_indikator' => request()->has('jenis_indikator') && request('jenis_indikator') !== '' ? request('jenis_indikator') : null,
-                                    'bulan' => request('bulan', $periodeMulai->month),
-                                    'tahun' => request('tahun', $periodeMulai->year),
-                                    'indikator_id' => $indikator->id,
-                                    'unit_id' => $indikator->unit_id
-                                ]) }}" class="text-primary" title="Lihat Kalender">
-                                                                <i
-                                                                    class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
+                                <tr>
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td class="{{ $colColor }} fw-semibold">{{ $indikator->nama_indikator }}</td>
+                                    @if ($isAdminMutu)
+                                        <td class="text-center">{{ $indikator->nama_unit }}</td>
+                                    @endif
+                                    <td class="text-center">{{ number_format($indikator->target_indikator, 0) }}%</td>
+                                    <td class="text-center">
+                                        @if ($nilaiRekap !== null)
+                                            <span>
+                                                {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
+                                            </span>
+                                        @else
+                                            <span>-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if ($nilaiRekap !== null)
+                                            @if ($nilaiRekap >= $indikator->target_indikator)
+                                                <span class="badge bg-success bg-opacity-75">Tercapai</span>
+                                            @else
+                                                <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ route('laporan-analis.index', [
+                                            'jenis_indikator' =>
+                                                request()->has('jenis_indikator') && request('jenis_indikator') !== '' ? request('jenis_indikator') : null,
+                                            'bulan' => request('bulan', $periodeMulai->month),
+                                            'tahun' => request('tahun', $periodeMulai->year),
+                                            'indikator_id' => $indikator->id,
+                                            'unit_id' => $indikator->unit_id,
+                                        ]) }}"
+                                            class="text-primary" title="Lihat Kalender">
+                                            <i
+                                                class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
+                                        </a>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -338,7 +344,8 @@
                         <div class="mb-3">
                             <label class="form-label fw-semibold text-dark">File Laporan</label>
                             <p class="form-control-plaintext">
-                                <a href="#" id="detail_file_link" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <a href="#" id="detail_file_link" target="_blank"
+                                    class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-file-earmark-arrow-down"></i> Lihat File
                                 </a>
                             </p>
@@ -384,18 +391,20 @@
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Numerator<span class="text-danger">*</span></label>
-                                <input type="number" name="numerator" id="input_numerator" class="form-control" required
-                                    step="any">
+                                <input type="number" name="numerator" id="input_numerator" class="form-control"
+                                    required step="any">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Denominator<span class="text-danger">*</span></label>
-                                <input type="number" name="denominator" id="input_denominator" class="form-control" required
-                                    step="any">
+                                <label class="form-label fw-semibold">Denominator<span
+                                        class="text-danger">*</span></label>
+                                <input type="number" name="denominator" id="input_denominator" class="form-control"
+                                    required step="any">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Unggah File<span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Unggah File<span
+                                        class="text-danger">*</span></label>
                                 <input type="file" name="file_laporan" class="form-control" required>
                             </div>
                         </div>
