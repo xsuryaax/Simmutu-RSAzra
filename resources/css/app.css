@@ -921,16 +921,44 @@
   border-collapse: collapse;
 }
 
-.add-input{
+.add-input {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 1.5rem;
 }
+
+.vertical-line {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .add-input {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .vertical-line {
+    display: block;
+    position: absolute;
+    left: 25%;
+    height: 100%;
+    border-left: 2px solid #ccc;
+    z-index: 1;
+  }
+  
+  .ps-md-4 {
+    padding-left: 1.5rem !important;
+  }
+}
+
 .left-input {
-  width: 40%;
+  width: 100%;
 }
+
 .right-input {
-  width: 60%;
+  width: 100%;
 }
 
 .modal .modal-content {
