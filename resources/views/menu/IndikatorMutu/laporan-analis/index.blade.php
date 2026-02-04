@@ -75,29 +75,41 @@
                                 </div>
                             @endif
 
-                            <form method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
+                            <form id="filterForm" method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Jenis Indikator</label>
-                                    <select name="jenis_indikator" class="form-select">
+                                    <select name="kategori_indikator" class="form-select" onchange="document.getElementById('filterForm').submit()">
                                         <option value="">-- Semua Indikator --</option>
                                         <option value="prioritas unit"
-                                            {{ request('jenis_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                                            {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
                                             Prioritas Unit
                                         </option>
                                         <option value="nasional"
-                                            {{ request('jenis_indikator') == 'nasional' ? 'selected' : '' }}>
+                                            {{ request('kategori_indikator') == 'nasional' ? 'selected' : '' }}>
                                             Nasional
                                         </option>
                                         <option value="prioritas rs"
-                                            {{ request('jenis_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                                            {{ request('kategori_indikator') == 'prioritas rs' ? 'selected' : '' }}>
                                             Prioritas RS
                                         </option>
                                     </select>
                                 </div>
 
                                 <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Tahun</label>
+                                    <select name="tahun" class="form-select" onchange="filterForm.submit()">
+                                        @foreach ($tahunAktif as $t)
+                                            <option value="{{ $t }}"
+                                                {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
+                                                {{ $t }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
                                     <label class="form-label fw-semibold">Bulan</label>
-                                    <select name="bulan" class="form-select">
+                                    <select name="bulan" class="form-select" onchange="filterForm.submit()">
                                         @php
                                             $tahunDipilih = request('tahun', $periodeMulai->year);
                                             $bulanMulai =
@@ -114,24 +126,7 @@
                                         @endfor
                                     </select>
                                 </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Tahun</label>
-                                    <select name="tahun" class="form-select">
-                                        @foreach ($tahunAktif as $t)
-                                            <option value="{{ $t }}"
-                                                {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
-                                                {{ $t }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-funnel"></i> Filter
-                                    </button>
-                                </div>
+                            
                             </form>
 
                             <div class="mb-3 d-flex flex-wrap gap-3">
@@ -173,18 +168,31 @@
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
                                                 $isSelected =
-                                                    $selectedIndikatorId == $indikator->id &&
-                                                    $selectedUnitId == $indikator->unit_id;
+                                                $selectedIndikatorId == $indikator->id &&
+                                                $selectedUnitId == $indikator->unit_id;
 
                                                 $colColor = '';
-                                                $jenis = $indikator->jenis_indikator ?? '';
-
-                                                if (str_contains($jenis, 'Nasional')) {
-                                                    $colColor = 'table-danger';
-                                                } elseif (str_contains($jenis, 'Prioritas RS')) {
-                                                    $colColor = 'table-success';
-                                                } elseif (str_contains($jenis, 'Prioritas Unit')) {
-                                                    $colColor = 'table-light';
+                                                $filterKategori = strtolower(request('kategori_indikator'));
+                                                $jenisDb = strtolower($indikator->kategori_indikator ?? '');
+                                                    
+                                                if ($filterKategori) {
+                                                    if ($filterKategori === 'nasional') {
+                                                        $colColor = 'table-danger';
+                                                    } elseif ($filterKategori === 'prioritas rs') {
+                                                        $colColor = 'table-success';
+                                                    } elseif ($filterKategori === 'prioritas unit') {
+                                                        $colColor = 'table-light';
+                                                    }
+                                                } 
+                                                    
+                                                else {
+                                                    if (str_contains($jenisDb, 'nasional')) {
+                                                        $colColor = 'table-danger';
+                                                    } elseif (str_contains($jenisDb, 'prioritas rs')) {
+                                                        $colColor = 'table-success';
+                                                    } elseif (str_contains($jenisDb, 'prioritas unit')) {
+                                                        $colColor = 'table-light';
+                                                    }
                                                 }
                                             @endphp
 
@@ -222,8 +230,8 @@
                                                 </td>
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-analis.index', [
-                                                        'jenis_indikator' =>
-                                                            request()->has('jenis_indikator') && request('jenis_indikator') !== '' ? request('jenis_indikator') : null,
+                                                        'kategori_indikator' =>
+                                                            request()->has('kategori_indikator') && request('kategori_indikator') !== '' ? request('kategori_indikator') : null,
                                                         'bulan' => request('bulan', $periodeMulai->month),
                                                         'tahun' => request('tahun', $periodeMulai->year),
                                                         'indikator_id' => $indikator->id,
@@ -397,8 +405,7 @@
                             <input type="hidden" name="unit_id" id="modal_unit_id" value="{{ $selectedUnitId }}">
                             <input type="hidden" name="bulan" value="{{ request('bulan', $periodeMulai->month) }}">
                             <input type="hidden" name="tahun" value="{{ request('tahun', $periodeMulai->year) }}">
-                            <input type="hidden" name="jenis_indikator"
-                                value="{{ request('jenis_indikator', 'prioritas unit') }}">
+                            <input type="hidden" name="kategori_indikator" value="{{ request('kategori_indikator') }}">
                             <input type="hidden" name="tanggal_laporan" id="tanggal_laporan">
 
                             <div class="mb-3">

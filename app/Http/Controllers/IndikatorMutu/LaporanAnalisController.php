@@ -21,21 +21,21 @@ class LaporanAnalisController extends Controller
 
         $bulan = $request->bulan ?? Carbon::parse($periodeAktif->tanggal_mulai)->month;
         $tahun = $request->tahun ?? Carbon::parse($periodeAktif->tanggal_mulai)->year;
-        $jenisIndikator = $request->filled('kategori_indikator')
+
+        $kategoriIndikator = $request->filled('kategori_indikator')
             ? $request->kategori_indikator
             : null;
 
-        $indikators = $this->getIndikator($user, $jenisIndikator);
-        $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $jenisIndikator);
+        $indikators = $this->getIndikator($user, $kategoriIndikator);
+        $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator);
 
-        $jenisIndikatorList = DB::table('tbl_kamus_indikator')
+        $kategoriIndikatorList = DB::table('tbl_kamus_indikator')
             ->select('kategori_indikator')
             ->whereNotNull('kategori_indikator')
             ->distinct()
             ->orderBy('kategori_indikator')
             ->pluck('kategori_indikator');
 
-        // ✅ BARU: Jika tidak ada indikator yang dipilih, ambil indikator pertama
         $selectedIndikatorId = $request->indikator_id;
         $selectedUnitId = $request->unit_id;
 
@@ -54,8 +54,8 @@ class LaporanAnalisController extends Controller
             $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
 
             if ($selectedIndikator) {
-                $jenisIndikatorKalender = strtolower($selectedIndikator->kategori_indikator);
-                $table = $this->getTabelLaporan($jenisIndikatorKalender);
+                $kategoriIndikatorKalender = strtolower($selectedIndikator->kategori_indikator);
+                $table = $this->getTabelLaporan($kategoriIndikatorKalender);
 
                 if ($table) {
                     $query = DB::table($table)
@@ -64,7 +64,7 @@ class LaporanAnalisController extends Controller
                         ->whereMonth('tanggal_laporan', $bulan)
                         ->whereYear('tanggal_laporan', $tahun);
 
-                    if (in_array($jenisIndikatorKalender, ['prioritas unit', 'prioritas rs'])) {
+                    if (in_array($kategoriIndikatorKalender, ['prioritas unit', 'prioritas rs'])) {
                         $query->where('unit_id', $selectedUnitId);
                     }
 
@@ -90,8 +90,8 @@ class LaporanAnalisController extends Controller
             'rekapBulanan' => $rekapBulanan,
             'periodeAktif' => $periodeAktif,
             'periode' => $periodeAktif,
-            'jenisIndikatorList' => $jenisIndikatorList,
-            'jenisIndikator' => $jenisIndikator,
+            'kategoriIndikatorList' => $kategoriIndikatorList,
+            'kategoriIndikator' => $kategoriIndikator,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'kalenderData' => $kalenderData,
@@ -101,11 +101,11 @@ class LaporanAnalisController extends Controller
         ]);
     }
 
-    private function getIndikator($user, $jenisIndikator = null)
+    private function getIndikator($user, $kategoriIndikator = null)
     {
         return DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-            ->leftJoin('tbl_frekuensi_pengumpulan_data as f', 'f.id', '=', 'k.frekuensi_pengumpulan_data_id')
+            ->leftJoin('tbl_periode_pengumpulan_data as f', 'f.id', '=', 'k.periode_pengumpulan_data_id')
             ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
             ->join('tbl_periode as p', fn($join) => $join->where('p.status', 'aktif'))
             ->select(
@@ -115,15 +115,15 @@ class LaporanAnalisController extends Controller
                 'i.target_indikator',
                 'p.tanggal_mulai',
                 'p.tanggal_selesai',
-                'f.nama_frekuensi_pengumpulan_data',
+                'f.nama_periode_pengumpulan_data',
                 'u.nama_unit',
                 'k.kategori_indikator'
             )
             ->where('i.status_indikator', 'aktif')
-            ->when($jenisIndikator, function ($q) use ($jenisIndikator) {
+            ->when($kategoriIndikator, function ($q) use ($kategoriIndikator) {
                 $q->whereRaw(
                     "LOWER(k.kategori_indikator) LIKE ?",
-                    ['%' . strtolower($jenisIndikator) . '%']
+                    ['%' . strtolower($kategoriIndikator) . '%']
                 );
             })
             ->when(
@@ -134,12 +134,12 @@ class LaporanAnalisController extends Controller
             ->get();
     }
 
-    private function getRekapBulanan($user, $bulan, $tahun, $jenisIndikator = null)
+    private function getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator = null)
     {
         $rekap = collect();
 
-        $jenisList = $jenisIndikator
-            ? [strtolower($jenisIndikator)]
+        $jenisList = $kategoriIndikator
+            ? [strtolower($kategoriIndikator)]
             : ['nasional', 'prioritas unit', 'prioritas rs'];
 
         foreach ($jenisList as $jenis) {
@@ -196,6 +196,9 @@ class LaporanAnalisController extends Controller
 
     public function store(Request $request)
     {
+        /* =======================
+         * VALIDASI AWAL
+         * ======================= */
         $request->validate([
             'indikator_id' => 'required|exists:tbl_indikator,id',
             'numerator' => 'required|numeric|min:0',
@@ -204,17 +207,34 @@ class LaporanAnalisController extends Controller
             'file_laporan' => 'required|file|max:5120',
         ]);
 
+        /* =======================
+         * PERIODE MUTU
+         * ======================= */
         $periode = $this->getPeriodeAktif();
         if (!$periode) {
             return back()->with('error', 'Periode mutu aktif belum tersedia');
         }
 
-        $tanggal = Carbon::parse($request->tanggal_laporan);
-        if ($tanggal->lt($periode->tanggal_mulai) || $tanggal->gt($periode->tanggal_selesai)) {
-            return back()->with('error', 'Tanggal laporan di luar periode mutu aktif');
+        $tanggalLaporan = Carbon::parse($request->tanggal_laporan)->startOfDay();
+        $now = now()->startOfDay();
+
+        $periodeMulai = Carbon::parse($periode->tanggal_mulai)->startOfDay();
+        $periodeSelesai = Carbon::parse($periode->tanggal_selesai)->endOfDay();
+
+        // tanggal harus di dalam periode
+        if ($tanggalLaporan->lt($periodeMulai) || $tanggalLaporan->gt($periodeSelesai)) {
+            return back()->with('error', 'Tanggal laporan harus berada dalam periode mutu aktif');
         }
 
-        // ✅ PERBAIKAN: Ambil jenis indikator dari database
+        // batas input = akhir bulan setelah periode selesai
+        $batasAkhirPengisian = $periodeSelesai->copy()->addMonth()->endOfMonth();
+        if ($now->gt($batasAkhirPengisian)) {
+            return back()->with('error', 'Periode pengisian laporan telah berakhir');
+        }
+
+        /* =======================
+         * DATA INDIKATOR
+         * ======================= */
         $indikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->where('i.id', $request->indikator_id)
@@ -225,71 +245,104 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Indikator tidak ditemukan');
         }
 
-        $jenis = strtolower(trim($indikator->kategori_indikator));
+        /* =======================
+         * PARSING KATEGORI (BISA BANYAK)
+         * ======================= */
+        $kategoriList = collect(
+            preg_split('/,|;/', strtolower($indikator->kategori_indikator))
+        )->map(fn($v) => trim($v))
+            ->filter()
+            ->unique();
 
-        $tableMap = [
-            'prioritas unit' => 'tbl_laporan_dan_analis_unit',
-            'prioritas rs' => 'tbl_laporan_dan_analis_imprs',
-            'nasional' => 'tbl_laporan_dan_analis_nasional',
-        ];
-
-        // Cari tabel yang sesuai menggunakan str_contains
-        $tableTujuan = null;
-        foreach ($tableMap as $key => $table) {
-            if (str_contains($jenis, $key)) {
-                $tableTujuan = $table;
-                break;
-            }
-        }
-
-        if (!$tableTujuan) {
-            return back()->with('error', 'Jenis indikator tidak valid');
-        }
-
-        // Validasi unit_id untuk jenis tertentu
-        if (str_contains($jenis, 'prioritas unit') || str_contains($jenis, 'prioritas rs')) {
+        /* =======================
+         * VALIDASI unit_id SEKALI
+         * ======================= */
+        if ($kategoriList->contains(fn($k) => in_array($k, ['prioritas unit', 'prioritas rs']))) {
             $request->validate([
                 'unit_id' => 'required|exists:tbl_unit,id',
             ]);
         }
 
+        /* =======================
+         * HITUNG NILAI
+         * ======================= */
         $nilai = ($request->numerator / $request->denominator) * 100;
+
         $target = DB::table('tbl_indikator')
             ->where('id', $request->indikator_id)
             ->value('target_indikator');
 
         $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
 
-        $dataInsert = [
-            'indikator_id' => $request->indikator_id,
-            'numerator' => $request->numerator,
-            'denominator' => $request->denominator,
-            'nilai' => round($nilai, 2),
-            'pencapaian' => $pencapaian,
-            'tanggal_laporan' => $tanggal,
-            'file_laporan' => $request->file('file_laporan')->store('laporan_indikator', 'public'),
-            'created_at' => now(),
-            'updated_at' => now(),
+        /* =======================
+         * MAP KATEGORI → TABEL
+         * ======================= */
+        $tableMap = [
+            'prioritas unit' => 'tbl_laporan_dan_analis_unit',
+            'prioritas rs' => 'tbl_laporan_dan_analis_imprs',
+            'nasional' => 'tbl_laporan_dan_analis_nasional',
         ];
 
-        if (str_contains($jenis, 'prioritas unit') || str_contains($jenis, 'prioritas rs')) {
-            $dataInsert['unit_id'] = $request->unit_id;
+        /* =======================
+         * INSERT KE SEMUA KATEGORI
+         * ======================= */
+        foreach ($kategoriList as $kategori) {
+
+            if (!isset($tableMap[$kategori])) {
+                continue;
+            }
+
+            $tableTujuan = $tableMap[$kategori];
+
+            $dataInsert = [
+                'indikator_id' => $request->indikator_id,
+                'numerator' => $request->numerator,
+                'denominator' => $request->denominator,
+                'nilai' => round($nilai, 2),
+                'pencapaian' => $pencapaian,
+                'tanggal_laporan' => $tanggalLaporan,
+                'file_laporan' => $request->file('file_laporan')
+                    ->store('laporan_indikator', 'public'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // unit_id untuk unit & rs
+            if (in_array($kategori, ['prioritas unit', 'prioritas rs'])) {
+                $dataInsert['unit_id'] = $request->unit_id;
+            }
+
+            // kategori_id khusus RS
+            if ($kategori === 'prioritas rs') {
+                $dataInsert['kategori_id'] = $indikator->kategori_id;
+            }
+
+            // anti dobel (tanggal + indikator + unit kalau ada)
+            $exists = DB::table($tableTujuan)
+                ->where('indikator_id', $request->indikator_id)
+                ->whereDate('tanggal_laporan', $tanggalLaporan)
+                ->when(
+                    in_array($kategori, ['prioritas unit', 'prioritas rs']),
+                    fn($q) => $q->where('unit_id', $request->unit_id)
+                )
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            DB::table($tableTujuan)->insert($dataInsert);
         }
 
-        if (str_contains($jenis, 'prioritas rs')) {
-            $dataInsert['kategori_id'] = $indikator->kategori_id;
-        }
-
-        DB::table($tableTujuan)->insert($dataInsert);
-
-        // ✅ Redirect tanpa kategori_indikator agar filter tetap kosong
         return redirect()->route('laporan-analis.index', [
             'bulan' => $request->bulan,
             'tahun' => $request->tahun,
+            'kategori_indikator' => $request->kategori_indikator,
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id,
-        ])->with('success', 'Data berhasil disimpan');
+        ])->with('success', 'Data laporan berhasil disimpan');
     }
+
 
     public function getDetail($id)
     {
