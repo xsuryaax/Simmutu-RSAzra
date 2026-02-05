@@ -411,4 +411,69 @@ class LaporanAnalisController extends Controller
 
         return response()->json($data);
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'numerator' => 'required|numeric|min:0',
+            'denominator' => 'required|numeric|min:1',
+            'file_laporan' => 'nullable|file|max:5120',
+        ]);
+
+        // 🔎 Cari data di semua tabel laporan
+        $tables = [
+            'tbl_laporan_dan_analis_unit',
+            'tbl_laporan_dan_analis_imprs',
+            'tbl_laporan_dan_analis_nasional',
+        ];
+
+        $data = null;
+        $tableFound = null;
+
+        foreach ($tables as $table) {
+            $row = DB::table($table)->where('id', $id)->first();
+            if ($row) {
+                $data = $row;
+                $tableFound = $table;
+                break;
+            }
+        }
+
+        if (!$data) {
+            return back()->with('error', 'Data laporan tidak ditemukan');
+        }
+
+        // 🔢 Hitung ulang nilai
+        $nilai = ($request->numerator / $request->denominator) * 100;
+
+        $target = DB::table('tbl_indikator')
+            ->where('id', $data->indikator_id)
+            ->value('target_indikator');
+
+        $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
+
+        $updateData = [
+            'numerator' => $request->numerator,
+            'denominator' => $request->denominator,
+            'nilai' => round($nilai, 2),
+            'pencapaian' => $pencapaian,
+            'updated_at' => now(),
+        ];
+
+        // 📎 Jika ganti file
+        if ($request->hasFile('file_laporan')) {
+            if ($data->file_laporan) {
+                Storage::disk('public')->delete($data->file_laporan);
+            }
+
+            $updateData['file_laporan'] = $request
+                ->file('file_laporan')
+                ->store('laporan_indikator', 'public');
+        }
+
+        DB::table($tableFound)->where('id', $id)->update($updateData);
+
+        return back()->with('success', 'Data laporan berhasil diperbarui');
+    }
+
 }

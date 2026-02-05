@@ -379,6 +379,9 @@
 
                     <div class="modal-footer border-0">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-warning" onclick="openEditModal()">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
                     </div>
                 </div>
             </div>
@@ -443,6 +446,51 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="modalEditData" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:14px;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-warning fw-semibold">
+                    <i class="bi bi-pencil"></i> Edit Laporan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form id="formEditData" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Numerator <span class="text-danger">*</span></label>
+                        <input type="number" name="numerator" id="edit_numerator"
+                            class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Denominator <span class="text-danger">*</span></label>
+                        <input type="number" name="denominator" id="edit_denominator"
+                            class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Ganti File (Opsional)</label>
+                        <input type="file" name="file_laporan" class="form-control">
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
     </section>
 @endsection
 
@@ -525,6 +573,28 @@
                     alert('Gagal memuat detail data');
                 });
         }
+
+        function openEditModal() {
+    fetch(`/laporan-analis/${currentDataId}/detail`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('edit_numerator').value = data.numerator;
+            document.getElementById('edit_denominator').value = data.denominator;
+
+            const form = document.getElementById('formEditData');
+            form.action = `/laporan-analis/${data.id}`;
+
+            bootstrap.Modal.getInstance(
+                document.getElementById('modalDetailData')
+            ).hide();
+
+            new bootstrap.Modal(
+                document.getElementById('modalEditData')
+            ).show();
+        });
+}
+
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
