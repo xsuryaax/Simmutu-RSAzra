@@ -3,12 +3,12 @@
         <div class="sidebar-header position-relative">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo" height="30">
-                    SIMMUTU
+                    <img src="{{ asset('assets/logo/azra-logo.png') }}" alt="logo RS Azra">&nbsp;SIMMUTU
                 </div>
                 <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true"
-                        role="img" class="iconify iconify--system-uicons" width="17" height="17"
-                        preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17"
+                        height="17" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
                         <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
                             stroke-linejoin="round">
                             <path
@@ -99,7 +99,7 @@
                                 class="submenu-item has-sub {{ request()->is('dimensi-mutu*') || request()->is('periode-analisis-data*') || request()->is('periode-pengumpulan-data*') || request()->is('penyajian-data*') || request()->is('metode-pengumpulan-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
 
                                 <a href="#" class="submenu-link" style="text-decoration: none;">Master Indikator
-                                    </a>
+                                </a>
 
                                 {{-- Level 2 --}}
                                 <ul class="submenu submenu-level-2">
@@ -127,21 +127,20 @@
 
                                     <li
                                         class="submenu-item {{ request()->is('periode-pengumpulan-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('periode-pengumpulan-data.index') }}"
-                                            class="submenu-link" style="text-decoration: none;">Periode Pengumpulan
+                                        <a href="{{ route('periode-pengumpulan-data.index') }}" class="submenu-link"
+                                            style="text-decoration: none;">Periode Pengumpulan
                                             Data</a>
                                     </li>
 
-                                    <li
-                                        class="submenu-item {{ request()->is('penyajian-data*') ? 'active' : '' }}">
+                                    <li class="submenu-item {{ request()->is('penyajian-data*') ? 'active' : '' }}">
                                         <a href="{{ route('penyajian-data.index') }}" class="submenu-link"
                                             style="text-decoration: none;">Penyajian Data</a>
                                     </li>
 
                                     <li
                                         class="submenu-item {{ request()->is('metode-pengumpulan-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('metode-pengumpulan-data.index') }}"
-                                            class="submenu-link" style="text-decoration: none;">Metode Pengumpulan
+                                        <a href="{{ route('metode-pengumpulan-data.index') }}" class="submenu-link"
+                                            style="text-decoration: none;">Metode Pengumpulan
                                             Data</a>
                                     </li>
 

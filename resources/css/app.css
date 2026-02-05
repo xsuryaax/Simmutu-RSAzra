@@ -1146,6 +1146,15 @@
     max-height: 0 !important;
 }
 
+#sidebar .logo img {
+  height: 1.5rem;
+}
+
+#sidebar .logo {
+  display: flex;
+  align-items: center;
+}
+
 @media screen and (max-width: 1199px) {
   .sidebar-wrapper {
     position: absolute;
