@@ -111,32 +111,64 @@ class PeriodeController extends Controller
 
     public function update(Request $request, $id)
     {
-        $periode = tbl_periode::findOrFail($id);
+        DB::beginTransaction();
 
-        // Validasi input
-        $validator = Validator::make($request->all(), [
-            'nama_periode' => 'required|string|max:255',
-            'tahun' => 'required|integer',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'status' => 'required|in:aktif,non-aktif', // tambahkan validasi status
-        ]);
+        try {
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            // Jika status ingin diaktifkan → nonaktifkan semua periode lain
+            if ($request->status === 'aktif') {
+                DB::table('tbl_periode')
+                    ->where('id', '!=', $id)
+                    ->update([
+                        'status' => 'non-aktif',
+                        'updated_at' => now()
+                    ]);
+            }
+
+            // Update periode
+            DB::table('tbl_periode')
+                ->where('id', $id)
+                ->update([
+                    'nama_periode' => $request->nama_periode,
+                    'tahun' => $request->tahun,
+                    'tanggal_mulai' => $request->tanggal_mulai,
+                    'tanggal_selesai' => $request->tanggal_selesai,
+                    'status' => $request->status,
+                    'updated_at' => now(),
+                ]);
+
+            // Update indikator_periode
+            DB::table('tbl_indikator_periode')
+                ->where('periode_id', $id)
+                ->update([
+                    'status' => $request->status,
+                    'updated_at' => now(),
+                ]);
+
+            // Update master indikator mengikuti periode
+            DB::table('tbl_indikator')
+                ->whereIn('id', function ($q) use ($id) {
+                    $q->select('indikator_id')
+                        ->from('tbl_indikator_periode')
+                        ->where('periode_id', $id);
+                })
+                ->update([
+                    'status_indikator' => $request->status,
+                    'updated_at' => now(),
+                ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('periode-mutu.index')
+                ->with('success', 'Periode & indikator berhasil diperbarui');
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui periode');
         }
-
-        // Update data
-        $periode->update([
-            'nama_periode' => $request->nama_periode,
-            'tahun' => $request->tahun,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'status' => $request->status, // simpan status
-        ]);
-
-        return redirect()->route('periode-mutu.index')->with('success', 'Periode berhasil diperbarui.');
     }
+
 
     public function destroy($id)
     {

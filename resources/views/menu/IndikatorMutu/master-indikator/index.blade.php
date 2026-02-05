@@ -121,6 +121,16 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
+                                        @if ($periodeAktif && is_null($row->status_periode))
+        <form action="{{ route('indikator.active', $row->id) }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit"
+                class="btn btn-primary btn-sm"
+                onclick="return confirm('Masukkan indikator ini ke periode aktif?')" title="Aktifkan Untuk Periode Baru">
+                <i class="bi bi-plus-circle"></i>
+            </button>
+        </form>
+    @endif
                                     </td>
                                 </tr>
                             @endforeach

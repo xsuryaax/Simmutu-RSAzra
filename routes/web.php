@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\HakAksesController;
+use App\Http\Controllers\IndikatorPeriodeController;
 use App\Http\Controllers\ManajemenRoleController;
 use App\Http\Controllers\ManajemenUnitController;
 use App\Http\Controllers\ManajemenUserController;
@@ -144,4 +145,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])->name('laporan-analis.detail');
     Route::put('/laporan-analis/{id}', [LaporanAnalisController::class, 'update'])->name('laporan-analis.update');
 
+    Route::post(
+        '/indikator/{indikator}/active',
+        [IndikatorPeriodeController::class, 'active']
+    )->name('indikator.active');
 });

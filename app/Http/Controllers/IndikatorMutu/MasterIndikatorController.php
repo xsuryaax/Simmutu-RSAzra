@@ -19,12 +19,27 @@ class MasterIndikatorController extends Controller
         $query = DB::table('tbl_indikator')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
             ->leftJoin('tbl_kamus_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
+            ->leftJoin('tbl_indikator_periode', function ($join) {
+                $join->on('tbl_indikator.id', '=', 'tbl_indikator_periode.indikator_id')
+                    ->where('tbl_indikator_periode.periode_id', function ($q) {
+                        $q->select('id')
+                            ->from('tbl_periode')
+                            ->where('status', 'aktif')
+                            ->limit(1);
+                    });
+            })
             ->select(
                 'tbl_indikator.*',
                 'tbl_unit.nama_unit',
-                'tbl_kamus_indikator.kategori_indikator'
+                'tbl_kamus_indikator.kategori_indikator',
+                'tbl_indikator_periode.status as status_periode'
             )
             ->orderBy('tbl_indikator.created_at', 'ASC');
+
+
+        $periodeAktif = DB::table('tbl_periode')
+            ->where('status', 'aktif')
+            ->first();
 
         // Filter unit
         if (!in_array($user->unit_id, [1, 2])) {
@@ -38,7 +53,7 @@ class MasterIndikatorController extends Controller
         $indikators = $query->get();
         $units = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC')->get();
 
-        return view('menu.IndikatorMutu.master-indikator.index', compact('indikators', 'units'));
+        return view('menu.IndikatorMutu.master-indikator.index', compact('indikators', 'units', 'periodeAktif'));
     }
 
     /**
@@ -90,7 +105,7 @@ class MasterIndikatorController extends Controller
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
-        // ambil periode aktif
+        // 🔴 wajib ada periode aktif
         $periodeAktif = DB::table('tbl_periode')
             ->where('status', 'aktif')
             ->first();
@@ -101,20 +116,43 @@ class MasterIndikatorController extends Controller
             ]);
         }
 
-        DB::table('tbl_indikator')->insert([
-            'nama_indikator' => $request->nama_indikator,
-            'unit_id' => $request->unit_id,
-            'target_indikator' => $request->target_indikator,
-            'tipe_indikator' => $request->tipe_indikator,
-            'status_indikator' => $request->status_indikator,
-            'periode_id' => $periodeAktif->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::beginTransaction();
 
-        return redirect()->route('master-indikator.index')
-            ->with('success', 'Indikator berhasil ditambahkan.');
+        try {
+            // 1️⃣ insert master indikator
+            $indikatorId = DB::table('tbl_indikator')->insertGetId([
+                'nama_indikator' => $request->nama_indikator,
+                'unit_id' => $request->unit_id,
+                'target_indikator' => $request->target_indikator,
+                'tipe_indikator' => $request->tipe_indikator,
+                'status_indikator' => $request->status_indikator,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // 2️⃣ otomatis daftarkan ke periode aktif
+            DB::table('tbl_indikator_periode')->insert([
+                'indikator_id' => $indikatorId,
+                'periode_id' => $periodeAktif->id,
+                'status' => 'aktif',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('master-indikator.index')
+                ->with('success', 'Indikator berhasil ditambahkan dan otomatis aktif di periode berjalan.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return back()->withErrors([
+                'error' => 'Gagal menyimpan indikator: ' . $e->getMessage()
+            ]);
+        }
     }
+
 
 
     /**
