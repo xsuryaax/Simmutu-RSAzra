@@ -210,7 +210,9 @@
                                                 <td class="text-center">
                                                     @if ($nilaiRekap !== null)
                                                         <span>
-                                                            {{ $nilaiRekap == 100 ? '100' : number_format($nilaiRekap, 1) }}%
+                                                            {{ fmod($nilaiRekap, 1) == 0 
+                                                                ? number_format($nilaiRekap, 0) 
+                                                                : number_format($nilaiRekap, 1) }}%
                                                         </span>
                                                     @else
                                                         <span>-</span>
@@ -417,20 +419,20 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Numerator<span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Numerator <span class="text-danger">*</span></label>
                                 <input type="number" name="numerator" id="input_numerator" class="form-control"
                                     required step="any">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Denominator<span
+                                <label class="form-label fw-semibold">Denominator <span
                                         class="text-danger">*</span></label>
                                 <input type="number" name="denominator" id="input_denominator" class="form-control"
                                     required step="any">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Unggah File<span
+                                <label class="form-label fw-semibold">Unggah File <span
                                         class="text-danger">*</span></label>
                                 <input type="file" name="file_laporan" class="form-control" required>
                             </div>
@@ -463,13 +465,13 @@
 
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Numerator <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Numerator</label>
                         <input type="number" name="numerator" id="edit_numerator"
                             class="form-control" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Denominator <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold">Denominator</label>
                         <input type="number" name="denominator" id="edit_denominator"
                             class="form-control" required>
                     </div>

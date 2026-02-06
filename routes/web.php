@@ -126,7 +126,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:dashboard');
 
     Route::get('/periode-mutu', [PeriodeController::class, 'index'])
-        ->name('periode-mutu.index');
+        ->name('periode-mutu.index')->middleware('check.role:periode_mutu');
     Route::get('/periode-mutu/create', [PeriodeController::class, 'create'])
         ->name('periode-mutu.create');
     Route::post('/periode-mutu', [PeriodeController::class, 'store'])

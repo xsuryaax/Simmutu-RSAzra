@@ -16,10 +16,11 @@ class HakAksesController extends Controller
             'icon' => 'ri-dashboard-line',
             'menus' => [
                 ['key' => 'dashboard', 'label' => 'Dashboard'],
-                ['key' => 'master_indikator', 'label' => 'Master Indikator Mutu'],
-                ['key' => 'kamus_indikator', 'label' => 'Kamus Indikator Mutu'],
+                ['key' => 'master_indikator', 'label' => 'Master Indikator'],
+                ['key' => 'kamus_indikator', 'label' => 'Profil Indikator'],
                 ['key' => 'laporan_analis', 'label' => 'Laporan Analis'],
-                ['key'=> 'pdsa', 'label'=> 'PDSA'],
+                ['key' => 'pdsa', 'label' => 'PDSA'],
+                ['key' => 'periode_mutu', 'label' => 'Manajemen Periode'],
             ]
         ],
         'manajemen_data_mutu' => [
@@ -53,9 +54,24 @@ class HakAksesController extends Controller
     {
         $selectedRole = $request->role_id ?? tbl_role::first()->id;
 
-        $hakAkses = tbl_hak_akses::where('role_id', $selectedRole)
-            ->pluck('menu_key')
-            ->toArray();
+        // Jika admin, semua menu otomatis aktif
+        if ($selectedRole == 1) {
+
+            // Ambil semua menu_key dari menuStructure
+            $allMenuKeys = [];
+            foreach ($this->menuStructure as $group) {
+                foreach ($group['menus'] as $menu) {
+                    $allMenuKeys[] = $menu['key'];
+                }
+            }
+
+            $hakAkses = $allMenuKeys;
+
+        } else {
+            $hakAkses = tbl_hak_akses::where('role_id', $selectedRole)
+                ->pluck('menu_key')
+                ->toArray();
+        }
 
         return view('menu.HakAkses.index', [
             'menuStructure' => $this->menuStructure,
@@ -64,6 +80,7 @@ class HakAksesController extends Controller
             'hakAkses' => $hakAkses
         ]);
     }
+
 
     // Update hak akses for a role
     public function update(Request $request, $roleId)

@@ -7,8 +7,8 @@
                 </div>
                 <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17"
-                        height="17" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
+                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17" height="17"
+                        preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
                         <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
                             stroke-linejoin="round">
                             <path
@@ -119,8 +119,7 @@
                                             style="text-decoration: none;">Dimensi Mutu</a>
                                     </li>
 
-                                    <li
-                                        class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
+                                    <li class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
                                         <a href="{{ route('periode-analisis-data.index') }}" class="submenu-link"
                                             style="text-decoration: none;">Periode Analisa Data</a>
                                     </li>
@@ -152,6 +151,12 @@
 
                     <li class="sidebar-title">Pengaturan</li>
 
+                    <li class="sidebar-item {{ Request::is('hak-akses*') ? 'active' : '' }}">
+                        <a href="{{ route('hak-akses.index') }}" class='sidebar-link'>
+                            <i class="bi bi-key-fill"></i>
+                            <span>Hak Akses</span>
+                        </a>
+                    </li>
                     <li class="sidebar-item {{ Request::is('manajemen-user*') ? 'active' : '' }}">
                         <a href="{{ route('manajemen-user.index') }}" class='sidebar-link'>
                             <i class="bi bi-person-fill-gear"></i>
@@ -170,16 +175,12 @@
                             <span>Manajemen Unit</span>
                         </a>
                     </li>
+                @endif
+                @if (in_array(auth()->user()->unit_id, [1, 2]))
                     <li class="sidebar-item {{ Request::is('periode-mutu*') ? 'active' : '' }}">
                         <a href="{{ route('periode-mutu.index') }}" class='sidebar-link'>
                             <i class="bi bi-calendar-event-fill"></i>
                             <span>Manajemen Periode</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {{ Request::is('hak-akses*') ? 'active' : '' }}">
-                        <a href="{{ route('hak-akses.index') }}" class='sidebar-link'>
-                            <i class="bi bi-key-fill"></i>
-                            <span>Hak Akses</span>
                         </a>
                     </li>
                 @endif
