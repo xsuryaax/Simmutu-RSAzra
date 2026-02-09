@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Kamus Indikator')
+@section('title', 'Profil Indikator')
 
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
             <h3>Profil Indikator Mutu </h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola kamus indikator mutu dalam sistem.
+                Halaman untuk mengelola profil indikator mutu dalam sistem.
             </p>
         </div>
         <div class="page-header-right">
@@ -55,8 +55,8 @@
                             <tr>
                                 <th class="text-center">No</th>
                                 <th style="width: 300px;">Indikator</th>
+                                <th class="text-center">Unit</th>
                                 <th class="text-center">Kategori Indikator</th>
-                                <th class="text-center">Kategori IMPRS</th>
                                 <th class="text-center">Dimensi Mutu</th>
                                 <th class="text-center">Periode Pengumpulan</th>
                                 <th class="text-center">Periode Analisis</th>
@@ -70,8 +70,8 @@
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
                                     <td>{{ $m->nama_indikator }}</td>
+                                    <td class="text-center">{{ $m->nama_unit }}</td>
                                     <td class="text-center">{{ $m->kategori_indikator }}</td>
-                                    <td class="text-center">{{ $m->nama_kategori_imprs }}</td>
                                     <td class="text-center">{{ $m->nama_dimensi_mutu }}</td>
                                     <td class="text-center">{{ $m->nama_periode_pengumpulan_data }}</td>
                                     <td class="text-center">{{ $m->nama_periode_analisis_data }}</td>

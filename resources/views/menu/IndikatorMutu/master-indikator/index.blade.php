@@ -56,20 +56,33 @@
                         $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
                     @endphp
 
-                    @if ($isAdminMutu)
-                        <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3">
-                            <div class="col-md-4">
-                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
-                                    <option value="">-- Semua Unit --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->nama_unit }}
+                    <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3 align-items-end">
+                        
+                        <div class="col-md-2">
+                            <label>Filter Periode</label>
+                                <select name="periode_id" class="form-select" onchange="this.form.submit()">
+                                    @foreach($periodes as $p)
+                                        <option value="{{ $p->id }}" {{ $periodeId == $p->id ? 'selected' : '' }}>
+                                            {{ $p->tahun }}
                                         </option>
                                     @endforeach
                                 </select>
+                        </div>
+                        
+                        @if ($isAdminMutu)
+                            <div class="col-md-3">
+                                <label>Filter Unit</label>
+                                    <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                        <option value="">-- Semua Unit --</option>
+                                            @foreach ($units as $unit)
+                                                <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                                    {{ $unit->nama_unit }}
+                                                </option>
+                                            @endforeach
+                                    </select>
                             </div>
-                        </form>
-                    @endif
+                        @endif
+                    </form>
 
                     <table class="table table-striped" id="table1">
                         <thead>
@@ -121,16 +134,23 @@
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-                                        @if ($periodeAktif && is_null($row->status_periode))
-        <form action="{{ route('indikator.active', $row->id) }}" method="POST" class="d-inline">
-            @csrf
-            <button type="submit"
-                class="btn btn-primary btn-sm"
-                onclick="return confirm('Masukkan indikator ini ke periode aktif?')" title="Aktifkan Untuk Periode Baru">
-                <i class="bi bi-plus-circle"></i>
-            </button>
-        </form>
-    @endif
+                                        @if ($periodeAktif 
+    && $periodeDipilih 
+    && $periodeDipilih->id != $periodeAktif->id
+    && is_null($row->sudah_di_periode_aktif))
+
+    <form action="{{ route('indikator.active', $row->id) }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit"
+            class="btn btn-primary btn-sm"
+            onclick="return confirm('Masukkan indikator ini ke periode aktif?')" 
+            title="Aktifkan ke periode aktif">
+            <i class="bi bi-plus-circle"></i>
+        </button>
+    </form>
+@endif
+
+
                                     </td>
                                 </tr>
                             @endforeach

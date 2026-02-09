@@ -16,30 +16,53 @@ class MasterIndikatorController extends Controller
     {
         $user = Auth::user();
 
+        // Semua periode
+        $periodes = DB::table('tbl_periode')
+            ->orderBy('tahun', 'desc')
+            ->get();
+
+        // Periode aktif
+        $periodeAktif = DB::table('tbl_periode')
+            ->where('status', 'aktif')
+            ->first();
+
+        // Tentukan periode filter
+        $periodeId = $request->filled('periode_id')
+            ? $request->periode_id
+            : ($periodeAktif->id ?? null);
+
+        $periodeDipilih = DB::table('tbl_periode')->where('id', $periodeId)->first();
+
         $query = DB::table('tbl_indikator')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
             ->leftJoin('tbl_kamus_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
-            ->leftJoin('tbl_indikator_periode', function ($join) {
-                $join->on('tbl_indikator.id', '=', 'tbl_indikator_periode.indikator_id')
-                    ->where('tbl_indikator_periode.periode_id', function ($q) {
-                        $q->select('id')
-                            ->from('tbl_periode')
-                            ->where('status', 'aktif')
-                            ->limit(1);
-                    });
+
+            // indikator sesuai periode yang dipilih
+            ->join('tbl_indikator_periode as ip_filter', function ($join) use ($periodeId) {
+                $join->on('tbl_indikator.id', '=', 'ip_filter.indikator_id');
+
+                if ($periodeId) {
+                    $join->where('ip_filter.periode_id', $periodeId);
+                }
             })
+
+            // cek apakah sudah ada di periode aktif
+            ->leftJoin('tbl_indikator_periode as ip_aktif', function ($join) use ($periodeAktif) {
+                $join->on('tbl_indikator.id', '=', 'ip_aktif.indikator_id');
+
+                if ($periodeAktif) {
+                    $join->where('ip_aktif.periode_id', $periodeAktif->id);
+                }
+            })
+
             ->select(
                 'tbl_indikator.*',
                 'tbl_unit.nama_unit',
                 'tbl_kamus_indikator.kategori_indikator',
-                'tbl_indikator_periode.status as status_periode'
+                'ip_filter.status as status_periode',
+                'ip_aktif.id as sudah_di_periode_aktif'
             )
             ->orderBy('tbl_indikator.created_at', 'ASC');
-
-
-        $periodeAktif = DB::table('tbl_periode')
-            ->where('status', 'aktif')
-            ->first();
 
         // Filter unit
         if (!in_array($user->unit_id, [1, 2])) {
@@ -53,7 +76,14 @@ class MasterIndikatorController extends Controller
         $indikators = $query->get();
         $units = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC')->get();
 
-        return view('menu.IndikatorMutu.master-indikator.index', compact('indikators', 'units', 'periodeAktif'));
+        return view('menu.IndikatorMutu.master-indikator.index', compact(
+            'indikators',
+            'units',
+            'periodes',
+            'periodeAktif',
+            'periodeId',
+            'periodeDipilih'
+        ));
     }
 
     /**
@@ -105,7 +135,6 @@ class MasterIndikatorController extends Controller
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
-        // 🔴 wajib ada periode aktif
         $periodeAktif = DB::table('tbl_periode')
             ->where('status', 'aktif')
             ->first();
@@ -119,7 +148,6 @@ class MasterIndikatorController extends Controller
         DB::beginTransaction();
 
         try {
-            // 1️⃣ insert master indikator
             $indikatorId = DB::table('tbl_indikator')->insertGetId([
                 'nama_indikator' => $request->nama_indikator,
                 'unit_id' => $request->unit_id,
@@ -130,7 +158,6 @@ class MasterIndikatorController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // 2️⃣ otomatis daftarkan ke periode aktif
             DB::table('tbl_indikator_periode')->insert([
                 'indikator_id' => $indikatorId,
                 'periode_id' => $periodeAktif->id,

@@ -17,6 +17,7 @@ class KamusIndikatorController extends Controller
 
         $query = DB::table('tbl_kamus_indikator')
             ->leftJoin('tbl_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
+            ->leftJoin('tbl_unit', 'tbl_indikator.unit_id', '=', 'tbl_unit.id')
             ->leftJoin('tbl_periode_pengumpulan_data', 'tbl_kamus_indikator.periode_pengumpulan_data_id', '=', 'tbl_periode_pengumpulan_data.id')
             ->leftJoin('tbl_periode_analisis_data', 'tbl_kamus_indikator.periode_analisis_data_id', '=', 'tbl_periode_analisis_data.id')
             ->leftJoin('tbl_penyajian_data', 'tbl_kamus_indikator.penyajian_data_id', '=', 'tbl_penyajian_data.id')
@@ -33,6 +34,7 @@ class KamusIndikatorController extends Controller
                 'tbl_kamus_indikator.*',
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.unit_id',
+                'tbl_unit.nama_unit',
                 DB::raw("string_agg(d.nama_dimensi_mutu, ', ') as nama_dimensi_mutu"),
                 'tbl_periode_pengumpulan_data.nama_periode_pengumpulan_data',
                 'tbl_periode_analisis_data.nama_periode_analisis_data',
@@ -43,6 +45,7 @@ class KamusIndikatorController extends Controller
                 'tbl_kamus_indikator.id',
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.unit_id',
+                'tbl_unit.nama_unit',
                 'tbl_periode_pengumpulan_data.nama_periode_pengumpulan_data',
                 'tbl_periode_analisis_data.nama_periode_analisis_data',
                 'tbl_penyajian_data.nama_penyajian_data',
@@ -84,6 +87,10 @@ class KamusIndikatorController extends Controller
         $periodeAnalisis = DB::table('tbl_periode_analisis_data')->get();
         $penyajianData = DB::table('tbl_penyajian_data')->get();
 
+        $unit = DB::table('tbl_unit')
+            ->orderBy('nama_unit', 'ASC')
+            ->get();
+
         return view('menu.IndikatorMutu.kamus-indikator.create', compact(
             'indikator',
             'dimensi',
@@ -92,6 +99,7 @@ class KamusIndikatorController extends Controller
             'penyajianData',
             'kategoriImprs',
             'jenisIndikator',
+            'unit',
         ));
     }
 
@@ -197,8 +205,21 @@ class KamusIndikatorController extends Controller
      */
     public function edit(string $id)
     {
-        $data = DB::table('tbl_kamus_indikator')->where('id', $id)->first();
+        $data = DB::table('tbl_kamus_indikator')
+            ->join('tbl_indikator', 'tbl_indikator.id', '=', 'tbl_kamus_indikator.indikator_id')
+            ->join('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
+            ->select(
+                'tbl_kamus_indikator.*',
+                'tbl_indikator.nama_indikator',
+                'tbl_unit.nama_unit'
+            )
+            ->where('tbl_kamus_indikator.id', $id)
+            ->first();
 
+
+        $unit = DB::table('tbl_unit')
+            ->orderBy('nama_unit', 'ASC')
+            ->get();
         $indikator = DB::table('tbl_indikator')->get();
         $dimensi = DB::table('tbl_dimensi_mutu')->get();
         $selectedDimensi = explode(',', $data->dimensi_mutu_id);
@@ -218,6 +239,7 @@ class KamusIndikatorController extends Controller
             'penyajianData',
             'kategoriImprs',
             'jenisIndikator',
+            'unit',
         ));
     }
 

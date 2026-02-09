@@ -67,19 +67,31 @@
 
                                                 <div class="col-md-12 mb-3 add-input">
                                                     <div class="col-12 col-md-3">
-                                                        <label class="form-label left-input text-nowrap">Judul Indikator
-                                                            <span class="text-danger">*</span></label>
+                                                        <label class="form-label left-input text-nowrap">
+                                                            Judul Indikator <span class="text-danger">*</span>
+                                                        </label>
                                                     </div>
+
                                                     <div class="col-12 col-md-9 ps-md-4">
-                                                        <select name="indikator_id" class="form-select right-input">
-                                                            <option value="">Pilih Indikator</option>
-                                                            @foreach ($indikator as $i)
-                                                                <option value="{{ $i->id }}"
-                                                                    {{ $i->id == $data->indikator_id ? 'selected' : '' }}>
-                                                                    {{ $i->nama_indikator }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
+                                                        <input type="text"
+                                                            class="form-control right-input"
+                                                            value="{{ $data->nama_indikator }}"
+                                                            readonly>
+                                                        <input type="hidden" name="indikator_id" value="{{ $data->indikator_id }}">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12 mb-3 add-input">
+                                                    <div class="col-12 col-md-3">
+                                                        <label class="form-label left-input text-nowrap">Unit</label>
+                                                    </div>
+                                                    
+                                                    <div class="col-12 col-md-9 ps-md-4">
+                                                        <input type="text"
+                                                            class="form-control right-input"
+                                                            value="{{ $data->nama_unit }}"
+                                                            readonly>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -417,7 +429,7 @@
                                                             placeholder="Isi penanggung jawab..." required>{{ old('penanggung_jawab', $data->penanggung_jawab) }}</textarea>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </>
                                         </div>
                                     </div>
                                 </div>
