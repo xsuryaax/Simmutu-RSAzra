@@ -39,32 +39,44 @@ class LaporanAnalisController extends Controller
         $selectedIndikatorId = $request->indikator_id;
         $selectedUnitId = $request->unit_id;
 
-        // Jika tidak ada indikator yang dipilih dan ada indikator di list
+        // Default indikator pertama
         if (!$selectedIndikatorId && $indikators->isNotEmpty()) {
             $firstIndikator = $indikators->first();
             $selectedIndikatorId = $firstIndikator->id;
             $selectedUnitId = $firstIndikator->unit_id;
         }
 
-        // Data kalender
         $kalenderData = null;
         $selectedIndikator = null;
 
         if ($selectedIndikatorId) {
+
             $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
 
             if ($selectedIndikator) {
-                $kategoriIndikatorKalender = strtolower($selectedIndikator->kategori_indikator);
+
+                $kategoriIndikatorKalender = strtolower(trim($selectedIndikator->kategori_indikator));
                 $table = $this->getTabelLaporan($kategoriIndikatorKalender);
 
                 if ($table) {
+
                     $query = DB::table($table)
-                        ->select('tanggal_laporan', 'numerator', 'denominator', 'nilai', 'id')
+                        ->select(
+                            'id',
+                            'tanggal_laporan',
+                            'numerator',
+                            'denominator',
+                            'nilai',
+                            'indikator_id',
+                            DB::raw("'" . $table . "' as table_source")
+                        )
                         ->where('indikator_id', $selectedIndikatorId)
                         ->whereMonth('tanggal_laporan', $bulan)
                         ->whereYear('tanggal_laporan', $tahun);
 
+                    // hanya tabel tertentu yang punya unit_id
                     if (in_array($kategoriIndikatorKalender, ['prioritas unit', 'prioritas rs'])) {
+                        $query->addSelect('unit_id');
                         $query->where('unit_id', $selectedUnitId);
                     }
 
@@ -82,6 +94,7 @@ class LaporanAnalisController extends Controller
                         'bulanNama' => $startOfMonth->translatedFormat('F Y'),
                     ];
                 }
+
             }
         }
 
@@ -100,6 +113,7 @@ class LaporanAnalisController extends Controller
             'selectedUnitId' => $selectedUnitId,
         ]);
     }
+
 
     private function getIndikator($user, $kategoriIndikator = null)
     {
@@ -344,39 +358,43 @@ class LaporanAnalisController extends Controller
     }
 
 
-    public function getDetail($id)
+    public function getDetail(Request $request, $id)
     {
-        // Cari di semua tabel laporan
-        $tables = [
+        $table = $request->table;
+
+        $allowedTables = [
             'tbl_laporan_dan_analis_unit',
             'tbl_laporan_dan_analis_imprs',
             'tbl_laporan_dan_analis_nasional'
         ];
 
-        foreach ($tables as $table) {
-            $data = DB::table($table)
-                ->where('id', $id)
-                ->first();
-
-            if ($data) {
-                return response()->json([
-                    'id' => $data->id,
-                    'indikator_id' => $data->indikator_id,
-                    'tanggal_pengisian' => $data->created_at,
-                    'unit_id' => $data->unit_id ?? null,
-                    'numerator' => $data->numerator,
-                    'denominator' => $data->denominator,
-                    'nilai' => $data->nilai,
-                    'pencapaian' => $data->pencapaian,
-                    'tanggal_laporan' => $data->tanggal_laporan,
-                    'file_laporan' => $data->file_laporan,
-                    'table' => $table
-                ]);
-            }
+        // validasi table supaya aman
+        if (!in_array($table, $allowedTables)) {
+            return response()->json(['error' => 'Tabel tidak valid'], 400);
         }
 
-        return response()->json(['error' => 'Data tidak ditemukan'], 404);
+        $data = DB::table($table)->where('id', $id)->first();
+
+        if (!$data) {
+            return response()->json(['error' => 'Data tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'id' => $data->id,
+            'indikator_id' => $data->indikator_id ?? null,
+            'tanggal_pengisian' => $data->created_at,
+            'unit_id' => $data->unit_id ?? null,
+            'numerator' => $data->numerator ?? 0,
+            'denominator' => $data->denominator ?? 0,
+            'nilai' => $data->nilai ?? 0,
+            'pencapaian' => $data->pencapaian ?? null,
+            'tanggal_laporan' => $data->tanggal_laporan ?? null,
+            'file_laporan' => $data->file_laporan ?? null,
+            'table_source' => $table   // ubah ini
+        ]);
+
     }
+
 
     private function getPeriodeAktif()
     {
@@ -418,6 +436,7 @@ class LaporanAnalisController extends Controller
             'numerator' => 'required|numeric|min:0',
             'denominator' => 'required|numeric|min:1',
             'file_laporan' => 'nullable|file|max:5120',
+            'table' => 'required|string'
         ]);
 
         // 🔎 Cari data di semua tabel laporan
@@ -443,7 +462,6 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan tidak ditemukan');
         }
 
-        // 🔢 Hitung ulang nilai
         $nilai = ($request->numerator / $request->denominator) * 100;
 
         $target = DB::table('tbl_indikator')

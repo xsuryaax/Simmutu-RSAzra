@@ -91,7 +91,6 @@
                                                             class="form-control right-input"
                                                             value="{{ $data->nama_unit }}"
                                                             readonly>
-                                                        </div>
                                                     </div>
                                                 </div>
 

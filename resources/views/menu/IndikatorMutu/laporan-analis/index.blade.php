@@ -289,7 +289,13 @@
                                         @endphp
 
                                         <div class="calendar-day"
-                                            onclick="handleDateClick('{{ $tglFull }}', {{ $sudahIsi ? 'true' : 'false' }}, {{ $sudahIsi ? $pengisian->id : 'null' }})"
+                                            onclick="handleDateClick(
+'{{ $tglFull }}',
+{{ $sudahIsi ? 'true' : 'false' }},
+{{ $sudahIsi ? $pengisian->id : 'null' }},
+'{{ $sudahIsi ? $pengisian->table_source : '' }}'
+)"
+
                                             style="cursor:pointer">
                                             <span
                                                 class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
@@ -462,6 +468,8 @@
             <form id="formEditData" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                
+                <input type="hidden" name="table" id="edit_table">
 
                 <div class="modal-body">
                     <div class="mb-3">
@@ -499,18 +507,22 @@
 @push('js')
     <script>
         let currentDataId = null;
-        let currentTanggal = null;
+let currentTanggal = null;
+let currentTable = null;
 
-        function handleDateClick(tanggalLaporan, sudahIsi, dataId) {
-            currentTanggal = tanggalLaporan;
-            currentDataId = dataId;
 
-            if (sudahIsi) {
-                loadDetailData(dataId);
-            } else {
-                openInputModal(tanggalLaporan);
-            }
-        }
+        function handleDateClick(tanggalLaporan, sudahIsi, dataId, table) {
+    currentTanggal = tanggalLaporan;
+    currentDataId = dataId;
+    currentTable = table;
+
+    if (sudahIsi) {
+        loadDetailData(dataId, table);
+    } else {
+        openInputModal(tanggalLaporan);
+    }
+}
+
 
         function openInputModal(tanggalLaporan) {
             document.getElementById('formInputData').reset();
@@ -529,10 +541,10 @@
             new bootstrap.Modal(document.getElementById('modalInputData')).show();
         }
 
-        function loadDetailData(dataId) {
-            fetch(`/laporan-analis/${dataId}/detail`)
-                .then(response => response.json())
-                .then(data => {
+        function loadDetailData(dataId, table) {
+    fetch(`/laporan-analis/${dataId}/detail?table=${table}`)
+        .then(response => response.json())
+        .then(data => {
 
                     const tglIsi = new Date(data.tanggal_pengisian);
                     document.getElementById('detail_tanggal_pengisian').textContent =
@@ -577,11 +589,16 @@
         }
 
         function openEditModal() {
-    fetch(`/laporan-analis/${currentDataId}/detail`)
+
+    fetch(`/laporan-analis/${currentDataId}/detail?table=${currentTable}`)
         .then(res => res.json())
         .then(data => {
+
             document.getElementById('edit_numerator').value = data.numerator;
             document.getElementById('edit_denominator').value = data.denominator;
+
+            // set table
+            document.getElementById('edit_table').value = currentTable;
 
             const form = document.getElementById('formEditData');
             form.action = `/laporan-analis/${data.id}`;
@@ -595,6 +612,7 @@
             ).show();
         });
 }
+
 
 
     </script>
