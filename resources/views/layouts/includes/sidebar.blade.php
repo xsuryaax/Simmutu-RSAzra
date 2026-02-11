@@ -1,14 +1,17 @@
 <div id="sidebar" class="active">
     <div class="sidebar-wrapper active">
         <div class="sidebar-header position-relative">
+            <div class="logo-img">
+                <img src="{{ asset('assets/logo/azra-logo.png') }}" alt="logo RS Azra">
+            </div>
             <div class="d-flex justify-content-between align-items-center">
                 <div class="logo" height="30">
-                    <img src="{{ asset('assets/logo/azra-logo.png') }}" alt="logo RS Azra">&nbsp;SIMMUTU
+                    SIMMUTU
                 </div>
                 <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17" height="17"
-                        preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
+                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17"
+                        height="17" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
                         <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
                             stroke-linejoin="round">
                             <path
@@ -119,7 +122,8 @@
                                             style="text-decoration: none;">Dimensi Mutu</a>
                                     </li>
 
-                                    <li class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
+                                    <li
+                                        class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
                                         <a href="{{ route('periode-analisis-data.index') }}" class="submenu-link"
                                             style="text-decoration: none;">Periode Analisa Data</a>
                                     </li>

@@ -53,8 +53,8 @@
 @section('content')
     <section class="section">
         <div class="col-12 col-md-12 col-lg-12">
-            <div class="row mb-4">
-                <div class="col-5 col-lg-7 col-md-5 px-2">
+            <div class="row row-cols-sm-1 mb-4">
+                <div class="col-12 col-md-5 col-lg-7 col-md-5 px-2">
                     <div class="card">
                         <div class="card-header">
                             <h5>Data Indikator Laporan</h5>
@@ -75,10 +75,12 @@
                                 </div>
                             @endif
 
-                            <form id="filterForm" method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
+                            <form id="filterForm" method="GET" action="{{ url()->current() }}"
+                                class="row g-2 align-items-end mb-4">
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Jenis Indikator</label>
-                                    <select name="kategori_indikator" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                                    <select name="kategori_indikator" class="form-select"
+                                        onchange="document.getElementById('filterForm').submit()">
                                         <option value="">-- Semua Indikator --</option>
                                         <option value="prioritas unit"
                                             {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
@@ -126,7 +128,7 @@
                                         @endfor
                                     </select>
                                 </div>
-                            
+
                             </form>
 
                             <div class="mb-3 d-flex flex-wrap gap-3">
@@ -143,7 +145,7 @@
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-light me-2"
                                         style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                                    <small class="text-primary text-primary-dark">Unit</small>
+                                    <small class="text-primary text-primary-dark">Prioritas Unit</small>
                                 </div>
                             </div>
 
@@ -168,13 +170,13 @@
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
                                                 $isSelected =
-                                                $selectedIndikatorId == $indikator->id &&
-                                                $selectedUnitId == $indikator->unit_id;
+                                                    $selectedIndikatorId == $indikator->id &&
+                                                    $selectedUnitId == $indikator->unit_id;
 
                                                 $colColor = '';
                                                 $filterKategori = strtolower(request('kategori_indikator'));
                                                 $jenisDb = strtolower($indikator->kategori_indikator ?? '');
-                                                    
+
                                                 if ($filterKategori) {
                                                     if ($filterKategori === 'nasional') {
                                                         $colColor = 'table-danger';
@@ -183,9 +185,7 @@
                                                     } elseif ($filterKategori === 'prioritas unit') {
                                                         $colColor = 'table-light';
                                                     }
-                                                } 
-                                                    
-                                                else {
+                                                } else {
                                                     if (str_contains($jenisDb, 'nasional')) {
                                                         $colColor = 'table-danger';
                                                     } elseif (str_contains($jenisDb, 'prioritas rs')) {
@@ -210,9 +210,7 @@
                                                 <td class="text-center">
                                                     @if ($nilaiRekap !== null)
                                                         <span>
-                                                            {{ fmod($nilaiRekap, 1) == 0 
-                                                                ? number_format($nilaiRekap, 0) 
-                                                                : number_format($nilaiRekap, 1) }}%
+                                                            {{ fmod($nilaiRekap, 1) == 0 ? number_format($nilaiRekap, 0) : number_format($nilaiRekap, 1) }}%
                                                         </span>
                                                     @else
                                                         <span>-</span>
@@ -233,7 +231,9 @@
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-analis.index', [
                                                         'kategori_indikator' =>
-                                                            request()->has('kategori_indikator') && request('kategori_indikator') !== '' ? request('kategori_indikator') : null,
+                                                            request()->has('kategori_indikator') && request('kategori_indikator') !== ''
+                                                                ? request('kategori_indikator')
+                                                                : null,
                                                         'bulan' => request('bulan', $periodeMulai->month),
                                                         'tahun' => request('tahun', $periodeMulai->year),
                                                         'indikator_id' => $indikator->id,
@@ -254,7 +254,7 @@
                 </div>
 
                 @if ($kalenderData)
-                    <div class="col-5 col-lg-5 col-md-5 px-2">
+                    <div class=" col-12 col-md-5 col-lg-5 col-md-5 px-2">
                         <div class="card" id="kalenderSection">
                             <div class="card-header">
                                 <div class="d-flex justify-content-center align-items-center text-center">
@@ -290,12 +290,11 @@
 
                                         <div class="calendar-day"
                                             onclick="handleDateClick(
-'{{ $tglFull }}',
-{{ $sudahIsi ? 'true' : 'false' }},
-{{ $sudahIsi ? $pengisian->id : 'null' }},
-'{{ $sudahIsi ? $pengisian->table_source : '' }}'
-)"
-
+                                            '{{ $tglFull }}',
+                                            {{ $sudahIsi ? 'true' : 'false' }},
+                                            {{ $sudahIsi ? $pengisian->id : 'null' }},
+                                            '{{ $sudahIsi ? $pengisian->table_source : '' }}'
+                                            )"
                                             style="cursor:pointer">
                                             <span
                                                 class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
@@ -456,50 +455,50 @@
         </div>
 
         <div class="modal fade" id="modalEditData" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="border-radius:14px;">
-            <div class="modal-header border-0">
-                <h5 class="modal-title text-warning fw-semibold">
-                    <i class="bi bi-pencil"></i> Edit Laporan
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content" style="border-radius:14px;">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-warning fw-semibold">
+                            <i class="bi bi-pencil"></i> Edit Laporan
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form id="formEditData" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+
+                        <input type="hidden" name="table" id="edit_table">
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Numerator</label>
+                                <input type="number" name="numerator" id="edit_numerator" class="form-control"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Denominator</label>
+                                <input type="number" name="denominator" id="edit_denominator" class="form-control"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Ganti File (Opsional)</label>
+                                <input type="file" name="file_laporan" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer border-0">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
-            <form id="formEditData" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                
-                <input type="hidden" name="table" id="edit_table">
-
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Numerator</label>
-                        <input type="number" name="numerator" id="edit_numerator"
-                            class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Denominator</label>
-                        <input type="number" name="denominator" id="edit_denominator"
-                            class="form-control" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Ganti File (Opsional)</label>
-                        <input type="file" name="file_laporan" class="form-control">
-                    </div>
-                </div>
-
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning">
-                        <i class="bi bi-save"></i> Simpan Perubahan
-                    </button>
-                </div>
-            </form>
         </div>
-    </div>
-</div>
 
     </section>
 @endsection
@@ -507,21 +506,21 @@
 @push('js')
     <script>
         let currentDataId = null;
-let currentTanggal = null;
-let currentTable = null;
+        let currentTanggal = null;
+        let currentTable = null;
 
 
         function handleDateClick(tanggalLaporan, sudahIsi, dataId, table) {
-    currentTanggal = tanggalLaporan;
-    currentDataId = dataId;
-    currentTable = table;
+            currentTanggal = tanggalLaporan;
+            currentDataId = dataId;
+            currentTable = table;
 
-    if (sudahIsi) {
-        loadDetailData(dataId, table);
-    } else {
-        openInputModal(tanggalLaporan);
-    }
-}
+            if (sudahIsi) {
+                loadDetailData(dataId, table);
+            } else {
+                openInputModal(tanggalLaporan);
+            }
+        }
 
 
         function openInputModal(tanggalLaporan) {
@@ -542,9 +541,9 @@ let currentTable = null;
         }
 
         function loadDetailData(dataId, table) {
-    fetch(`/laporan-analis/${dataId}/detail?table=${table}`)
-        .then(response => response.json())
-        .then(data => {
+            fetch(`/laporan-analis/${dataId}/detail?table=${table}`)
+                .then(response => response.json())
+                .then(data => {
 
                     const tglIsi = new Date(data.tanggal_pengisian);
                     document.getElementById('detail_tanggal_pengisian').textContent =
@@ -590,31 +589,28 @@ let currentTable = null;
 
         function openEditModal() {
 
-    fetch(`/laporan-analis/${currentDataId}/detail?table=${currentTable}`)
-        .then(res => res.json())
-        .then(data => {
+            fetch(`/laporan-analis/${currentDataId}/detail?table=${currentTable}`)
+                .then(res => res.json())
+                .then(data => {
 
-            document.getElementById('edit_numerator').value = data.numerator;
-            document.getElementById('edit_denominator').value = data.denominator;
+                    document.getElementById('edit_numerator').value = data.numerator;
+                    document.getElementById('edit_denominator').value = data.denominator;
 
-            // set table
-            document.getElementById('edit_table').value = currentTable;
+                    // set table
+                    document.getElementById('edit_table').value = currentTable;
 
-            const form = document.getElementById('formEditData');
-            form.action = `/laporan-analis/${data.id}`;
+                    const form = document.getElementById('formEditData');
+                    form.action = `/laporan-analis/${data.id}`;
 
-            bootstrap.Modal.getInstance(
-                document.getElementById('modalDetailData')
-            ).hide();
+                    bootstrap.Modal.getInstance(
+                        document.getElementById('modalDetailData')
+                    ).hide();
 
-            new bootstrap.Modal(
-                document.getElementById('modalEditData')
-            ).show();
-        });
-}
-
-
-
+                    new bootstrap.Modal(
+                        document.getElementById('modalEditData')
+                    ).show();
+                });
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

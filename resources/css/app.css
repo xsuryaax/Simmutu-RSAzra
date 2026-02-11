@@ -1146,8 +1146,9 @@
     max-height: 0 !important;
 }
 
-#sidebar .logo img {
-  height: 1.5rem;
+#sidebar .logo-img img{
+  height: 2.5rem;
+  margin-bottom: 5px;
 }
 
 #sidebar .logo {
@@ -1752,6 +1753,8 @@ a {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   border: 1px solid #e9ecef;
+  width: 100%;
+  overflow: hidden;
 }
 .calendar-header {
   background: #f8f9fa;
@@ -1766,6 +1769,13 @@ a {
   padding: 5px;
   text-align: center;
   position: relative;
+}
+@media (max-width: 992px){
+  .calendar-grid {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
 }
 .dot {
   height: 10px;

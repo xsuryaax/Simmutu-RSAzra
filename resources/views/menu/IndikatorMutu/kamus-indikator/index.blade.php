@@ -49,6 +49,23 @@
                 </a>
             </div>
             <div class="card-body">
+                <div class="mb-3 d-flex flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-danger me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Nasional</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas RS</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-light me-2"
+                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas Unit</small>
+                    </div>
+                </div>
                 <div class="table-parent-container table-responsive-md table-dark">
                     <table class="table table-striped" id="table1">
                         <thead>
@@ -67,9 +84,22 @@
                         </thead>
                         <tbody>
                             @foreach ($mutu as $m)
+                                @php
+                                    $colColor = '';
+                                    $kategori = $m->kategori_indikator ?? '';
+
+                                    // Hierarki Warna: Nasional (Red) > Prioritas RS (Green) > Prioritas Unit (Grey)
+                                    if (str_contains($kategori, 'Nasional')) {
+                                        $colColor = 'table-danger';
+                                    } elseif (str_contains($kategori, 'Prioritas RS')) {
+                                        $colColor = 'table-success';
+                                    } elseif (str_contains($kategori, 'Prioritas Unit')) {
+                                        $colColor = 'table-secondary';
+                                    }
+                                @endphp
                                 <tr>
                                     <td class="text-center">{{ $loop->iteration }}</td>
-                                    <td>{{ $m->nama_indikator }}</td>
+                                    <td class="{{ $colColor }} fw-semibold">{{ $m->nama_indikator }}</td>
                                     <td class="text-center">{{ $m->nama_unit }}</td>
                                     <td class="text-center">{{ $m->kategori_indikator }}</td>
                                     <td class="text-center">{{ $m->nama_dimensi_mutu }}</td>
