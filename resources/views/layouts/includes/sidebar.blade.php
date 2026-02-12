@@ -53,7 +53,7 @@
                 </li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-analis-imn*') || request()->is('laporan-analis-imprs*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-analis-imn*') || request()->is('laporan-analis-imprs*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
                         <span>Indikator Mutu</span>
@@ -70,6 +70,10 @@
                         <li class="submenu-item {{ request()->is('laporan-analis*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Pengisian Indikator</a>
+                        </li>
+                        <li class="submenu-item {{ request()->is('analisa-data*') ? 'active' : '' }}">
+                            <a href="{{ route('analisa-data.index') }}" class="submenu-link"
+                                style="text-decoration: none;">Analisa Data</a>
                         </li>
                     </ul>
                 </li>

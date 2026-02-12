@@ -13,6 +13,7 @@ use App\Http\Controllers\PDSAController;
 use App\Http\Controllers\IndikatorMutu\KamusIndikatorController;
 use App\Http\Controllers\IndikatorMutu\MasterIndikatorController;
 use App\Http\Controllers\IndikatorMutu\LaporanAnalisController;
+use App\Http\Controllers\IndikatorMutu\AnalisaController;
 
 use App\Http\Controllers\ManajemenMutu\JenisIndikatorController;
 use App\Http\Controllers\ManajemenMutu\MetodePengumpulanDataController;
@@ -49,8 +50,7 @@ Route::get('/unauthorized', function () {
 */
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    ;
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');;
 
     Route::get('/chart', function () {
         return view('admin.chart');
@@ -72,6 +72,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])
         ->name('laporan-analis.detail');
 
+    Route::get('analisa-data', [AnalisaController::class, 'index'])
+        ->middleware('check.role:laporan_analis')
+        ->name('analisa-data.index');
 
     // Menu Manajemen Mutu
     Route::resource('dimensi-mutu', DimensiMutuController::class)

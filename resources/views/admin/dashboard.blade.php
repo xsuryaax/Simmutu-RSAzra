@@ -28,15 +28,18 @@
             <div class="col-12 col-lg-12">
                 {{-- ===== CHART ADMIN ===== --}}
                 @if (in_array($roleId, [1, 2]))
+                    @include('admin.partials.cards')
+
+                    {{-- Prioritas Unit --}}
                     @include('admin.partials.unit-chart')
 
-                    <!-- Indikator Mutu Nasional -->
+                    {{-- Indikator Mutu Nasional --}}
                     @include('admin.partials.imn-chart')
 
                     {{-- Indikator Mutu Prioritas RS --}}
                     @include('admin.partials.imprs-chart')
                 @else
-                    {{-- ===== CARD PDSA ===== --}}
+                    {{-- Unit Chart --}}
                     @include('admin.partials.users-view')
                 @endif
 
