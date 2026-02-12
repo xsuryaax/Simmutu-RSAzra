@@ -60,14 +60,17 @@
                             <div class="col-md-4 fw-semibold">Status</div>
                             <div class="col-md-8"> :
                                 <span class="badge
-                                        @if($pdsa->status_pdsa == 'assigned') bg-warning
-                                        @elseif($pdsa->status_pdsa == 'submitted') bg-info
-                                        @elseif($pdsa->status_pdsa == 'approved') bg-success
-                                        @endif">
+                                                            @if($pdsa->status_pdsa == 'assigned') bg-warning
+                                                            @elseif($pdsa->status_pdsa == 'submitted') bg-info
+                                                            @elseif($pdsa->status_pdsa == 'revised') bg-danger
+                                                            @elseif($pdsa->status_pdsa == 'approved') bg-success
+                                                            @endif">
                                     @if($pdsa->status_pdsa == 'assigned')
                                         Ditugaskan
                                     @elseif($pdsa->status_pdsa == 'submitted')
                                         Sudah Isi
+                                    @elseif($pdsa->status_pdsa == 'revised')
+                                        Revisi
                                     @elseif($pdsa->status_pdsa == 'approved')
                                         Disetujui
                                     @endif
@@ -100,26 +103,80 @@
                             </div>
                         @endforeach
 
+                        @if($pdsa->catatan_mutu)
+                            <div class="alert alert-warning mt-3">
+                                <strong>Catatan Revisi dari Mutu:</strong><br>
+                                {{ $pdsa->catatan_mutu }}
+                            </div>
+                        @endif
+
                     </div>
 
-                    <div class="card-footer d-flex justify-content-end gap-2">
-                        <a href="{{ route('pdsa.index') }}" class="btn btn-light-secondary" title="Kembali">
+                    <div class="card-footer d-flex justify-content-end align-items-center gap-2">
+
+                        <a href="{{ route('pdsa.index') }}" class="btn btn-light-secondary">
                             <i class="bi bi-arrow-left"></i>
                         </a>
 
-                        <a href="{{ route('pdsa.edit', $pdsa->id) }}" class="btn btn-warning" title="Edit">
-                            <i class="bi bi-pencil"></i>
+                        <a href="{{ route('pdsa.edit', $pdsa->id) }}" title="Edit" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit
                         </a>
 
                         @if ($pdsa->status_pdsa === 'submitted')
-                            <form action="{{ route('pdsa.approve', $pdsa->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-primary" title="Approve">
-                                    <i class="bi bi-check-circle"></i> Approve
+
+                            <div class="d-flex gap-2">
+
+                                <button type="button" title="Revisi" class="btn btn-danger" data-bs-toggle="modal"
+                                    data-bs-target="#modalRevisi">
+                                    <i class="bi bi-x-circle"></i> Revisi
                                 </button>
-                            </form>
+
+                                <form action="{{ route('pdsa.approve', $pdsa->id) }}" method="POST" class="m-0">
+                                    @csrf
+                                    <button type="submit" title="Approve" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i> Approve
+                                    </button>
+                                </form>
+
+                            </div>
+
+
                         @endif
+
                     </div>
+
+                    @if ($pdsa->status_pdsa === 'submitted')
+
+                        {{-- Modal Revisi --}}
+                        <form action="{{ route('pdsa.revise', $pdsa->id) }}" method="POST">
+                            @csrf
+                            <div class="modal fade" id="modalRevisi" tabindex="-1">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Catatan Revisi</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <label>Catatan Revisi</label>
+                                            <textarea name="catatan_mutu" class="form-control" rows="5" required></textarea>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-danger">
+                                                Kirim Revisi
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                    @endif
+
 
                 </div>
             </div>

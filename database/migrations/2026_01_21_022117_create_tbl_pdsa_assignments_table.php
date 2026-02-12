@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->enum('status_pdsa', [
                 'assigned',
                 'submitted',
+                'revised',
                 'approved'
             ])->nullable();
             $table->timestamps();

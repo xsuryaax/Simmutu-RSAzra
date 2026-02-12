@@ -103,6 +103,8 @@
                                             <span class="badge bg-warning">Ditugaskan</span>
                                         @elseif ($row->status_pdsa === 'submitted')
                                             <span class="badge bg-info">Sudah Isi</span>
+                                        @elseif ($row->status_pdsa === 'revised')
+                                            <span class="badge bg-danger">Revisi</span>
                                         @elseif ($row->status_pdsa === 'approved')
                                             <span class="badge bg-success">Disetujui</span>
                                         @endif

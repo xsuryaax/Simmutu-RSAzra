@@ -111,13 +111,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/pdsa/{id}', [PDSAController::class, 'show'])
         ->name('pdsa.show')
         ->middleware('check.role:pdsa');
-    // FORM SUBMIT (UNIT)
     Route::get('/pdsa/{id}/submit', [PDSAController::class, 'formSubmit'])->name('pdsa.submit.form');
     Route::post('/pdsa/{id}/submit', [PDSAController::class, 'submit'])->name('pdsa.submit');
-    // FORM EDIT (UNIT & MUTU)
     Route::get('/pdsa/{id}/edit', [PDSAController::class, 'edit'])->name('pdsa.edit');
     Route::put('/pdsa/{id}', [PDSAController::class, 'update'])->name('pdsa.update');
-    // APPROVE (MUTU)
+    Route::post('/pdsa/{id}/revisi', [PDSAController::class, 'revise'])
+        ->name('pdsa.revise');
     Route::post('/pdsa/{id}/approve', [PDSAController::class, 'approve'])
         ->name('pdsa.approve')
         ->middleware('check.role:pdsa');

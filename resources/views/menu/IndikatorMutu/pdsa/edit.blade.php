@@ -45,53 +45,95 @@
 @endsection
 
 @section('content')
-    <section id="pdsa-edit">
-        <div class="row match-height">
-            <div class="col-12">
-                <div class="card">
+<section id="pdsa-edit">
+    <div class="row justify-content-center">
+        <div class="col">
+            <div class="card shadow-sm">
 
-                    <div class="card-header">
-                        <h4 class="card-title">Form PDSA</h4>
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Form PDSA</h4>
+                </div>
+
+                {{-- Error --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger m-3">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('pdsa.update', $pdsa->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="card-body">
+
+                        {{-- PLAN DO STUDY ACTION --}}
+                        @foreach ([
+                            'plan' => 'Plan (Perencanaan)',
+                            'do' => 'Do (Pelaksanaan)',
+                            'study' => 'Study (Evaluasi)',
+                            'action' => 'Action (Tindak Lanjut)'
+                        ] as $field => $label)
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">
+                                    {{ $label }}
+                                </label>
+
+                                <textarea 
+                                    name="{{ $field }}" 
+                                    rows="4" 
+                                    class="form-control"
+                                    required>{{ old($field, $pdsa->$field) }}</textarea>
+                            </div>
+
+                        @endforeach
+
+
+                        {{-- CATATAN REVISI --}}
+                        @if($pdsa->catatan_mutu)
+                            <div class="card border-warning bg-light-warning mt-4">
+                                <div class="card-body">
+                                    <h6 class="fw-bold text-warning mb-2">
+                                        <i class="bi bi-exclamation-circle"></i> 
+                                        Catatan Revisi
+                                    </h6>
+                                    <p class="mb-0">
+                                        {{ $pdsa->catatan_mutu }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
                     </div>
 
-                    <form action="{{ route('pdsa.update', $pdsa->id) }}" method="POST" class="form form-horizontal">
-                        @csrf
-                        @method('PUT')
+                    {{-- FOOTER --}}
+                    <div class="card-footer d-flex justify-content-end gap-2">
 
-                        <div class="card-body">
-                            <div class="row">
+                        @if(in_array(Auth::user()->unit_id, [1, 2]))
+                            <a href="{{ route('pdsa.index') }}" class="btn btn-light-secondary">
+                                <i class="bi bi-arrow-left"></i> Kembali
+                            </a>
+                        @else
+                            <a href="{{ route('dashboard') }}" class="btn btn-light-secondary">
+                                <i class="bi bi-arrow-left"></i> Kembali
+                            </a>
+                        @endif
 
-                                @foreach (['plan', 'do', 'study', 'action'] as $field)
-                                    <div class="col-md-4">
-                                        <label class="text-uppercase">{{ $field }}</label>
-                                    </div>
-                                    <div class="col-md-8 mb-3">
-                                        <textarea name="{{ $field }}" rows="4" class="form-control"
-                                            required>{{ old($field, $pdsa->$field) }}</textarea>
-                                    </div>
-                                @endforeach
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Simpan
+                        </button>
 
-                            </div>
-                        </div>
+                    </div>
 
-                        <div class="card-footer d-flex justify-content-end gap-2">
-                            @if(in_array(Auth::user()->unit_id, [1, 2]))
-                                <a href="{{ route('pdsa.index') }}" class="btn btn-light-secondary">
-                                    <i class="bi bi-arrow-left"></i>
-                                </a>
-                            @else
-                                <a href="{{ route('dashboard') }}" class="btn btn-light-secondary">
-                                    <i class="bi bi-arrow-left"></i>
-                                </a>
-                            @endif
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-save"></i> Simpan
-                            </button>
-                        </div>
-                    </form>
+                </form>
 
-                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 @endsection

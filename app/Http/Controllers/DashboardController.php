@@ -43,11 +43,11 @@ class DashboardController extends Controller
 
         $pdsaData = in_array($roleId, [1, 2])
             ? [
-                'pdsaTotal' => $this->getTotalPdsa(),  // ← Gunakan ini
-                'pdsaList' => $this->getPdsaList()     // ← Buat function baru untuk list
+                'pdsaTotal' => $this->getTotalPdsa(),
+                'pdsaList' => $this->getPdsaList()
             ]
             : [
-                'pdsaTotal' => $this->getTotalPdsa($user->unit_id),
+                'pdsaTotal' => $this->getTotalPdsaAktif($user->unit_id),
                 'pdsaList' => $this->getPdsaList($user->unit_id)
             ];
 
@@ -436,6 +436,19 @@ class DashboardController extends Controller
         ];
     }
 
+    private function getTotalPdsaAktif($unitId = null)
+    {
+        $query = DB::table('tbl_pdsa_assignments as p')
+            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised']);
+
+        if ($unitId) {
+            $query->where('p.unit_id', $unitId);
+        }
+
+        return $query->count();
+    }
+
+
     private function getPdsaNotification($unitId = null): array
     {
         $query = DB::table('tbl_pdsa_assignments as p')
@@ -536,7 +549,7 @@ class DashboardController extends Controller
         $query = DB::table('tbl_pdsa_assignments as p')
             ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
             ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
-            ->whereIn('p.status_pdsa', ['assigned', 'submitted']);
+            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised']);
 
         if ($unitId) {
             $query->where('p.unit_id', $unitId);

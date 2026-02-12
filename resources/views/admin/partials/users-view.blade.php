@@ -1,19 +1,52 @@
-<div class="col-5 col-lg-3 col-md-5">
-    <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalPDSA">
-        <div class="card-body px-4 py-4-5">
-            <div class="row">
-                <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                    <div class="stats-icon bg-orange">
-                        <i class="bi bi-exclamation-triangle"></i>
+<div class="row">
+
+    {{-- CARD TOTAL PDSA --}}
+    <div class="col-5 col-lg-3 col-md-5">
+        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalPDSA">
+            <div class="card-body px-4 py-4-5">
+                <div class="row">
+                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                        <div class="stats-icon bg-orange">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="col-8 col-xxl-7">
-                    <h6 class="text-muted font-semibold mb-1">PDSA Perlu Ditindaklanjuti</h6>
-                    <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
+                    <div class="col-8 col-xxl-7">
+                        <h6 class="text-muted font-semibold mb-1">PDSA Perlu Ditindaklanjuti</h6>
+                        <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    
+    @php
+        $pdsaPerluTindak = $pdsaList->whereIn('status_pdsa', ['assigned', 'revised']);
+    @endphp
+
+    @if($pdsaPerluTindak->count() > 0)
+        <div class="col-7 col-lg-9 col-md-7">
+            <div class="card border-0 shadow-sm"
+                style="background: linear-gradient(135deg, #fff3cd, #ffe69c); border-left: 6px solid #f59f00;">
+
+                <div class="card-body py-4 px-4 d-flex align-items-center">
+                    <div class="me-3">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+                    </div>
+
+                    <div>
+                        <h5 class="mb-1 fw-bold text-dark">
+                            Perhatian!
+                        </h5>
+                        <p class="mb-0 text-dark">
+                            Terdapat <strong>{{ $pdsaTotal }} PDSA</strong> yang perlu diisi atau diperbaiki.
+                            Mohon segera ditindaklanjuti.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
 </div>
 
 {{-- ===== MODAL PDSA ===== --}}
@@ -30,6 +63,7 @@
                         <tr>
                             <th class="text-center">No</th>
                             <th>Indikator</th>
+                            <th class="text-center">Status</th>
                             <th class="text-center">Quarter</th>
                             <th class="text-center">Tahun</th>
                             <th class="text-center">Aksi</th>
@@ -40,13 +74,22 @@
                             <tr>
                                 <td class="text-center">{{ $loop->iteration }}</td>
                                 <td>{{ $ind->nama_indikator }}</td>
+                                <td class="text-center">
+                                    @if ($ind->status_pdsa === 'assigned')
+                                        <span class="badge bg-warning text-white">Ditugaskan</span>
+                                    @elseif ($ind->status_pdsa === 'submitted')
+                                        <span class="badge bg-info text-white">Sudah Isi</span>
+                                    @elseif ($ind->status_pdsa === 'revised')
+                                        <span class="badge bg-danger text-white">Revisi</span>
+                                    @endif
+                                </td>
                                 <td class="text-center">{{ $ind->quarter }}</td>
                                 <td class="text-center">{{ $ind->tahun }}</td>
                                 <td class="text-center">
                                     {{-- BELUM DIISI --}}
                                     @if ($ind->status_pdsa === 'assigned')
-                                        <a href="{{ route('pdsa.submit.form', $ind->id) }}"
-                                            class="btn btn-sm btn-primary" title="Isi PDSA">
+                                        <a href="{{ route('pdsa.submit.form', $ind->id) }}" class="btn btn-sm btn-primary"
+                                            title="Isi PDSA">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                     @else
@@ -183,21 +226,21 @@
             data: {
                 labels: viewData.labels,
                 datasets: [{
-                        label: "Target",
-                        data: viewData.target,
-                        borderColor: 'rgba(255,99,132,1)',
-                        backgroundColor: 'rgba(255,99,132,0.6)',
-                        tension: 0.2,
-                        fill: type === 'bar'
-                    },
-                    {
-                        label: "Realisasi",
-                        data: viewData.hasil,
-                        borderColor: 'rgba(54,162,235,1)',
-                        backgroundColor: 'rgba(54,162,235,0.6)',
-                        tension: 0.2,
-                        fill: type === 'bar'
-                    }
+                    label: "Target",
+                    data: viewData.target,
+                    borderColor: 'rgba(255,99,132,1)',
+                    backgroundColor: 'rgba(255,99,132,0.6)',
+                    tension: 0.2,
+                    fill: type === 'bar'
+                },
+                {
+                    label: "Realisasi",
+                    data: viewData.hasil,
+                    borderColor: 'rgba(54,162,235,1)',
+                    backgroundColor: 'rgba(54,162,235,0.6)',
+                    tension: 0.2,
+                    fill: type === 'bar'
+                }
                 ]
             },
             options: {
