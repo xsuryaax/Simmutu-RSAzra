@@ -18,9 +18,9 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Laporan dan Analisis</h3>
+            <h3>Pengisian Indikator</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk mengelola laporan dan analisis.
+                Halaman untuk pengisian untuk pengumpul data indikator mutu.
             </p>
         </div>
         <div class="page-header-right">
@@ -41,7 +41,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Laporan dan Analisis
+                            Pengisian Indikator
                         </li>
                     </ol>
                 </nav>
