@@ -144,17 +144,20 @@ class ValidatorDataController extends Controller
     {
         $query = DB::table('tbl_laporan_validator as l')
             ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
+            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->whereMonth('l.tanggal_laporan', $bulan)
             ->whereYear('l.tanggal_laporan', $tahun)
             ->where('i.status_indikator', 'aktif');
 
+        // Filter berdasarkan kategori indikator dari kamus indikator
         if ($kategoriIndikator) {
             $query->whereRaw(
-                "LOWER(i.kategori_indikator) LIKE ?",
+                "LOWER(k.kategori_indikator) LIKE ?",
                 ['%' . strtolower($kategoriIndikator) . '%']
             );
         }
 
+        // Filter unit jika bukan admin/unit khusus
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('l.unit_id', $user->unit_id);
         }
@@ -163,16 +166,17 @@ class ValidatorDataController extends Controller
             ->select(
                 'l.indikator_id',
                 'l.unit_id',
-                DB::raw('SUM(l.numerator) as total_numerator'),
-                DB::raw('SUM(l.denominator) as total_denominator')
+                DB::raw('SUM(l.nilai_validator) as total_nilai'),
+                DB::raw('COUNT(*) as jumlah_data')
             )
             ->groupBy('l.indikator_id', 'l.unit_id')
             ->get()
             ->map(function ($item) {
 
                 $nilai = 0;
-                if ($item->total_denominator > 0) {
-                    $nilai = ($item->total_numerator / $item->total_denominator) * 100;
+                if ($item->jumlah_data > 0) {
+                    // Rata-rata semua nilai validator
+                    $nilai = ($item->total_nilai / $item->jumlah_data);
                 }
 
                 $item->nilai_rekap = round($nilai, 2);
@@ -182,6 +186,8 @@ class ValidatorDataController extends Controller
 
         return $rekap;
     }
+
+
 
     public function store(Request $request)
     {
@@ -233,20 +239,27 @@ class ValidatorDataController extends Controller
                     ->store('laporan_indikator', 'public');
             }
 
+            $target = DB::table('tbl_indikator')
+                ->where('id', $request->indikator_id)
+                ->value('target_indikator');
+
+            $pencapaian = $nilaiValidator >= $target ? 'tercapai' : 'tidak-tercapai';
+
+
             /*
             |-----------------------------------------
             | 1. INSERT ke tabel VALIDATOR
             |-----------------------------------------
             */
             DB::table('tbl_laporan_validator')->insert([
-                'laporan_analis_id' => $laporanAnalis->id, // WAJIB
+                'laporan_analis_id' => $laporanAnalis->id,
                 'tanggal_laporan' => $request->tanggal_laporan,
                 'indikator_id' => $request->indikator_id,
                 'unit_id' => $request->unit_id,
                 'numerator' => $request->numerator,
                 'denominator' => $request->denominator,
                 'nilai_validator' => $nilaiValidator,
-                'pencapaian' => $nilaiValidator >= 80 ? 'tercapai' : 'tidak-tercapai',
+                'pencapaian' => $pencapaian,
                 'status_laporan' => $statusValidasi,
                 'file_laporan' => $filePath,
                 'created_at' => now(),
@@ -337,10 +350,8 @@ class ValidatorDataController extends Controller
             'file_laporan' => 'nullable|file|max:5120',
         ]);
 
-        // Ambil data laporan
-        $data = DB::table('tbl_laporan_validator')
-            ->where('id', $id)
-            ->first();
+        // Ambil data laporan validator
+        $data = DB::table('tbl_laporan_validator')->where('id', $id)->first();
 
         if (!$data) {
             return back()->with('error', 'Data laporan tidak ditemukan');
@@ -349,35 +360,55 @@ class ValidatorDataController extends Controller
         // Hitung nilai baru
         $nilai = ($request->numerator / $request->denominator) * 100;
 
+        // Ambil target indikator
         $target = DB::table('tbl_indikator')
             ->where('id', $data->indikator_id)
             ->value('target_indikator');
 
+        // Tentukan pencapaian
         $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
+
+        // Hitung status validasi terhadap laporan analis
+        $laporanAnalis = DB::table('tbl_laporan_dan_analis')
+            ->where('id', $data->laporan_analis_id)
+            ->first();
+
+        $statusValidasi = 'tidak-valid';
+        if ($laporanAnalis && $laporanAnalis->nilai > 0) {
+            $persentase = ($nilai / $laporanAnalis->nilai) * 100;
+            $statusValidasi = $persentase >= 90 ? 'valid' : 'tidak-valid';
+        }
 
         $updateData = [
             'numerator' => $request->numerator,
             'denominator' => $request->denominator,
             'nilai_validator' => round($nilai, 2),
             'pencapaian' => $pencapaian,
+            'status_laporan' => $statusValidasi,
             'updated_at' => now(),
         ];
 
         // Jika upload file baru
         if ($request->hasFile('file_laporan')) {
-
             if ($data->file_laporan) {
                 Storage::disk('public')->delete($data->file_laporan);
             }
-
-            $updateData['file_laporan'] = $request
-                ->file('file_laporan')
-                ->store('laporan_indikator', 'public');
+            $updateData['file_laporan'] = $request->file('file_laporan')->store('laporan_indikator', 'public');
         }
 
-        DB::table('tbl_laporan_validator')
-            ->where('id', $id)
-            ->update($updateData);
+        // Update validator
+        DB::table('tbl_laporan_validator')->where('id', $id)->update($updateData);
+
+        // Update laporan analis
+        if ($data->laporan_analis_id) {
+            DB::table('tbl_laporan_dan_analis')
+                ->where('id', $data->laporan_analis_id)
+                ->update([
+                    'nilai_validator' => round($nilai, 2),
+                    'status_laporan' => $statusValidasi,
+                    'updated_at' => now(),
+                ]);
+        }
 
         return back()->with('success', 'Data laporan berhasil diperbarui');
     }
