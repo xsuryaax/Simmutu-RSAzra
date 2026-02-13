@@ -18,9 +18,9 @@
 @section('page-title')
     <div class="page-header">
         <div class="page-header-left">
-            <h3>Pengisian Indikator</h3>
+            <h3>Laporan Validator</h3>
             <p class="text-subtitle text-muted">
-                Halaman untuk pengisian untuk pengumpul data indikator mutu.
+                Halaman untuk pengisian untuk validator data indikator mutu.
             </p>
         </div>
         <div class="page-header-right">
@@ -41,7 +41,7 @@
                             <a href="{{ url('/') }}">Dashboard</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            Pengisian Indikator
+                            Validator Data
                         </li>
                     </ol>
                 </nav>
@@ -57,7 +57,7 @@
                 <div class="col-5 col-lg-7 col-md-5 px-2">
                     <div class="card">
                         <div class="card-header">
-                            <h5>Data Indikator Laporan</h5>
+                            <h5>Data Indikator</h5>
                         </div>
 
                         <div class="card-body">
@@ -157,10 +157,8 @@
                                                 <th class="text-center">UNIT</th>
                                             @endif
                                             <th class="text-center">TARGET</th>
-                                            <th class="text-center">PENGUMPUL</th>
-                                            <th class="text-center">VALIDATOR</th>
-                                            <th class="text-center">STATUS NILAI</th>
-                                            <th class="text-center">STATUS LAPORAN</th>
+                                            <th class="text-center">NILAI</th>
+                                            <th class="text-center">STATUS</th>
                                             <th class="text-center">AKSI</th>
                                         </tr>
                                     </thead>
@@ -221,20 +219,6 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @php
-                                                        $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null;
-                                                    @endphp
-                                                    @if ($nilaiValidator !== null)
-                                                        <span>
-                                                            {{ fmod($nilaiValidator, 1) == 0 
-                                                                ? number_format($nilaiValidator, 0) 
-                                                                : number_format($nilaiValidator, 1) }}%
-                                                        </span>
-                                                    @else
-                                                        <span>-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="text-center">
                                                     @if ($nilaiRekap !== null)
                                                         @if ($nilaiRekap >= $indikator->target_indikator)
                                                             <span class="badge bg-success bg-opacity-75">Tercapai</span>
@@ -247,19 +231,7 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @php
-                                                        $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null;
-                                                    @endphp
-                                                    @if ($statusLaporan !== null)
-                                                        <span class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
-                                                            {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
-                                                        </span>
-                                                    @else
-                                                        <span>-</span>
-                                                    @endif
-                                                </td>
-                                                <td class="text-center">
-                                                    <a href="{{ route('laporan-analis.index', [
+                                                    <a href="{{ route('laporan-validator.index', [
                                                         'kategori_indikator' =>
                                                             request()->has('kategori_indikator') && request('kategori_indikator') !== '' ? request('kategori_indikator') : null,
                                                         'bulan' => request('bulan', $periodeMulai->month),
@@ -433,7 +405,7 @@
                     </div>
 
                     <form id="formInputData" method="POST" enctype="multipart/form-data"
-                        action="{{ route('laporan-analis.store') }}">
+                        action="{{ route('laporan-validator.store') }}">
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="indikator_id" id="modal_indikator_id"
@@ -564,7 +536,7 @@ let currentTanggal = null;
         }
 
         function loadDetailData(dataId) {
-    fetch(`/laporan-analis/${dataId}/detail`)
+    fetch(`/laporan-validator/${dataId}/detail`)
         .then(response => response.json())
         .then(data => {
 
@@ -586,7 +558,7 @@ let currentTanggal = null;
                     document.getElementById('detail_numerator').textContent = data.numerator;
                     document.getElementById('detail_denominator').textContent = data.denominator;
 
-                    const nilai = Number(data.nilai);
+                    const nilai = Number(data.nilai_validator);
                     document.getElementById('detail_nilai').textContent =
                         (Number.isInteger(nilai) ? nilai : nilai.toFixed(1)) + '%';
 
@@ -612,7 +584,7 @@ let currentTanggal = null;
 
         function openEditModal() {
 
-    fetch(`/laporan-analis/${currentDataId}/detail`)
+    fetch(`/laporan-validator/${currentDataId}/detail`)
         .then(res => res.json())
         .then(data => {
 
@@ -620,7 +592,7 @@ let currentTanggal = null;
             document.getElementById('edit_denominator').value = data.denominator;
 
             const form = document.getElementById('formEditData');
-            form.action = `/laporan-analis/${data.id}`;
+            form.action = `/laporan-validator/${data.id}`;
 
             bootstrap.Modal.getInstance(
                 document.getElementById('modalDetailData')

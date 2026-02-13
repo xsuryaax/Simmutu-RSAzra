@@ -268,7 +268,7 @@ class DashboardController extends Controller
 
         if (in_array($ind->periode_id, [1, 2])) {
             $query = $query
-                ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, SUM(nilai) as total, COUNT(*) as jumlah')
+                ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, SUM(nilai_pengumpul) as total, COUNT(*) as jumlah')
                 ->groupBy('bulan')
                 ->get();
 
@@ -277,11 +277,11 @@ class DashboardController extends Controller
             }
         } else {
             $query = $query
-                ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, nilai')
+                ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, nilai_pengumpul')
                 ->get();
 
             foreach ($query as $row) {
-                $hasil[$row->bulan] = round($row->nilai, 2);
+                $hasil[$row->bulan] = round($row->nilai_pengumpul, 2);
             }
         }
 
@@ -347,14 +347,14 @@ class DashboardController extends Controller
             ->whereYear('tanggal_laporan', $tahun)
             ->selectRaw('
             EXTRACT(MONTH FROM tanggal_laporan) as bulan,
-            ROUND(AVG(nilai), 2) as nilai
+            ROUND(AVG(nilai_pengumpul), 2) as nilai_pengumpul
         ')
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
 
         foreach ($rows as $row) {
-            $hasil[$row->bulan] = $row->nilai;
+            $hasil[$row->bulan] = $row->nilai_pengumpul;
         }
 
         return [
@@ -419,10 +419,10 @@ class DashboardController extends Controller
             ->whereYear('tanggal_laporan', $tahun)
             ->selectRaw('
             EXTRACT(MONTH FROM tanggal_laporan) AS bulan,
-            ROUND(AVG(nilai), 2) AS nilai
+            ROUND(AVG(nilai_pengumpul), 2) AS nilai_pengumpul
         ')
             ->groupByRaw('EXTRACT(MONTH FROM tanggal_laporan)')
-            ->pluck('nilai', 'bulan')
+            ->pluck('nilai_pengumpul', 'bulan')
             ->toArray();
 
         $hasil = [];
@@ -520,7 +520,7 @@ class DashboardController extends Controller
                     ELSE 'Q4'
                 END as quarter
             "),
-            DB::raw('AVG(l.nilai) as nilai_avg')
+            DB::raw('AVG(l.nilai_pengumpul) as nilai_avg')
         )
             ->groupBy(
                 'l.indikator_id',
@@ -538,7 +538,7 @@ class DashboardController extends Controller
                 END
             ")
             )
-            ->havingRaw('AVG(l.nilai) < i.target_indikator')
+            ->havingRaw('AVG(l.nilai_pengumpul) < i.target_indikator')
             ->get();
 
         return $result->count();

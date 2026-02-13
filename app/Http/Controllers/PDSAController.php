@@ -13,7 +13,7 @@ class PDSAController extends Controller
      */
     public function index()
     {
-        $data = DB::table('tbl_laporan_dan_analis_unit as l')
+        $data = DB::table('tbl_laporan_dan_analis as l')
             ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
             ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
             ->leftJoin('tbl_pdsa_assignments as p', function ($join) {

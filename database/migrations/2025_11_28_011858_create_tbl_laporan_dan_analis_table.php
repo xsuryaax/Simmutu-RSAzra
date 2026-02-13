@@ -11,16 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tbl_laporan_dan_analis_unit', function (Blueprint $table) {
+        Schema::create('tbl_laporan_dan_analis', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal_laporan')->nullable();
             $table->integer('indikator_id');
-            $table->integer('unit_id');
+            $table->decimal('nilai_validator', 8, 2)->nullable();
+            $table->integer('unit_id')->nullable();
+            $table->string('kategori_indikator')->nullable();
+            $table->integer('kategori_id')->nullable();
             $table->integer('numerator');
             $table->integer('denominator');
             $table->decimal('nilai', 8, 2);
             $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);
-            $table->enum('status_laporan', ['menunggu', 'disetujui', 'ditolak', 'pdsa'])->default('menunggu');
+            $table->enum('status_laporan', ['valid', 'tidak-valid'])->nullable();
             $table->string('file_laporan');
             $table->timestamps();
         });
@@ -31,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tbl_laporan_dan_analis_unit');
+        Schema::dropIfExists('tbl_laporan_dan_analis');
     }
 };

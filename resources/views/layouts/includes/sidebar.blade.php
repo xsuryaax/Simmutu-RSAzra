@@ -10,8 +10,8 @@
                 </div>
                 <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17"
-                        height="17" preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
+                        aria-hidden="true" role="img" class="iconify iconify--system-uicons" width="17" height="17"
+                        preserveAspectRatio="xMidYMid meet" viewBox="0 0 21 21">
                         <g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
                             stroke-linejoin="round">
                             <path
@@ -53,7 +53,7 @@
                 </li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-analis-imn*') || request()->is('laporan-analis-imprs*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-validator*') ||  request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
                         <span>Indikator Mutu</span>
@@ -71,9 +71,15 @@
                             <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Pengisian Indikator</a>
                         </li>
+                        <li class="submenu-item {{ request()->is('laporan-validator*') ? 'active' : '' }}">
+                            <a href="{{ route('laporan-validator.index') }}" class="submenu-link"
+                                style="text-decoration: none;">
+                                Validator Indikator
+                            </a>
+                        </li>
                         <li class="submenu-item {{ request()->is('analisa-data*') ? 'active' : '' }}">
                             <a href="{{ route('analisa-data.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Analisa Data</a>
+                                style="text-decoration: none;">Analisa Indikator</a>
                         </li>
                     </ul>
                 </li>
@@ -126,8 +132,7 @@
                                             style="text-decoration: none;">Dimensi Mutu</a>
                                     </li>
 
-                                    <li
-                                        class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
+                                    <li class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
                                         <a href="{{ route('periode-analisis-data.index') }}" class="submenu-link"
                                             style="text-decoration: none;">Periode Analisa Data</a>
                                     </li>

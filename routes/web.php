@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExportPdfController;
 use App\Http\Controllers\HakAksesController;
+use App\Http\Controllers\IndikatorMutu\ValidatorDataController;
 use App\Http\Controllers\IndikatorPeriodeController;
 use App\Http\Controllers\ManajemenRoleController;
 use App\Http\Controllers\ManajemenUnitController;
@@ -50,7 +51,8 @@ Route::get('/unauthorized', function () {
 */
 Route::middleware('auth')->group(function () {
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');;
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    ;
 
     Route::get('/chart', function () {
         return view('admin.chart');
@@ -71,6 +73,19 @@ Route::middleware('auth')->group(function () {
     // Route untuk Laporan Analis
     Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])
         ->name('laporan-analis.detail');
+
+
+    Route::get('/laporan-validator', [ValidatorDataController::class, 'index'])
+        ->name('laporan-validator.index');
+
+    Route::post('/laporan-validator', [ValidatorDataController::class, 'store'])
+        ->name('laporan-validator.store');
+    Route::put('/laporan-validator/{id}', [ValidatorDataController::class, 'update'])
+        ->name('laporan-validator.update');
+
+    Route::get('/laporan-validator/{id}/detail', [ValidatorDataController::class, 'detail'])
+        ->name('laporan-validator.show');
+
 
     Route::get('analisa-data', [AnalisaController::class, 'index'])
         ->middleware('check.role:laporan_analis')
