@@ -36,44 +36,47 @@ class MasterIndikatorController extends Controller
         $query = DB::table('tbl_indikator')
             ->leftJoin('tbl_unit', 'tbl_unit.id', '=', 'tbl_indikator.unit_id')
             ->leftJoin('tbl_kamus_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
-
-            // indikator sesuai periode yang dipilih
             ->join('tbl_indikator_periode as ip_filter', function ($join) use ($periodeId) {
                 $join->on('tbl_indikator.id', '=', 'ip_filter.indikator_id');
-
                 if ($periodeId) {
                     $join->where('ip_filter.periode_id', $periodeId);
                 }
             })
-
-            // cek apakah sudah ada di periode aktif
             ->leftJoin('tbl_indikator_periode as ip_aktif', function ($join) use ($periodeAktif) {
                 $join->on('tbl_indikator.id', '=', 'ip_aktif.indikator_id');
-
                 if ($periodeAktif) {
                     $join->where('ip_aktif.periode_id', $periodeAktif->id);
                 }
             })
-
             ->select(
                 'tbl_indikator.*',
                 'tbl_unit.nama_unit',
                 'tbl_kamus_indikator.kategori_indikator',
                 'ip_filter.status as status_periode',
                 'ip_aktif.id as sudah_di_periode_aktif'
-            )
-            ->orderBy('tbl_indikator.created_at', 'ASC');
+            );
 
         // Filter unit
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
-
         if (in_array($user->unit_id, [1, 2]) && $request->filled('unit_id')) {
             $query->where('tbl_indikator.unit_id', $request->unit_id);
         }
 
+        // Urutkan indikator berdasarkan kategori_indikator: nasional -> prioritas rs -> prioritas unit
+        $query->orderByRaw("
+    CASE 
+        WHEN tbl_kamus_indikator.kategori_indikator = 'Nasional' THEN 1
+        WHEN tbl_kamus_indikator.kategori_indikator = 'Prioritas RS' THEN 2
+        WHEN tbl_kamus_indikator.kategori_indikator = 'Prioritas Unit' THEN 3
+        ELSE 4
+    END ASC
+")
+            ->orderBy('tbl_indikator.id', 'ASC'); // stabilkan urutan indikator dalam kategori
+
         $indikators = $query->get();
+
         $units = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC')->get();
 
         return view('menu.IndikatorMutu.master-indikator.index', compact(

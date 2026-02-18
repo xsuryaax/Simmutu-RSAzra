@@ -22,13 +22,12 @@ class KamusIndikatorController extends Controller
             ->leftJoin('tbl_periode_analisis_data', 'tbl_kamus_indikator.periode_analisis_data_id', '=', 'tbl_periode_analisis_data.id')
             ->leftJoin('tbl_penyajian_data', 'tbl_kamus_indikator.penyajian_data_id', '=', 'tbl_penyajian_data.id')
             ->leftJoin('tbl_kategori_imprs', 'tbl_kamus_indikator.kategori_id', '=', 'tbl_kategori_imprs.id')
-            // LEFT JOIN dimensi_mutu dengan string_agg
             ->leftJoin('tbl_dimensi_mutu as d', function ($join) {
                 $join->whereRaw("
-        d.id = ANY(
-            string_to_array(tbl_kamus_indikator.dimensi_mutu_id::text, ',')::int[]
-        )
-    ");
+                d.id = ANY(
+                    string_to_array(tbl_kamus_indikator.dimensi_mutu_id::text, ',')::int[]
+                )
+            ");
             })
             ->select(
                 'tbl_kamus_indikator.*',
@@ -50,13 +49,23 @@ class KamusIndikatorController extends Controller
                 'tbl_periode_analisis_data.nama_periode_analisis_data',
                 'tbl_penyajian_data.nama_penyajian_data',
                 'tbl_kategori_imprs.nama_kategori_imprs'
-            )
-            ->orderBy('tbl_kamus_indikator.id', 'asc');
+            );
 
-        // Batasi untuk unit bukan admin/mutu
+        // Filter unit untuk bukan admin/mutu
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
+
+        // Urutkan berdasarkan kategori_indikator: nasional -> prioritas rs -> prioritas unit -> lainnya
+        $query->orderByRaw("
+    CASE 
+        WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Nasional%' THEN 1
+        WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
+        WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
+        ELSE 4
+    END ASC
+")
+            ->orderBy('tbl_kamus_indikator.id', 'ASC'); // stabilkan urutan
 
         $mutu = $query->get();
 

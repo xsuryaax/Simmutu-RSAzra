@@ -66,30 +66,31 @@ Route::middleware('auth')->group(function () {
     Route::resource('kategori-imprs', KategoriIMPRSController::class)
         ->middleware('check.role:kategori_imprs');
 
+    // Laporan Analis
     Route::resource('laporan-analis', LaporanAnalisController::class)
         ->middleware('check.role:laporan_analis');
     Route::get('/laporan-analis/kalender', [LaporanAnalisController::class, 'getKalenderIndikator'])
         ->name('laporan-analis.kalender');
-    // Route untuk Laporan Analis
     Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])
         ->name('laporan-analis.detail');
 
 
+    // Validator Data
     Route::get('/laporan-validator', [ValidatorDataController::class, 'index'])
-        ->name('laporan-validator.index');
-
+        ->name('laporan-validator.index')->middleware('check.role:laporan_validator');
     Route::post('/laporan-validator', [ValidatorDataController::class, 'store'])
         ->name('laporan-validator.store');
     Route::put('/laporan-validator/{id}', [ValidatorDataController::class, 'update'])
         ->name('laporan-validator.update');
-
     Route::get('/laporan-validator/{id}/detail', [ValidatorDataController::class, 'detail'])
         ->name('laporan-validator.show');
 
+    // Analisa Data
+    Route::resource('analisa-data', AnalisaController::class)
+        ->middleware('check.role:analisa_data');
+    Route::get('/analisa-data/chart/{indikator}', [AnalisaController::class, 'chartData'])
+        ->name('analisa-data.chart');
 
-    Route::get('analisa-data', [AnalisaController::class, 'index'])
-        ->middleware('check.role:laporan_analis')
-        ->name('analisa-data.index');
 
     // Menu Manajemen Mutu
     Route::resource('dimensi-mutu', DimensiMutuController::class)

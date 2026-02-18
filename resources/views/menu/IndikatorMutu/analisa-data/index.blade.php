@@ -60,49 +60,37 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- Data dummy tabel --}}
-                                        <tr data-indikator="Indikator A">
-                                            <td class="text-center">1</td>
-                                            <td>Indikator A</td>
-                                            <td class="text-center">Analisa untuk Indikator A</td>
-                                            <td class="text-center">Rencana tindak lanjut untuk Indikator A</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-info" onclick="showChart('Indikator A')">
-                                                    <i class="bi bi-bar-chart"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-warning" onclick="openModal('Indikator A')">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr data-indikator="Indikator B">
-                                            <td class="text-center">2</td>
-                                            <td>Indikator B</td>
-                                            <td class="text-center">Analisa untuk Indikator B</td>
-                                            <td class="text-center">Rencana tindak lanjut untuk Indikator B</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-info" onclick="showChart('Indikator B')">
-                                                    <i class="bi bi-bar-chart"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-warning" onclick="openModal('Indikator B')">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr data-indikator="Indikator C">
-                                            <td class="text-center">3</td>
-                                            <td>Indikator C</td>
-                                            <td class="text-center">Analisa untuk Indikator C</td>
-                                            <td class="text-center">Rencana tindak lanjut untuk Indikator C</td>
-                                            <td class="text-center">
-                                                <button class="btn btn-sm btn-info" onclick="showChart('Indikator C')">
-                                                    <i class="bi bi-bar-chart"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-warning" onclick="openModal('Indikator C')">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        @forelse($indikators as $i => $ind)
+                                            <tr>
+                                                <td class="text-center">{{ $i + 1 }}</td>
+                                                <td>{{ $ind->nama_indikator }}</td>
+
+                                                <td class="text-center">
+                                                    {{ $analisaData[$ind->id]['analisa'] ?? '-' }}
+                                                </td>
+
+                                                <td class="text-center">
+                                                    {{ $analisaData[$ind->id]['tindak_lanjut'] ?? '-' }}
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <button class="btn btn-sm btn-warning"
+                                                        onclick="openModal({{ $ind->id }}, '{{ $ind->nama_indikator }}')">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info"
+                                                        onclick="loadChart({{ $ind->id }}, '{{ $ind->nama_indikator }}', '{{ $ind->nama_unit }}')">
+                                                        <i class="bi bi-bar-chart"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">
+                                                    Tidak ada data indikator
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -115,9 +103,9 @@
                         <div class="card-header">
                             <div class="d-flex justify-content-center align-items-center text-center">
                                 <div>
-                                    <h5 class="mb-1" id="chart-title">Bulan Januari - Desember</h5>
+                                    <h5 class="mb-1" id="chart-title">Nama Indikator</h5>
                                     <small class="text-muted" id="chart-subtitle">
-                                        Indikator A
+                                        Nama Unit
                                     </small>
                                 </div>
                             </div>
@@ -148,13 +136,17 @@
                 </div>
                 <div class="modal-body">
                     <form id="analysisForm">
+                        @csrf
+                        <input type="hidden" id="indikator_id">
+
                         <div class="mb-3">
-                            <label for="analisa" class="form-label">Analisa</label>
-                            <textarea class="form-control" id="analisa" rows="3" placeholder="Masukkan analisa..."></textarea>
+                            <label class="form-label">Analisa</label>
+                            <textarea class="form-control" id="analisa"></textarea>
                         </div>
+
                         <div class="mb-3">
-                            <label for="rencana" class="form-label">Rencana Tindak Lanjut</label>
-                            <textarea class="form-control" id="rencana" rows="3" placeholder="Masukkan rencana tindak lanjut..."></textarea>
+                            <label class="form-label">Tindak Lanjut</label>
+                            <textarea class="form-control" id="tindak_lanjut"></textarea>
                         </div>
                     </form>
                 </div>
@@ -170,48 +162,29 @@
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const dummyData = {
-            'Indikator A': {
-                target: [100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210],
-                realisasi: [95, 105, 115, 125, 135, 145, 155, 165, 175, 185, 195, 205]
-            },
-            'Indikator B': {
-                target: [200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310],
-                realisasi: [190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300]
-            },
-            'Indikator C': {
-                target: [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105],
-                realisasi: [45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
-            }
-        };
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        let currentIndicator = 'Indikator A';
-        let chartType = 'line';
         let chart;
+        let chartType = 'line';
 
-        function createChart() {
+        function renderChart(targetData, realisasiData) {
+
             const ctx = document.getElementById('indicatorChart');
-            if (!ctx) return;
 
-            const data = dummyData[currentIndicator];
             if (chart) chart.destroy();
 
             chart = new Chart(ctx.getContext('2d'), {
                 type: chartType,
                 data: {
                     labels: months,
-                    datasets: [{
+                    datasets: [
+                        {
                             label: 'Target',
-                            data: data.target,
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: chartType === 'bar' ? 'rgba(75, 192, 192, 0.7)' : 'transparent',
+                            data: targetData
                         },
                         {
                             label: 'Realisasi',
-                            data: data.realisasi,
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            backgroundColor: chartType === 'bar' ? 'rgba(255, 99, 132, 0.7)' : 'transparent',
+                            data: realisasiData
                         }
                     ]
                 },
@@ -221,46 +194,92 @@
             });
         }
 
-        window.showChart = function(indicator) {
-            console.log("Memuat chart untuk:", indicator);
-            currentIndicator = indicator;
-            document.getElementById('chart-subtitle').textContent = indicator;
-            createChart();
+        window.loadChart = function (indikatorId, namaIndikator, namaUnit) {
+
+            // Judul = Nama indikator
+            document.getElementById('chart-title').textContent = namaIndikator;
+
+            // Subtitle = Unit
+            document.getElementById('chart-subtitle').textContent = namaUnit;
+
+            fetch(`/analisa-data/chart/${indikatorId}`)
+                .then(res => res.json())
+                .then(res => {
+                    renderChart(res.target, res.realisasi);
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert("Gagal memuat chart");
+                });
         };
 
-        window.openModal = function(indicator) {
-            currentIndicator = indicator;
-            document.getElementById('analysisModalLabel').textContent = `Input Analisa untuk ${indicator}`;
-            document.getElementById('analisa').value = '';
-            document.getElementById('rencana').value = '';
+        window.openModal = function (id, nama) {
 
-            const modalElement = document.getElementById('analysisModal');
-            const modal = new bootstrap.Modal(modalElement);
+            document.getElementById('indikator_id').value = id;
+
+            document.getElementById('analysisModalLabel').textContent =
+                `Input Analisa untuk ${nama}`;
+
+            document.getElementById('analisa').value = '';
+            document.getElementById('tindak_lanjut').value = '';
+
+            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
             modal.show();
         };
 
-        window.saveAnalysis = function() {
-            const analisa = document.getElementById('analisa').value;
-            const rencana = document.getElementById('rencana').value;
-            alert(`Tersimpan!\nIndikator: ${currentIndicator}\nAnalisa: ${analisa}`);
+        window.saveAnalysis = function () {
 
-            const modalElement = document.getElementById('analysisModal');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-            modal.hide();
+            let indikator_id = document.getElementById('indikator_id').value;
+            let analisa = document.getElementById('analisa').value;
+            let tindak_lanjut = document.getElementById('tindak_lanjut').value;
+
+            let formData = new FormData();
+            formData.append('indikator_id', indikator_id);
+            formData.append('analisa', analisa);
+            formData.append('tindak_lanjut', tindak_lanjut);
+
+            fetch("{{ route('analisa-data.store') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
+                },
+                body: formData
+            })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        alert("Analisa berhasil disimpan");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert("Terjadi error di server");
+                });
         };
 
-        document.addEventListener('DOMContentLoaded', function() {
-            createChart();
+        document.addEventListener('DOMContentLoaded', function () {
+
+            @if($firstIndikator)
+                loadChart(
+                            {{ $firstIndikator->id }},
+                    "{{ $firstIndikator->nama_indikator }}",
+                    "{{ $firstIndikator->nama_unit }}"
+                );
+            @endif
 
             document.getElementById('line-chart-btn').addEventListener('click', () => {
                 chartType = 'line';
-                createChart();
+                if (chart) renderChart(chart.data.datasets[0].data, chart.data.datasets[1].data);
             });
 
             document.getElementById('bar-chart-btn').addEventListener('click', () => {
                 chartType = 'bar';
-                createChart();
+                if (chart) renderChart(chart.data.datasets[0].data, chart.data.datasets[1].data);
             });
+
         });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

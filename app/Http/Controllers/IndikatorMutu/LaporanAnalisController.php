@@ -138,6 +138,14 @@ class LaporanAnalisController extends Controller
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('i.unit_id', $user->unit_id)
             )
+            ->orderByRaw("
+            CASE 
+                WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
+                WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
+                WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
+                ELSE 4
+            END ASC
+        ")
             ->orderBy('i.id')
             ->get();
     }

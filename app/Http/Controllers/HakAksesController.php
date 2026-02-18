@@ -19,6 +19,8 @@ class HakAksesController extends Controller
                 ['key' => 'master_indikator', 'label' => 'Master Indikator'],
                 ['key' => 'kamus_indikator', 'label' => 'Profil Indikator'],
                 ['key' => 'laporan_analis', 'label' => 'Laporan Analis'],
+                ['key' => 'laporan_validator', 'label' => 'Validator Data'],
+                ['key' => 'analisa_data', 'label' => 'Analisa Data'],
                 ['key' => 'pdsa', 'label' => 'PDSA'],
                 ['key' => 'periode_mutu', 'label' => 'Manajemen Periode'],
             ]
