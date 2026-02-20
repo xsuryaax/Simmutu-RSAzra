@@ -15,6 +15,7 @@ class tbl_periode extends Model
         'tahun',
         'tanggal_mulai',
         'tanggal_selesai',
+        'deadline',
         'status',
     ];
 }

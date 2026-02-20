@@ -74,8 +74,12 @@
                                                 </td>
 
                                                 <td class="text-center">
-                                                    <button class="btn btn-sm btn-warning"
-                                                        onclick="openModal({{ $ind->id }}, '{{ $ind->nama_indikator }}')">
+                                                    <button class="btn btn-sm btn-warning" onclick="openModal(
+                                                        {{ $ind->id }},
+                                                        '{{ addslashes($ind->nama_indikator) }}',
+                                                        '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}',
+                                                        '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}'
+                                                    )">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-info"
@@ -213,19 +217,15 @@
                 });
         };
 
-        window.openModal = function (id, nama) {
-
+        window.openModal = function (id, nama, analisa = '', tindakLanjut = '') {
             document.getElementById('indikator_id').value = id;
-
-            document.getElementById('analysisModalLabel').textContent =
-                `Input Analisa untuk ${nama}`;
-
-            document.getElementById('analisa').value = '';
-            document.getElementById('tindak_lanjut').value = '';
-
+            document.getElementById('analysisModalLabel').textContent = `Edit Analisa untuk ${nama}`;
+            document.getElementById('analisa').value = analisa;
+            document.getElementById('tindak_lanjut').value = tindakLanjut;
             const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
             modal.show();
         };
+
 
         window.saveAnalysis = function () {
 
@@ -262,7 +262,7 @@
 
             @if($firstIndikator)
                 loadChart(
-                            {{ $firstIndikator->id }},
+                                            {{ $firstIndikator->id }},
                     "{{ $firstIndikator->nama_indikator }}",
                     "{{ $firstIndikator->nama_unit }}"
                 );

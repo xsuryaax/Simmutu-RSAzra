@@ -63,6 +63,13 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="deadline" class="form-label">Deadline (Tanggal Maksimal Input per Bulan)</label>
+                        <input type="number" class="form-control" id="deadline" name="deadline" min="1" max="31"
+                            value="{{ old('deadline', $periode->deadline) }}" required>
+                        <small class="text-muted">Contoh: isi 5 berarti tiap bulan maksimal tanggal 5 bulan berikutnya.</small>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select name="status" id="status" class="form-select" required>
                             <option value="aktif" {{ old('status', $periode->status) == 'aktif' ? 'selected' : '' }}>Aktif

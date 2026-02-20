@@ -13,7 +13,9 @@ class PDSAController extends Controller
      */
     public function index()
     {
-        $data = DB::table('tbl_laporan_dan_analis as l')
+        $user = Auth::user();
+
+        $query = DB::table('tbl_laporan_dan_analis as l')
             ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
             ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
             ->leftJoin('tbl_pdsa_assignments as p', function ($join) {
@@ -21,15 +23,20 @@ class PDSAController extends Controller
                     ->on('l.unit_id', '=', 'p.unit_id')
                     ->on(DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'), '=', 'p.tahun')
                     ->on(DB::raw("
-            CASE
-                WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
-                WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
-                WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
-                ELSE 'Q4'
-            END
-         "), '=', 'p.quarter');
-            })
+                    CASE
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
+                        ELSE 'Q4'
+                    END
+                "), '=', 'p.quarter');
+            });
 
+        if (!in_array($user->unit_id, [1, 2])) {
+            $query->where('l.unit_id', $user->unit_id);
+        }
+
+        $data = $query
             ->select(
                 'l.indikator_id',
                 'l.unit_id',
@@ -75,8 +82,6 @@ class PDSAController extends Controller
         return view('menu.IndikatorMutu.pdsa.index', compact('data'));
     }
 
-
-
     /**
      * MUTU - TUGASKAN PDSA
      */
@@ -114,18 +119,11 @@ class PDSAController extends Controller
      */
     public function show($id)
     {
-        $user = Auth::user();
-        if (!in_array($user->unit_id, [1, 2]))
-            abort(403);
-
         $pdsa = DB::table('tbl_pdsa_assignments as a')
             ->leftJoin('tbl_pdsa as p', 'a.id', '=', 'p.assignment_id')
             ->select('a.*', 'p.plan', 'p.do', 'p.study', 'p.action')
             ->where('a.id', $id)
             ->first();
-
-        if (!$pdsa)
-            abort(404);
 
         return view('menu.IndikatorMutu.pdsa.show', compact('pdsa'));
     }
@@ -208,7 +206,7 @@ class PDSAController extends Controller
 
         return view('menu.IndikatorMutu.pdsa.edit', compact('pdsa', 'isMutu'));
     }
-    
+
     public function update(Request $request, $id)
     {
         $user = Auth::user();
@@ -220,18 +218,15 @@ class PDSAController extends Controller
             'action' => 'required',
         ]);
 
-        // update isi pdsa
         DB::table('tbl_pdsa')
             ->where('assignment_id', $id)
             ->update(array_merge($data, [
                 'updated_at' => now()
             ]));
 
-        // cek apakah admin / mutu
         $isMutu = in_array($user->unit_id, [1, 2]);
 
         if (!$isMutu) {
-            // jika unit yang edit → kembalikan ke submitted dan hapus catatan
             DB::table('tbl_pdsa_assignments')
                 ->where('id', $id)
                 ->update([
@@ -245,7 +240,6 @@ class PDSAController extends Controller
                 ->with('success', 'PDSA berhasil diperbarui dan dikirim kembali');
         }
 
-        // jika mutu yang edit
         return redirect()
             ->route('pdsa.show', $id)
             ->with('success', 'PDSA berhasil diperbarui');
@@ -255,12 +249,10 @@ class PDSAController extends Controller
     {
         $user = Auth::user();
 
-        // Validasi hanya mutu / admin
         if (!in_array($user->unit_id, [1, 2])) {
             abort(403, 'Anda tidak berhak melakukan approve');
         }
 
-        // Pastikan data assignment ada
         $assignment = DB::table('tbl_pdsa_assignments')
             ->where('id', $id)
             ->first();
@@ -286,7 +278,6 @@ class PDSAController extends Controller
     {
         $user = Auth::user();
 
-        // hanya mutu / admin
         if (!in_array($user->unit_id, [1, 2])) {
             abort(403, 'Anda tidak berhak melakukan revisi');
         }

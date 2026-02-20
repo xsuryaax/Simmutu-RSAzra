@@ -2,23 +2,25 @@
 
     {{-- CARD TOTAL PDSA --}}
     <div class="col-5 col-lg-3 col-md-5">
-        <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalPDSA">
-            <div class="card-body px-4 py-4-5">
-                <div class="row">
-                    <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                        <div class="stats-icon bg-orange">
-                            <i class="bi bi-exclamation-triangle"></i>
+        <a href="{{ route('pdsa.index') }}" class="text-decoration-none">
+            <div class="card" style="cursor: pointer">
+                <div class="card-body px-4 py-4-5">
+                    <div class="row">
+                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
+                            <div class="stats-icon bg-orange">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-8 col-xxl-7">
-                        <h6 class="text-muted font-semibold mb-1">PDSA Perlu Ditindaklanjuti</h6>
-                        <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
+                        <div class="col-8 col-xxl-7">
+                            <h6 class="text-muted font-semibold mb-1">PDSA Perlu Ditindaklanjuti</h6>
+                            <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
-    
+
     @php
         $pdsaPerluTindak = $pdsaList->whereIn('status_pdsa', ['assigned', 'revised']);
     @endphp
@@ -81,12 +83,13 @@
                                         <span class="badge bg-info text-white">Sudah Isi</span>
                                     @elseif ($ind->status_pdsa === 'revised')
                                         <span class="badge bg-danger text-white">Revisi</span>
+                                    @elseif ($ind->status_pdsa === 'approved')
+                                        <span class="badge bg-success text-white">Disetujui</span>
                                     @endif
                                 </td>
                                 <td class="text-center">{{ $ind->quarter }}</td>
                                 <td class="text-center">{{ $ind->tahun }}</td>
                                 <td class="text-center">
-                                    {{-- BELUM DIISI --}}
                                     @if ($ind->status_pdsa === 'assigned')
                                         <a href="{{ route('pdsa.submit.form', $ind->id) }}" class="btn btn-sm btn-primary"
                                             title="Isi PDSA">

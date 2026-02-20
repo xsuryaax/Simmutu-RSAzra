@@ -94,39 +94,6 @@
                                         </option>
                                     </select>
                                 </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Tahun</label>
-                                    <select name="tahun" class="form-select" onchange="filterForm.submit()">
-                                        @foreach ($tahunAktif as $t)
-                                            <option value="{{ $t }}"
-                                                {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
-                                                {{ $t }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Bulan</label>
-                                    <select name="bulan" class="form-select" onchange="filterForm.submit()">
-                                        @php
-                                            $tahunDipilih = request('tahun', $periodeMulai->year);
-                                            $bulanMulai =
-                                                $tahunDipilih == $periodeMulai->year ? $periodeMulai->month : 1;
-                                            $bulanSelesai =
-                                                $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
-                                        @endphp
-
-                                        @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
-                                            <option value="{{ $b }}"
-                                                {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
-                                                {{ Carbon::create()->month($b)->translatedFormat('F') }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </div>
-                            
                             </form>
 
                             <div class="mb-3 d-flex flex-wrap gap-3">

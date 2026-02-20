@@ -12,7 +12,6 @@ class DashboardController extends Controller
         $user = Auth::user();
         $roleId = $user->role_id;
 
-        // 🔑 AMBIL SEKALI
         $indikators = $this->getIndikators();
 
         if (in_array($roleId, [1, 2])) {
@@ -54,13 +53,10 @@ class DashboardController extends Controller
         $data['pdsaTotal'] = $pdsaData['pdsaTotal'];
         $data['pdsaList'] = $pdsaData['pdsaList'];
 
-
-        // tetap untuk admin tambah data tambahan
         if (in_array($roleId, [1, 2])) {
             $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
             $data['divisionData'] = $this->getDivisionData($indikators);
         }
-
 
         return view('admin.dashboard', $data);
     }
@@ -86,8 +82,6 @@ class DashboardController extends Controller
                 'tbl_indikator.unit_id',
                 'tbl_kamus_indikator.periode_pengumpulan_data_id as periode_id'
             )
-            ->orderBy('nama_indikator')
-            ->where('tbl_kamus_indikator.kategori_indikator', 'LIKE', '%Prioritas Unit%')
             ->get();
     }
 
@@ -123,16 +117,11 @@ class DashboardController extends Controller
         $units = DB::table('tbl_unit')->get();
 
         $semuaIndikator = DB::table('tbl_indikator as i')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Prioritas Unit%')
             ->select('i.id', 'i.nama_indikator', 'i.unit_id')
             ->get()
             ->groupBy('unit_id');
 
         $totalTerisiIds = DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Prioritas Unit%')
             ->whereMonth('l.tanggal_laporan', $bulanWajib)
             ->whereYear('l.tanggal_laporan', $tahunWajib)
             ->pluck('l.indikator_id')
@@ -141,7 +130,6 @@ class DashboardController extends Controller
         $unitsSudah = [];
         $unitsBelum = [];
 
-        // Inisialisasi counter untuk Card
         $totalIndikatorSudah = 0;
         $totalIndikatorBelum = 0;
 
@@ -156,14 +144,13 @@ class DashboardController extends Controller
             foreach ($indikators as $ind) {
                 if (in_array($ind->id, $totalTerisiIds)) {
                     $sudah[] = $ind->nama_indikator;
-                    $totalIndikatorSudah++; // Tambah total akumulasi
+                    $totalIndikatorSudah++;
                 } else {
                     $belum[] = $ind->nama_indikator;
-                    $totalIndikatorBelum++; // Tambah total akumulasi
+                    $totalIndikatorBelum++;
                 }
             }
 
-            // Simpan data per unit untuk Modal
             if (count($sudah) > 0) {
                 $uSudah = clone $unit;
                 $uSudah->list_sudah = $sudah;
@@ -182,10 +169,10 @@ class DashboardController extends Controller
 
         return [
             'totalUnit' => count($units),
-            'totalIndikatorSudah' => $totalIndikatorSudah, // Untuk Card
-            'totalIndikatorBelum' => $totalIndikatorBelum, // Untuk Card
-            'unitsSudah' => $unitsSudah, // Untuk Modal
-            'unitsBelum' => $unitsBelum, // Untuk Modal
+            'totalIndikatorSudah' => $totalIndikatorSudah,
+            'totalIndikatorBelum' => $totalIndikatorBelum,
+            'unitsSudah' => $unitsSudah,
+            'unitsBelum' => $unitsBelum,
         ];
     }
 
@@ -254,7 +241,6 @@ class DashboardController extends Controller
                 }
             }
         }
-
 
         return $divisionData;
     }
@@ -378,7 +364,6 @@ class DashboardController extends Controller
         ];
     }
 
-
     private function getIMPRSChartData(): array
     {
 
@@ -410,7 +395,6 @@ class DashboardController extends Controller
                     'indikators' => []
                 ];
             }
-
 
             $data[$kategoriKey]['indikators'][$ind->id] = [
                 'judul' => $ind->nama_indikator,
@@ -465,7 +449,6 @@ class DashboardController extends Controller
 
         return $query->count();
     }
-
 
     private function getPdsaNotification($unitId = null): array
     {
@@ -567,7 +550,7 @@ class DashboardController extends Controller
         $query = DB::table('tbl_pdsa_assignments as p')
             ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
             ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
-            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised']);
+            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised', 'approved']);
 
         if ($unitId) {
             $query->where('p.unit_id', $unitId);
@@ -584,7 +567,7 @@ class DashboardController extends Controller
             'p.tahun',
         )
             ->orderByDesc('p.created_at')
-            ->limit(5)
+            ->limit(10)
             ->get();
     }
 }

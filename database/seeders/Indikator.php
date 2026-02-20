@@ -79,10 +79,6 @@ class Indikator extends Seeder
             ['nama_indikator' => 'Ketepatan Dokter Dalam Memberikan Kode Diagnosa Pasien Rawat Inap', 'unit_id' => 6, 'target_indikator' => 80, 'tipe_indikator' => 'lokal'],
             ['nama_indikator' => 'Kelengkapan Pengisian SOAP Pada Pasien Rawat Jalan oleh Dokter', 'unit_id' => 6, 'target_indikator' => 80, 'tipe_indikator' => 'lokal'],
 
-            // UNIT RADIOLOGI
-            ['nama_indikator' => 'Kepatuhan Identifikasi Pasien Staf Radiologi (HAPUS)', 'unit_id' => 7, 'target_indikator' => 100, 'tipe_indikator' => 'lokal'],
-            ['nama_indikator' => 'Kesesuaian Pemberian Marker dengan area yang di foto (HAPUS)', 'unit_id' => 7, 'target_indikator' => 100, 'tipe_indikator' => 'lokal'],
-
             // UNIT UMUM & OUTSOURCE
             ['nama_indikator' => 'Kepatuhan Ceklis Harian Kendaraan', 'unit_id' => 9, 'target_indikator' => 100, 'tipe_indikator' => 'lokal'],
             ['nama_indikator' => 'Response Time Sopir Dalam Tugas On Call', 'unit_id' => 9, 'target_indikator' => 100, 'tipe_indikator' => 'lokal'],

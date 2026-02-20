@@ -56,10 +56,7 @@ class HakAksesController extends Controller
     {
         $selectedRole = $request->role_id ?? tbl_role::first()->id;
 
-        // Jika admin, semua menu otomatis aktif
         if ($selectedRole == 1) {
-
-            // Ambil semua menu_key dari menuStructure
             $allMenuKeys = [];
             foreach ($this->menuStructure as $group) {
                 foreach ($group['menus'] as $menu) {

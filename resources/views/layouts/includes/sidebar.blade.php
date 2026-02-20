@@ -74,7 +74,7 @@
                         <li class="submenu-item {{ request()->is('laporan-validator*') ? 'active' : '' }}">
                             <a href="{{ route('laporan-validator.index') }}" class="submenu-link"
                                 style="text-decoration: none;">
-                                Validator Indikator
+                                Validasi Indikator
                             </a>
                         </li>
                         <li class="submenu-item {{ request()->is('analisa-data*') ? 'active' : '' }}">

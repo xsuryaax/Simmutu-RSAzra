@@ -60,6 +60,7 @@ class ManajemenDataMutu extends Seeder
         DB::table('tbl_role')->insert([
             ['nama_role' => 'Administrator', 'deskripsi_role' => 'Memiliki akses penuh ke semua fitur dan pengaturan sistem.'],
             ['nama_role' => 'Mutu', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
+            ['nama_role' => 'Validator', 'deskripsi_role' => 'Menginput dan melaporkan data indikator sesuai unit masing-masing.'],
             ['nama_role' => 'Pengumpul Data', 'deskripsi_role' => 'Menginput dan melaporkan data indikator sesuai unit masing-masing.'],
         ]);
 
@@ -106,6 +107,7 @@ class ManajemenDataMutu extends Seeder
                 'tahun' => 2025,
                 'tanggal_mulai' => '2025-01-01',
                 'tanggal_selesai' => '2025-12-31',
+                'deadline' => 5,
                 'status' => 'aktif',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

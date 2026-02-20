@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use Auth;
 use DB;
 use Illuminate\Http\Request;
-use App\Models\tbl_hasil_analisa;
 
 class AnalisaController extends Controller
 {
+    /**
+     * Tampilkan halaman analisa data
+     */
     public function index()
     {
         $user = Auth::user();
@@ -19,17 +21,18 @@ class AnalisaController extends Controller
 
         $analisaData = [];
 
+        $analisaRows = DB::table('tbl_hasil_analisa')
+            ->when(
+                !in_array($roleId, [1, 2]),
+                fn($q) => $q->where('unit_id', $user->unit_id)
+            )
+            ->whereIn('indikator_id', $indikators->pluck('id'))
+            ->get()
+            ->keyBy('indikator_id');
+
         foreach ($indikators as $ind) {
 
-            $query = DB::table('tbl_hasil_analisa')
-                ->where('indikator_id', $ind->id);
-
-            // Kalau bukan role 1 atau 2, batasi unit
-            if (!in_array($roleId, [1, 2])) {
-                $query->where('unit_id', $user->unit_id);
-            }
-
-            $analisa = $query->first();
+            $analisa = $analisaRows[$ind->id] ?? null;
 
             $analisaData[$ind->id] = [
                 'analisa' => $analisa->analisa ?? '-',
@@ -45,6 +48,7 @@ class AnalisaController extends Controller
         ]);
     }
 
+    // Ambil data indikator
     private function getIndikator($user, $kategoriIndikator = null)
     {
         return DB::table('tbl_indikator as i')
@@ -55,7 +59,7 @@ class AnalisaController extends Controller
                 'i.id',
                 'i.nama_indikator',
                 'i.unit_id',
-                'u.nama_unit' // tambahkan ini
+                'u.nama_unit'
             )
             ->where('i.status_indikator', 'aktif')
             ->when(
@@ -74,14 +78,25 @@ class AnalisaController extends Controller
             ->get();
     }
 
+    // Simpan hasil analisa dan tindak lanjut
     public function store(Request $request)
     {
         $user = Auth::user();
 
+        if (in_array($user->role_id, [1, 2])) {
+            $indikator = DB::table('tbl_indikator')
+                ->where('id', $request->indikator_id)
+                ->first();
+
+            $unitId = $indikator->unit_id;
+        } else {
+            $unitId = $user->unit_id;
+        }
+
         DB::table('tbl_hasil_analisa')->updateOrInsert(
             [
-                'indikator_id' => $request->indikator_id,
-                'unit_id' => $user->unit_id,
+                'indikator_id' => (int) $request->indikator_id,
+                'unit_id' => (int) $unitId,
             ],
             [
                 'tanggal_analisa' => now()->toDateString(),
@@ -92,11 +107,10 @@ class AnalisaController extends Controller
             ]
         );
 
-        return response()->json([
-            'success' => true
-        ]);
+        return response()->json(['success' => true]);
     }
 
+    // Ambil data untuk chart analisa
     public function chartData($indikatorId)
     {
         $indikator = DB::table('tbl_indikator')
@@ -129,5 +143,4 @@ class AnalisaController extends Controller
             'realisasi' => $realisasi
         ]);
     }
-
 }

@@ -30,7 +30,9 @@ class KamusIndikatorController extends Controller
             ");
             })
             ->select(
-                'tbl_kamus_indikator.*',
+                'tbl_kamus_indikator.id',
+                'tbl_kamus_indikator.kategori_indikator',
+                'tbl_kamus_indikator.penanggung_jawab',
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.unit_id',
                 'tbl_unit.nama_unit',
@@ -51,12 +53,10 @@ class KamusIndikatorController extends Controller
                 'tbl_kategori_imprs.nama_kategori_imprs'
             );
 
-        // Filter unit untuk bukan admin/mutu
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
 
-        // Urutkan berdasarkan kategori_indikator: nasional -> prioritas rs -> prioritas unit -> lainnya
         $query->orderByRaw("
     CASE 
         WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Nasional%' THEN 1
@@ -65,7 +65,7 @@ class KamusIndikatorController extends Controller
         ELSE 4
     END ASC
 ")
-            ->orderBy('tbl_kamus_indikator.id', 'ASC'); // stabilkan urutan
+            ->orderBy('tbl_kamus_indikator.id', 'ASC');
 
         $mutu = $query->get();
 
@@ -225,7 +225,6 @@ class KamusIndikatorController extends Controller
             ->where('tbl_kamus_indikator.id', $id)
             ->first();
 
-
         $unit = DB::table('tbl_unit')
             ->orderBy('nama_unit', 'ASC')
             ->get();
@@ -251,7 +250,6 @@ class KamusIndikatorController extends Controller
             'unit',
         ));
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -323,7 +321,6 @@ class KamusIndikatorController extends Controller
             ->route('kamus-indikator.index')
             ->with('success', 'Data Kamus Indikator berhasil diperbarui.');
     }
-
 
     /**
      * Remove the specified resource from storage.

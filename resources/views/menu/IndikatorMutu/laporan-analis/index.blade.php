@@ -3,16 +3,31 @@
 @section('title', 'Laporan dan Analisis')
 
 @php
+    use Carbon\Carbon;
+@endphp
+
+@php
     $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
 @endphp
 
 @php
-    use Carbon\Carbon;
 
     $periodeMulai = Carbon::parse($periode->tanggal_mulai);
     $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
 
     $tahunAktif = range($periodeMulai->year, $periodeSelesai->year);
+@endphp
+
+@php
+    $bulanAwalPeriode = Carbon::parse($periode->tanggal_mulai)->month;
+    $tahunAwalPeriode = Carbon::parse($periode->tanggal_mulai)->year;
+
+    $bulanDipilih = request('bulan', $periodeMulai->month);
+    $tahunDipilih = request('tahun', $periodeMulai->year);
+
+    $isBulanPertamaPeriode =
+        ($bulanDipilih == $bulanAwalPeriode) &&
+        ($tahunDipilih == $tahunAwalPeriode);
 @endphp
 
 @section('page-title')
@@ -158,9 +173,11 @@
                                             @endif
                                             <th class="text-center">TARGET</th>
                                             <th class="text-center">PENGUMPUL</th>
-                                            <th class="text-center">VALIDATOR</th>
+                                            @if ($isBulanPertamaPeriode)
+                                                <th class="text-center">VALIDATOR</th>
+                                                <th class="text-center">STATUS LAPORAN</th>
+                                            @endif
                                             <th class="text-center">STATUS NILAI</th>
-                                            <th class="text-center">STATUS LAPORAN</th>
                                             <th class="text-center">AKSI</th>
                                         </tr>
                                     </thead>
@@ -220,20 +237,40 @@
                                                         <span>-</span>
                                                     @endif
                                                 </td>
+                                                @if ($isBulanPertamaPeriode)
                                                 <td class="text-center">
                                                     @php
                                                         $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null;
                                                     @endphp
+                                                    
                                                     @if ($nilaiValidator !== null)
                                                         <span>
                                                             {{ fmod($nilaiValidator, 1) == 0 
-                                                                ? number_format($nilaiValidator, 0) 
-                                                                : number_format($nilaiValidator, 1) }}%
+                                                            ? number_format($nilaiValidator, 0) 
+                                                            : number_format($nilaiValidator, 1) }}%
                                                         </span>
                                                     @else
                                                         <span>-</span>
                                                     @endif
                                                 </td>
+                                                @endif
+    
+                                                @if ($isBulanPertamaPeriode)
+                                                <td class="text-center">
+                                                    @php
+                                                        $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null;
+                                                    @endphp
+                                                    
+                                                    @if ($statusLaporan !== null)
+                                                        <span class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
+                                                            {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
+                                                        </span>
+                                                    @else
+                                                        <span>-</span>
+                                                    @endif
+                                                </td>
+                                                @endif
+                                                
                                                 <td class="text-center">
                                                     @if ($nilaiRekap !== null)
                                                         @if ($nilaiRekap >= $indikator->target_indikator)
@@ -246,18 +283,7 @@
                                                         <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
                                                     @endif
                                                 </td>
-                                                <td class="text-center">
-                                                    @php
-                                                        $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null;
-                                                    @endphp
-                                                    @if ($statusLaporan !== null)
-                                                        <span class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
-                                                            {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
-                                                        </span>
-                                                    @else
-                                                        <span>-</span>
-                                                    @endif
-                                                </td>
+
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-analis.index', [
                                                         'kategori_indikator' =>

@@ -39,7 +39,6 @@ class LaporanAnalisController extends Controller
         $selectedIndikatorId = $request->indikator_id;
         $selectedUnitId = $request->unit_id;
 
-        // Default indikator pertama
         if (!$selectedIndikatorId && $indikators->isNotEmpty()) {
             $firstIndikator = $indikators->first();
             $selectedIndikatorId = $firstIndikator->id;
@@ -72,7 +71,6 @@ class LaporanAnalisController extends Controller
                     ->whereMonth('tanggal_laporan', $bulan)
                     ->whereYear('tanggal_laporan', $tahun);
 
-                // filter unit jika ada
                 if ($selectedUnitId) {
                     $query->where('unit_id', $selectedUnitId);
                 }
@@ -152,18 +150,18 @@ class LaporanAnalisController extends Controller
 
     private function getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator = null)
     {
+        $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        $end = $start->copy()->endOfMonth();
+
         $query = DB::table('tbl_laporan_dan_analis as l')
             ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->whereMonth('l.tanggal_laporan', $bulan)
-            ->whereYear('l.tanggal_laporan', $tahun)
+            ->whereBetween('l.tanggal_laporan', [$start, $end])
             ->where('i.status_indikator', 'aktif');
 
-        // filter kategori jika dipilih
         if ($kategoriIndikator) {
             $query->whereRaw("LOWER(l.kategori_indikator) LIKE ?", ['%' . strtolower($kategoriIndikator) . '%']);
         }
 
-        // jika bukan admin mutu, hanya lihat unit sendiri
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('l.unit_id', $user->unit_id);
         }
@@ -186,9 +184,6 @@ class LaporanAnalisController extends Controller
 
     public function store(Request $request)
     {
-        /* =======================
-         * VALIDASI AWAL
-         * ======================= */
         $request->validate([
             'indikator_id' => 'required|exists:tbl_indikator,id',
             'numerator' => 'required|numeric|min:0',
@@ -197,9 +192,6 @@ class LaporanAnalisController extends Controller
             'file_laporan' => 'required|file|max:5120',
         ]);
 
-        /* =======================
-         * PERIODE MUTU
-         * ======================= */
         $periode = $this->getPeriodeAktif();
         if (!$periode) {
             return back()->with('error', 'Periode mutu aktif belum tersedia');
@@ -215,14 +207,18 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Tanggal laporan harus berada dalam periode mutu aktif');
         }
 
-        $batasAkhirPengisian = $periodeSelesai->copy()->addMonth()->endOfMonth();
-        if ($now->gt($batasAkhirPengisian)) {
-            return back()->with('error', 'Periode pengisian laporan telah berakhir');
-        }
+        $deadline = (int) $periode->deadline;
 
-        /* =======================
-         * DATA INDIKATOR
-         * ======================= */
+        $batasPengisian = $tanggalLaporan
+            ->copy()
+            ->addMonth()
+            ->day(min($deadline, $tanggalLaporan->copy()->addMonth()->daysInMonth))
+            ->endOfDay();
+
+        // if ($now->gt($batasPengisian)) {
+        // return back()->with('error', 'Batas waktu pengisian laporan telah lewat');
+        // }
+
         $indikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->where('i.id', $request->indikator_id)
@@ -233,9 +229,6 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Indikator tidak ditemukan');
         }
 
-        /* =======================
-         * VALIDASI unit_id
-         * ======================= */
         $kategoriLower = strtolower($indikator->kategori_indikator);
 
         if (
@@ -248,9 +241,6 @@ class LaporanAnalisController extends Controller
             ]);
         }
 
-        /* =======================
-         * HITUNG NILAI
-         * ======================= */
         $nilai = ($request->numerator / $request->denominator) * 100;
 
         $target = DB::table('tbl_indikator')
@@ -259,9 +249,6 @@ class LaporanAnalisController extends Controller
 
         $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
 
-        /* =======================
-         * CEK DUPLIKAT
-         * ======================= */
         $exists = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $request->indikator_id)
             ->whereDate('tanggal_laporan', $tanggalLaporan)
@@ -276,9 +263,6 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan untuk tanggal tersebut sudah ada');
         }
 
-        /* =======================
-         * INSERT
-         * ======================= */
         DB::table('tbl_laporan_dan_analis')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id ?? null,
@@ -303,8 +287,6 @@ class LaporanAnalisController extends Controller
             'unit_id' => $request->unit_id,
         ])->with('success', 'Data laporan berhasil disimpan');
     }
-
-
 
     public function getDetail($id)
     {
@@ -336,11 +318,12 @@ class LaporanAnalisController extends Controller
 
     private function getPeriodeAktif()
     {
-        return DB::table('tbl_periode')
-            ->where('status', 'aktif')
-            ->first();
+        return cache()->remember('periode_aktif', 60, function () {
+            return DB::table('tbl_periode')
+                ->where('status', 'aktif')
+                ->first();
+        });
     }
-
 
     public function show($id)
     {
@@ -364,7 +347,6 @@ class LaporanAnalisController extends Controller
             'file_laporan' => 'nullable|file|max:5120',
         ]);
 
-        // Ambil data laporan
         $data = DB::table('tbl_laporan_dan_analis')
             ->where('id', $id)
             ->first();
@@ -373,7 +355,19 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan tidak ditemukan');
         }
 
-        // Hitung nilai baru
+        $periode = $this->getPeriodeAktif();
+        $deadline = (int) $periode->deadline;
+
+        $tanggalLaporan = Carbon::parse($data->tanggal_laporan)->startOfDay();
+        $batasPengisian = $tanggalLaporan
+            ->copy()
+            ->addMonth()
+            ->day(min($deadline, $tanggalLaporan->copy()->addMonth()->daysInMonth))
+            ->endOfDay();
+
+        if (now()->gt($batasPengisian)) {
+            return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
+        }
         $nilai = ($request->numerator / $request->denominator) * 100;
 
         $target = DB::table('tbl_indikator')
@@ -390,7 +384,6 @@ class LaporanAnalisController extends Controller
             'updated_at' => now(),
         ];
 
-        // Jika upload file baru
         if ($request->hasFile('file_laporan')) {
 
             if ($data->file_laporan) {

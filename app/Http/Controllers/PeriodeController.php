@@ -40,13 +40,13 @@ class PeriodeController extends Controller
             'tahun' => 'required|integer|min:2000',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'deadline' => 'required|integer|min:1|max:31',
             'status' => 'required|in:aktif,non-aktif',
         ]);
 
         DB::beginTransaction();
 
         try {
-            // Jika status aktif → nonaktifkan semua periode lain
             if ($request->status === 'aktif') {
                 DB::table('tbl_periode')
                     ->where('status', 'aktif')
@@ -58,6 +58,7 @@ class PeriodeController extends Controller
                 'tahun' => $request->tahun,
                 'tanggal_mulai' => $request->tanggal_mulai,
                 'tanggal_selesai' => $request->tanggal_selesai,
+                'deadline' => $request->deadline,
                 'status' => $request->status,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -76,7 +77,7 @@ class PeriodeController extends Controller
     }
 
     /**
-     * Aktifkan periode (jadikan global aktif)
+     * Aktifkan periode
      */
     public function setAktif($id)
     {
@@ -115,7 +116,15 @@ class PeriodeController extends Controller
 
         try {
 
-            // Jika status ingin diaktifkan → nonaktifkan semua periode lain
+            $request->validate([
+                'nama_periode' => 'required|string|max:100',
+                'tahun' => 'required|integer|min:2000',
+                'tanggal_mulai' => 'required|date',
+                'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+                'deadline' => 'required|integer|min:1|max:31',
+                'status' => 'required|in:aktif,non-aktif',
+            ]);
+
             if ($request->status === 'aktif') {
                 DB::table('tbl_periode')
                     ->where('id', '!=', $id)
@@ -125,7 +134,6 @@ class PeriodeController extends Controller
                     ]);
             }
 
-            // Update periode
             DB::table('tbl_periode')
                 ->where('id', $id)
                 ->update([
@@ -133,11 +141,11 @@ class PeriodeController extends Controller
                     'tahun' => $request->tahun,
                     'tanggal_mulai' => $request->tanggal_mulai,
                     'tanggal_selesai' => $request->tanggal_selesai,
+                    'deadline' => $request->deadline,
                     'status' => $request->status,
                     'updated_at' => now(),
                 ]);
 
-            // Update indikator_periode
             DB::table('tbl_indikator_periode')
                 ->where('periode_id', $id)
                 ->update([
@@ -145,7 +153,6 @@ class PeriodeController extends Controller
                     'updated_at' => now(),
                 ]);
 
-            // Update master indikator mengikuti periode
             DB::table('tbl_indikator')
                 ->whereIn('id', function ($q) use ($id) {
                     $q->select('indikator_id')
@@ -168,7 +175,6 @@ class PeriodeController extends Controller
             return back()->with('error', 'Gagal memperbarui periode');
         }
     }
-
 
     public function destroy($id)
     {

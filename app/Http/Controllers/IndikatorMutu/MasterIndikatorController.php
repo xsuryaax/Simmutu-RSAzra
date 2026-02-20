@@ -16,17 +16,12 @@ class MasterIndikatorController extends Controller
     {
         $user = Auth::user();
 
-        // Semua periode
         $periodes = DB::table('tbl_periode')
             ->orderBy('tahun', 'desc')
             ->get();
 
-        // Periode aktif
-        $periodeAktif = DB::table('tbl_periode')
-            ->where('status', 'aktif')
-            ->first();
+        $periodeAktif = $this->getPeriodeAktif();
 
-        // Tentukan periode filter
         $periodeId = $request->filled('periode_id')
             ? $request->periode_id
             : ($periodeAktif->id ?? null);
@@ -49,14 +44,17 @@ class MasterIndikatorController extends Controller
                 }
             })
             ->select(
-                'tbl_indikator.*',
+                'tbl_indikator.id',
+                'tbl_indikator.nama_indikator',
+                'tbl_indikator.target_indikator',
+                'tbl_indikator.tipe_indikator',
+                'tbl_indikator.status_indikator',
                 'tbl_unit.nama_unit',
                 'tbl_kamus_indikator.kategori_indikator',
                 'ip_filter.status as status_periode',
                 'ip_aktif.id as sudah_di_periode_aktif'
             );
 
-        // Filter unit
         if (!in_array($user->unit_id, [1, 2])) {
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
@@ -64,7 +62,6 @@ class MasterIndikatorController extends Controller
             $query->where('tbl_indikator.unit_id', $request->unit_id);
         }
 
-        // Urutkan indikator berdasarkan kategori_indikator: nasional -> prioritas rs -> prioritas unit
         $query->orderByRaw("
     CASE 
         WHEN tbl_kamus_indikator.kategori_indikator = 'Nasional' THEN 1
@@ -73,7 +70,7 @@ class MasterIndikatorController extends Controller
         ELSE 4
     END ASC
 ")
-            ->orderBy('tbl_indikator.id', 'ASC'); // stabilkan urutan indikator dalam kategori
+            ->orderBy('tbl_indikator.id', 'ASC');
 
         $indikators = $query->get();
 
@@ -96,17 +93,14 @@ class MasterIndikatorController extends Controller
     {
         $user = Auth::user();
 
-        // default
         $units = null;
         $unitUser = null;
 
         if (in_array($user->unit_id, [1, 2])) {
-            // ADMIN / MUTU → ambil semua unit
             $units = DB::table('tbl_unit')
                 ->orderBy('nama_unit', 'ASC')
                 ->get();
         } else {
-            // USER BIASA → ambil unit dia sendiri
             $unitUser = DB::table('tbl_unit')
                 ->where('id', $user->unit_id)
                 ->first();
@@ -117,7 +111,6 @@ class MasterIndikatorController extends Controller
             compact('units', 'unitUser')
         );
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -138,9 +131,7 @@ class MasterIndikatorController extends Controller
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
-        $periodeAktif = DB::table('tbl_periode')
-            ->where('status', 'aktif')
-            ->first();
+        $periodeAktif = $this->getPeriodeAktif();
 
         if (!$periodeAktif) {
             return back()->withErrors([
@@ -183,8 +174,6 @@ class MasterIndikatorController extends Controller
         }
     }
 
-
-
     /**
      * Show the form for editing the specified resource.
      */
@@ -200,7 +189,6 @@ class MasterIndikatorController extends Controller
 
         $queryUnits = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC');
 
-        // Admin (1) atau Unit Mutu (2) boleh lihat semua
         if (!in_array($user->unit_id, [1, 2])) {
             $queryUnits->where('id', $user->unit_id);
         }
@@ -244,5 +232,14 @@ class MasterIndikatorController extends Controller
 
         return redirect()->route('master-indikator.index')
             ->with('success', 'Indikator berhasil dihapus.');
+    }
+
+    private function getPeriodeAktif()
+    {
+        return cache()->remember('periode_aktif', 60, function () {
+            return DB::table('tbl_periode')
+                ->where('status', 'aktif')
+                ->first();
+        });
     }
 }
