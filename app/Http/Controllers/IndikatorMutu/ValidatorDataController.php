@@ -145,7 +145,7 @@ class ValidatorDataController extends Controller
             END ASC
         ")
             ->orderBy('i.id')
-            ->paginate(20);
+            ->get();
     }
 
     private function getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator = null)
@@ -201,7 +201,7 @@ class ValidatorDataController extends Controller
             'tanggal_laporan' => 'required|date',
             'indikator_id' => 'required',
             'unit_id' => 'required',
-            'numerator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric|min:0|lte:denominator',
             'denominator' => 'required|numeric|min:1',
             'file_laporan' => 'nullable|file|mimes:xlsx,xls,pdf',
         ]);
@@ -253,8 +253,16 @@ class ValidatorDataController extends Controller
             $statusValidasi = 'tidak-valid';
 
             if ($nilaiValidator > 0 && $laporanAnalis->nilai !== null) {
-                $selisih = abs($laporanAnalis->nilai - $nilaiValidator);
-                if ($selisih <= (0.1 * $nilaiValidator)) {
+
+                $nilaiPengumpul = $laporanAnalis->nilai;
+
+                $selisih = abs($nilaiPengumpul - $nilaiValidator);
+
+                $base = max($nilaiPengumpul, $nilaiValidator);
+
+                $persenSelisih = ($selisih / $base) * 100;
+
+                if ($persenSelisih <= 10) {
                     $statusValidasi = 'valid';
                 }
             }
@@ -364,7 +372,7 @@ class ValidatorDataController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'numerator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric|min:0|lte:denominator',
             'denominator' => 'required|numeric|min:1',
             'file_laporan' => 'nullable|file|mimes:xlsx,xls,pdf|max:5120',
         ]);
@@ -412,10 +420,18 @@ class ValidatorDataController extends Controller
 
             $statusValidasi = 'tidak-valid';
 
-            if ($nilai > 0 && $nilaiAnalisRata !== null) {
-                $selisih = abs($nilaiAnalisRata - $nilai);
-                if ($selisih <= (0.1 * $nilai)) {
-                    $statusValidasi = 'valid';
+            if ($nilai !== null && $nilaiAnalisRata !== null) {
+
+                $base = max($nilai, $nilaiAnalisRata);
+
+                if ($base > 0) {
+
+                    $selisih = abs($nilaiAnalisRata - $nilai);
+                    $persenSelisih = ($selisih / $base) * 100;
+
+                    if ($persenSelisih <= 10) {
+                        $statusValidasi = 'valid';
+                    }
                 }
             }
 

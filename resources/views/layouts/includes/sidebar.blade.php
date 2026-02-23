@@ -53,7 +53,7 @@
                 </li>
 
                 <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-validator*') ||  request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
+                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-validator*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-file-earmark-medical-fill"></i>
                         <span>Indikator Mutu</span>
@@ -71,12 +71,14 @@
                             <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Pengisian Indikator</a>
                         </li>
-                        <li class="submenu-item {{ request()->is('laporan-validator*') ? 'active' : '' }}">
-                            <a href="{{ route('laporan-validator.index') }}" class="submenu-link"
-                                style="text-decoration: none;">
-                                Validasi Indikator
-                            </a>
-                        </li>
+                        @if(auth()->user()->role_id != 4)
+                            <li class="submenu-item {{ request()->is('laporan-validator*') ? 'active' : '' }}">
+                                <a href="{{ route('laporan-validator.index') }}" class="submenu-link"
+                                    style="text-decoration: none;">
+                                    Validasi Indikator
+                                </a>
+                            </li>
+                        @endif
                         <li class="submenu-item {{ request()->is('analisa-data*') ? 'active' : '' }}">
                             <a href="{{ route('analisa-data.index') }}" class="submenu-link"
                                 style="text-decoration: none;">Analisa Indikator</a>

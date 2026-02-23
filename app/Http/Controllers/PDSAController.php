@@ -15,71 +15,92 @@ class PDSAController extends Controller
     {
         $user = Auth::user();
 
-        $query = DB::table('tbl_laporan_dan_analis as l')
-            ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
-            ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
-            ->leftJoin('tbl_pdsa_assignments as p', function ($join) {
-                $join->on('l.indikator_id', '=', 'p.indikator_id')
-                    ->on('l.unit_id', '=', 'p.unit_id')
-                    ->on(DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'), '=', 'p.tahun')
-                    ->on(DB::raw("
+        if (in_array($user->unit_id, [1, 2])) {
+
+            $data = DB::table('tbl_laporan_dan_analis as l')
+                ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
+                ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
+                ->leftJoin('tbl_pdsa_assignments as p', function ($join) {
+                    $join->on('l.indikator_id', '=', 'p.indikator_id')
+                        ->on('l.unit_id', '=', 'p.unit_id')
+                        ->on(DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'), '=', 'p.tahun')
+                        ->on(DB::raw("
+                        CASE
+                            WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
+                            WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
+                            WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
+                            ELSE 'Q4'
+                        END
+                    "), '=', 'p.quarter');
+                })
+                ->select(
+                    'l.indikator_id',
+                    'l.unit_id',
+                    'i.nama_indikator',
+                    'i.target_indikator',
+                    'u.nama_unit',
+                    DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
+                    DB::raw("
+                    CASE
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
+                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
+                        ELSE 'Q4'
+                    END as quarter
+                "),
+                    DB::raw('ROUND(AVG(l.nilai), 2) as nilai_quarter'),
+                    'p.id as pdsa_id',
+                    'p.status_pdsa'
+                )
+                ->groupBy(
+                    'l.indikator_id',
+                    'l.unit_id',
+                    'i.nama_indikator',
+                    'i.target_indikator',
+                    'u.nama_unit',
+                    DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
+                    DB::raw("
                     CASE
                         WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
                         WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
                         WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
                         ELSE 'Q4'
                     END
-                "), '=', 'p.quarter');
-            });
+                "),
+                    'p.id',
+                    'p.status_pdsa'
+                )
+                ->havingRaw('AVG(l.nilai) < i.target_indikator')
+                ->orderBy('tahun')
+                ->orderBy('quarter', 'desc')
+                ->get();
 
-        if (!in_array($user->unit_id, [1, 2])) {
-            $query->where('l.unit_id', $user->unit_id);
+            return view('menu.IndikatorMutu.pdsa.index', [
+                'data' => $data,
+                'pdsaList' => collect(),
+                'pdsaTotal' => 0
+            ]);
         }
 
-        $data = $query
+        $pdsaList = DB::table('tbl_pdsa_assignments as a')
+            ->leftJoin('tbl_indikator as i', 'a.indikator_id', '=', 'i.id')
             ->select(
-                'l.indikator_id',
-                'l.unit_id',
-                'i.nama_indikator',
-                'i.target_indikator',
-                'u.nama_unit',
-                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
-                DB::raw("
-                CASE
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
-                    ELSE 'Q4'
-                END as quarter
-            "),
-                DB::raw('ROUND(AVG(l.nilai), 2) as nilai_quarter'),
-                'p.id as pdsa_id',
-                'p.status_pdsa'
+                'a.id',
+                'a.status_pdsa',
+                'a.quarter',
+                'a.tahun',
+                'i.nama_indikator'
             )
-            ->groupBy(
-                'l.indikator_id',
-                'l.unit_id',
-                'i.nama_indikator',
-                'i.target_indikator',
-                'u.nama_unit',
-                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
-                DB::raw("
-                CASE
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
-                    ELSE 'Q4'
-                END
-            "),
-                'p.id',
-                'p.status_pdsa'
-            )
-            ->havingRaw('AVG(l.nilai) < i.target_indikator')
-            ->orderBy('tahun', 'desc')
-            ->orderBy('quarter')
+            ->where('a.unit_id', $user->unit_id)
+            ->whereIn('a.status_pdsa', ['assigned', 'revised', 'submitted', 'approved'])
+            ->orderBy('a.tahun', 'desc')
             ->get();
 
-        return view('menu.IndikatorMutu.pdsa.index', compact('data'));
+        return view('menu.IndikatorMutu.pdsa.index', [
+            'data' => collect(),
+            'pdsaList' => $pdsaList,
+            'pdsaTotal' => $pdsaList->count()
+        ]);
     }
 
     /**

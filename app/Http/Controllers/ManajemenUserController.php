@@ -36,7 +36,7 @@ class ManajemenUserController extends Controller
             'nama_lengkap' => 'required',
             'username' => 'required|unique:users',
             'email' => 'required|unique:users',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
             'role_id' => 'required',
             'unit_id' => 'nullable',
         ]);
@@ -66,6 +66,7 @@ class ManajemenUserController extends Controller
             'username' => 'required|unique:users,username,' . $id,
             'email' => 'required|unique:users,email,' . $id,
             'role_id' => 'required',
+            'password' => 'nullable|min:6|confirmed',
         ]);
 
         $data = [

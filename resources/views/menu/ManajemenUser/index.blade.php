@@ -59,7 +59,7 @@
                                                 <label for="nama_lengkap">Nama Lengkap</label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="nama_lengkap"
-                                                        placeholder="Masukkan nama lengkap" id="nama_lengkap" />
+                                                        placeholder="Masukkan nama lengkap" id="nama_lengkap" required />
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-person"></i>
                                                     </div>
@@ -71,7 +71,7 @@
                                                 <label for="username">Username</label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="username"
-                                                        placeholder="Masukkan username" id="username" />
+                                                        placeholder="Masukkan username" id="username" required />
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-person"></i>
                                                     </div>
@@ -83,7 +83,7 @@
                                                 <label for="email">Email</label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="email"
-                                                        placeholder="Masukkan alamat email" id="email" />
+                                                        placeholder="Masukkan alamat email" id="email" required />
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-envelope"></i>
                                                     </div>
@@ -95,9 +95,21 @@
                                                 <label for="password">Password</label>
                                                 <div class="position-relative">
                                                     <input type="password" class="form-control" name="password"
-                                                        placeholder="Masukkan password" id="password" />
+                                                        placeholder="Masukkan password" id="password" required />
                                                     <div class="form-control-icon">
                                                         <i class="bi bi-lock"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="password_confirmation">Konfirmasi Password</label>
+                                                <div class="position-relative">
+                                                    <input type="password" class="form-control" name="password_confirmation"
+                                                        placeholder="Ulangi password" id="password_confirmation" required />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-lock-fill"></i>
                                                     </div>
                                                 </div>
                                             </div>
@@ -135,8 +147,8 @@
                                         <div class="col-12">
                                             <div class="form-check">
                                                 <div class="checkbox mt-2">
-                                                    <input type="checkbox" id="status_user" name="status_user"
-                                                        value="aktif" class="form-check-input" />
+                                                    <input type="checkbox" id="status_user" name="status_user" value="aktif"
+                                                        class="form-check-input" required />
                                                     <label for="status_user">User Aktif</label>
                                                 </div>
                                             </div>
@@ -198,14 +210,12 @@
                                             </td>
 
                                             <td>
-                                                <button class="btn btn-warning btn-sm"
-                                                    onclick='openEditModal(@json($u))'>
+                                                <button class="btn btn-warning btn-sm" onclick='openEditModal(@json($u))'>
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
 
-                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}"
-                                                    method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Hapus user ini?')">
+                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}" method="POST"
+                                                    class="d-inline" onsubmit="return confirm('Hapus user ini?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button class="btn btn-danger btn-sm">
@@ -244,8 +254,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" id="eNama" name="nama_lengkap" class="form-control"
-                                        required>
+                                    <input type="text" id="eNama" name="nama_lengkap" class="form-control" required>
                                 </div>
 
                                 <div class="mb-3">
@@ -265,6 +274,11 @@
                                 <div class="mb-3">
                                     <label class="form-label">Password (Opsional)</label>
                                     <input type="password" name="password" class="form-control">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Konfirmasi Password</label>
+                                    <input type="password" name="password_confirmation" class="form-control">
                                 </div>
 
                                 <div class="mb-3">

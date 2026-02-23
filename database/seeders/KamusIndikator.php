@@ -21,7 +21,6 @@ class KamusIndikator extends Seeder
 
         foreach ($indikators as $indikator) {
 
-            // insert kamus dan ambil ID
             $kamusId = DB::table('tbl_kamus_indikator')->insertGetId([
                 'indikator_id' => $indikator->id,
                 'kategori_indikator' => 'Prioritas Unit',

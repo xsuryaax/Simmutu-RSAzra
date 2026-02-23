@@ -12,7 +12,7 @@
                             </div>
                         </div>
                         <div class="col-8 col-xxl-7">
-                            <h6 class="text-muted font-semibold mb-1">PDSA Perlu Ditindaklanjuti</h6>
+                            <h6 class="text-muted font-semibold mb-1 mt-2">Total PDSA</h6>
                             <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                             Perhatian!
                         </h5>
                         <p class="mb-0 text-dark">
-                            Terdapat <strong>{{ $pdsaTotal }} PDSA</strong> yang perlu diisi atau diperbaiki.
+                            Terdapat <strong>{{ $pdsaPerluTindak->count() }} PDSA</strong> yang perlu diisi atau diperbaiki.
                             Mohon segera ditindaklanjuti.
                         </p>
                     </div>

@@ -34,7 +34,7 @@ class Users extends Seeder
             DB::table('users')->insert([
                 'nama_lengkap' => $unit->nama_unit,
                 'username' => $username,
-                'email' => $username . '@rs.com',
+                'email' => $username . '@rsazra.co.id',
                 'password' => Hash::make($username . '123'),
                 'role_id' => $roleId,
                 'unit_id' => $unit->id,

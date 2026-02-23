@@ -441,7 +441,7 @@ class DashboardController extends Controller
     private function getTotalPdsaAktif($unitId = null)
     {
         $query = DB::table('tbl_pdsa_assignments as p')
-            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised']);
+            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised', 'approved']);
 
         if ($unitId) {
             $query->where('p.unit_id', $unitId);

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Carbon\Carbon;
 use DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ManajemenDataMutu extends Seeder
@@ -59,7 +58,7 @@ class ManajemenDataMutu extends Seeder
 
         DB::table('tbl_role')->insert([
             ['nama_role' => 'Administrator', 'deskripsi_role' => 'Memiliki akses penuh ke semua fitur dan pengaturan sistem.'],
-            ['nama_role' => 'Mutu', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
+            ['nama_role' => 'Tim Mutu', 'deskripsi_role' => 'Bertanggung jawab atas manajemen unit tertentu dan pelaporan indikator mutu.'],
             ['nama_role' => 'Validator', 'deskripsi_role' => 'Menginput dan melaporkan data indikator sesuai unit masing-masing.'],
             ['nama_role' => 'Pengumpul Data', 'deskripsi_role' => 'Menginput dan melaporkan data indikator sesuai unit masing-masing.'],
         ]);

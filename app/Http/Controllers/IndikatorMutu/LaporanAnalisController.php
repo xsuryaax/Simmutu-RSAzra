@@ -186,7 +186,7 @@ class LaporanAnalisController extends Controller
     {
         $request->validate([
             'indikator_id' => 'required|exists:tbl_indikator,id',
-            'numerator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric|min:0|lte:denominator',
             'denominator' => 'required|numeric|min:1',
             'tanggal_laporan' => 'required|date',
             'file_laporan' => 'required|file|max:5120',
@@ -342,7 +342,7 @@ class LaporanAnalisController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'numerator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric|min:0|lte:denominator',
             'denominator' => 'required|numeric|min:1',
             'file_laporan' => 'nullable|file|max:5120',
         ]);
