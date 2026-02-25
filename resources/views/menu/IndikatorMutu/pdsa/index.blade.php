@@ -79,7 +79,15 @@
                                         <td class="text-center">{{ $row->tahun }}</td>
                                         <td class="text-center">{{ $row->quarter }}</td>
                                         <td class="text-center">
-                                            {{ rtrim(rtrim(number_format($row->target_indikator, 2), '0'), '.') }}%
+                                            @if ($row->arah_target === 'lebih_besar')
+                                                ≥ {{ rtrim(rtrim(number_format($row->target_indikator, 2), '0'), '.') }}%
+                                            @elseif ($row->arah_target === 'lebih_kecil')
+                                                ≤ {{ rtrim(rtrim(number_format($row->target_indikator, 2), '0'), '.') }}%
+                                            @elseif ($row->arah_target === 'range')
+                                                {{ rtrim(rtrim(number_format($row->target_min, 2), '0'), '.') }}
+                                                -
+                                                {{ rtrim(rtrim(number_format($row->target_max, 2), '0'), '.') }}%
+                                            @endif
                                         </td>
 
                                         <td class="text-center">

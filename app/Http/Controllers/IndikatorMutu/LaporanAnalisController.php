@@ -123,7 +123,10 @@ class LaporanAnalisController extends Controller
                 'p.tanggal_selesai',
                 'f.nama_periode_pengumpulan_data',
                 'u.nama_unit',
-                'k.kategori_indikator'
+                'k.kategori_indikator',
+                'i.target_min',
+                'i.target_max',
+                'i.arah_target',
             )
             ->where('i.status_indikator', 'aktif')
             ->when($kategoriIndikator, function ($q) use ($kategoriIndikator) {
@@ -184,12 +187,22 @@ class LaporanAnalisController extends Controller
 
     public function store(Request $request)
     {
+        // Ambil indikator dulu (WAJIB di atas)
+        $indikatorFull = DB::table('tbl_indikator')
+            ->where('id', $request->indikator_id)
+            ->first();
+
+        if (!$indikatorFull) {
+            return back()->with('error', 'Indikator tidak ditemukan');
+        }
+
         $request->validate([
             'indikator_id' => 'required|exists:tbl_indikator,id',
+            'tanggal_laporan' => 'required|date',
             'numerator' => 'required|numeric|min:0|lte:denominator',
             'denominator' => 'required|numeric|min:1',
-            'tanggal_laporan' => 'required|date',
             'file_laporan' => 'required|file|max:5120',
+            'unit_id' => 'sometimes|exists:tbl_unit,id',
         ]);
 
         $periode = $this->getPeriodeAktif();
@@ -243,11 +256,15 @@ class LaporanAnalisController extends Controller
 
         $nilai = ($request->numerator / $request->denominator) * 100;
 
-        $target = DB::table('tbl_indikator')
-            ->where('id', $request->indikator_id)
-            ->value('target_indikator');
+        $tercapai = $this->hitungPencapaian(
+            $nilai,
+            $indikatorFull->arah_target,
+            $indikatorFull->target_indikator,
+            $indikatorFull->target_min,
+            $indikatorFull->target_max
+        );
 
-        $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
+        $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
 
         $exists = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $request->indikator_id)
@@ -266,13 +283,15 @@ class LaporanAnalisController extends Controller
         DB::table('tbl_laporan_dan_analis')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id ?? null,
-            'kategori_indikator' => $indikator->kategori_indikator,
-            'kategori_id' => $indikator->kategori_id,
             'numerator' => $request->numerator,
             'denominator' => $request->denominator,
             'nilai' => round($nilai, 2),
+            'target_saat_input' => $indikatorFull->target_indikator,
+            'target_min_saat_input' => $indikatorFull->target_min,
+            'target_max_saat_input' => $indikatorFull->target_max,
+            'arah_target_saat_input' => $indikatorFull->arah_target,
             'pencapaian' => $pencapaian,
-            'tanggal_laporan' => $tanggalLaporan,
+            'tanggal_laporan' => $request->tanggal_laporan,
             'file_laporan' => $request->file('file_laporan')
                 ->store('laporan_indikator', 'public'),
             'created_at' => now(),
@@ -341,11 +360,6 @@ class LaporanAnalisController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:1',
-            'file_laporan' => 'nullable|file|max:5120',
-        ]);
 
         $data = DB::table('tbl_laporan_dan_analis')
             ->where('id', $id)
@@ -355,7 +369,19 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan tidak ditemukan');
         }
 
+        $indikatorFull = DB::table('tbl_indikator')
+            ->where('id', $data->indikator_id)
+            ->first();
+
+        $request->validate([
+            'numerator' => 'required|numeric|min:0|lte:denominator',
+            'denominator' => 'required|numeric|min:1',
+            'file_laporan' => 'nullable|file|max:5120',
+        ]);
+
+
         $periode = $this->getPeriodeAktif();
+
         $deadline = (int) $periode->deadline;
 
         $tanggalLaporan = Carbon::parse($data->tanggal_laporan)->startOfDay();
@@ -365,16 +391,21 @@ class LaporanAnalisController extends Controller
             ->day(min($deadline, $tanggalLaporan->copy()->addMonth()->daysInMonth))
             ->endOfDay();
 
-        if (now()->gt($batasPengisian)) {
-            return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
-        }
+        // if (now()->gt($batasPengisian)) {
+        //     return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
+        // }
+
         $nilai = ($request->numerator / $request->denominator) * 100;
 
-        $target = DB::table('tbl_indikator')
-            ->where('id', $data->indikator_id)
-            ->value('target_indikator');
+        $tercapai = $this->hitungPencapaian(
+            $nilai,
+            $data->arah_target_saat_input,
+            $data->target_saat_input,
+            $data->target_min_saat_input,
+            $data->target_max_saat_input
+        );
 
-        $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
+        $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
 
         $updateData = [
             'numerator' => $request->numerator,
@@ -400,5 +431,23 @@ class LaporanAnalisController extends Controller
             ->update($updateData);
 
         return back()->with('success', 'Data laporan berhasil diperbarui');
+    }
+
+    private function hitungPencapaian($nilai, $arah, $target, $min, $max)
+    {
+        switch ($arah) {
+
+            case 'lebih_besar':
+                return $nilai >= $target;
+
+            case 'lebih_kecil':
+                return $nilai <= $target;
+
+            case 'range':
+                return $nilai >= $min && $nilai <= $max;
+
+            default:
+                return false;
+        }
     }
 }

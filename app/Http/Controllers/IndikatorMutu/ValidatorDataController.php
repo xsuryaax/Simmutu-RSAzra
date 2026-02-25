@@ -67,7 +67,7 @@ class ValidatorDataController extends Controller
                         'nilai_validator',
                         'indikator_id',
                         'unit_id',
-                        'kategori_indikator'
+                        'kategori_indikator',
                     )
                     ->where('indikator_id', $selectedIndikatorId)
                     ->whereBetween('tanggal_laporan', [$start, $end]);
@@ -124,7 +124,10 @@ class ValidatorDataController extends Controller
                 'p.tanggal_selesai',
                 'f.nama_periode_pengumpulan_data',
                 'u.nama_unit',
-                'k.kategori_indikator'
+                'k.kategori_indikator',
+                'i.target_min',
+                'i.target_max',
+                'i.arah_target',
             )
             ->when($kategoriIndikator, function ($q) use ($kategoriIndikator) {
                 $q->whereRaw(
@@ -150,6 +153,7 @@ class ValidatorDataController extends Controller
 
     private function getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator = null)
     {
+        $indikators = $this->getIndikator($user, $kategoriIndikator);
 
         $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
         $end = Carbon::create($tahun, $bulan, 1)->endOfMonth();
@@ -179,15 +183,29 @@ class ValidatorDataController extends Controller
             )
             ->groupBy('l.indikator_id', 'l.unit_id')
             ->get()
-            ->map(function ($item) {
+            ->map(function ($item) use ($indikators) {
 
                 $nilai = 0;
                 if ($item->jumlah_data > 0) {
-                    // Rata-rata semua nilai validator
-                    $nilai = ($item->total_nilai / $item->jumlah_data);
+                    $nilai = $item->total_nilai / $item->jumlah_data;
+                }
+                $item->nilai_rekap = round($nilai, 2);
+
+                // ambil data indikator lengkap
+                $indikator = $indikators->firstWhere('id', $item->indikator_id);
+
+                if ($indikator) {
+                    $item->pencapaian = $this->hitungPencapaian(
+                        $item->nilai_rekap,
+                        $indikator->arah_target,
+                        $indikator->target_indikator,
+                        $indikator->target_min,
+                        $indikator->target_max
+                    ) ? 'tercapai' : 'tidak-tercapai';
+                } else {
+                    $item->pencapaian = 'tidak-tercapai';
                 }
 
-                $item->nilai_rekap = round($nilai, 2);
                 return $item;
             })
             ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
@@ -197,6 +215,15 @@ class ValidatorDataController extends Controller
 
     public function store(Request $request)
     {
+        // Ambil indikator dulu (WAJIB di atas)
+        $indikatorFull = DB::table('tbl_indikator')
+            ->where('id', $request->indikator_id)
+            ->first();
+
+        if (!$indikatorFull) {
+            return back()->with('error', 'Indikator tidak ditemukan');
+        }
+
         $request->validate([
             'tanggal_laporan' => 'required|date',
             'indikator_id' => 'required',
@@ -217,10 +244,10 @@ class ValidatorDataController extends Controller
             }
 
             $tanggal = Carbon::parse($request->tanggal_laporan);
-
             $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
             $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
 
+            // Pastikan input masih di bulan pertama periode
             if ($tanggal->month != $bulanAwal || $tanggal->year != $tahunAwal) {
                 return back()->with('error', 'Validator hanya boleh diisi pada bulan pertama periode');
             }
@@ -228,18 +255,7 @@ class ValidatorDataController extends Controller
             $start = Carbon::create($tahunAwal, $bulanAwal, 1)->startOfMonth();
             $end = Carbon::create($tahunAwal, $bulanAwal, 1)->endOfMonth();
 
-            $existingValidator = DB::table('tbl_laporan_validator')
-                ->where('indikator_id', $request->indikator_id)
-                ->where('unit_id', $request->unit_id)
-                ->whereBetween('tanggal_laporan', [$start, $end])
-                ->first();
-
-            if ($existingValidator) {
-                return back()->with('error', 'Validator sudah diisi untuk periode ini');
-            }
-
-            $nilaiValidator = ($request->numerator / $request->denominator) * 100;
-
+            // Ambil data analis bulan pertama
             $laporanAnalis = DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $request->indikator_id)
                 ->where('unit_id', $request->unit_id)
@@ -250,16 +266,24 @@ class ValidatorDataController extends Controller
                 return back()->with('error', 'Data analis bulan pertama belum tersedia');
             }
 
+            $nilaiValidator = ($request->numerator / $request->denominator) * 100;
+
+            $tercapai = $this->hitungPencapaian(
+                $nilaiValidator,
+                $indikatorFull->arah_target,
+                $indikatorFull->target_indikator,
+                $indikatorFull->target_min,
+                $indikatorFull->target_max
+            );
+
+            $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
+
+            // Tentukan status validasi dibanding nilai analis
             $statusValidasi = 'tidak-valid';
-
             if ($nilaiValidator > 0 && $laporanAnalis->nilai !== null) {
-
                 $nilaiPengumpul = $laporanAnalis->nilai;
-
                 $selisih = abs($nilaiPengumpul - $nilaiValidator);
-
                 $base = max($nilaiPengumpul, $nilaiValidator);
-
                 $persenSelisih = ($selisih / $base) * 100;
 
                 if ($persenSelisih <= 10) {
@@ -267,18 +291,13 @@ class ValidatorDataController extends Controller
                 }
             }
 
-            $target = DB::table('tbl_indikator')
-                ->where('id', $request->indikator_id)
-                ->value('target_indikator');
-
-            $pencapaian = $nilaiValidator >= $target ? 'tercapai' : 'tidak-tercapai';
-
+            // Simpan file jika ada
             $filePath = null;
             if ($request->hasFile('file_laporan')) {
-                $filePath = $request->file('file_laporan')
-                    ->store('laporan_indikator', 'public');
+                $filePath = $request->file('file_laporan')->store('laporan_indikator', 'public');
             }
 
+            // Insert validator baru
             DB::table('tbl_laporan_validator')->insert([
                 'laporan_analis_id' => $laporanAnalis->id,
                 'tanggal_laporan' => $request->tanggal_laporan,
@@ -294,20 +313,18 @@ class ValidatorDataController extends Controller
                 'updated_at' => now(),
             ]);
 
-            if ($statusValidasi === 'tidak-valid') {
-                DB::table('tbl_indikator')
-                    ->where('id', $request->indikator_id)
-                    ->update([
-                        'status_indikator' => 'non-aktif',
-                        'updated_at' => now()
-                    ]);
-            }
+            // Hitung ulang rata-rata validator bulan pertama
+            $rataValidator = DB::table('tbl_laporan_validator')
+                ->where('indikator_id', $request->indikator_id)
+                ->where('unit_id', $request->unit_id)
+                ->whereBetween('tanggal_laporan', [$start, $end])
+                ->avg('nilai_validator');
 
+            // Update laporan analis dengan rata-rata
             DB::table('tbl_laporan_dan_analis')
                 ->where('id', $laporanAnalis->id)
                 ->update([
-                    'nilai_validator' => round($nilaiValidator, 2),
-                    'status_laporan' => $statusValidasi,
+                    'nilai_validator' => round($rataValidator, 2),
                     'updated_at' => now(),
                 ]);
 
@@ -371,6 +388,22 @@ class ValidatorDataController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        $data = DB::table('tbl_laporan_validator')->where('id', $id)->first();
+
+        if (!$data) {
+            return back()->with('error', 'Data laporan tidak ditemukan');
+        }
+
+        // Ambil indikator berdasarkan data lama
+        $indikatorFull = DB::table('tbl_indikator')
+            ->where('id', $data->indikator_id)
+            ->first();
+
+        if (!$indikatorFull) {
+            return back()->with('error', 'Indikator tidak ditemukan');
+        }
+
         $request->validate([
             'numerator' => 'required|numeric|min:0|lte:denominator',
             'denominator' => 'required|numeric|min:1',
@@ -406,11 +439,15 @@ class ValidatorDataController extends Controller
 
             $nilai = ($request->numerator / $request->denominator) * 100;
 
-            $target = DB::table('tbl_indikator')
-                ->where('id', $data->indikator_id)
-                ->value('target_indikator');
+            $tercapai = $this->hitungPencapaian(
+                $nilai,
+                $indikatorFull->arah_target,
+                $indikatorFull->target_indikator,
+                $indikatorFull->target_min,
+                $indikatorFull->target_max
+            );
 
-            $pencapaian = $nilai >= $target ? 'tercapai' : 'tidak-tercapai';
+            $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
 
             $nilaiAnalisRata = DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $data->indikator_id)
@@ -455,19 +492,19 @@ class ValidatorDataController extends Controller
 
             DB::table('tbl_laporan_validator')->where('id', $id)->update($updateData);
 
-            DB::table('tbl_indikator')
-                ->where('id', $data->indikator_id)
-                ->update([
-                    'status_indikator' => $statusValidasi === 'valid' ? 'aktif' : 'non-aktif',
-                    'updated_at' => now(),
-                ]);
-
             if ($data->laporan_analis_id) {
+
+                // Hitung ulang rata-rata validator bulan pertama
+                $rataValidator = DB::table('tbl_laporan_validator')
+                    ->where('indikator_id', $data->indikator_id)
+                    ->where('unit_id', $data->unit_id)
+                    ->whereBetween('tanggal_laporan', [$start, $end])
+                    ->avg('nilai_validator');
+
                 DB::table('tbl_laporan_dan_analis')
                     ->where('id', $data->laporan_analis_id)
                     ->update([
-                        'nilai_validator' => round($nilai, 2),
-                        'status_laporan' => $statusValidasi,
+                        'nilai_validator' => round($rataValidator, 2),
                         'updated_at' => now(),
                     ]);
             }
@@ -480,6 +517,24 @@ class ValidatorDataController extends Controller
 
             DB::rollBack();
             return back()->with('error', $e->getMessage());
+        }
+    }
+
+    private function hitungPencapaian($nilai, $arah, $target, $min, $max)
+    {
+        switch ($arah) {
+
+            case 'lebih_besar':
+                return $nilai >= $target;
+
+            case 'lebih_kecil':
+                return $nilai <= $target;
+
+            case 'range':
+                return $nilai >= $min && $nilai <= $max;
+
+            default:
+                return false;
         }
     }
 }

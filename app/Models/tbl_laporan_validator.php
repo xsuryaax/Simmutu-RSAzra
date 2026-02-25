@@ -22,5 +22,9 @@ class tbl_laporan_validator extends Model
         'pencapaian',
         'status_laporan',
         'file_laporan',
+        'target_saat_input',
+        'target_min_saat_input',
+        'target_max_saat_input',
+        'arah_target_saat_input',
     ];
 }

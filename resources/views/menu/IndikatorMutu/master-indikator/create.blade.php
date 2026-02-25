@@ -40,13 +40,8 @@
 @endsection
 
 @section('content')
-    @php
-        $user = Auth::user();
-    @endphp
-
     <section id="basic-vertical-layouts">
         <div class="row match-height">
-
             <div class="col-12">
                 <div class="card">
 
@@ -55,7 +50,6 @@
                     </div>
 
                     <div class="card-body">
-
                         <form action="{{ route('master-indikator.store') }}" method="POST">
                             @csrf
 
@@ -75,13 +69,11 @@
                             </div>
 
                             {{-- ================= UNIT ================= --}}
-                            <div class="row mb-3">
+                            <div class="row mb-3 align-items-center">
                                 <div class="col-md-4">
                                     <label>Unit <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="col-md-8">
-
-                                    {{-- ADMIN / MUTU --}}
                                     @if ($units)
                                         <select name="unit_id" class="form-control" required>
                                             <option value="">-- Pilih Unit --</option>
@@ -91,30 +83,70 @@
                                                 </option>
                                             @endforeach
                                         </select>
-
-                                        {{-- USER BIASA --}}
                                     @else
                                         <input type="text" class="form-control" value="{{ $unitUser->nama_unit }}" readonly>
-
                                         <input type="hidden" name="unit_id" value="{{ $unitUser->id }}">
                                     @endif
-
                                 </div>
                             </div>
 
-                            {{-- ================= TARGET ================= --}}
+                            {{-- ================= Kriteria Pencapaian ================= --}}
                             <div class="row mb-3 align-items-center">
                                 <div class="col-md-4">
-                                    <label>Target Indikator <span class="text-danger">*</span></label>
+                                    <label>Kriteria Pencapaian <span class="text-danger">*</span></label>
                                 </div>
                                 <div class="col-md-8">
-                                    <input type="number" name="target_indikator"
-                                        class="form-control @error('target_indikator') is-invalid @enderror"
-                                        value="{{ old('target_indikator') }}" required>
-                                    @error('target_indikator')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
+                                    <select name="arah_target" id="arah_target"
+                                        class="form-control @error('arah_target') is-invalid @enderror" required>
+                                        <option value="lebih_besar">Lebih Besar / Sama Dengan ( >= )</option>
+                                        <option value="lebih_kecil">Lebih Kecil / Sama Dengan ( <= )</option>
+                                        <option value="range">Range (Min - Max)</option>
+                                    </select>
                                 </div>
+                            </div>
+
+                            {{-- ================= TARGET SINGLE ================= --}}
+                            <div id="target_single">
+                                <div class="row mb-3 align-items-center">
+                                    <div class="col-md-4">
+                                        <label>Target Indikator <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="number" step="0.01" name="target_indikator"
+                                            class="form-control @error('target_indikator') is-invalid @enderror"
+                                            value="{{ old('target_indikator') }}" placeholder="Masukkan Target (%)">
+                                        @error('target_indikator')
+                                            <small class="text-danger d-block mt-1">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- ================= TARGET RANGE ================= --}}
+                            <div id="target_range" style="display: none;">
+
+                                <div class="row mb-3 align-items-center">
+                                    <div class="col-md-4">
+                                        <label>Target Minimum <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="number" step="0.01" name="target_min"
+                                            class="form-control @error('target_min') is-invalid @enderror"
+                                            value="{{ old('target_min') }}">
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3 align-items-center">
+                                    <div class="col-md-4">
+                                        <label>Target Maksimum <span class="text-danger">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="number" step="0.01" name="target_max"
+                                            class="form-control @error('target_max') is-invalid @enderror"
+                                            value="{{ old('target_max') }}">
+                                    </div>
+                                </div>
+
                             </div>
 
                             {{-- ================= TIPE INDIKATOR ================= --}}
@@ -155,14 +187,14 @@
                                 </div>
                                 <div class="col-md-8 d-flex gap-4">
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="status_indikator" value="aktif"
+                                        <input class="form-check-input" type="radio" name="status_indikator" id="status_aktif" value="aktif"
                                             checked>
-                                        <label class="form-check-label">Aktif</label>
+                                        <label class="form-check-label" for="status_aktif">Aktif</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="status_indikator"
-                                            value="non-aktif">
-                                        <label class="form-check-label">Non-Aktif</label>
+                                            value="non-aktif" id="status_nonaktif">
+                                        <label class="form-check-label" for="status_nonaktif">Non-Aktif</label>
                                     </div>
                                 </div>
                             </div>
@@ -178,11 +210,44 @@
                             </div>
 
                         </form>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
 @endsection
+
+@push('js')
+    <script>
+        function toggleTargetInput() {
+            const arah = document.getElementById('arah_target').value;
+            const single = document.getElementById('target_single');
+            const range = document.getElementById('target_range');
+
+            const targetSingle = document.querySelector('input[name="target_indikator"]');
+            const targetMin = document.querySelector('input[name="target_min"]');
+            const targetMax = document.querySelector('input[name="target_max"]');
+
+            if (arah === 'range') {
+                single.style.display = 'none';
+                range.style.display = 'block';
+
+                targetSingle.removeAttribute('required');
+                targetMin.setAttribute('required', true);
+                targetMax.setAttribute('required', true);
+            } else {
+                single.style.display = 'block';
+                range.style.display = 'none';
+
+                targetSingle.setAttribute('required', true);
+                targetMin.removeAttribute('required');
+                targetMax.removeAttribute('required');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleTargetInput();
+            document.getElementById('arah_target').addEventListener('change', toggleTargetInput);
+        });
+    </script>
+@endpush

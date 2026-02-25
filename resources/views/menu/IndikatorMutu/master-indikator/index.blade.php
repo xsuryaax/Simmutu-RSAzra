@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-{{-- Bagian Title Halaman --}}
 @section('title', 'Master Indikator')
 
 @section('page-title')
@@ -39,12 +38,10 @@
 @endsection
 
 @section('content')
-
     <section class="section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5>Data Indikator</h5>
-
                 <a href="{{ route('master-indikator.create') }}" class="btn btn-primary btn-sm">
                     <i class="bi bi-plus"></i> Tambah Data
                 </a>
@@ -52,13 +49,9 @@
 
             <div class="card-body">
                 <div class="table-parent-container table-responsive-md table-dark">
-                    @php
-                        $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
-                    @endphp
+                    @php $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]); @endphp
 
-                    <form method="GET" action="{{ route('master-indikator.index') }}"
-                        class="row g-2 mb-3 align-items-end">
-
+                    <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3 align-items-end">
                         <div class="col-md-2">
                             <label>Filter Periode</label>
                             <select name="periode_id" class="form-select" onchange="this.form.submit()">
@@ -76,8 +69,7 @@
                                 <select name="unit_id" class="form-select" onchange="this.form.submit()">
                                     <option value="">-- Semua Unit --</option>
                                     @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}"
-                                            {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
                                             {{ $unit->nama_unit }}
                                         </option>
                                     @endforeach
@@ -88,18 +80,15 @@
 
                     <div class="mb-3 d-flex flex-wrap gap-3">
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-danger me-2"
-                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                            <span class="badge bg-danger me-2" style="width: 20px; height: 20px;">&nbsp;</span>
                             <small class="text-primary text-primary-dark">Nasional</small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-success me-2"
-                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                            <span class="badge bg-success me-2" style="width: 20px; height: 20px;">&nbsp;</span>
                             <small class="text-primary text-primary-dark">Prioritas RS</small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-light me-2"
-                                style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                            <span class="badge bg-light me-2" style="width: 20px; height: 20px;">&nbsp;</span>
                             <small class="text-primary text-primary-dark">Prioritas Unit</small>
                         </div>
                     </div>
@@ -118,14 +107,11 @@
                                 <th class="text-center">AKSI</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             @foreach ($indikators as $i => $row)
                                 @php
                                     $colColor = '';
                                     $kategori = $row->kategori_indikator ?? '';
-
-                                    // Hierarki Warna: Nasional (Red) > Prioritas RS (Green) > Prioritas Unit (Grey)
                                     if (str_contains($kategori, 'Nasional')) {
                                         $colColor = 'table-danger';
                                     } elseif (str_contains($kategori, 'Prioritas RS')) {
@@ -141,13 +127,27 @@
                                         <td class="text-center">{{ $row->nama_unit ?? '-' }}</td>
                                     @endif
 
-                                    <td class="text-center">{{ rtrim(rtrim($row->target_indikator, '0'), '.') }}%</td>
                                     <td class="text-center">
-                                        <span>{{ ucfirst($row->tipe_indikator) }}</span>
+                                        @php
+                                            $arah = '';
+                                            if ($row->arah_target == 'lebih_besar') {
+                                                $arah = '≥ ';
+                                            } elseif ($row->arah_target == 'lebih_kecil') {
+                                                $arah = '≤ ';
+                                            }
+                                        @endphp
+
+                                        @if($row->arah_target == 'range')
+                                            {{ rtrim(rtrim($row->target_min, '0'), '.') }} -
+                                            {{ rtrim(rtrim($row->target_max, '0'), '.') }} %
+                                        @else
+                                            {{ $arah }}{{ rtrim(rtrim($row->target_indikator, '0'), '.') }} %
+                                        @endif
                                     </td>
 
+                                    <td class="text-center">{{ ucfirst($row->tipe_indikator) }}</td>
                                     <td class="text-center">
-                                        @if ($row->status_indikator == 'aktif')
+                                        @if($row->status_indikator == 'aktif')
                                             <span class="badge bg-success">Aktif</span>
                                         @else
                                             <span class="badge bg-danger">Non-Aktif</span>
@@ -155,27 +155,21 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="{{ route('master-indikator.edit', $row->id) }}"
-                                            class="btn btn-warning btn-sm">
+                                        <a href="{{ route('master-indikator.edit', $row->id) }}" class="btn btn-warning btn-sm">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
                                         <form action="{{ route('master-indikator.destroy', $row->id) }}" method="POST"
-                                            class="d-inline"
-                                            onsubmit="return confirm('Yakin ingin menghapus indikator ini?')">
+                                            class="d-inline" onsubmit="return confirm('Yakin ingin menghapus indikator ini?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-                                        @if (
-                                            $periodeAktif &&
-                                                $periodeDipilih &&
-                                                $periodeDipilih->id != $periodeAktif->id &&
-                                                is_null($row->sudah_di_periode_aktif))
-                                            <form action="{{ route('indikator.active', $row->id) }}" method="POST"
-                                                class="d-inline">
+
+                                        @if($periodeAktif && $periodeDipilih && $periodeDipilih->id != $periodeAktif->id && is_null($row->sudah_di_periode_aktif))
+                                            <form action="{{ route('indikator.active', $row->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-primary btn-sm"
                                                     onclick="return confirm('Masukkan indikator ini ke periode aktif?')"
@@ -184,13 +178,12 @@
                                                 </button>
                                             </form>
                                         @endif
-
-
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+
                 </div>
             </div>
         </div>

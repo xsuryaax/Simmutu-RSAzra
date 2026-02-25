@@ -52,7 +52,10 @@ class MasterIndikatorController extends Controller
                 'tbl_unit.nama_unit',
                 'tbl_kamus_indikator.kategori_indikator',
                 'ip_filter.status as status_periode',
-                'ip_aktif.id as sudah_di_periode_aktif'
+                'ip_aktif.id as sudah_di_periode_aktif',
+                'tbl_indikator.arah_target',
+                'tbl_indikator.target_min',
+                'tbl_indikator.target_max',
             );
 
         if (!in_array($user->unit_id, [1, 2])) {
@@ -124,12 +127,39 @@ class MasterIndikatorController extends Controller
         }
 
         $request->validate([
-            'nama_indikator' => 'required',
+            'nama_indikator' => 'required|string',
             'unit_id' => 'required|exists:tbl_unit,id',
-            'target_indikator' => 'required|numeric',
+
+            'arah_target' => 'required|in:lebih_besar,lebih_kecil,range',
+
+            'target_indikator' => 'nullable|numeric',
+            'target_min' => 'nullable|numeric',
+            'target_max' => 'nullable|numeric',
+
             'tipe_indikator' => 'required|in:lokal,nasional',
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
+
+        // VALIDASI TAMBAHAN LOGIC RANGE
+        if ($request->arah_target === 'range') {
+            if ($request->target_min === null || $request->target_max === null) {
+                return back()->withErrors([
+                    'range' => 'Target minimum dan maksimum wajib diisi untuk tipe range.'
+                ]);
+            }
+
+            if ($request->target_min > $request->target_max) {
+                return back()->withErrors([
+                    'range' => 'Target minimum tidak boleh lebih besar dari maksimum.'
+                ]);
+            }
+        } else {
+            if ($request->target_indikator === null) {
+                return back()->withErrors([
+                    'target' => 'Target indikator wajib diisi.'
+                ]);
+            }
+        }
 
         $periodeAktif = $this->getPeriodeAktif();
 
@@ -145,9 +175,24 @@ class MasterIndikatorController extends Controller
             $indikatorId = DB::table('tbl_indikator')->insertGetId([
                 'nama_indikator' => $request->nama_indikator,
                 'unit_id' => $request->unit_id,
-                'target_indikator' => $request->target_indikator,
+
+                'arah_target' => $request->arah_target,
+
+                'target_indikator' => $request->arah_target !== 'range'
+                    ? $request->target_indikator
+                    : null,
+
+                'target_min' => $request->arah_target === 'range'
+                    ? $request->target_min
+                    : null,
+
+                'target_max' => $request->arah_target === 'range'
+                    ? $request->target_max
+                    : null,
+
                 'tipe_indikator' => $request->tipe_indikator,
                 'status_indikator' => $request->status_indikator,
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -203,19 +248,61 @@ class MasterIndikatorController extends Controller
     public function update(Request $request, string $id)
     {
         $request->validate([
-            'nama_indikator' => 'required',
+            'nama_indikator' => 'required|string',
             'unit_id' => 'required|exists:tbl_unit,id',
-            'target_indikator' => 'required|numeric',
+
+            'arah_target' => 'required|in:lebih_besar,lebih_kecil,range',
+
+            'target_indikator' => 'nullable|numeric',
+            'target_min' => 'nullable|numeric',
+            'target_max' => 'nullable|numeric',
+
             'tipe_indikator' => 'required|in:lokal,nasional',
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
+        // VALIDASI TAMBAHAN
+        if ($request->arah_target === 'range') {
+            if ($request->target_min === null || $request->target_max === null) {
+                return back()->withErrors([
+                    'range' => 'Target minimum dan maksimum wajib diisi untuk tipe range.'
+                ]);
+            }
+
+            if ($request->target_min > $request->target_max) {
+                return back()->withErrors([
+                    'range' => 'Target minimum tidak boleh lebih besar dari maksimum.'
+                ]);
+            }
+        } else {
+            if ($request->target_indikator === null) {
+                return back()->withErrors([
+                    'target' => 'Target indikator wajib diisi.'
+                ]);
+            }
+        }
+
         DB::table('tbl_indikator')->where('id', $id)->update([
             'nama_indikator' => $request->nama_indikator,
             'unit_id' => $request->unit_id,
-            'target_indikator' => $request->target_indikator,
+
+            'arah_target' => $request->arah_target,
+
+            'target_indikator' => $request->arah_target !== 'range'
+                ? $request->target_indikator
+                : null,
+
+            'target_min' => $request->arah_target === 'range'
+                ? $request->target_min
+                : null,
+
+            'target_max' => $request->arah_target === 'range'
+                ? $request->target_max
+                : null,
+
             'tipe_indikator' => $request->tipe_indikator,
             'status_indikator' => $request->status_indikator,
+
             'updated_at' => now(),
         ]);
 

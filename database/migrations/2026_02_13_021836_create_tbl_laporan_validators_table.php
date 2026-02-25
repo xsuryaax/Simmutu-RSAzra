@@ -24,6 +24,15 @@ return new class extends Migration {
             $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);
             $table->enum('status_laporan', ['valid', 'tidak-valid'])->nullable();
             $table->string('file_laporan');
+            $table->decimal('target_saat_input', 8, 2)->nullable();
+            $table->decimal('target_min_saat_input', 8, 2)->nullable();
+            $table->decimal('target_max_saat_input', 8, 2)->nullable();
+
+            $table->enum('arah_target_saat_input', [
+                'lebih_besar',
+                'lebih_kecil',
+                'range'
+            ])->nullable();
             $table->timestamps();
         });
     }

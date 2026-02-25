@@ -37,6 +37,9 @@ class PDSAController extends Controller
                     'l.indikator_id',
                     'l.unit_id',
                     'i.nama_indikator',
+                    'i.arah_target',
+                    'i.target_min',
+                    'i.target_max',
                     'i.target_indikator',
                     'u.nama_unit',
                     DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
@@ -55,6 +58,9 @@ class PDSAController extends Controller
                 ->groupBy(
                     'l.indikator_id',
                     'l.unit_id',
+                    'i.arah_target',
+                    'i.target_min',
+                    'i.target_max',
                     'i.nama_indikator',
                     'i.target_indikator',
                     'u.nama_unit',
@@ -70,7 +76,17 @@ class PDSAController extends Controller
                     'p.id',
                     'p.status_pdsa'
                 )
-                ->havingRaw('AVG(l.nilai) < i.target_indikator')
+                ->havingRaw("
+    (
+        (i.arah_target = 'lebih_besar' AND AVG(l.nilai) < i.target_indikator)
+        OR
+        (i.arah_target = 'lebih_kecil' AND AVG(l.nilai) > i.target_indikator)
+        OR
+        (i.arah_target = 'range' AND 
+            (AVG(l.nilai) < i.target_min OR AVG(l.nilai) > i.target_max)
+        )
+    )
+")
                 ->orderBy('tahun')
                 ->orderBy('quarter', 'desc')
                 ->get();

@@ -172,7 +172,25 @@
                                                     <td class="text-center">{{ $indikator->nama_unit }}</td>
                                                 @endif
                                                 <td class="text-center">
-                                                    {{ number_format($indikator->target_indikator, 0) }}%
+                                                    @php
+                                                        $targetText = '';
+
+                                                        $formatNumber = function ($value) {
+                                                        
+                                                            if (floor($value) == $value) {
+                                                                return number_format($value, 0);
+                                                            }
+                                                            return $value;
+                                                        };
+                                                        if ($indikator->arah_target === 'lebih_besar') {
+                                                            $targetText = '≥ ' . $formatNumber($indikator->target_indikator) . '%';
+                                                        } elseif ($indikator->arah_target === 'lebih_kecil') {
+                                                            $targetText = '≤ ' . $formatNumber($indikator->target_indikator) . '%';
+                                                        } elseif ($indikator->arah_target === 'range') {
+                                                            $targetText = $formatNumber($indikator->target_min). '% - ' . $formatNumber($indikator->target_max). '%';
+                                                        }
+                                                    @endphp
+                                                    {{ $targetText }}
                                                 </td>
                                                 <td class="text-center">
                                                     @if ($nilaiRekap !== null)
@@ -185,18 +203,22 @@
                                                         <span>-</span>
                                                     @endif
                                                 </td>
-                                                <td class="text-center">
-                                                    @if ($nilaiRekap !== null)
-                                                        @if ($nilaiRekap >= $indikator->target_indikator)
-                                                            <span class="badge bg-success bg-opacity-75">Tercapai</span>
-                                                        @else
-                                                            <span class="badge bg-danger bg-opacity-75">Tidak
-                                                                Tercapai</span>
-                                                        @endif
-                                                    @else
-                                                        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-                                                    @endif
-                                                </td>
+                                                @foreach ($indikators as $indikator)
+    @php
+        $rekapKey = $indikator->id . '-' . $selectedUnitId;
+        $nilaiRekap = $rekapBulanan[$rekapKey]->nilai_rekap ?? null;
+        $pencapaian = $rekapBulanan[$rekapKey]->pencapaian ?? null;
+    @endphp
+    <td class="text-center">
+        @if ($pencapaian === 'tercapai')
+            <span class="badge bg-success bg-opacity-75">Tercapai</span>
+        @elseif ($pencapaian === 'tidak-tercapai')
+            <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
+        @else
+            <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+        @endif
+    </td>
+@endforeach
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-validator.index', [
                                                         'kategori_indikator' =>

@@ -12,6 +12,9 @@ class tbl_indikator extends Model
     protected $fillable = [
         'nama_indikator',
         'target_indikator',
+        'target_min',
+        'target_max',
+        'arah_target',
         'tipe_indikator',
         'status_indikator',
         'unit_id',
