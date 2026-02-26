@@ -203,22 +203,21 @@
                                                         <span>-</span>
                                                     @endif
                                                 </td>
-                                                @foreach ($indikators as $indikator)
-    @php
-        $rekapKey = $indikator->id . '-' . $selectedUnitId;
-        $nilaiRekap = $rekapBulanan[$rekapKey]->nilai_rekap ?? null;
-        $pencapaian = $rekapBulanan[$rekapKey]->pencapaian ?? null;
-    @endphp
-    <td class="text-center">
-        @if ($pencapaian === 'tercapai')
-            <span class="badge bg-success bg-opacity-75">Tercapai</span>
-        @elseif ($pencapaian === 'tidak-tercapai')
-            <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
-        @else
-            <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-        @endif
-    </td>
-@endforeach
+                                                
+                                                @php
+                                                    $rekapKey = $indikator->id . '-' . $indikator->unit_id;
+                                                    $pencapaian = $rekapBulanan[$rekapKey]->pencapaian ?? null;
+                                                @endphp
+
+                                                <td class="text-center">
+                                                    @if ($pencapaian === 'tercapai')
+                                                        <span class="badge bg-success bg-opacity-75">Tercapai</span>
+                                                    @elseif ($pencapaian === 'tidak-tercapai')
+                                                        <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
+                                                    @else
+                                                        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+                                                    @endif
+                                                </td>
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-validator.index', [
                                                         'kategori_indikator' =>

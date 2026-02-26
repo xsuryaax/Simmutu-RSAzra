@@ -278,19 +278,6 @@ class ValidatorDataController extends Controller
 
             $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
 
-            // Tentukan status validasi dibanding nilai analis
-            $statusValidasi = 'tidak-valid';
-            if ($nilaiValidator > 0 && $laporanAnalis->nilai !== null) {
-                $nilaiPengumpul = $laporanAnalis->nilai;
-                $selisih = abs($nilaiPengumpul - $nilaiValidator);
-                $base = max($nilaiPengumpul, $nilaiValidator);
-                $persenSelisih = ($selisih / $base) * 100;
-
-                if ($persenSelisih <= 10) {
-                    $statusValidasi = 'valid';
-                }
-            }
-
             // Simpan file jika ada
             $filePath = null;
             if ($request->hasFile('file_laporan')) {
@@ -307,24 +294,42 @@ class ValidatorDataController extends Controller
                 'denominator' => $request->denominator,
                 'nilai_validator' => round($nilaiValidator, 2),
                 'pencapaian' => $pencapaian,
-                'status_laporan' => $statusValidasi,
+                'status_laporan' => null,
                 'file_laporan' => $filePath,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            // Hitung ulang rata-rata validator bulan pertama
             $rataValidator = DB::table('tbl_laporan_validator')
                 ->where('indikator_id', $request->indikator_id)
                 ->where('unit_id', $request->unit_id)
                 ->whereBetween('tanggal_laporan', [$start, $end])
                 ->avg('nilai_validator');
 
-            // Update laporan analis dengan rata-rata
+            $rataValidator = round($rataValidator, 2);
+
+            $statusFinal = 'tidak-valid';
+
+            if ($rataValidator !== null && $laporanAnalis->nilai !== null) {
+
+                $base = max($rataValidator, $laporanAnalis->nilai);
+
+                if ($base > 0) {
+                    $selisih = abs($laporanAnalis->nilai - $rataValidator);
+                    $persenSelisih = ($selisih / $base) * 100;
+
+                    if ($persenSelisih <= 10) {
+                        $statusFinal = 'valid';
+                    }
+                }
+            }
+
+            // Update analis
             DB::table('tbl_laporan_dan_analis')
                 ->where('id', $laporanAnalis->id)
                 ->update([
-                    'nilai_validator' => round($rataValidator, 2),
+                    'nilai_validator' => $rataValidator,
+                    'status_laporan' => $statusFinal,
                     'updated_at' => now(),
                 ]);
 
@@ -449,35 +454,12 @@ class ValidatorDataController extends Controller
 
             $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
 
-            $nilaiAnalisRata = DB::table('tbl_laporan_dan_analis')
-                ->where('indikator_id', $data->indikator_id)
-                ->where('unit_id', $data->unit_id)
-                ->whereBetween('tanggal_laporan', [$start, $end])
-                ->avg('nilai');
-
-            $statusValidasi = 'tidak-valid';
-
-            if ($nilai !== null && $nilaiAnalisRata !== null) {
-
-                $base = max($nilai, $nilaiAnalisRata);
-
-                if ($base > 0) {
-
-                    $selisih = abs($nilaiAnalisRata - $nilai);
-                    $persenSelisih = ($selisih / $base) * 100;
-
-                    if ($persenSelisih <= 10) {
-                        $statusValidasi = 'valid';
-                    }
-                }
-            }
-
             $updateData = [
                 'numerator' => $request->numerator,
                 'denominator' => $request->denominator,
                 'nilai_validator' => round($nilai, 2),
                 'pencapaian' => $pencapaian,
-                'status_laporan' => $statusValidasi,
+                'status_laporan' => null,
                 'updated_at' => now(),
             ];
 
@@ -492,22 +474,43 @@ class ValidatorDataController extends Controller
 
             DB::table('tbl_laporan_validator')->where('id', $id)->update($updateData);
 
-            if ($data->laporan_analis_id) {
+            // Hitung ulang rata-rata validator
+            $rataValidator = DB::table('tbl_laporan_validator')
+                ->where('indikator_id', $data->indikator_id)
+                ->where('unit_id', $data->unit_id)
+                ->whereBetween('tanggal_laporan', [$start, $end])
+                ->avg('nilai_validator');
 
-                // Hitung ulang rata-rata validator bulan pertama
-                $rataValidator = DB::table('tbl_laporan_validator')
-                    ->where('indikator_id', $data->indikator_id)
-                    ->where('unit_id', $data->unit_id)
-                    ->whereBetween('tanggal_laporan', [$start, $end])
-                    ->avg('nilai_validator');
+            $rataValidator = round($rataValidator, 2);
 
-                DB::table('tbl_laporan_dan_analis')
-                    ->where('id', $data->laporan_analis_id)
-                    ->update([
-                        'nilai_validator' => round($rataValidator, 2),
-                        'updated_at' => now(),
-                    ]);
+            // Ambil nilai analis bulan pertama
+            $nilaiAnalis = DB::table('tbl_laporan_dan_analis')
+                ->where('id', $data->laporan_analis_id)
+                ->value('nilai');
+
+            $statusFinal = 'tidak-valid';
+
+            if ($rataValidator !== null && $nilaiAnalis !== null) {
+
+                $base = max($rataValidator, $nilaiAnalis);
+
+                if ($base > 0) {
+                    $selisih = abs($nilaiAnalis - $rataValidator);
+                    $persenSelisih = ($selisih / $base) * 100;
+
+                    if ($persenSelisih <= 10) {
+                        $statusFinal = 'valid';
+                    }
+                }
             }
+
+            DB::table('tbl_laporan_dan_analis')
+                ->where('id', $data->laporan_analis_id)
+                ->update([
+                    'nilai_validator' => $rataValidator,
+                    'status_laporan' => $statusFinal,
+                    'updated_at' => now(),
+                ]);
 
             DB::commit();
 
