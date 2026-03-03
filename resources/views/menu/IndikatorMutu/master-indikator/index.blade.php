@@ -52,7 +52,7 @@
                     @php $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]); @endphp
 
                     <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3 align-items-end">
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <label>Filter Periode</label>
                             <select name="periode_id" class="form-select" onchange="this.form.submit()">
                                 @foreach ($periodes as $p)
@@ -102,6 +102,7 @@
                                     <th class="text-center">UNIT</th>
                                 @endif
                                 <th class="text-center">TARGET</th>
+                                <th class="text-center">KETERANGAN</th>
                                 <th class="text-center">TIPE</th>
                                 <th class="text-center">STATUS</th>
                                 <th class="text-center">AKSI</th>
@@ -143,6 +144,11 @@
                                         @else
                                             {{ $arah }}{{ rtrim(rtrim($row->target_indikator, '0'), '.') }} %
                                         @endif
+                                    </td>
+                                    <td class="text-center">
+                                        {{ !empty($row->keterangan) 
+                                            ? $row->keterangan 
+                                            : 'Persentase (Numerator / Denominator)' }}
                                     </td>
 
                                     <td class="text-center">{{ ucfirst($row->tipe_indikator) }}</td>

@@ -16,32 +16,57 @@ class Users extends Seeder
      */
     public function run(): void
     {
-        $units = DB::table('tbl_unit')->get();
 
-        foreach ($units as $unit) {
+        DB::table('users')->insert([
+            'nama_lengkap' => 'Administrator',
+            'username' => 'admin',
+            'email' => 'administrator@rsazra.co.id',
+            'password' => Hash::make('admin123'),
+            'role_id' => 1,
+            'unit_id' => 1,
+            'status_user' => 'aktif',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
 
-            $username = Str::slug($unit->nama_unit, '');
+        DB::table('users')->insert([
+            'nama_lengkap' => 'Mutu',
+            'username' => 'mutu',
+            'email' => 'mutu@rsazra.co.id',
+            'password' => Hash::make('mutu123'),
+            'role_id' => 2,
+            'unit_id' => 2,
+            'status_user' => 'aktif',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
 
-            // Tentukan role
-            if ($unit->nama_unit == 'Administrator') {
-                $roleId = 1;
-            } elseif ($unit->nama_unit == 'Mutu') {
-                $roleId = 2;
-            } else {
-                $roleId = 3;
-            }
+        // $units = DB::table('tbl_unit')->get();
 
-            DB::table('users')->insert([
-                'nama_lengkap' => $unit->nama_unit,
-                'username' => $username,
-                'email' => $username . '@rsazra.co.id',
-                'password' => Hash::make($username . '123'),
-                'role_id' => $roleId,
-                'unit_id' => $unit->id,
-                'status_user' => 'aktif',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-        }
+        // foreach ($units as $unit) {
+
+        //     $username = Str::slug($unit->nama_unit, '');
+
+        //     // Tentukan role
+        //     if ($unit->nama_unit == 'Administrator') {
+        //         $roleId = 1;
+        //     } elseif ($unit->nama_unit == 'Mutu') {
+        //         $roleId = 2;
+        //     } else {
+        //         $roleId = 3;
+        //     }
+
+        //     DB::table('users')->insert([
+        //         'nama_lengkap' => $unit->nama_unit,
+        //         'username' => $username,
+        //         'email' => $username . '@rsazra.co.id',
+        //         'password' => Hash::make($username . '123'),
+        //         'role_id' => $roleId,
+        //         'unit_id' => $unit->id,
+        //         'status_user' => 'aktif',
+        //         'created_at' => Carbon::now(),
+        //         'updated_at' => Carbon::now(),
+        //     ]);
+        // }
     }
 }

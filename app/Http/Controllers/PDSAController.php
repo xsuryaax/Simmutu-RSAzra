@@ -17,6 +17,13 @@ class PDSAController extends Controller
 
         if (in_array($user->unit_id, [1, 2])) {
 
+            $units = DB::table('tbl_unit')
+                ->orderBy('nama_unit')
+                ->get();
+
+            $filterUnit = request('unit_id');
+
+
             $data = DB::table('tbl_laporan_dan_analis as l')
                 ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
                 ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
@@ -32,6 +39,9 @@ class PDSAController extends Controller
                             ELSE 'Q4'
                         END
                     "), '=', 'p.quarter');
+                })
+                ->when($filterUnit, function ($query) use ($filterUnit) {
+                    $query->where('l.unit_id', $filterUnit);
                 })
                 ->select(
                     'l.indikator_id',
@@ -94,7 +104,9 @@ class PDSAController extends Controller
             return view('menu.IndikatorMutu.pdsa.index', [
                 'data' => $data,
                 'pdsaList' => collect(),
-                'pdsaTotal' => 0
+                'pdsaTotal' => 0,
+                'filterUnit' => $filterUnit,
+                'units' => $units,
             ]);
         }
 

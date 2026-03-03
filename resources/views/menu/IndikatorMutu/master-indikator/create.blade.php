@@ -149,6 +149,25 @@
 
                             </div>
 
+                            {{-- ================= KETERANGAN ================= --}}
+<div class="row mb-3 align-items-start">
+    <div class="col-md-4">
+        <label>Keterangan</label>
+    </div>
+    <div class="col-md-8">
+        <textarea 
+            name="keterangan"
+            rows="1"
+            class="form-control @error('keterangan') is-invalid @enderror"
+            placeholder="Masukkan deskripsi / definisi indikator (opsional)"
+        >{{ old('keterangan') }}</textarea>
+
+        @error('keterangan')
+            <small class="text-danger d-block mt-1">{{ $message }}</small>
+        @enderror
+    </div>
+</div>
+
                             {{-- ================= TIPE INDIKATOR ================= --}}
                             <div class="row mb-3 align-items-center">
                                 <div class="col-md-4">

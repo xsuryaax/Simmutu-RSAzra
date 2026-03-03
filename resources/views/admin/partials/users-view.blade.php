@@ -120,7 +120,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center chart-card-header">
-                <h4>Hasil Indikator Unit</h4>
+                <h4>Indikator Prioritas Unit</h4>
 
                 <div class="d-flex gap-2">
                     {{-- FILTER INDIKATOR --}}
@@ -234,7 +234,8 @@
                     borderColor: 'rgba(255,99,132,1)',
                     backgroundColor: 'rgba(255,99,132,0.6)',
                     tension: 0.2,
-                    fill: type === 'bar'
+                    fill: type === 'bar',
+                    order: 1
                 },
                 {
                     label: "Realisasi",
@@ -242,7 +243,8 @@
                     borderColor: 'rgba(54,162,235,1)',
                     backgroundColor: 'rgba(54,162,235,0.6)',
                     tension: 0.2,
-                    fill: type === 'bar'
+                    fill: type === 'bar',
+                    order: 0
                 }
                 ]
             },

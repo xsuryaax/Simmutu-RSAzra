@@ -3,25 +3,52 @@
 namespace App\Http\Controllers\IndikatorMutu;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Auth;
 use DB;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class AnalisaController extends Controller
 {
-    /**
-     * Tampilkan halaman analisa data
-     */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $roleId = $user->role_id;
 
-        $indikators = $this->getIndikator($user);
+        // =============================
+        // FILTER
+        // =============================
+        $kategori = $request->kategori_indikator;
 
-        $analisaData = [];
+        // =============================
+        // PERIODE AKTIF
+        // =============================
+        $periode = DB::table('tbl_periode')
+            ->where('status', 'aktif')
+            ->first();
 
+        $periodeMulai = Carbon::parse($periode->tanggal_mulai);
+        $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
+
+        $tahunAktif = range(
+            $periodeMulai->year,
+            $periodeSelesai->year
+        );
+        $bulan = $request->bulan ?? $periodeMulai->month;
+        $tahun = $request->tahun ?? $periodeMulai->year;
+
+
+        // =============================
+        // AMBIL INDIKATOR
+        // =============================
+        $indikators = $this->getIndikator($user, $kategori);
+
+        // =============================
+        // ANALISA PER BULAN
+        // =============================
         $analisaRows = DB::table('tbl_hasil_analisa')
+            ->whereYear('tanggal_analisa', $tahun)
+            ->whereMonth('tanggal_analisa', $bulan)
             ->when(
                 !in_array($roleId, [1, 2]),
                 fn($q) => $q->where('unit_id', $user->unit_id)
@@ -30,8 +57,9 @@ class AnalisaController extends Controller
             ->get()
             ->keyBy('indikator_id');
 
-        foreach ($indikators as $ind) {
+        $analisaData = [];
 
+        foreach ($indikators as $ind) {
             $analisa = $analisaRows[$ind->id] ?? null;
 
             $analisaData[$ind->id] = [
@@ -41,15 +69,19 @@ class AnalisaController extends Controller
         }
 
         return view('menu.IndikatorMutu.analisa-data.index', [
-            'roleId' => $roleId,
             'indikators' => $indikators,
             'analisaData' => $analisaData,
-            'firstIndikator' => $indikators->first()
+            'firstIndikator' => $indikators->first(),
+            'tahunAktif' => $tahunAktif,
+            'periodeMulai' => $periodeMulai,
+            'periodeSelesai' => $periodeSelesai,
+            'tahunDipilih' => $tahun,
+            'bulanDipilih' => $bulan,
+            'kategoriDipilih' => $kategori
         ]);
     }
 
-    // Ambil data indikator
-    private function getIndikator($user, $kategoriIndikator = null)
+    private function getIndikator($user, $kategori = null)
     {
         return DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
@@ -59,47 +91,41 @@ class AnalisaController extends Controller
                 'i.id',
                 'i.nama_indikator',
                 'i.unit_id',
-                'u.nama_unit'
+                'u.nama_unit',
+                'k.kategori_indikator'
             )
             ->where('i.status_indikator', 'aktif')
             ->when(
-                !in_array($user->unit_id, [1, 2]),
+                $kategori,
+                fn($q) => $q->where('k.kategori_indikator', 'ILIKE', "%$kategori%")
+            )
+            ->when(
+                !in_array($user->role_id, [1, 2]),
                 fn($q) => $q->where('i.unit_id', $user->unit_id)
             )
-            ->orderByRaw("
-            CASE 
-                WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
-                WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
-                WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
-                ELSE 4
-            END ASC
-        ")
-            ->orderBy('i.id')
+            // ORDER indikator sesuai unit user di paling atas
+            ->orderByRaw("CASE WHEN i.unit_id = ? THEN 0 ELSE 1 END, i.id", [$user->unit_id])
             ->get();
     }
 
-    // Simpan hasil analisa dan tindak lanjut
     public function store(Request $request)
     {
         $user = Auth::user();
 
-        if (in_array($user->role_id, [1, 2])) {
-            $indikator = DB::table('tbl_indikator')
-                ->where('id', $request->indikator_id)
-                ->first();
+        // Ambil bulan & tahun dari request
+        $tahun = $request->tahun;
+        $bulan = $request->bulan;
 
-            $unitId = $indikator->unit_id;
-        } else {
-            $unitId = $user->unit_id;
-        }
+        // Buat tanggal sesuai filter (tanggal 1 saja cukup)
+        $tanggalAnalisa = Carbon::createFromDate($tahun, $bulan, 1);
 
         DB::table('tbl_hasil_analisa')->updateOrInsert(
             [
-                'indikator_id' => (int) $request->indikator_id,
-                'unit_id' => (int) $unitId,
+                'indikator_id' => $request->indikator_id,
+                'unit_id' => $user->unit_id,
+                'tanggal_analisa' => $tanggalAnalisa
             ],
             [
-                'tanggal_analisa' => now()->toDateString(),
                 'analisa' => $request->analisa,
                 'tindak_lanjut' => $request->tindak_lanjut,
                 'updated_at' => now(),
@@ -110,7 +136,6 @@ class AnalisaController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // Ambil data untuk chart analisa
     public function chartData($indikatorId)
     {
         $indikator = DB::table('tbl_indikator')
@@ -134,8 +159,7 @@ class AnalisaController extends Controller
         $realisasi = array_fill(0, 12, null);
 
         foreach ($rows as $row) {
-            $index = $row->bulan - 1;
-            $realisasi[$index] = $row->nilai;
+            $realisasi[$row->bulan - 1] = $row->nilai;
         }
 
         return response()->json([

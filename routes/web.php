@@ -162,7 +162,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan-analis/kalender', [LaporanAnalisController::class, 'getKalenderIndikator'])->name('laporan-analis.kalender');
     // Route untuk Laporan Analis
     Route::get('/laporan-analis/{id}/detail', [LaporanAnalisController::class, 'getDetail'])->name('laporan-analis.detail');
-    Route::put('/laporan-analis/{id}', [LaporanAnalisController::class, 'update'])->name('laporan-analis.update');
 
     Route::post(
         '/indikator/{indikator}/active',

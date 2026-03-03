@@ -19,5 +19,6 @@ class tbl_indikator extends Model
         'status_indikator',
         'unit_id',
         'kamus_indikator_id',
+        'keterangan'
     ];
 }

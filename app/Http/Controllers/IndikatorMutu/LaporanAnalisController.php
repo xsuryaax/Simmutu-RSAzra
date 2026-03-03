@@ -139,15 +139,16 @@ class LaporanAnalisController extends Controller
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('i.unit_id', $user->unit_id)
             )
+            ->orderByRaw("CASE WHEN i.unit_id = ? THEN 0 ELSE 1 END", [$user->unit_id])
             ->orderByRaw("
-            CASE 
-                WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
-                WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
-                WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
-                ELSE 4
-            END ASC
-        ")
-            ->orderBy('i.id')
+    CASE 
+        WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
+        WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
+        WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
+        ELSE 4
+    END
+")
+            ->orderBy('i.nama_indikator')
             ->get();
     }
 
@@ -280,12 +281,26 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan untuk tanggal tersebut sudah ada');
         }
 
+        $nilaiRounded = round($nilai, 2);
+
+        $rataValidator = $this->getRataValidatorBulanPertama(
+            $request->indikator_id,
+            $request->unit_id
+        );
+
+        $statusFinal = $this->hitungStatusValidasi(
+            $nilaiRounded,
+            $rataValidator
+        );
+
         DB::table('tbl_laporan_dan_analis')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id ?? null,
             'numerator' => $request->numerator,
             'denominator' => $request->denominator,
-            'nilai' => round($nilai, 2),
+            'nilai' => $nilaiRounded,
+            'nilai_validator' => $rataValidator,
+            'status_laporan' => $statusFinal,
             'target_saat_input' => $indikatorFull->target_indikator,
             'target_min_saat_input' => $indikatorFull->target_min,
             'target_max_saat_input' => $indikatorFull->target_max,
@@ -426,6 +441,22 @@ class LaporanAnalisController extends Controller
                 ->store('laporan_indikator', 'public');
         }
 
+        $nilaiRounded = round($nilai, 2);
+
+        $rataValidator = $this->getRataValidatorBulanPertama(
+            $data->indikator_id,
+            $data->unit_id
+        );
+
+        $statusFinal = $this->hitungStatusValidasi(
+            $nilaiRounded,
+            $rataValidator
+        );
+
+        $updateData['nilai'] = $nilaiRounded;
+        $updateData['nilai_validator'] = $rataValidator;
+        $updateData['status_laporan'] = $statusFinal;
+
         DB::table('tbl_laporan_dan_analis')
             ->where('id', $id)
             ->update($updateData);
@@ -449,5 +480,47 @@ class LaporanAnalisController extends Controller
             default:
                 return false;
         }
+    }
+
+
+    private function getRataValidatorBulanPertama($indikatorId, $unitId)
+    {
+        $periode = $this->getPeriodeAktif();
+
+        $bulanAwal = Carbon::parse($periode->tanggal_mulai)->month;
+        $tahunAwal = Carbon::parse($periode->tanggal_mulai)->year;
+
+        $start = Carbon::create($tahunAwal, $bulanAwal, 1)->startOfMonth();
+        $end = Carbon::create($tahunAwal, $bulanAwal, 1)->endOfMonth();
+
+        $rata = DB::table('tbl_laporan_validator')
+            ->where('indikator_id', $indikatorId)
+            ->where('unit_id', $unitId)
+            ->whereBetween('tanggal_laporan', [$start, $end])
+            ->avg('nilai_validator');
+
+        return $rata !== null ? round($rata, 2) : null;
+    }
+
+    private function hitungStatusValidasi($nilaiAnalis, $rataValidator)
+    {
+        if ($rataValidator === null) {
+            return null;
+        }
+
+        $base = max($rataValidator, $nilaiAnalis);
+
+        if ($base <= 0) {
+            return 'tidak-valid';
+        }
+
+        $selisih = abs($nilaiAnalis - $rataValidator);
+        $persenSelisih = ($selisih / $base) * 100;
+
+        if ($persenSelisih <= 10) {
+            return 'valid';
+        }
+
+        return 'tidak-valid';
     }
 }

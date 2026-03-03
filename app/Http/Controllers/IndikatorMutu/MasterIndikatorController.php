@@ -48,6 +48,7 @@ class MasterIndikatorController extends Controller
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.target_indikator',
                 'tbl_indikator.tipe_indikator',
+                'tbl_indikator.keterangan',
                 'tbl_indikator.status_indikator',
                 'tbl_unit.nama_unit',
                 'tbl_kamus_indikator.kategori_indikator',
@@ -65,15 +66,21 @@ class MasterIndikatorController extends Controller
             $query->where('tbl_indikator.unit_id', $request->unit_id);
         }
 
-        $query->orderByRaw("
+        $query->orderByRaw(
+            "CASE WHEN tbl_indikator.unit_id = ? THEN 0 ELSE 1 END",
+            [$user->unit_id]
+        )
+
+            ->orderByRaw("
     CASE 
-        WHEN tbl_kamus_indikator.kategori_indikator = 'Nasional' THEN 1
-        WHEN tbl_kamus_indikator.kategori_indikator = 'Prioritas RS' THEN 2
-        WHEN tbl_kamus_indikator.kategori_indikator = 'Prioritas Unit' THEN 3
+        WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Nasional%' THEN 1
+        WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
+        WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
         ELSE 4
-    END ASC
+    END
 ")
-            ->orderBy('tbl_indikator.id', 'ASC');
+
+            ->orderBy('tbl_indikator.nama_indikator', 'ASC');
 
         $indikators = $query->get();
 
@@ -130,6 +137,7 @@ class MasterIndikatorController extends Controller
             'nama_indikator' => 'required|string',
             'unit_id' => 'required|exists:tbl_unit,id',
 
+            'keterangan' => 'nullable|string',
             'arah_target' => 'required|in:lebih_besar,lebih_kecil,range',
 
             'target_indikator' => 'nullable|numeric',
@@ -193,6 +201,8 @@ class MasterIndikatorController extends Controller
                 'tipe_indikator' => $request->tipe_indikator,
                 'status_indikator' => $request->status_indikator,
 
+                'keterangan' => $request->keterangan,
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -251,6 +261,8 @@ class MasterIndikatorController extends Controller
             'nama_indikator' => 'required|string',
             'unit_id' => 'required|exists:tbl_unit,id',
 
+            'keterangan' => 'nullable|string',
+
             'arah_target' => 'required|in:lebih_besar,lebih_kecil,range',
 
             'target_indikator' => 'nullable|numeric',
@@ -303,6 +315,8 @@ class MasterIndikatorController extends Controller
             'tipe_indikator' => $request->tipe_indikator,
             'status_indikator' => $request->status_indikator,
 
+            'keterangan' => $request->keterangan,
+
             'updated_at' => now(),
         ]);
 
@@ -315,10 +329,24 @@ class MasterIndikatorController extends Controller
      */
     public function destroy(string $id)
     {
+        $adaData = DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $id)
+            ->exists();
+
+        if ($adaData) {
+            DB::table('tbl_indikator')
+                ->where('id', $id)
+                ->update([
+                    'status_indikator' => 'non-aktif',
+                    'updated_at' => now(),
+                ]);
+
+            return back()->with('success', 'Indikator sudah memiliki histori. Status diubah menjadi non-aktif.');
+        }
+
         DB::table('tbl_indikator')->where('id', $id)->delete();
 
-        return redirect()->route('master-indikator.index')
-            ->with('success', 'Indikator berhasil dihapus.');
+        return back()->with('success', 'Indikator berhasil dihapus.');
     }
 
     private function getPeriodeAktif()

@@ -47,13 +47,74 @@
                             <h5>Data Laporan Indikator</h5>
                         </div>
 
+
+
                         <div class="card-body">
+                            <form method="GET" class="row mb-3">
+
+
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Jenis Indikator</label>
+                                    <select name="kategori_indikator" class="form-select" onchange="this.form.submit()">
+                                        <option value="">Semua Indikator</option>
+                                        <option value="Nasional" {{ $kategoriDipilih == 'Nasional' ? 'selected' : '' }}>
+                                            Nasional
+                                        </option>
+                                        <option value="Prioritas RS" {{ $kategoriDipilih == 'Prioritas RS' ? 'selected' : '' }}>
+                                            Prioritas RS</option>
+                                        <option value="Prioritas Unit" {{ $kategoriDipilih == 'Prioritas Unit' ? 'selected' : '' }}>Prioritas Unit</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">Tahun</label>
+                                    <select name="tahun" class="form-select" onchange="this.form.submit()">
+                                        @foreach ($tahunAktif as $t)
+                                            <option value="{{ $t }}" {{ $tahunDipilih == $t ? 'selected' : '' }}>
+                                                {{ $t }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold">Bulan</label>
+                                    <select name="bulan" class="form-select" onchange="this.form.submit()">
+                                        @for ($b = 1; $b <= 12; $b++)
+                                            <option value="{{ $b }}" {{ $bulanDipilih == $b ? 'selected' : '' }}>
+                                                {{ \Carbon\Carbon::create()->month($b)->translatedFormat('F') }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                </div>
+                            </form>
+
+                            {{-- Legend --}}
+                            <div class="mb-3 d-flex flex-wrap gap-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger me-2"
+                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <small class="text-primary text-primary-dark">Nasional</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-2"
+                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <small class="text-primary text-primary-dark">Prioritas RS</small>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-light me-2"
+                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <small class="text-primary text-primary-dark">Unit</small>
+                                </div>
+                            </div>
+
                             <div class="table-parent-container table-responsive-md table-dark">
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
                                             <th>INDIKATOR</th>
+                                            <th class="text-center">UNIT</th>
                                             <th class="text-center">ANALISA</th>
                                             <th class="text-center">RENCANA TINDAK LANJUT</th>
                                             <th class="text-center">AKSI</th>
@@ -61,9 +122,36 @@
                                     </thead>
                                     <tbody>
                                         @forelse($indikators as $i => $ind)
+                                            @php
+                                                $colColor = '';
+                                                $filterKategori = strtolower(request('kategori_indikator'));
+                                                $jenisDb = strtolower($ind->kategori_indikator ?? '');
+
+                                                if ($filterKategori) {
+                                                    if ($filterKategori === 'nasional') {
+                                                        $colColor = 'table-danger';
+                                                    } elseif ($filterKategori === 'prioritas rs') {
+                                                        $colColor = 'table-success';
+                                                    } elseif ($filterKategori === 'prioritas unit') {
+                                                        $colColor = 'table-light';
+                                                    }
+                                                } else {
+                                                    if (str_contains($jenisDb, 'nasional')) {
+                                                        $colColor = 'table-danger';
+                                                    } elseif (str_contains($jenisDb, 'prioritas rs')) {
+                                                        $colColor = 'table-success';
+                                                    } elseif (str_contains($jenisDb, 'prioritas unit')) {
+                                                        $colColor = 'table-light';
+                                                    }
+                                                }
+                                            @endphp
                                             <tr>
                                                 <td class="text-center">{{ $i + 1 }}</td>
-                                                <td>{{ $ind->nama_indikator }}</td>
+                                                <td class="{{ $colColor }}">{{ $ind->nama_indikator }}</td>
+
+                                                <td class="text-center">
+                                                    {{ $ind->nama_unit ?? '-' }}
+                                                </td>
 
                                                 <td class="text-center">
                                                     {{ $analisaData[$ind->id]['analisa'] ?? '-' }}
@@ -75,11 +163,11 @@
 
                                                 <td class="text-center">
                                                     <button class="btn btn-sm btn-warning" onclick="openModal(
-                                                        {{ $ind->id }},
-                                                        '{{ addslashes($ind->nama_indikator) }}',
-                                                        '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}',
-                                                        '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}'
-                                                    )">
+                                                                                                                        {{ $ind->id }},
+                                                                                                                        '{{ addslashes($ind->nama_indikator) }}',
+                                                                                                                        '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}',
+                                                                                                                        '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}'
+                                                                                                                    )">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-info"
@@ -90,9 +178,11 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="5" class="text-center text-muted">
-                                                    Tidak ada data indikator
-                                                </td>
+                                                <td class="text-center text-muted">-</td>
+                                                <td class="text-center text-muted">Tidak ada data indikator</td>
+                                                <td class="text-center text-muted">-</td>
+                                                <td class="text-center text-muted">-</td>
+                                                <td class="text-center text-muted">-</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -132,7 +222,7 @@
 
     {{-- Modal buat input analisa dan RTL --}}
     <div class="modal fade" id="analysisModal" tabindex="-1" aria-labelledby="analysisModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="analysisModalLabel">Input Analisa dan Rencana Tindak Lanjut</h5>
@@ -145,12 +235,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">Analisa</label>
-                            <textarea class="form-control" id="analisa"></textarea>
+                            <textarea class="form-control" id="analisa" rows="5"></textarea>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Tindak Lanjut</label>
-                            <textarea class="form-control" id="tindak_lanjut"></textarea>
+                            <textarea class="form-control" id="tindak_lanjut" rows="5"></textarea>
                         </div>
                     </form>
                 </div>
@@ -164,7 +254,7 @@
 @endsection
 
 @push('js')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
 
@@ -184,11 +274,13 @@
                     datasets: [
                         {
                             label: 'Target',
-                            data: targetData
+                            data: targetData,
+                            order: 2
                         },
                         {
                             label: 'Realisasi',
-                            data: realisasiData
+                            data: realisasiData,
+                            order: 1
                         }
                     ]
                 },
@@ -233,10 +325,15 @@
             let analisa = document.getElementById('analisa').value;
             let tindak_lanjut = document.getElementById('tindak_lanjut').value;
 
+            let tahun = document.querySelector('select[name="tahun"]').value;
+            let bulan = document.querySelector('select[name="bulan"]').value;
+
             let formData = new FormData();
             formData.append('indikator_id', indikator_id);
             formData.append('analisa', analisa);
             formData.append('tindak_lanjut', tindak_lanjut);
+            formData.append('tahun', tahun);
+            formData.append('bulan', bulan);
 
             fetch("{{ route('analisa-data.store') }}", {
                 method: "POST",
@@ -261,11 +358,11 @@
         document.addEventListener('DOMContentLoaded', function () {
 
             @if($firstIndikator)
-                loadChart(
-                                            {{ $firstIndikator->id }},
-                    "{{ $firstIndikator->nama_indikator }}",
-                    "{{ $firstIndikator->nama_unit }}"
-                );
+                    loadChart(
+                {{ $firstIndikator->id }},
+                        '{{ addslashes($firstIndikator->nama_indikator) }}',  // ✅
+                        '{{ addslashes($firstIndikator->nama_unit) }}'         // ✅
+                    );
             @endif
 
             document.getElementById('line-chart-btn').addEventListener('click', () => {

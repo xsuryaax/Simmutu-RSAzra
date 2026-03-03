@@ -66,7 +66,7 @@
                     <div class="recent-message d-flex px-4 py-3 align-items-center">
                         <div class="avatar avatar-lg">
                             @php
-                                $imgIndex = ($row->unit_id % 10) + 1;
+                                $imgIndex = ($row->unit_id % 8) + 1;
                             @endphp
                             <img src="{{ asset("assets/faces/{$imgIndex}.jpg") }}">
                         </div>

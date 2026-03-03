@@ -16,7 +16,7 @@ class KamusIndikatorController extends Controller
         $user = Auth::user();
 
         $query = DB::table('tbl_kamus_indikator')
-            ->leftJoin('tbl_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
+            ->join('tbl_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
             ->leftJoin('tbl_unit', 'tbl_indikator.unit_id', '=', 'tbl_unit.id')
             ->leftJoin('tbl_periode_pengumpulan_data', 'tbl_kamus_indikator.periode_pengumpulan_data_id', '=', 'tbl_periode_pengumpulan_data.id')
             ->leftJoin('tbl_periode_analisis_data', 'tbl_kamus_indikator.periode_analisis_data_id', '=', 'tbl_periode_analisis_data.id')
@@ -53,7 +53,15 @@ class KamusIndikatorController extends Controller
                 'tbl_kategori_imprs.nama_kategori_imprs'
             );
 
-        if (!in_array($user->unit_id, [1, 2])) {
+        if (in_array($user->unit_id, [1, 2])) {
+
+            $query->orderByRaw(
+                "CASE WHEN tbl_indikator.unit_id = ? THEN 0 ELSE 1 END",
+                [$user->unit_id]
+            );
+
+        } else {
+
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
 
@@ -63,9 +71,9 @@ class KamusIndikatorController extends Controller
         WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
         WHEN tbl_kamus_indikator.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
         ELSE 4
-    END ASC
+    END
 ")
-            ->orderBy('tbl_kamus_indikator.id', 'ASC');
+            ->orderBy('tbl_indikator.nama_indikator', 'ASC');
 
         $mutu = $query->get();
 

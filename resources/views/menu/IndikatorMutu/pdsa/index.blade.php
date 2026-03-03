@@ -46,17 +46,27 @@
 
         @if (in_array(Auth::user()->unit_id, [1, 2]))
 
-            {{-- =========================================
-            TAMPILAN UNTUK UNIT 1 & 2 (MUTU)
-            ========================================== --}}
             <div class="card">
                 <div class="card-header">
                     <h5>Indikator Tidak Tercapai (Perlu PDSA)</h5>
                 </div>
 
                 <div class="card-body">
+                    <form method="GET" class="row g-2 mb-3">
+                        <div class="col-md-2">
+                            <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Semua Unit --</option>
+                                @foreach($units as $unit)
+                                    <option value="{{ $unit->id }}" {{ $filterUnit == $unit->id ? 'selected' : '' }}>
+                                        {{ $unit->nama_unit }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped" id="table1">
                             <thead>
                                 <tr>
                                     <th class="text-center">NO</th>

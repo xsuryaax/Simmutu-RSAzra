@@ -139,15 +139,22 @@ class ValidatorDataController extends Controller
                 !in_array($user->unit_id, [1, 2]),
                 fn($q) => $q->where('i.unit_id', $user->unit_id)
             )
+
+            ->where('status_indikator', 'aktif')
+
+            ->orderByRaw("CASE WHEN i.unit_id = ? THEN 0 ELSE 1 END", [$user->unit_id])
+
             ->orderByRaw("
-            CASE 
-                WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
-                WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
-                WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
-                ELSE 4
-            END ASC
-        ")
-            ->orderBy('i.id')
+    CASE 
+        WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
+        WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
+        WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
+        ELSE 4
+    END
+")
+
+            ->orderBy('i.nama_indikator')
+
             ->get();
     }
 
@@ -244,6 +251,19 @@ class ValidatorDataController extends Controller
             }
 
             $tanggal = Carbon::parse($request->tanggal_laporan);
+
+            // $deadline = $periodeAktif->deadline;
+
+            // $batasPengisian = $tanggal
+            //     ->copy()
+            //     ->addMonth()
+            //     ->day(min($deadline, $tanggal->copy()->addMonth()->daysInMonth))
+            //     ->endOfDay();
+
+            // if (now()->gt($batasPengisian)) {
+            //     return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
+            // }
+
             $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
             $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
 
@@ -432,6 +452,19 @@ class ValidatorDataController extends Controller
             }
 
             $tanggalValidator = Carbon::parse($data->tanggal_laporan);
+
+            // $deadline = $periodeAktif->deadline
+
+            // $batasPengisian = $tanggalValidator
+            //     ->copy()
+            //     ->addMonth()
+            //     ->day(min($deadline, $tanggalValidator->copy()->addMonth()->daysInMonth))
+            //     ->endOfDay();
+
+            // if (now()->gt($batasPengisian)) {
+            //     return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
+            // }
+
             $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
             $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
 
