@@ -47,7 +47,6 @@ class MasterIndikatorController extends Controller
                 'tbl_indikator.id',
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.target_indikator',
-                'tbl_indikator.tipe_indikator',
                 'tbl_indikator.keterangan',
                 'tbl_indikator.status_indikator',
                 'tbl_unit.nama_unit',
@@ -144,7 +143,6 @@ class MasterIndikatorController extends Controller
             'target_min' => 'nullable|numeric',
             'target_max' => 'nullable|numeric',
 
-            'tipe_indikator' => 'required|in:lokal,nasional',
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
@@ -198,7 +196,6 @@ class MasterIndikatorController extends Controller
                     ? $request->target_max
                     : null,
 
-                'tipe_indikator' => $request->tipe_indikator,
                 'status_indikator' => $request->status_indikator,
 
                 'keterangan' => $request->keterangan,
@@ -269,7 +266,6 @@ class MasterIndikatorController extends Controller
             'target_min' => 'nullable|numeric',
             'target_max' => 'nullable|numeric',
 
-            'tipe_indikator' => 'required|in:lokal,nasional',
             'status_indikator' => 'required|in:aktif,non-aktif',
         ]);
 
@@ -312,7 +308,6 @@ class MasterIndikatorController extends Controller
                 ? $request->target_max
                 : null,
 
-            'tipe_indikator' => $request->tipe_indikator,
             'status_indikator' => $request->status_indikator,
 
             'keterangan' => $request->keterangan,

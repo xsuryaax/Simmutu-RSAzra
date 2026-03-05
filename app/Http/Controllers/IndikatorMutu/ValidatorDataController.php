@@ -171,10 +171,7 @@ class ValidatorDataController extends Controller
             ->whereBetween('l.tanggal_laporan', [$start, $end]);
 
         if ($kategoriIndikator) {
-            $query->whereRaw(
-                "LOWER(k.kategori_indikator) LIKE ?",
-                ['%' . strtolower($kategoriIndikator) . '%']
-            );
+            $query->whereRaw("LOWER(k.kategori_indikator) LIKE ?", ['%' . strtolower($kategoriIndikator) . '%']);
         }
 
         if (!in_array($user->unit_id, [1, 2])) {
@@ -185,23 +182,19 @@ class ValidatorDataController extends Controller
             ->select(
                 'l.indikator_id',
                 'l.unit_id',
-                DB::raw('SUM(l.nilai_validator) as total_nilai'),
-                DB::raw('COUNT(*) as jumlah_data')
+                DB::raw('ROUND(AVG(l.nilai_validator),2) as nilai_rekap'),
+                DB::raw('SUM(l.denominator) as denominator')
             )
             ->groupBy('l.indikator_id', 'l.unit_id')
             ->get()
             ->map(function ($item) use ($indikators) {
+                $item->denominator = (int) $item->denominator;
 
-                $nilai = 0;
-                if ($item->jumlah_data > 0) {
-                    $nilai = $item->total_nilai / $item->jumlah_data;
-                }
-                $item->nilai_rekap = round($nilai, 2);
-
-                // ambil data indikator lengkap
                 $indikator = $indikators->firstWhere('id', $item->indikator_id);
 
-                if ($indikator) {
+                if ($item->denominator === 0 || $item->nilai_rekap === null) {
+                    $item->pencapaian = 'N/A';
+                } elseif ($indikator) {
                     $item->pencapaian = $this->hitungPencapaian(
                         $item->nilai_rekap,
                         $indikator->arah_target,
@@ -236,7 +229,7 @@ class ValidatorDataController extends Controller
             'indikator_id' => 'required',
             'unit_id' => 'required',
             'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:1',
+            'denominator' => 'required|numeric|min:0',
             'file_laporan' => 'nullable|file|mimes:xlsx,xls,pdf',
         ]);
 
@@ -252,17 +245,19 @@ class ValidatorDataController extends Controller
 
             $tanggal = Carbon::parse($request->tanggal_laporan);
 
-            // $deadline = $periodeAktif->deadline;
+            $resultDeadline = $this->validasiDeadline(
+                $periodeAktif,
+                $tanggal,
+                $request->unit_id
+            );
 
-            // $batasPengisian = $tanggal
-            //     ->copy()
-            //     ->addMonth()
-            //     ->day(min($deadline, $tanggal->copy()->addMonth()->daysInMonth))
-            //     ->endOfDay();
-
-            // if (now()->gt($batasPengisian)) {
-            //     return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
-            // }
+            if ($resultDeadline !== true) {
+                return back()->with(
+                    'error',
+                    'Data tidak bisa diinput karena melewati batas deadline tanggal '
+                    . $resultDeadline->format('d M Y H:i')
+                );
+            }
 
             $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
             $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
@@ -286,7 +281,23 @@ class ValidatorDataController extends Controller
                 return back()->with('error', 'Data analis bulan pertama belum tersedia');
             }
 
-            $nilaiValidator = ($request->numerator / $request->denominator) * 100;
+            if ($request->numerator == 0 && $request->denominator == 0) {
+                $nilaiValidator = null;
+                $pencapaian = 'N/A';
+            } else {
+                $nilaiValidator = ($request->denominator > 0)
+                    ? ($request->numerator / $request->denominator) * 100
+                    : 0;
+
+                $tercapai = $this->hitungPencapaian(
+                    $nilaiValidator,
+                    $indikatorFull->arah_target,
+                    $indikatorFull->target_indikator,
+                    $indikatorFull->target_min,
+                    $indikatorFull->target_max
+                );
+                $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
+            }
 
             $tercapai = $this->hitungPencapaian(
                 $nilaiValidator,
@@ -312,7 +323,7 @@ class ValidatorDataController extends Controller
                 'unit_id' => $request->unit_id,
                 'numerator' => $request->numerator,
                 'denominator' => $request->denominator,
-                'nilai_validator' => round($nilaiValidator, 2),
+                'nilai_validator' => $nilaiValidator !== null ? round($nilaiValidator, 2) : null,
                 'pencapaian' => $pencapaian,
                 'status_laporan' => null,
                 'file_laporan' => $filePath,
@@ -431,7 +442,7 @@ class ValidatorDataController extends Controller
 
         $request->validate([
             'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:1',
+            'denominator' => 'required|numeric|min:0',
             'file_laporan' => 'nullable|file|mimes:xlsx,xls,pdf|max:5120',
         ]);
 
@@ -453,17 +464,19 @@ class ValidatorDataController extends Controller
 
             $tanggalValidator = Carbon::parse($data->tanggal_laporan);
 
-            // $deadline = $periodeAktif->deadline
+            $resultDeadline = $this->validasiDeadline(
+                $periodeAktif,
+                $tanggalValidator,
+                $data->unit_id
+            );
 
-            // $batasPengisian = $tanggalValidator
-            //     ->copy()
-            //     ->addMonth()
-            //     ->day(min($deadline, $tanggalValidator->copy()->addMonth()->daysInMonth))
-            //     ->endOfDay();
-
-            // if (now()->gt($batasPengisian)) {
-            //     return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
-            // }
+            if ($resultDeadline !== true) {
+                return back()->with(
+                    'error',
+                    'Data tidak bisa diubah karena melewati batas deadline tanggal '
+                    . $resultDeadline->format('d M Y H:i')
+                );
+            }
 
             $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
             $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
@@ -572,5 +585,34 @@ class ValidatorDataController extends Controller
             default:
                 return false;
         }
+    }
+
+    private function validasiDeadline($periodeAktif, $tanggal, $unitId)
+    {
+        if ($periodeAktif->status_deadline != 1) {
+            return true;
+        }
+
+        $unitException = $periodeAktif->unit_exception
+            ? json_decode($periodeAktif->unit_exception, true)
+            : [];
+
+        if (in_array($unitId, $unitException)) {
+            return true;
+        }
+
+        $deadline = (int) $periodeAktif->deadline;
+
+        $batasPengisian = $tanggal
+            ->copy()
+            ->addMonth()
+            ->day(min($deadline, $tanggal->copy()->addMonth()->daysInMonth))
+            ->endOfDay();
+
+        if (now()->gt($batasPengisian)) {
+            return $batasPengisian; // return tanggal batas
+        }
+
+        return true;
     }
 }

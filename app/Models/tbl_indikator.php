@@ -15,7 +15,6 @@ class tbl_indikator extends Model
         'target_min',
         'target_max',
         'arah_target',
-        'tipe_indikator',
         'status_indikator',
         'unit_id',
         'kamus_indikator_id',

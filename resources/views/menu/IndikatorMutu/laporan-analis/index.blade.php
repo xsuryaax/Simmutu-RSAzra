@@ -191,6 +191,8 @@
                                             @php
                                                 $key        = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
+                                                $nilaiDenom = $rekapBulanan[$key]->denominator ?? null;
+                                                $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $isSelected = $selectedIndikatorId == $indikator->id
                                                            && $selectedUnitId == $indikator->unit_id;
 
@@ -250,68 +252,73 @@
                                                     {{ $targetText }}
                                                 </td>
 
-                                                {{-- Pengumpul --}}
+                                                {{-- PENGUMPUL --}}
+                                            <td class="text-center">
+    
+
+@if($nilaiRekap === null && $nilaiDenom === null)
+    <span>-</span>
+@elseif((int)$nilaiDenom === 0)
+    <span>N/A</span>
+@else
+    @php
+        $tercapai = false;
+        if ($indikator->arah_target == 'lebih_besar') $tercapai = $nilaiRekap >= $indikator->target_indikator;
+        elseif ($indikator->arah_target == 'lebih_kecil') $tercapai = $nilaiRekap <= $indikator->target_indikator;
+        elseif ($indikator->arah_target == 'range') $tercapai = $nilaiRekap >= $indikator->target_min && $nilaiRekap <= $indikator->target_max;
+    @endphp
+    <span class="badge bg-{{ $tercapai ? 'success' : 'danger' }}">
+        {{ $tercapai ? 'Tercapai' : 'Tidak Tercapai' }}
+    </span>
+@endif
+</td>
+
+                                            {{-- VALIDATOR --}}
+                                            @if($isBulanPertamaPeriode)
                                                 <td class="text-center">
-                                                    {{ $nilaiRekap !== null ? formatIndikator($nilaiRekap) . '%' : '-' }}
-                                                </td>
-
-                                                {{-- Validator --}}
-                                                @if ($isBulanPertamaPeriode)
-                                                    <td class="text-center">
-                                                        @php
-                                                            $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null;
-                                                        @endphp
-                                                        @if ($nilaiValidator !== null)
-                                                            <span>
-                                                                {{ fmod($nilaiValidator, 1) == 0
-                                                                    ? number_format($nilaiValidator, 0)
-                                                                    : number_format($nilaiValidator, 1) }}%
-                                                            </span>
-                                                        @else
-                                                            <span>-</span>
-                                                        @endif
-                                                    </td>
-                                                @endif
-
-                                                {{-- Status Laporan --}}
-                                                @if ($isBulanPertamaPeriode)
-                                                    <td class="text-center">
-                                                        @php
-                                                            $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null;
-                                                        @endphp
-                                                        @if ($statusLaporan !== null)
-                                                            <span class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
-                                                                {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
-                                                            </span>
-                                                        @else
-                                                            <span>-</span>
-                                                        @endif
-                                                    </td>
-                                                @endif
-
-                                                {{-- Status Nilai --}}
-                                                <td class="text-center">
-                                                    @if ($nilaiRekap !== null)
-                                                        @php
-                                                            $tercapai = false;
-                                                            if ($indikator->arah_target === 'lebih_besar') {
-                                                                $tercapai = $nilaiRekap >= $indikator->target_indikator;
-                                                            } elseif ($indikator->arah_target === 'lebih_kecil') {
-                                                                $tercapai = $nilaiRekap <= $indikator->target_indikator;
-                                                            } elseif ($indikator->arah_target === 'range') {
-                                                                $tercapai = $nilaiRekap >= $indikator->target_min
-                                                                         && $nilaiRekap <= $indikator->target_max;
-                                                            }
-                                                        @endphp
-                                                        @if ($tercapai)
-                                                            <span class="badge bg-success bg-opacity-75">Tercapai</span>
-                                                        @else
-                                                            <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
-                                                        @endif
+                                                    @php $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null; @endphp
+                                                    @if($nilaiValidator===null)
+                                                        <span>-</span>
+                                                    @elseif(($rekapBulanan[$key]->denominator ?? 1) == 0)
+                                                        <span class="badge bg-secondary">N/A</span>
                                                     @else
-                                                        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+                                                        {{ fmod($nilaiValidator,1)==0?number_format($nilaiValidator,0):number_format($nilaiValidator,1) }}%
                                                     @endif
                                                 </td>
+
+                                                {{-- STATUS LAPORAN --}}
+                                                <td class="text-center">
+                                                    @php $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null; @endphp
+                                                    @if($statusLaporan===null)
+                                                        <span>-</span>
+                                                    @elseif(($rekapBulanan[$key]->denominator ?? 1)==0)
+                                                        <span class="badge bg-secondary">N/A</span>
+                                                    @else
+                                                        <span class="badge bg-{{ $statusLaporan==='valid'?'success':'danger' }} bg-opacity-75">
+                                                            {{ $statusLaporan==='valid'?'Valid':'Tidak Valid' }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                            @endif
+
+                                            {{-- STATUS NILAI --}}
+                                            <td class="text-center">
+    @if($nilaiRekap === null && $nilaiDenom === null)
+        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+    @elseif((int)$nilaiDenom === 0)
+        <span >N/A</span>
+    @else
+        @php
+            $tercapai = false;
+            if ($indikator->arah_target == 'lebih_besar') $tercapai = $nilaiRekap >= $indikator->target_indikator;
+            elseif ($indikator->arah_target == 'lebih_kecil') $tercapai = $nilaiRekap <= $indikator->target_indikator;
+            elseif ($indikator->arah_target == 'range') $tercapai = $nilaiRekap >= $indikator->target_min && $nilaiRekap <= $indikator->target_max;
+        @endphp
+        <span class="badge bg-{{ $tercapai?'success':'danger' }} bg-opacity-75">
+            {{ $tercapai?'Tercapai':'Tidak Tercapai' }}
+        </span>
+    @endif
+</td>
 
                                                 {{-- Aksi --}}
                                                 <td class="text-center">
@@ -524,9 +531,9 @@
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">
-                                    Unggah File <span class="text-danger">*</span>
+                                    Unggah File
                                 </label>
-                                <input type="file" name="file_laporan" class="form-control" required>
+                                <input type="file" name="file_laporan" class="form-control">
                             </div>
                         </div>
 
@@ -650,21 +657,26 @@
                     
 
                     let nilaiText = '-';
-                    if (data.nilai !== null && data.nilai !== undefined && data.nilai !== '') {
-                        const nilaiNum = Number(data.nilai);
-                        const formatted = Number.isInteger(nilaiNum) ? nilaiNum : nilaiNum.toFixed(1);
-                        nilaiText = formatted + '%';
-                    }
+                    if (data.nilai === null || data.denominator === 0) {
+    nilaiText = 'N/A';
+} else {
+    const nilaiNum = Number(data.nilai);
+    const formatted = Number.isInteger(nilaiNum) ? nilaiNum : nilaiNum.toFixed(1);
+    nilaiText = formatted + '%';
+}
                     document.getElementById('detail_nilai').textContent = nilaiText;
 
                     const badgePencapaian = document.getElementById('detail_pencapaian');
                     if (data.pencapaian === 'tercapai') {
-                        badgePencapaian.className   = 'badge bg-success';
-                        badgePencapaian.textContent = 'Tercapai';
-                    } else {
-                        badgePencapaian.className   = 'badge bg-danger';
-                        badgePencapaian.textContent = 'Tidak Tercapai';
-                    }
+    badgePencapaian.className   = 'badge bg-success';
+    badgePencapaian.textContent = 'Tercapai';
+} else if (data.pencapaian === 'N/A') {
+    badgePencapaian.className   = 'badge bg-secondary';
+    badgePencapaian.textContent = 'N/A';
+} else {
+    badgePencapaian.className   = 'badge bg-danger';
+    badgePencapaian.textContent = 'Tidak Tercapai';
+}
 
                     document.getElementById('detail_file_link').href = `/storage/${data.file_laporan}`;
 

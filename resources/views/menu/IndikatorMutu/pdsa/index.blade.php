@@ -53,18 +53,38 @@
 
                 <div class="card-body">
                     <form method="GET" class="row g-2 mb-3">
-                        <div class="col-md-2">
+
+                        <div class="col-md-3">
                             <select name="unit_id" class="form-select" onchange="this.form.submit()">
                                 <option value="">-- Semua Unit --</option>
                                 @foreach($units as $unit)
-                                    <option value="{{ $unit->id }}" {{ $filterUnit == $unit->id ? 'selected' : '' }}>
+                                    <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
                                         {{ $unit->nama_unit }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select name="tahun" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Semua Tahun --</option>
+                                @foreach($tahunList as $tahun)
+                                    <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
+                                        {{ $tahun }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                     </form>
 
+                    <div class="d-flex justify-content-end mb-3">
+                        <a href="{{ route('pdsa.export.pdf', [
+                'unit_id' => request('unit_id'),
+                'tahun' => request('tahun')
+            ]) }}" class="btn btn-danger btn-sm">
+                            <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                        </a>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-striped" id="table1">
                             <thead>

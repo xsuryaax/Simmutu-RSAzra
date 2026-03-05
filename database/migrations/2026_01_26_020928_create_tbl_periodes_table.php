@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->integer('deadline')->nullable();
+            $table->boolean('status_deadline')->default(true);
             $table->enum('status', ['aktif', 'non-aktif'])->default('non-aktif');
             $table->timestamps();
         });

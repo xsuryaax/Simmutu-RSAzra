@@ -134,6 +134,7 @@
                                             @php
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
+                                                $nilaiDenom = $rekapBulanan[$key]->denominator ?? null;
                                                 $isSelected =
                                                 $selectedIndikatorId == $indikator->id &&
                                                 $selectedUnitId == $indikator->unit_id;
@@ -193,31 +194,35 @@
                                                     {{ $targetText }}
                                                 </td>
                                                 <td class="text-center">
-                                                    @if ($nilaiRekap !== null)
-                                                        <span>
-                                                            {{ fmod($nilaiRekap, 1) == 0 
-                                                                ? number_format($nilaiRekap, 0) 
-                                                                : number_format($nilaiRekap, 1) }}%
-                                                        </span>
-                                                    @else
-                                                        <span>-</span>
-                                                    @endif
-                                                </td>
+    @if($nilaiRekap === null && $nilaiDenom === null)
+        <span>-</span>
+    @elseif((int)$nilaiDenom === 0)
+        <span class="badge bg-secondary">N/A</span>
+    @else
+        {{ fmod($nilaiRekap, 1) == 0 ? number_format($nilaiRekap, 0) : number_format($nilaiRekap, 1) }}%
+    @endif
+</td>
+
                                                 
                                                 @php
                                                     $rekapKey = $indikator->id . '-' . $indikator->unit_id;
                                                     $pencapaian = $rekapBulanan[$rekapKey]->pencapaian ?? null;
                                                 @endphp
 
-                                                <td class="text-center">
-                                                    @if ($pencapaian === 'tercapai')
-                                                        <span class="badge bg-success bg-opacity-75">Tercapai</span>
-                                                    @elseif ($pencapaian === 'tidak-tercapai')
-                                                        <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
-                                                    @else
-                                                        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-                                                    @endif
-                                                </td>
+                                                {{-- STATUS --}}
+<td class="text-center">
+    @if($nilaiRekap === null && $nilaiDenom === null)
+        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+    @elseif((int)$nilaiDenom === 0)
+        <span class="badge bg-secondary">N/A</span>
+    @elseif($pencapaian === 'tercapai')
+        <span class="badge bg-success bg-opacity-75">Tercapai</span>
+    @elseif($pencapaian === 'tidak-tercapai')
+        <span class="badge bg-danger bg-opacity-75">Tidak Tercapai</span>
+    @else
+        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+    @endif
+</td>
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-validator.index', [
                                                         'kategori_indikator' =>
@@ -423,9 +428,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">Unggah File <span
-                                        class="text-danger">*</span></label>
-                                <input type="file" name="file_laporan" class="form-control" required>
+                                <label class="form-label fw-semibold">Unggah File</label>
+                                <input type="file" name="file_laporan" class="form-control">
                             </div>
                         </div>
 

@@ -19,7 +19,6 @@ return new class extends Migration {
 
             $table->enum('arah_target', ['lebih_besar', 'lebih_kecil', 'range'])
                 ->default('lebih_besar');
-            $table->enum('tipe_indikator', ['lokal', 'nasional']);
             $table->enum('status_indikator', ['aktif', 'non-aktif']);
             $table->integer('unit_id');
             $table->integer('kamus_indikator_id')->nullable();

@@ -168,37 +168,6 @@
     </div>
 </div>
 
-                            {{-- ================= TIPE INDIKATOR ================= --}}
-                            <div class="row mb-3 align-items-center">
-                                <div class="col-md-4">
-                                    <label>Tipe Indikator <span class="text-danger">*</span></label>
-                                </div>
-                                
-                                <div class="col-md-8">
-                                    <div class="d-flex gap-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input @error('tipe_indikator') is-invalid @enderror"
-                                                type="radio" name="tipe_indikator" id="tipe_lokal" value="lokal"
-                                                    {{ old('tipe_indikator') == 'lokal' ? 'checked' : '' }} required>
-                                            <label class="form-check-label" for="tipe_lokal">
-                                                Lokal
-                                            </label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input @error('tipe_indikator') is-invalid @enderror"
-                                                type="radio" name="tipe_indikator" id="tipe_nasional" value="nasional"
-                                                    {{ old('tipe_indikator') == 'nasional' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="tipe_nasional">
-                                                Nasional
-                                            </label>
-                                        </div>
-                                    </div>
-                                    @error('tipe_indikator')
-                                        <small class="text-danger d-block mt-1">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-
                             {{-- ================= STATUS INDIKATOR ================= --}}
                             <div class="row mb-4 align-items-center">
                                 <div class="col-md-4">

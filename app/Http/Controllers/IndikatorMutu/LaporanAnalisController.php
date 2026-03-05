@@ -176,10 +176,15 @@ class LaporanAnalisController extends Controller
                 'l.unit_id',
                 DB::raw('ROUND(AVG(l.nilai),2) as nilai_rekap'),
                 DB::raw('ROUND(AVG(l.nilai_validator),2) as nilai_validator'),
-                DB::raw('MAX(l.status_laporan) as status_laporan')
+                DB::raw('MAX(l.status_laporan) as status_laporan'),
+                DB::raw('SUM(l.denominator) as denominator')
             )
             ->groupBy('l.indikator_id', 'l.unit_id')
             ->get()
+            ->map(function ($r) {
+                $r->denominator = (int) $r->denominator;  // ← cast di sini
+                return $r;
+            })
             ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
 
         return $rekap;
@@ -201,10 +206,14 @@ class LaporanAnalisController extends Controller
             'indikator_id' => 'required|exists:tbl_indikator,id',
             'tanggal_laporan' => 'required|date',
             'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:1',
-            'file_laporan' => 'required|file|max:5120',
+            'denominator' => 'required|numeric|min:0',
+            'file_laporan' => 'nullable|file|max:5120',
             'unit_id' => 'sometimes|exists:tbl_unit,id',
         ]);
+
+        if ($request->denominator == 0 && $request->numerator > 0) {
+            return back()->with('error', 'Jika denominator 0 maka numerator harus 0');
+        }
 
         $periode = $this->getPeriodeAktif();
         if (!$periode) {
@@ -214,6 +223,10 @@ class LaporanAnalisController extends Controller
         $tanggalLaporan = Carbon::parse($request->tanggal_laporan)->startOfDay();
         $now = now()->startOfDay();
 
+        if ($tanggalLaporan->gt($now)) {
+            return back()->with('error', 'Tidak boleh menginput laporan melebihi tanggal hari ini');
+        }
+
         $periodeMulai = Carbon::parse($periode->tanggal_mulai)->startOfDay();
         $periodeSelesai = Carbon::parse($periode->tanggal_selesai)->endOfDay();
 
@@ -221,17 +234,11 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Tanggal laporan harus berada dalam periode mutu aktif');
         }
 
-        $deadline = (int) $periode->deadline;
+        $unitId = $request->unit_id ?? auth()->user()->unit_id;
 
-        $batasPengisian = $tanggalLaporan
-            ->copy()
-            ->addMonth()
-            ->day(min($deadline, $tanggalLaporan->copy()->addMonth()->daysInMonth))
-            ->endOfDay();
-
-        // if ($now->gt($batasPengisian)) {
-        // return back()->with('error', 'Batas waktu pengisian laporan telah lewat');
-        // }
+        if (!$this->bolehInputLaporan($periode, $tanggalLaporan, $unitId)) {
+            return back()->with('error', 'Batas waktu pengisian laporan telah lewat');
+        }
 
         $indikator = DB::table('tbl_indikator as i')
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
@@ -255,17 +262,26 @@ class LaporanAnalisController extends Controller
             ]);
         }
 
-        $nilai = ($request->numerator / $request->denominator) * 100;
+        if ($request->numerator == 0 && $request->denominator == 0) {
+            $nilai = null;
+            $pencapaian = 'N/A';
+        } else {
+            $nilai = ($request->denominator > 0)
+                ? ($request->numerator / $request->denominator) * 100
+                : 0;
 
-        $tercapai = $this->hitungPencapaian(
-            $nilai,
-            $indikatorFull->arah_target,
-            $indikatorFull->target_indikator,
-            $indikatorFull->target_min,
-            $indikatorFull->target_max
-        );
+            $tercapai = $this->hitungPencapaian(
+                $nilai,
+                $indikatorFull->arah_target,
+                $indikatorFull->target_indikator,
+                $indikatorFull->target_min,
+                $indikatorFull->target_max
+            );
 
-        $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
+            $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
+        }
+
+        $nilaiRounded = $nilai !== null ? round($nilai, 2) : null;
 
         $exists = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $request->indikator_id)
@@ -281,7 +297,7 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan untuk tanggal tersebut sudah ada');
         }
 
-        $nilaiRounded = round($nilai, 2);
+        $nilaiRounded = $nilai !== null ? round($nilai, 2) : null;
 
         $rataValidator = $this->getRataValidatorBulanPertama(
             $request->indikator_id,
@@ -307,8 +323,9 @@ class LaporanAnalisController extends Controller
             'arah_target_saat_input' => $indikatorFull->arah_target,
             'pencapaian' => $pencapaian,
             'tanggal_laporan' => $request->tanggal_laporan,
-            'file_laporan' => $request->file('file_laporan')
-                ->store('laporan_indikator', 'public'),
+            'file_laporan' => $request->hasFile('file_laporan')
+                ? $request->file('file_laporan')->store('laporan_indikator', 'public')
+                : null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -339,7 +356,7 @@ class LaporanAnalisController extends Controller
             'unit_id' => $data->unit_id ?? null,
             'numerator' => $data->numerator ?? 0,
             'denominator' => $data->denominator ?? 0,
-            'nilai' => $data->nilai ?? 0,
+            'nilai' => $data->nilai,
             'pencapaian' => $data->pencapaian ?? null,
             'tanggal_laporan' => $data->tanggal_laporan ?? null,
             'file_laporan' => $data->file_laporan ?? null,
@@ -390,42 +407,61 @@ class LaporanAnalisController extends Controller
 
         $request->validate([
             'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:1',
+            'denominator' => 'required|numeric|min:0',
             'file_laporan' => 'nullable|file|max:5120',
         ]);
+
+        if ($request->denominator == 0 && $request->numerator > 0) {
+            return back()->with('error', 'Jika denominator 0 maka numerator harus 0');
+        }
 
 
         $periode = $this->getPeriodeAktif();
 
-        $deadline = (int) $periode->deadline;
-
         $tanggalLaporan = Carbon::parse($data->tanggal_laporan)->startOfDay();
-        $batasPengisian = $tanggalLaporan
-            ->copy()
-            ->addMonth()
-            ->day(min($deadline, $tanggalLaporan->copy()->addMonth()->daysInMonth))
-            ->endOfDay();
 
-        // if (now()->gt($batasPengisian)) {
-        //     return back()->with('error', 'Data tidak bisa diubah karena melewati batas deadline');
-        // }
+        $periodeMulai = Carbon::parse($periode->tanggal_mulai)->startOfDay();
+        $periodeSelesai = Carbon::parse($periode->tanggal_selesai)->endOfDay();
 
-        $nilai = ($request->numerator / $request->denominator) * 100;
+        if ($tanggalLaporan->lt($periodeMulai) || $tanggalLaporan->gt($periodeSelesai)) {
+            return back()->with('error', 'Tanggal laporan berada di luar periode mutu aktif');
+        }
 
-        $tercapai = $this->hitungPencapaian(
-            $nilai,
-            $data->arah_target_saat_input,
-            $data->target_saat_input,
-            $data->target_min_saat_input,
-            $data->target_max_saat_input
-        );
+        if ($tanggalLaporan->gt(now()->startOfDay())) {
+            return back()->with('error', 'Tidak boleh mengubah laporan ke tanggal masa depan');
+        }
 
-        $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
+        $unitId = $data->unit_id ?? auth()->user()->unit_id;
+
+        if (!$this->bolehInputLaporan($periode, $tanggalLaporan, $unitId)) {
+            return back()->with('error', 'Batas waktu pengisian laporan telah lewat');
+        }
+
+        if ($request->numerator == 0 && $request->denominator == 0) {
+            $nilai = null;
+            $pencapaian = 'N/A';
+        } else {
+            $nilai = ($request->denominator > 0)
+                ? ($request->numerator / $request->denominator) * 100
+                : 0;
+
+            $tercapai = $this->hitungPencapaian(
+                $nilai,
+                $indikatorFull->arah_target,
+                $indikatorFull->target_indikator,
+                $indikatorFull->target_min,
+                $indikatorFull->target_max
+            );
+
+            $pencapaian = $tercapai ? 'tercapai' : 'tidak-tercapai';
+        }
+
+        $nilaiRounded = $nilai !== null ? round($nilai, 2) : null;
 
         $updateData = [
             'numerator' => $request->numerator,
             'denominator' => $request->denominator,
-            'nilai' => round($nilai, 2),
+            'nilai' => $nilai !== null ? round($nilai, 2) : null,
             'pencapaian' => $pencapaian,
             'updated_at' => now(),
         ];
@@ -441,7 +477,7 @@ class LaporanAnalisController extends Controller
                 ->store('laporan_indikator', 'public');
         }
 
-        $nilaiRounded = round($nilai, 2);
+        $nilaiRounded = $nilai !== null ? round($nilai, 2) : null;
 
         $rataValidator = $this->getRataValidatorBulanPertama(
             $data->indikator_id,
@@ -522,5 +558,36 @@ class LaporanAnalisController extends Controller
         }
 
         return 'tidak-valid';
+    }
+
+    private function bolehInputLaporan($periode, $tanggalLaporan, $unitId)
+    {
+        // Jika deadline tidak aktif → bebas
+        if (!$periode->status_deadline) {
+            return true;
+        }
+
+        $deadline = (int) $periode->deadline;
+
+        $batasPengisian = Carbon::parse($tanggalLaporan)
+            ->copy()
+            ->addMonth()
+            ->day(min(
+                $deadline,
+                Carbon::parse($tanggalLaporan)->copy()->addMonth()->daysInMonth
+            ))
+            ->endOfDay();
+
+        // Cek apakah unit termasuk exception
+        $isException = DB::table('tbl_periode_unit_deadline')
+            ->where('periode_id', $periode->id)
+            ->where('unit_id', $unitId)
+            ->exists();
+
+        if ($isException) {
+            return true;
+        }
+
+        return now()->lte($batasPengisian);
     }
 }

@@ -127,6 +127,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/pdsa', [PDSAController::class, 'index'])
         ->name('pdsa.index')
         ->middleware('check.role:pdsa');
+    Route::get('/pdsa/export-pdf', [ExportPdfController::class, 'exportPdsa'])
+        ->name('pdsa.export.pdf');
     Route::post('/pdsa/assign', [PDSAController::class, 'assign'])->name('pdsa.assign');
     Route::get('/pdsa/{id}', [PDSAController::class, 'show'])
         ->name('pdsa.show')
@@ -158,6 +160,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/export/pdf/chart', [ExportPdfController::class, 'exportChart'])
         ->name('export.pdf.chart');
+
 
     Route::get('/laporan-analis/kalender', [LaporanAnalisController::class, 'getKalenderIndikator'])->name('laporan-analis.kalender');
     // Route untuk Laporan Analis

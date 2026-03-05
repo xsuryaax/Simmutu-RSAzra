@@ -22,6 +22,7 @@ class PDSAController extends Controller
                 ->get();
 
             $filterUnit = request('unit_id');
+            $filterTahun = request('tahun');
 
 
             $data = DB::table('tbl_laporan_dan_analis as l')
@@ -42,6 +43,9 @@ class PDSAController extends Controller
                 })
                 ->when($filterUnit, function ($query) use ($filterUnit) {
                     $query->where('l.unit_id', $filterUnit);
+                })
+                ->when($filterTahun, function ($query) use ($filterTahun) {
+                    $query->whereRaw('EXTRACT(YEAR FROM l.tanggal_laporan) = ?', [$filterTahun]);
                 })
                 ->select(
                     'l.indikator_id',
@@ -101,10 +105,16 @@ class PDSAController extends Controller
                 ->orderBy('quarter', 'desc')
                 ->get();
 
+            $tahunList = DB::table('tbl_laporan_dan_analis')
+                ->selectRaw('DISTINCT EXTRACT(YEAR FROM tanggal_laporan) as tahun')
+                ->orderBy('tahun', 'desc')
+                ->pluck('tahun');
+
             return view('menu.IndikatorMutu.pdsa.index', [
                 'data' => $data,
                 'pdsaList' => collect(),
                 'pdsaTotal' => 0,
+                'tahunList' => $tahunList,
                 'filterUnit' => $filterUnit,
                 'units' => $units,
             ]);

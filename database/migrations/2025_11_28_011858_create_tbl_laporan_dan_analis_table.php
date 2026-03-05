@@ -20,10 +20,10 @@ return new class extends Migration {
             $table->integer('kategori_id')->nullable();
             $table->integer('numerator')->nullable();
             $table->integer('denominator')->nullable();
-            $table->decimal('nilai', 8, 2);
-            $table->enum('pencapaian', ['tercapai', 'tidak-tercapai']);
+            $table->decimal('nilai', 8, 2)->nullable();
+            $table->enum('pencapaian', ['tercapai', 'tidak-tercapai', 'N/A']);
             $table->enum('status_laporan', ['valid', 'tidak-valid'])->nullable();
-            $table->string('file_laporan');
+            $table->string('file_laporan')->nullable();
             $table->decimal('target_saat_input', 8, 2)->nullable();
             $table->decimal('target_min_saat_input', 8, 2)->nullable();
             $table->decimal('target_max_saat_input', 8, 2)->nullable();

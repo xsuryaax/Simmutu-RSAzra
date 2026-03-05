@@ -103,7 +103,6 @@
                                 @endif
                                 <th class="text-center">TARGET</th>
                                 <th class="text-center">KETERANGAN</th>
-                                <th class="text-center">TIPE</th>
                                 <th class="text-center">STATUS</th>
                                 <th class="text-center">AKSI</th>
                             </tr>
@@ -151,7 +150,6 @@
                                             : 'Persentase (Numerator / Denominator)' }}
                                     </td>
 
-                                    <td class="text-center">{{ ucfirst($row->tipe_indikator) }}</td>
                                     <td class="text-center">
                                         @if($row->status_indikator == 'aktif')
                                             <span class="badge bg-success">Aktif</span>
