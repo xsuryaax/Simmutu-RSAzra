@@ -21,8 +21,13 @@ class KamusIndikator extends Seeder
 
         foreach ($indikators as $indikator) {
 
+        $kategoriImprs = null;
+        
             if ($indikator->id >= 1 && $indikator->id <= 13) {
                 $kategori = 'Nasional';
+            } elseif ($indikator->id >= 14 && $indikator->id <= 30) {
+                $kategori = 'Prioritas RS';
+                $kategoriImprs = 1;
             } else {
                 $kategori = 'Prioritas Unit';
             }
@@ -30,6 +35,7 @@ class KamusIndikator extends Seeder
             $kamusId = DB::table('tbl_kamus_indikator')->insertGetId([
                 'indikator_id' => $indikator->id,
                 'kategori_indikator' => $kategori,
+                'kategori_id' => $kategoriImprs,
                 'dimensi_mutu_id' => $dimensi->id ?? 1,
                 'dasar_pemikiran' => 'test',
                 'tujuan' => 'test',

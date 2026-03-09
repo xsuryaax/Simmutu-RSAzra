@@ -136,8 +136,10 @@ class AnalisaController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function chartData($indikatorId)
+    public function chartData(Request $request, $indikatorId)
     {
+        $tahun = $request->tahun ?? date('Y');
+
         $indikator = DB::table('tbl_indikator')
             ->where('id', $indikatorId)
             ->first();
@@ -151,7 +153,12 @@ class AnalisaController extends Controller
 
         $rows = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $indikatorId)
-            ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, nilai')
+            ->whereYear('tanggal_laporan', $tahun)
+            ->selectRaw('
+            EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+            ROUND(AVG(nilai),2) as nilai
+        ')
+            ->groupByRaw('EXTRACT(MONTH FROM tanggal_laporan)')
             ->orderBy('bulan')
             ->get();
 

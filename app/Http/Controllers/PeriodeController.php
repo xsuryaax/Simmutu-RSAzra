@@ -104,10 +104,12 @@ class PeriodeController extends Controller
         DB::beginTransaction();
 
         try {
+
+            // Nonaktifkan semua periode
             DB::table('tbl_periode')
-                ->where('status', 'aktif')
                 ->update(['status' => 'non-aktif']);
 
+            // Aktifkan periode yang dipilih
             DB::table('tbl_periode')
                 ->where('id', $id)
                 ->update([
@@ -115,9 +117,31 @@ class PeriodeController extends Controller
                     'updated_at' => now()
                 ]);
 
+            // Nonaktifkan semua indikator
+            DB::table('tbl_indikator')
+                ->update([
+                    'status_indikator' => 'non-aktif',
+                    'updated_at' => now()
+                ]);
+
+            // Ambil indikator yang terdaftar di periode ini
+            $indikatorAktif = DB::table('tbl_indikator_periode')
+                ->where('periode_id', $id)
+                ->where('status', 'aktif')
+                ->pluck('indikator_id');
+
+            // Aktifkan indikator tersebut
+            DB::table('tbl_indikator')
+                ->whereIn('id', $indikatorAktif)
+                ->update([
+                    'status_indikator' => 'aktif',
+                    'updated_at' => now()
+                ]);
+
             DB::commit();
 
             return back()->with('success', 'Periode berhasil diaktifkan');
+
         } catch (\Throwable $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal mengaktifkan periode');

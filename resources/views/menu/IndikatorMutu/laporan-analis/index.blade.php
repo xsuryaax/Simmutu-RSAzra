@@ -9,21 +9,21 @@
 
     function formatIndikator($nilai)
     {
-        if ($nilai === null) return '-';
-        return fmod($nilai, 1) == 0
-            ? number_format($nilai, 0)
-            : number_format($nilai, 1);
+        if ($nilai === null) {
+            return '-';
+        }
+        return fmod($nilai, 1) == 0 ? number_format($nilai, 0) : number_format($nilai, 1);
     }
 
-    $periodeMulai   = Carbon::parse($periode->tanggal_mulai);
+    $periodeMulai = Carbon::parse($periode->tanggal_mulai);
     $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
-    $tahunAktif     = range($periodeMulai->year, $periodeSelesai->year);
+    $tahunAktif = range($periodeMulai->year, $periodeSelesai->year);
 
-    $bulanAwalPeriode      = Carbon::parse($periode->tanggal_mulai)->month;
-    $tahunAwalPeriode      = Carbon::parse($periode->tanggal_mulai)->year;
-    $bulanDipilih          = request('bulan', $periodeMulai->month);
-    $tahunDipilih          = request('tahun', $periodeMulai->year);
-    $isBulanPertamaPeriode = ($bulanDipilih == $bulanAwalPeriode) && ($tahunDipilih == $tahunAwalPeriode);
+    $bulanAwalPeriode = Carbon::parse($periode->tanggal_mulai)->month;
+    $tahunAwalPeriode = Carbon::parse($periode->tanggal_mulai)->year;
+    $bulanDipilih = request('bulan', $periodeMulai->month);
+    $tahunDipilih = request('tahun', $periodeMulai->year);
+    $isBulanPertamaPeriode = $bulanDipilih == $bulanAwalPeriode && $tahunDipilih == $tahunAwalPeriode;
 @endphp
 
 @section('page-title')
@@ -92,7 +92,8 @@
                             @endif
 
                             {{-- Filter Form --}}
-                            <form id="filterForm" method="GET" action="{{ url()->current() }}" class="row g-2 align-items-end mb-4">
+                            <form id="filterForm" method="GET" action="{{ url()->current() }}"
+                                class="row g-2 align-items-end mb-4">
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Jenis Indikator</label>
                                     <select name="kategori_indikator" class="form-select"
@@ -129,12 +130,9 @@
                                     <label class="form-label fw-semibold">Bulan</label>
                                     @php
                                         $tahunDipilih = request('tahun', $periodeMulai->year);
-                                        $bulanMulai   = $tahunDipilih == $periodeMulai->year
-                                            ? $periodeMulai->month
-                                            : 1;
-                                        $bulanSelesai = $tahunDipilih == $periodeSelesai->year
-                                            ? $periodeSelesai->month
-                                            : 12;
+                                        $bulanMulai = $tahunDipilih == $periodeMulai->year ? $periodeMulai->month : 1;
+                                        $bulanSelesai =
+                                            $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
                                     @endphp
                                     <select name="bulan" class="form-select" onchange="filterForm.submit()">
                                         @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
@@ -189,16 +187,17 @@
                                     <tbody>
                                         @foreach ($indikators as $indikator)
                                             @php
-                                                $key        = $indikator->id . '-' . $indikator->unit_id;
+                                                $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
                                                 $nilaiDenom = $rekapBulanan[$key]->denominator ?? null;
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
-                                                $isSelected = $selectedIndikatorId == $indikator->id
-                                                           && $selectedUnitId == $indikator->unit_id;
+                                                $isSelected =
+                                                    $selectedIndikatorId == $indikator->id &&
+                                                    $selectedUnitId == $indikator->unit_id;
 
-                                                $colColor       = '';
+                                                $colColor = '';
                                                 $filterKategori = strtolower(request('kategori_indikator'));
-                                                $jenisDb        = strtolower($indikator->kategori_indikator ?? '');
+                                                $jenisDb = strtolower($indikator->kategori_indikator ?? '');
 
                                                 if ($filterKategori) {
                                                     if ($filterKategori === 'nasional') {
@@ -235,104 +234,117 @@
                                                         $targetText = '';
 
                                                         $formatNumber = function ($value) {
-                                                        
                                                             if (floor($value) == $value) {
                                                                 return number_format($value, 0);
                                                             }
                                                             return $value;
                                                         };
                                                         if ($indikator->arah_target === 'lebih_besar') {
-                                                            $targetText = '≥ ' . $formatNumber($indikator->target_indikator) . '%';
+                                                            $targetText =
+                                                                '≥ ' .
+                                                                $formatNumber($indikator->target_indikator) .
+                                                                '%';
                                                         } elseif ($indikator->arah_target === 'lebih_kecil') {
-                                                            $targetText = '≤ ' . $formatNumber($indikator->target_indikator) . '%';
+                                                            $targetText =
+                                                                '≤ ' .
+                                                                $formatNumber($indikator->target_indikator) .
+                                                                '%';
                                                         } elseif ($indikator->arah_target === 'range') {
-                                                            $targetText = $formatNumber($indikator->target_min). '% - ' . $formatNumber($indikator->target_max). '%';
+                                                            $targetText =
+                                                                $formatNumber($indikator->target_min) .
+                                                                '% - ' .
+                                                                $formatNumber($indikator->target_max) .
+                                                                '%';
                                                         }
                                                     @endphp
                                                     {{ $targetText }}
                                                 </td>
 
                                                 {{-- PENGUMPUL --}}
-                                            <td class="text-center">
-    
-
-@if($nilaiRekap === null && $nilaiDenom === null)
-    <span>-</span>
-@elseif((int)$nilaiDenom === 0)
-    <span>N/A</span>
-@else
-    @php
-        $tercapai = false;
-        if ($indikator->arah_target == 'lebih_besar') $tercapai = $nilaiRekap >= $indikator->target_indikator;
-        elseif ($indikator->arah_target == 'lebih_kecil') $tercapai = $nilaiRekap <= $indikator->target_indikator;
-        elseif ($indikator->arah_target == 'range') $tercapai = $nilaiRekap >= $indikator->target_min && $nilaiRekap <= $indikator->target_max;
-    @endphp
-    <span class="badge bg-{{ $tercapai ? 'success' : 'danger' }}">
-        {{ $tercapai ? 'Tercapai' : 'Tidak Tercapai' }}
-    </span>
-@endif
-</td>
-
-                                            {{-- VALIDATOR --}}
-                                            @if($isBulanPertamaPeriode)
                                                 <td class="text-center">
-                                                    @php $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null; @endphp
-                                                    @if($nilaiValidator===null)
+
+                                                    @if ($nilaiRekap === null && $nilaiDenom === null)
                                                         <span>-</span>
-                                                    @elseif(($rekapBulanan[$key]->denominator ?? 1) == 0)
-                                                        <span class="badge bg-secondary">N/A</span>
+                                                    @elseif((int) $nilaiDenom === 0)
+                                                        <span>N/A</span>
                                                     @else
-                                                        {{ fmod($nilaiValidator,1)==0?number_format($nilaiValidator,0):number_format($nilaiValidator,1) }}%
+                                                        <span>
+                                                            {{ fmod($nilaiRekap, 1) == 0 ? number_format($nilaiRekap, 0) : number_format($nilaiRekap, 1) }}%
+                                                        </span>
                                                     @endif
+
                                                 </td>
 
-                                                {{-- STATUS LAPORAN --}}
+                                                {{-- VALIDATOR --}}
+                                                @if ($isBulanPertamaPeriode)
+                                                    <td class="text-center">
+                                                        @php $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null; @endphp
+                                                        @if ($nilaiValidator === null)
+                                                            <span>-</span>
+                                                        @elseif(($rekapBulanan[$key]->denominator ?? 1) == 0)
+                                                            <span class="badge bg-secondary">N/A</span>
+                                                        @else
+                                                            {{ fmod($nilaiValidator, 1) == 0 ? number_format($nilaiValidator, 0) : number_format($nilaiValidator, 1) }}%
+                                                        @endif
+                                                    </td>
+
+                                                    {{-- STATUS LAPORAN --}}
+                                                    <td class="text-center">
+                                                        @php $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null; @endphp
+                                                        @if ($statusLaporan === null)
+                                                            <span>-</span>
+                                                        @elseif(($rekapBulanan[$key]->denominator ?? 1) == 0)
+                                                            <span class="badge bg-secondary">N/A</span>
+                                                        @else
+                                                            <span
+                                                                class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
+                                                                {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                @endif
+
+                                                {{-- STATUS NILAI --}}
                                                 <td class="text-center">
-                                                    @php $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null; @endphp
-                                                    @if($statusLaporan===null)
-                                                        <span>-</span>
-                                                    @elseif(($rekapBulanan[$key]->denominator ?? 1)==0)
-                                                        <span class="badge bg-secondary">N/A</span>
+                                                    @if ($nilaiRekap === null && $nilaiDenom === null)
+                                                        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
+                                                    @elseif((int) $nilaiDenom === 0)
+                                                        <span>N/A</span>
                                                     @else
-                                                        <span class="badge bg-{{ $statusLaporan==='valid'?'success':'danger' }} bg-opacity-75">
-                                                            {{ $statusLaporan==='valid'?'Valid':'Tidak Valid' }}
+                                                        @php
+                                                            $tercapai = false;
+                                                            if ($indikator->arah_target == 'lebih_besar') {
+                                                                $tercapai = $nilaiRekap >= $indikator->target_indikator;
+                                                            } elseif ($indikator->arah_target == 'lebih_kecil') {
+                                                                $tercapai = $nilaiRekap <= $indikator->target_indikator;
+                                                            } elseif ($indikator->arah_target == 'range') {
+                                                                $tercapai =
+                                                                    $nilaiRekap >= $indikator->target_min &&
+                                                                    $nilaiRekap <= $indikator->target_max;
+                                                            }
+                                                        @endphp
+                                                        <span
+                                                            class="badge bg-{{ $tercapai ? 'success' : 'danger' }} bg-opacity-75">
+                                                            {{ $tercapai ? 'Tercapai' : 'Tidak Tercapai' }}
                                                         </span>
                                                     @endif
                                                 </td>
-                                            @endif
-
-                                            {{-- STATUS NILAI --}}
-                                            <td class="text-center">
-    @if($nilaiRekap === null && $nilaiDenom === null)
-        <span class="badge bg-warning bg-opacity-75">Belum Mengisi</span>
-    @elseif((int)$nilaiDenom === 0)
-        <span >N/A</span>
-    @else
-        @php
-            $tercapai = false;
-            if ($indikator->arah_target == 'lebih_besar') $tercapai = $nilaiRekap >= $indikator->target_indikator;
-            elseif ($indikator->arah_target == 'lebih_kecil') $tercapai = $nilaiRekap <= $indikator->target_indikator;
-            elseif ($indikator->arah_target == 'range') $tercapai = $nilaiRekap >= $indikator->target_min && $nilaiRekap <= $indikator->target_max;
-        @endphp
-        <span class="badge bg-{{ $tercapai?'success':'danger' }} bg-opacity-75">
-            {{ $tercapai?'Tercapai':'Tidak Tercapai' }}
-        </span>
-    @endif
-</td>
 
                                                 {{-- Aksi --}}
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-analis.index', [
-                                                        'kategori_indikator' => request()->has('kategori_indikator') && request('kategori_indikator') !== ''
-                                                            ? request('kategori_indikator')
-                                                            : null,
-                                                        'bulan'        => request('bulan', $periodeMulai->month),
-                                                        'tahun'        => request('tahun', $periodeMulai->year),
+                                                        'kategori_indikator' =>
+                                                            request()->has('kategori_indikator') && request('kategori_indikator') !== ''
+                                                                ? request('kategori_indikator')
+                                                                : null,
+                                                        'bulan' => request('bulan', $periodeMulai->month),
+                                                        'tahun' => request('tahun', $periodeMulai->year),
                                                         'indikator_id' => $indikator->id,
-                                                        'unit_id'      => $indikator->unit_id,
+                                                        'unit_id' => $indikator->unit_id,
                                                     ]) }}"
                                                         class="text-primary" title="Lihat Kalender">
-                                                        <i class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
+                                                        <i
+                                                            class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -374,10 +386,10 @@
 
                                     @for ($d = 1; $d <= $kalenderData['daysInMonth']; $d++)
                                         @php
-                                            $tglFull   = Carbon::create($tahun, $bulan, $d)->format('Y-m-d');
-                                            $isToday   = $tglFull == date('Y-m-d');
+                                            $tglFull = Carbon::create($tahun, $bulan, $d)->format('Y-m-d');
+                                            $isToday = $tglFull == date('Y-m-d');
                                             $pengisian = $kalenderData['dataPengisian']->get($tglFull);
-                                            $sudahIsi  = $pengisian !== null;
+                                            $sudahIsi = $pengisian !== null;
                                         @endphp
 
                                         <div class="calendar-day"
@@ -387,13 +399,15 @@
                                                 {{ $sudahIsi ? $pengisian->id : 'null' }})"
                                             style="cursor:pointer">
 
-                                            <span class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
+                                            <span
+                                                class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
 
                                             <div class="d-block mt-1 text-center">
                                                 @if ($sudahIsi)
                                                     <span class="dot bg-success d-block mx-auto mb-1"></span>
                                                     <small class="text-muted fw-semibold">
-                                                        <small>{{ $pengisian->numerator }} / {{ $pengisian->denominator }}</small>
+                                                        <small>{{ $pengisian->numerator }} /
+                                                            {{ $pengisian->denominator }}</small>
                                                     </small>
                                                 @else
                                                     <span class="dot border d-block mx-auto"></span>
@@ -437,16 +451,16 @@
                             </div>
                         </div>
 
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-dark">Numerator</label>
-                                    <p class="form-control-plaintext" id="detail_numerator">-</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-dark">Denominator</label>
-                                    <p class="form-control-plaintext" id="detail_denominator">-</p>
-                                </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark">Numerator</label>
+                                <p class="form-control-plaintext" id="detail_numerator">-</p>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold text-dark">Denominator</label>
+                                <p class="form-control-plaintext" id="detail_denominator">-</p>
+                            </div>
+                        </div>
 
                         <div class="row mb-3">
                             <div class="col-md-6">
@@ -501,14 +515,10 @@
                         <div class="modal-body">
                             <input type="hidden" name="indikator_id" id="modal_indikator_id"
                                 value="{{ $selectedIndikatorId }}">
-                            <input type="hidden" name="unit_id" id="modal_unit_id"
-                                value="{{ $selectedUnitId }}">
-                            <input type="hidden" name="bulan"
-                                value="{{ request('bulan', $periodeMulai->month) }}">
-                            <input type="hidden" name="tahun"
-                                value="{{ request('tahun', $periodeMulai->year) }}">
-                            <input type="hidden" name="kategori_indikator"
-                                value="{{ request('kategori_indikator') }}">
+                            <input type="hidden" name="unit_id" id="modal_unit_id" value="{{ $selectedUnitId }}">
+                            <input type="hidden" name="bulan" value="{{ request('bulan', $periodeMulai->month) }}">
+                            <input type="hidden" name="tahun" value="{{ request('tahun', $periodeMulai->year) }}">
+                            <input type="hidden" name="kategori_indikator" value="{{ request('kategori_indikator') }}">
                             <input type="hidden" name="tanggal_laporan" id="tanggal_laporan">
 
                             <div class="mb-3">
@@ -516,18 +526,18 @@
                                 <input type="text" id="tanggal_input_view" class="form-control" readonly>
                             </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">
-                                        Numerator <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="numerator" class="form-control" required step="any">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">
-                                        Denominator <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="denominator" class="form-control" required step="any">
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Numerator <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="numerator" class="form-control" required step="any">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Denominator <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="denominator" class="form-control" required step="any">
+                            </div>
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">
@@ -563,20 +573,20 @@
                         @method('PUT')
 
                         <div class="modal-body">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">
-                                        Numerator <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="numerator" id="edit_numerator"
-                                        class="form-control" required step="any">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold">
-                                        Denominator <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number" name="denominator" id="edit_denominator"
-                                        class="form-control" required step="any">
-                                </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Numerator <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="numerator" id="edit_numerator" class="form-control" required
+                                    step="any">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Denominator <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" name="denominator" id="edit_denominator" class="form-control"
+                                    required step="any">
+                            </div>
 
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Ganti File (Opsional)</label>
@@ -600,12 +610,12 @@
 
 @push('js')
     <script>
-        let currentDataId  = null;
+        let currentDataId = null;
         let currentTanggal = null;
 
         function handleDateClick(tanggalLaporan, sudahIsi, dataId) {
             currentTanggal = tanggalLaporan;
-            currentDataId  = dataId;
+            currentDataId = dataId;
 
             if (sudahIsi) {
                 loadDetailData(dataId);
@@ -618,14 +628,14 @@
             document.getElementById('formInputData').reset();
 
             document.getElementById('modal_indikator_id').value = {{ $selectedIndikatorId ?? 'null' }};
-            document.getElementById('modal_unit_id').value      = {{ $selectedUnitId ?? 'null' }};
-            document.getElementById('tanggal_laporan').value    = tanggalLaporan;
+            document.getElementById('modal_unit_id').value = {{ $selectedUnitId ?? 'null' }};
+            document.getElementById('tanggal_laporan').value = tanggalLaporan;
 
             const tgl = new Date(tanggalLaporan);
             document.getElementById('tanggal_input_view').value = tgl.toLocaleDateString('id-ID', {
-                day:   'numeric',
+                day: 'numeric',
                 month: 'long',
-                year:  'numeric'
+                year: 'numeric'
             });
 
             new bootstrap.Modal(document.getElementById('modalInputData')).show();
@@ -639,44 +649,44 @@
                     const tglIsi = new Date(data.tanggal_pengisian);
                     document.getElementById('detail_tanggal_pengisian').textContent =
                         tglIsi.toLocaleDateString('id-ID', {
-                            day:   'numeric',
+                            day: 'numeric',
                             month: 'long',
-                            year:  'numeric'
+                            year: 'numeric'
                         });
 
                     const tgl = new Date(data.tanggal_laporan);
                     document.getElementById('detail_tanggal').textContent =
                         tgl.toLocaleDateString('id-ID', {
-                            day:   'numeric',
+                            day: 'numeric',
                             month: 'long',
-                            year:  'numeric'
+                            year: 'numeric'
                         });
 
-                        document.getElementById('detail_numerator').textContent   = data.numerator;
-                        document.getElementById('detail_denominator').textContent = data.denominator;
-                    
+                    document.getElementById('detail_numerator').textContent = data.numerator;
+                    document.getElementById('detail_denominator').textContent = data.denominator;
+
 
                     let nilaiText = '-';
                     if (data.nilai === null || data.denominator === 0) {
-    nilaiText = 'N/A';
-} else {
-    const nilaiNum = Number(data.nilai);
-    const formatted = Number.isInteger(nilaiNum) ? nilaiNum : nilaiNum.toFixed(1);
-    nilaiText = formatted + '%';
-}
+                        nilaiText = 'N/A';
+                    } else {
+                        const nilaiNum = Number(data.nilai);
+                        const formatted = Number.isInteger(nilaiNum) ? nilaiNum : nilaiNum.toFixed(1);
+                        nilaiText = formatted + '%';
+                    }
                     document.getElementById('detail_nilai').textContent = nilaiText;
 
                     const badgePencapaian = document.getElementById('detail_pencapaian');
                     if (data.pencapaian === 'tercapai') {
-    badgePencapaian.className   = 'badge bg-success';
-    badgePencapaian.textContent = 'Tercapai';
-} else if (data.pencapaian === 'N/A') {
-    badgePencapaian.className   = 'badge bg-secondary';
-    badgePencapaian.textContent = 'N/A';
-} else {
-    badgePencapaian.className   = 'badge bg-danger';
-    badgePencapaian.textContent = 'Tidak Tercapai';
-}
+                        badgePencapaian.className = 'badge bg-success';
+                        badgePencapaian.textContent = 'Tercapai';
+                    } else if (data.pencapaian === 'N/A') {
+                        badgePencapaian.className = 'badge bg-secondary';
+                        badgePencapaian.textContent = 'N/A';
+                    } else {
+                        badgePencapaian.className = 'badge bg-danger';
+                        badgePencapaian.textContent = 'Tidak Tercapai';
+                    }
 
                     document.getElementById('detail_file_link').href = `/storage/${data.file_laporan}`;
 
@@ -693,11 +703,11 @@
                 .then(res => res.json())
                 .then(data => {
 
-                        document.getElementById('edit_numerator').value   = data.numerator;
-                        document.getElementById('edit_denominator').value = data.denominator;
-                    
+                    document.getElementById('edit_numerator').value = data.numerator;
+                    document.getElementById('edit_denominator').value = data.denominator;
 
-                    const form  = document.getElementById('formEditData');
+
+                    const form = document.getElementById('formEditData');
                     form.action = `/laporan-analis/${data.id}`;
 
                     bootstrap.Modal.getInstance(

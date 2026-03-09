@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
     // Indikator Mutu Prioritas Unit
     Route::resource('master-indikator', MasterIndikatorController::class)
         ->middleware('check.role:master_indikator');
+    Route::get('export/profile/{id}', [ExportPdfController::class, 'exportProfile'])->name('export.profile');
     Route::resource('kamus-indikator', KamusIndikatorController::class)
         ->middleware('check.role:kamus_indikator');
     Route::resource('kategori-imprs', KategoriIMPRSController::class)

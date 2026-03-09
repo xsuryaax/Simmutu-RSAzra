@@ -122,10 +122,16 @@ class ManajemenDataMutu extends Seeder
 
         DB::table('tbl_kategori_imprs')->insert([
             ['nama_kategori_imprs' => 'Sasaran Keselamatan Pasien (SKP)'],
-            ['nama_kategori_imprs' => 'Klinis Prioritas'],
-            ['nama_kategori_imprs' => 'Tujuan Strategis'],
-            ['nama_kategori_imprs' => 'Perbaikan system'],
-            ['nama_kategori_imprs' => 'Manajemen risiko'],
+            ['nama_kategori_imprs' => 'Identifikasi Pasien'],
+            ['nama_kategori_imprs' => 'Komunikasi Efektif'],
+            ['nama_kategori_imprs' => 'Keamanan Obat'],
+            ['nama_kategori_imprs' => 'Tepat Lokasi dan Prosedur'],
+            ['nama_kategori_imprs' => 'Risiko Infeksi'],
+            ['nama_kategori_imprs' => 'Risiko Jatuh'],
+            ['nama_kategori_imprs' => 'Pelayanan Klinis Prioritas'],
+            ['nama_kategori_imprs' => 'Tujuan Strategis RS'],
+            ['nama_kategori_imprs' => 'Perbaikan Sistem Lintas Unit'],
+            ['nama_kategori_imprs' => 'Manajemen Resiko'],
         ]);
     }
 }

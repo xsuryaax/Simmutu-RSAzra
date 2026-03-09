@@ -109,6 +109,11 @@
                                     <td class="text-center">{{ $m->penanggung_jawab }}</td>
                                     <td class="text-center">
                                         <div class="d-flex gap-2">
+                                            <a href="{{ route('export.profile', $m->id) }}" class="btn btn-info btn-sm"
+                                                target="_blank">
+                                                <i class="bi bi-download"></i>
+                                            </a>
+
                                             <a href="{{ route('kamus-indikator.edit', $m->id) }}"
                                                 class="btn btn-warning btn-sm">
                                                 <i class="bi bi-pencil"></i>

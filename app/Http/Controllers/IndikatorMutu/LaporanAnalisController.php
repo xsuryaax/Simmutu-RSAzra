@@ -113,7 +113,10 @@ class LaporanAnalisController extends Controller
             ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
             ->leftJoin('tbl_periode_pengumpulan_data as f', 'f.id', '=', 'k.periode_pengumpulan_data_id')
             ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
-            ->join('tbl_periode as p', fn($join) => $join->where('p.status', 'aktif'))
+            ->join('tbl_indikator_periode as ip', 'ip.indikator_id', '=', 'i.id')
+            ->join('tbl_periode as p', 'p.id', '=', 'ip.periode_id')
+            ->where('p.status', 'aktif')
+            ->where('ip.status', 'aktif')
             ->select(
                 'i.id',
                 'i.nama_indikator',
@@ -141,7 +144,7 @@ class LaporanAnalisController extends Controller
             )
             ->orderByRaw("CASE WHEN i.unit_id = ? THEN 0 ELSE 1 END", [$user->unit_id])
             ->orderByRaw("
-    CASE 
+    CASE
         WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
         WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
         WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
@@ -182,7 +185,7 @@ class LaporanAnalisController extends Controller
             ->groupBy('l.indikator_id', 'l.unit_id')
             ->get()
             ->map(function ($r) {
-                $r->denominator = (int) $r->denominator;  // ← cast di sini
+                $r->denominator = (int) $r->denominator;
                 return $r;
             })
             ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
@@ -190,10 +193,8 @@ class LaporanAnalisController extends Controller
         return $rekap;
     }
 
-
     public function store(Request $request)
     {
-        // Ambil indikator dulu (WAJIB di atas)
         $indikatorFull = DB::table('tbl_indikator')
             ->where('id', $request->indikator_id)
             ->first();
@@ -256,12 +257,12 @@ class LaporanAnalisController extends Controller
             str_contains($kategoriLower, 'prioritas unit') ||
             str_contains($kategoriLower, 'prioritas rs')
         ) {
-
             $request->validate([
                 'unit_id' => 'required|exists:tbl_unit,id',
             ]);
         }
 
+        // Hitung nilai: jika 0/0 maka N/A (tidak ada kasus)
         if ($request->numerator == 0 && $request->denominator == 0) {
             $nilai = null;
             $pencapaian = 'N/A';
@@ -297,18 +298,12 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Data laporan untuk tanggal tersebut sudah ada');
         }
 
-        $nilaiRounded = $nilai !== null ? round($nilai, 2) : null;
-
         $rataValidator = $this->getRataValidatorBulanPertama(
             $request->indikator_id,
-            $request->unit_id
+            $unitId
         );
 
-        $statusFinal = $this->hitungStatusValidasi(
-            $nilaiRounded,
-            $rataValidator
-        );
-
+        // Insert row baru dulu dengan status sementara null
         DB::table('tbl_laporan_dan_analis')->insert([
             'indikator_id' => $request->indikator_id,
             'unit_id' => $request->unit_id ?? null,
@@ -316,7 +311,7 @@ class LaporanAnalisController extends Controller
             'denominator' => $request->denominator,
             'nilai' => $nilaiRounded,
             'nilai_validator' => $rataValidator,
-            'status_laporan' => $statusFinal,
+            'status_laporan' => null,
             'target_saat_input' => $indikatorFull->target_indikator,
             'target_min_saat_input' => $indikatorFull->target_min,
             'target_max_saat_input' => $indikatorFull->target_max,
@@ -329,6 +324,34 @@ class LaporanAnalisController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Hitung rata-rata semua nilai analis di bulan ini (termasuk yang baru diinsert)
+        $bulanLaporan = $tanggalLaporan->month;
+        $tahunLaporan = $tanggalLaporan->year;
+        $startBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->startOfMonth();
+        $endBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->endOfMonth();
+
+        $rataAnalis = DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $request->indikator_id)
+            ->where('unit_id', $unitId)
+            ->whereBetween('tanggal_laporan', [$startBulan, $endBulan])
+            ->avg('nilai');
+
+        $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
+
+        // Hitung status berdasarkan rata-rata semua analis bulan ini vs validator
+        $statusFinal = $this->hitungStatusValidasi($rataAnalis, $rataValidator);
+
+        // Update status dan nilai_validator ke SEMUA row di bulan ini agar konsisten
+        DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $request->indikator_id)
+            ->where('unit_id', $unitId)
+            ->whereBetween('tanggal_laporan', [$startBulan, $endBulan])
+            ->update([
+                'nilai_validator' => $rataValidator,
+                'status_laporan' => $statusFinal,
+                'updated_at' => now(),
+            ]);
 
         return redirect()->route('laporan-analis.index', [
             'bulan' => $request->bulan,
@@ -365,8 +388,6 @@ class LaporanAnalisController extends Controller
         ]);
     }
 
-
-
     private function getPeriodeAktif()
     {
         return cache()->remember('periode_aktif', 60, function () {
@@ -389,10 +410,8 @@ class LaporanAnalisController extends Controller
         return response()->json($data);
     }
 
-
     public function update(Request $request, $id)
     {
-
         $data = DB::table('tbl_laporan_dan_analis')
             ->where('id', $id)
             ->first();
@@ -415,7 +434,6 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Jika denominator 0 maka numerator harus 0');
         }
 
-
         $periode = $this->getPeriodeAktif();
 
         $tanggalLaporan = Carbon::parse($data->tanggal_laporan)->startOfDay();
@@ -437,6 +455,7 @@ class LaporanAnalisController extends Controller
             return back()->with('error', 'Batas waktu pengisian laporan telah lewat');
         }
 
+        // Hitung nilai: jika 0/0 maka N/A (tidak ada kasus)
         if ($request->numerator == 0 && $request->denominator == 0) {
             $nilai = null;
             $pencapaian = 'N/A';
@@ -461,13 +480,12 @@ class LaporanAnalisController extends Controller
         $updateData = [
             'numerator' => $request->numerator,
             'denominator' => $request->denominator,
-            'nilai' => $nilai !== null ? round($nilai, 2) : null,
+            'nilai' => $nilaiRounded,
             'pencapaian' => $pencapaian,
             'updated_at' => now(),
         ];
 
         if ($request->hasFile('file_laporan')) {
-
             if ($data->file_laporan) {
                 Storage::disk('public')->delete($data->file_laporan);
             }
@@ -477,25 +495,43 @@ class LaporanAnalisController extends Controller
                 ->store('laporan_indikator', 'public');
         }
 
-        $nilaiRounded = $nilai !== null ? round($nilai, 2) : null;
-
-        $rataValidator = $this->getRataValidatorBulanPertama(
-            $data->indikator_id,
-            $data->unit_id
-        );
-
-        $statusFinal = $this->hitungStatusValidasi(
-            $nilaiRounded,
-            $rataValidator
-        );
-
-        $updateData['nilai'] = $nilaiRounded;
-        $updateData['nilai_validator'] = $rataValidator;
-        $updateData['status_laporan'] = $statusFinal;
-
+        // Update row yang diedit dulu
         DB::table('tbl_laporan_dan_analis')
             ->where('id', $id)
             ->update($updateData);
+
+        // Hitung ulang rata-rata semua nilai analis di bulan yang sama (termasuk yang baru diupdate)
+        $bulanLaporan = $tanggalLaporan->month;
+        $tahunLaporan = $tanggalLaporan->year;
+        $startBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->startOfMonth();
+        $endBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->endOfMonth();
+
+        $rataAnalis = DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $data->indikator_id)
+            ->where('unit_id', $unitId)
+            ->whereBetween('tanggal_laporan', [$startBulan, $endBulan])
+            ->avg('nilai');
+
+        $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
+
+        $rataValidator = $this->getRataValidatorBulanPertama(
+            $data->indikator_id,
+            $unitId
+        );
+
+        // Hitung status berdasarkan rata-rata semua analis bulan ini vs validator
+        $statusFinal = $this->hitungStatusValidasi($rataAnalis, $rataValidator);
+
+        // Update nilai_validator dan status ke SEMUA row di bulan ini agar konsisten
+        DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $data->indikator_id)
+            ->where('unit_id', $unitId)
+            ->whereBetween('tanggal_laporan', [$startBulan, $endBulan])
+            ->update([
+                'nilai_validator' => $rataValidator,
+                'status_laporan' => $statusFinal,
+                'updated_at' => now(),
+            ]);
 
         return back()->with('success', 'Data laporan berhasil diperbarui');
     }
@@ -503,21 +539,16 @@ class LaporanAnalisController extends Controller
     private function hitungPencapaian($nilai, $arah, $target, $min, $max)
     {
         switch ($arah) {
-
             case 'lebih_besar':
                 return $nilai >= $target;
-
             case 'lebih_kecil':
                 return $nilai <= $target;
-
             case 'range':
                 return $nilai >= $min && $nilai <= $max;
-
             default:
                 return false;
         }
     }
-
 
     private function getRataValidatorBulanPertama($indikatorId, $unitId)
     {
@@ -538,31 +569,33 @@ class LaporanAnalisController extends Controller
         return $rata !== null ? round($rata, 2) : null;
     }
 
-    private function hitungStatusValidasi($nilaiAnalis, $rataValidator)
+    /**
+     * Hitung status validasi:
+     * Valid jika rata nilai analis >= 90% dari rata nilai validator (acuan = validator).
+     *
+     * Contoh: analis=80, validator=90 → 90% dari 90 = 81 → 80 < 81 → tidak-valid
+     * Contoh: analis=85, validator=90 → 90% dari 90 = 81 → 85 >= 81 → valid
+     */
+    private function hitungStatusValidasi($rataAnalis, $rataValidator)
     {
+        // Belum ada data validator → status belum bisa ditentukan
         if ($rataValidator === null) {
             return null;
         }
 
-        $base = max($rataValidator, $nilaiAnalis);
-
-        if ($base <= 0) {
-            return 'tidak-valid';
+        // Nilai analis N/A (semua 0/0) → tidak bisa divalidasi
+        if ($rataAnalis === null) {
+            return null;
         }
 
-        $selisih = abs($nilaiAnalis - $rataValidator);
-        $persenSelisih = ($selisih / $base) * 100;
+        // Valid jika rata analis >= 90% dari rata validator
+        $batasMinimal = $rataValidator * 0.9;
 
-        if ($persenSelisih <= 10) {
-            return 'valid';
-        }
-
-        return 'tidak-valid';
+        return $rataAnalis >= $batasMinimal ? 'valid' : 'tidak-valid';
     }
 
     private function bolehInputLaporan($periode, $tanggalLaporan, $unitId)
     {
-        // Jika deadline tidak aktif → bebas
         if (!$periode->status_deadline) {
             return true;
         }
@@ -578,7 +611,6 @@ class LaporanAnalisController extends Controller
             ))
             ->endOfDay();
 
-        // Cek apakah unit termasuk exception
         $isException = DB::table('tbl_periode_unit_deadline')
             ->where('periode_id', $periode->id)
             ->where('unit_id', $unitId)

@@ -91,15 +91,17 @@ class PDSAController extends Controller
                     'p.status_pdsa'
                 )
                 ->havingRaw("
-    (
-        (i.arah_target = 'lebih_besar' AND AVG(l.nilai) < i.target_indikator)
-        OR
-        (i.arah_target = 'lebih_kecil' AND AVG(l.nilai) > i.target_indikator)
-        OR
-        (i.arah_target = 'range' AND 
-            (AVG(l.nilai) < i.target_min OR AVG(l.nilai) > i.target_max)
-        )
+COUNT(DISTINCT EXTRACT(MONTH FROM l.tanggal_laporan)) = 3
+AND
+(
+    (i.arah_target = 'lebih_besar' AND AVG(l.nilai) < i.target_indikator)
+    OR
+    (i.arah_target = 'lebih_kecil' AND AVG(l.nilai) > i.target_indikator)
+    OR
+    (i.arah_target = 'range' AND 
+        (AVG(l.nilai) < i.target_min OR AVG(l.nilai) > i.target_max)
     )
+)
 ")
                 ->orderBy('tahun')
                 ->orderBy('quarter', 'desc')

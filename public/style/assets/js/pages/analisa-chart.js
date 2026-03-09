@@ -1,0 +1,228 @@
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+
+let chart = null;
+let chartType = 'line';
+
+// Untuk nilai di bawah sumbu X — selalu dibulatkan, tanpa desimal
+function formatNumber(value) {
+    if (value === null || value === undefined || value === "-") {
+        return "-";
+    }
+    return Math.round(parseFloat(value));
+}
+
+// Untuk nilai di titik chart — 2 desimal hanya jika tidak bulat
+function formatNumberDetail(value) {
+    if (value === null || value === undefined) return "-";
+    let num = parseFloat(value);
+    return num % 1 === 0 ? num.toFixed(0) : num.toFixed(2);
+}
+
+// Plugin untuk menampilkan nilai pencapaian langsung di bawah label bulan
+const pencapaianLabelPlugin = {
+    id: 'pencapaianLabel',
+    afterDraw(chart) {
+        const { ctx, scales: { x } } = chart;
+        const realisasiDataset = chart.data.datasets[1];
+
+        if (!realisasiDataset || !realisasiDataset.data) return;
+
+        ctx.save();
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+
+        // Titik merah di paling kiri
+        const dotRadius = 4;
+        const dotX = x.left - 25;
+        const dotY = x.bottom + 20;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
+        ctx.fillStyle = '#e63757';
+        ctx.fill();
+
+        // Nilai pencapaian sejajar dengan bulan — dibulatkan
+        realisasiDataset.data.forEach((value, i) => {
+            const xPos = x.getPixelForValue(i);
+            const yPos = x.bottom + 14;
+
+            const label = (value !== null && value !== undefined)
+                ? formatNumber(value) + '%'
+                : '-';
+
+            ctx.fillStyle = '#555';
+            ctx.fillText(label, xPos, yPos);
+        });
+
+        ctx.restore();
+    }
+};
+
+function renderChart(targetData = [], realisasiData = []) {
+    const ctx = document.getElementById('indicatorChart');
+    if (!ctx) return;
+
+    if (chart) {
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx.getContext('2d'), {
+        type: chartType,
+        data: {
+            labels: months,
+            datasets: [
+                {
+                    label: ' Standar',
+                    data: targetData,
+                    borderColor: '#2c7be5',
+                    backgroundColor: '#2c7be5',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    order: 1
+                },
+                {
+                    label: ' Pencapaian',
+                    data: realisasiData,
+                    borderColor: '#e63757',
+                    backgroundColor: '#e63757',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    order: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    bottom: 30
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                // Tooltip saat hover — tampilkan 2 desimal
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.parsed.y;
+                            if (value === null || value === undefined) return '-';
+                            return ` ${context.dataset.label.trim()}: ${formatNumberDetail(value)}%`;
+                        }
+                    }
+                },
+                // Label langsung di atas titik — tampilkan 2 desimal
+                datalabels: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => value + "%"
+                    }
+                },
+                x: {
+                    ticks: {
+                        padding: 4
+                    }
+                }
+            }
+        },
+        plugins: [pencapaianLabelPlugin]
+    });
+}
+
+window.loadChart = function (indikatorId, namaIndikator, namaUnit) {
+    document.getElementById('chart-title').textContent = namaIndikator;
+    document.getElementById('chart-subtitle').textContent = namaUnit;
+
+    const tahun = document.querySelector('select[name="tahun"]').value;
+
+    fetch(`/analisa-data/chart/${indikatorId}?tahun=${tahun}`)
+        .then(res => res.json())
+        .then(res => {
+            renderChart(res.target, res.realisasi);
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Gagal memuat chart");
+        });
+};
+
+window.openModal = function (id, nama, analisa = '', tindakLanjut = '') {
+    document.getElementById('indikator_id').value = id;
+    document.getElementById('analysisModalLabel').textContent = `Edit Analisa untuk ${nama}`;
+    document.getElementById('analisa').value = analisa;
+    document.getElementById('tindak_lanjut').value = tindakLanjut;
+
+    const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
+    modal.show();
+};
+
+window.saveAnalysis = function () {
+    const indikator_id = document.getElementById('indikator_id').value;
+    const analisa = document.getElementById('analisa').value;
+    const tindak_lanjut = document.getElementById('tindak_lanjut').value;
+    const tahun = document.querySelector('select[name="tahun"]').value;
+    const bulan = document.querySelector('select[name="bulan"]').value;
+
+    const formData = new FormData();
+    formData.append('indikator_id', indikator_id);
+    formData.append('analisa', analisa);
+    formData.append('tindak_lanjut', tindak_lanjut);
+    formData.append('tahun', tahun);
+    formData.append('bulan', bulan);
+
+    fetch(analisaStoreUrl, {
+        method: "POST",
+        headers: { "X-CSRF-TOKEN": csrfToken },
+        body: formData
+    })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                alert("Analisa berhasil disimpan");
+                location.reload();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Terjadi error di server");
+        });
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof firstIndikator !== "undefined" && firstIndikator) {
+        loadChart(
+            firstIndikator.id,
+            firstIndikator.nama_indikator,
+            firstIndikator.nama_unit
+        );
+    }
+
+    document.getElementById('line-chart-btn')?.addEventListener('click', () => {
+        chartType = 'line';
+        if (chart) {
+            renderChart(
+                chart.data.datasets[0].data,
+                chart.data.datasets[1].data
+            );
+        }
+    });
+
+    document.getElementById('bar-chart-btn')?.addEventListener('click', () => {
+        chartType = 'bar';
+        if (chart) {
+            renderChart(
+                chart.data.datasets[0].data,
+                chart.data.datasets[1].data
+            );
+        }
+    });
+});

@@ -60,9 +60,12 @@
                                         <option value="Nasional" {{ $kategoriDipilih == 'Nasional' ? 'selected' : '' }}>
                                             Nasional
                                         </option>
-                                        <option value="Prioritas RS" {{ $kategoriDipilih == 'Prioritas RS' ? 'selected' : '' }}>
+                                        <option value="Prioritas RS"
+                                            {{ $kategoriDipilih == 'Prioritas RS' ? 'selected' : '' }}>
                                             Prioritas RS</option>
-                                        <option value="Prioritas Unit" {{ $kategoriDipilih == 'Prioritas Unit' ? 'selected' : '' }}>Prioritas Unit</option>
+                                        <option value="Prioritas Unit"
+                                            {{ $kategoriDipilih == 'Prioritas Unit' ? 'selected' : '' }}>Prioritas Unit
+                                        </option>
                                     </select>
                                 </div>
 
@@ -92,18 +95,15 @@
                             {{-- Legend --}}
                             <div class="mb-3 d-flex flex-wrap gap-3">
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-danger me-2"
-                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <span class="badge bg-danger me-2 legend-box">&nbsp;</span>
                                     <small class="text-primary text-primary-dark">Nasional</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-success me-2"
-                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <span class="badge bg-success me-2 legend-box">&nbsp;</span>
                                     <small class="text-primary text-primary-dark">Prioritas RS</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <span class="badge bg-light me-2"
-                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
+                                    <span class="badge bg-light me-2 legend-box">&nbsp;</span>
                                     <small class="text-primary text-primary-dark">Unit</small>
                                 </div>
                             </div>
@@ -162,12 +162,13 @@
                                                 </td>
 
                                                 <td class="text-center">
-                                                    <button class="btn btn-sm btn-warning" onclick="openModal(
-                                                                                                                        {{ $ind->id }},
-                                                                                                                        '{{ addslashes($ind->nama_indikator) }}',
-                                                                                                                        '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}',
-                                                                                                                        '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}'
-                                                                                                                    )">
+                                                    <button class="btn btn-sm btn-warning"
+                                                        onclick="openModal(
+                                                                                                                                                                                                                                        {{ $ind->id }},
+                                                                                                                                                                                                                                        '{{ addslashes($ind->nama_indikator) }}',
+                                                                                                                                                                                                                                        '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}',
+                                                                                                                                                                                                                                        '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}'
+                                                                                                                                                                                                                                    )">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-info"
@@ -203,14 +204,33 @@
                                     </small>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end mt-2">
-                                <button class="btn btn-sm btn-outline-primary me-2" id="line-chart-btn">Line Chart</button>
-                                <button class="btn btn-sm btn-outline-secondary" id="bar-chart-btn">Bar Chart</button>
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div class="chart-legend">
+                                    <span class="legend-item">
+                                        <span class="legend-dot realisasi"></span> Pencapaian
+                                    </span>
+
+                                    <span class="legend-item ms-3">
+                                        <span class="legend-dot standar"></span> Standar
+                                    </span>
+                                </div>
+
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-sm btn-danger" id="line-chart-btn" title="Line Chart">
+                                        <i class="bi bi-graph-up"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-info" id="bar-chart-btn" title="Bar Chart">
+                                        <i class="bi bi-bar-chart"></i>
+                                    </button>
+                                </div>
+
                             </div>
                         </div>
 
                         <div class="card-body">
-                            <div class="analyst-chart border-0 shadow-sm rounded-3">
+                            <div class="analyst-chart border-0 shadow-sm rounded-3 mb-2">
                                 <canvas id="indicatorChart"></canvas>
                             </div>
                         </div>
@@ -255,128 +275,66 @@
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <script>
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
-
-        let chart;
-        let chartType = 'line';
-
-        function renderChart(targetData, realisasiData) {
-
-            const ctx = document.getElementById('indicatorChart');
-
-            if (chart) chart.destroy();
-
-            chart = new Chart(ctx.getContext('2d'), {
-                type: chartType,
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: 'Target',
-                            data: targetData,
-                            order: 2
-                        },
-                        {
-                            label: 'Realisasi',
-                            data: realisasiData,
-                            order: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-        }
-
-        window.loadChart = function (indikatorId, namaIndikator, namaUnit) {
-
-            // Judul = Nama indikator
-            document.getElementById('chart-title').textContent = namaIndikator;
-
-            // Subtitle = Unit
-            document.getElementById('chart-subtitle').textContent = namaUnit;
-
-            fetch(`/analisa-data/chart/${indikatorId}`)
-                .then(res => res.json())
-                .then(res => {
-                    renderChart(res.target, res.realisasi);
-                })
-                .catch(err => {
-                    console.log(err);
-                    alert("Gagal memuat chart");
-                });
-        };
-
-        window.openModal = function (id, nama, analisa = '', tindakLanjut = '') {
-            document.getElementById('indikator_id').value = id;
-            document.getElementById('analysisModalLabel').textContent = `Edit Analisa untuk ${nama}`;
-            document.getElementById('analisa').value = analisa;
-            document.getElementById('tindak_lanjut').value = tindakLanjut;
-            const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
-            modal.show();
-        };
-
-
-        window.saveAnalysis = function () {
-
-            let indikator_id = document.getElementById('indikator_id').value;
-            let analisa = document.getElementById('analisa').value;
-            let tindak_lanjut = document.getElementById('tindak_lanjut').value;
-
-            let tahun = document.querySelector('select[name="tahun"]').value;
-            let bulan = document.querySelector('select[name="bulan"]').value;
-
-            let formData = new FormData();
-            formData.append('indikator_id', indikator_id);
-            formData.append('analisa', analisa);
-            formData.append('tindak_lanjut', tindak_lanjut);
-            formData.append('tahun', tahun);
-            formData.append('bulan', bulan);
-
-            fetch("{{ route('analisa-data.store') }}", {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": document.querySelector('input[name="_token"]').value
-                },
-                body: formData
-            })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) {
-                        alert("Analisa berhasil disimpan");
-                        location.reload();
-                    }
-                })
-                .catch(err => {
-                    console.log(err);
-                    alert("Terjadi error di server");
-                });
-        };
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-            @if($firstIndikator)
-                    loadChart(
-                {{ $firstIndikator->id }},
-                        '{{ addslashes($firstIndikator->nama_indikator) }}',  // ✅
-                        '{{ addslashes($firstIndikator->nama_unit) }}'         // ✅
-                    );
-            @endif
-
-            document.getElementById('line-chart-btn').addEventListener('click', () => {
-                chartType = 'line';
-                if (chart) renderChart(chart.data.datasets[0].data, chart.data.datasets[1].data);
-            });
-
-            document.getElementById('bar-chart-btn').addEventListener('click', () => {
-                chartType = 'bar';
-                if (chart) renderChart(chart.data.datasets[0].data, chart.data.datasets[1].data);
-            });
-
-        });
+        const firstIndikator = @json($firstIndikator ?? null);
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ asset('style/assets/js/pages/analisa-chart.js') }}"></script>
+@endpush
+
+@push('css')
+    <style>
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #f0f2f4;
+        }
+
+        .chart-table {
+            font-size: 11px;
+            margin-bottom: 0;
+        }
+
+        .analyst-chart {
+            height: 300px;
+        }
+
+        .chart-table th,
+        .chart-table td {
+            padding: 2px 4px;
+            white-space: nowrap;
+        }
+
+        .chart-table tr {
+            line-height: 1.2;
+        }
+
+        .chart-legend {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .legend-dot.realisasi {
+            background-color: #e63757;
+        }
+
+        .legend-dot.standar {
+            background-color: #2c7be5;
+        }
+    </style>
 @endpush
