@@ -12,16 +12,64 @@ class ExportPdfController extends Controller
     {
         $request->validate([
             'chart_image' => 'required',
-            'judul' => 'required'
+            'judul' => 'required',
+            'indicator_id' => 'required',
+            'tahun' => 'required'
         ]);
+
+        $indicatorId = $request->indicator_id;
+        $tahun = $request->tahun;
+
+        // Fetch indicator full details
+        $indicator = DB::table('tbl_indikator as i')
+            ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
+            ->leftJoin('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
+            ->select('i.*', 'u.nama_unit', 'ki.kategori_indikator', 'ki.numerator as label_numerator', 'ki.denominator as label_denominator')
+            ->where('i.id', $indicatorId)
+            ->first();
+
+        if (!$indicator) {
+            return redirect()->back()->with('error', 'Indikator tidak ditemukan');
+        }
+
+        // Fetch monthly data
+        $reports = DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $indicatorId)
+            ->whereYear('tanggal_laporan', $tahun)
+            ->selectRaw('
+                EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+                SUM(numerator) as total_numerator,
+                SUM(denominator) as total_denominator,
+                AVG(nilai) as rata_nilai
+            ')
+            ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
+            ->get()
+            ->keyBy('bulan');
+
+        $monthlyData = [];
+        $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        
+        foreach (range(1, 12) as $m) {
+            $rep = $reports->get($m);
+            $monthlyData[] = [
+                'bulan' => $months[$m - 1],
+                'numerator' => $rep ? $rep->total_numerator : 0,
+                'denominator' => $rep ? $rep->total_denominator : 0,
+                'pencapaian' => $rep ? round($rep->rata_nilai, 2) : 0,
+                'target' => (float) $indicator->target_indikator
+            ];
+        }
 
         $pdf = PDF::loadView('menu.ExportPdf.chart', [
             'judul' => $request->judul,
-            'chart' => $request->chart_image
+            'chart' => $request->chart_image,
+            'indicator' => $indicator,
+            'tahun' => $tahun,
+            'monthlyData' => $monthlyData
         ])->setPaper('A4', 'portrait');
 
         return $pdf->stream(
-            str_replace(' ', '_', strtolower($request->judul)) . '.pdf'
+            str_replace(' ', '_', strtolower($request->judul)) . '_' . $tahun . '.pdf'
         );
     }
 

@@ -4,9 +4,40 @@ namespace App\Http\Controllers;
 
 use Auth;
 use DB;
+use App\Traits\DashboardChartTrait;
 
 class DashboardController extends Controller
 {
+    use DashboardChartTrait;
+
+    /**
+     * AJAX endpoint untuk dashboard combined chart.
+     *
+     * Mode all=1 (default): kembalikan SEMUA indikator sesuai type,
+     * lengkap dengan data target + hasil 12 bulan untuk tahun berjalan.
+     * Quarter slicing dilakukan di front-end sehingga tidak perlu fetch ulang.
+     *
+     * Query params:
+     *   type   : imn | imprs | unit
+     *   all    : 1 (default)
+     */
+    public function getChartData(): \Illuminate\Http\JsonResponse
+    {
+        $type  = request('type', 'imn');
+        $tahun = (int) request('tahun', $this->getTahunPeriodeAktif());
+        
+        // Cek filter unit jika bukan admin/mutu
+        $user = Auth::user();
+        $roleId = $user->role_id;
+        $unitId = in_array($roleId, [1, 2]) ? null : $user->unit_id;
+
+        return match ($type) {
+            'imprs' => $this->allImprsChartData($tahun, $unitId),
+            'unit'  => $this->allUnitChartData($tahun, $unitId),
+            default => $this->allImnChartData($tahun, $unitId),
+        };
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -20,6 +51,25 @@ class DashboardController extends Controller
             $indikatorsForChart = $indikators->where('unit_id', $user->unit_id);
         }
 
+        // Tahun dari periode aktif — untuk default filter tahun di chart
+        $periodeAktif = DB::table('tbl_periode')->where('status', 'aktif')->first();
+        $tahunAktif   = $periodeAktif
+            ? (int) \Carbon\Carbon::parse($periodeAktif->tanggal_mulai)->year
+            : (int) date('Y');
+
+        // Semua tahun yang pernah ada di tbl_periode, urutkan desc
+        $daftarTahun = DB::table('tbl_periode')
+            ->selectRaw('EXTRACT(YEAR FROM tanggal_mulai)::int AS tahun')
+            ->groupByRaw('EXTRACT(YEAR FROM tanggal_mulai)')
+            ->orderByRaw('EXTRACT(YEAR FROM tanggal_mulai) DESC')
+            ->pluck('tahun')
+            ->toArray();
+
+        // Pastikan tahun aktif selalu ada di daftar
+        if (!in_array($tahunAktif, $daftarTahun)) {
+            array_unshift($daftarTahun, $tahunAktif);
+        }
+
         $data = [
             'roleId' => $roleId,
             'pdsaList' => collect(),
@@ -27,6 +77,8 @@ class DashboardController extends Controller
             'totalIndikator' => $indikators->count(),
             'indikators' => $indikators,
             'years' => $this->getYears(),
+            'tahunAktif'  => $tahunAktif,
+            'daftarTahun' => $daftarTahun,
 
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),

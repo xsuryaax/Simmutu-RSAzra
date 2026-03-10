@@ -144,6 +144,9 @@ Route::middleware('auth')->group(function () {
         ->name('pdsa.approve')
         ->middleware('check.role:pdsa');
 
+    Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])
+        ->name('dashboard.chart-data');
+
     Route::resource('dashboard', DashboardController::class)
         ->middleware('check.role:dashboard');
 
