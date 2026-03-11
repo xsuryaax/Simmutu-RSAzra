@@ -116,7 +116,7 @@
                                 </div>
                             </div>
 
-                            <div class="table-parent-container table-responsive-md table-dark">
+                            <div class="table-parent-container table-responsive-md">
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>

@@ -10,59 +10,86 @@
 
 <div class="row mt-4">
     <div class="col-12">
-        <div class="bg-white text-dark p-3 rounded-top d-flex justify-content-between align-items-center flex-wrap border-bottom shadow-sm">
-            <h5 class="mb-0 text-dark fw-bold" id="multiChartTitle">
-                <i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>Indikator Mutu Nasional — Tahun {{ $tahunAktif }}
-            </h5>
-
-            {{-- ── Control Bar ── --}}
-            <div class="chart-controls">
-                {{-- Filter Jenis --}}
-                <select id="jenisFilter" class="form-select form-select-sm filter-select text-primary" style="width: 220px; font-weight: 600;">
-                    <option value="imn" selected>Indikator Mutu Nasional</option>
-                    <option value="imprs">Indikator Mutu Prioritas RS</option>
-                    <option value="unit">Prioritas Unit</option>
-                </select>
-
-                {{-- Filter Tahun --}}
-                <select id="tahunFilter" class="form-select form-select-sm filter-select text-dark" style="width: 100px;">
-                    @foreach($daftarTahun as $t)
-                        <option value="{{ $t }}" {{ $t == $tahunAktif ? 'selected' : '' }}>{{ $t }}</option>
-                    @endforeach
-                </select>
-
-                <div class="vr mx-1 opacity-50"></div>
-
-                {{-- Filter Quarter --}}
-                <div class="btn-group btn-group-sm bg-white p-1 rounded border shadow-sm">
-                    <button class="btn btn-sm btn-primary active btn-quarter" data-q="Tahun">All</button>
-                    <button class="btn btn-sm btn-light btn-quarter" data-q="Q1">Q1</button>
-                    <button class="btn btn-sm btn-light btn-quarter" data-q="Q2">Q2</button>
-                    <button class="btn btn-sm btn-light btn-quarter" data-q="Q3">Q3</button>
-                    <button class="btn btn-sm btn-light btn-quarter" data-q="Q4">Q4</button>
-                </div>
-
-                {{-- Tipe Chart --}}
-                <div class="btn-group btn-group-sm rounded border overflow-hidden shadow-sm">
-                    <button id="btnLine" class="btn btn-brand-standar active" onclick="gantiTipeChart('line')" title="Line Chart">
-                        <i class="bi bi-graph-up"></i>
-                    </button>
-                    <button id="btnBar" class="btn btn-light border-start" onclick="gantiTipeChart('bar')" title="Bar Chart">
-                        <i class="bi bi-bar-chart"></i>
-                    </button>
-                </div>
-
-                <div class="vr mx-1 opacity-50"></div>
-
-                {{-- Export PDF --}}
-                <button class="btn btn-sm btn-brand-pencapaian px-3 shadow-sm" onclick="downloadSemuaPDF(event)">
-                    <i class="bi bi-file-earmark-pdf-fill me-1"></i> Download Laporan (Semua)
-                </button>
+        <div class="p-4 rounded-top border-bottom shadow-sm">
+            {{-- ── Header Title Row ── --}}
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="mb-0 fw-bold" id="multiChartTitle">
+                    <i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>
+                    Indikator Mutu Nasional — Tahun {{ $tahunAktif }}
+                </h4>
             </div>
-        </div>
+
+            {{-- ── Control Bar Row ── --}}
+            <div class="chart-controls d-flex justify-content-between align-items-center flex-wrap gap-3">
+                
+                {{-- Left: Filter Group --}}
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    {{-- Pencarian Indikator --}}
+                    <div class="search-container my-0">
+                        <div class="input-group input-group-sm mb-0" style="width: 250px;">
+                            <span class="input-group-text border-end-0 bg-transparent text-muted">
+                                <i class="bi bi-search"></i>
+                            </span>
+                            <input type="text" id="indicatorSearch" class="form-control border-start-0" placeholder="Cari indikator...">
+                        </div>
+                    </div>
+
+                    {{-- Filter Jenis --}}
+                    <select id="jenisFilter" class="form-select form-select-sm filter-select fw-semibold text-primary" style="width: 180px;">
+                        <option value="imn" selected>Nasional (IMN)</option>
+                        <option value="imprs">Prioritas RS</option>
+                        <option value="unit">Prioritas Unit</option>
+                    </select>
+
+                    {{-- Filter Unit (Admin Only) --}}
+                    @if(in_array($roleId, [1, 2]))
+                    <select id="unitFilter" name="unit_id" class="form-select form-select-sm filter-select fw-semibold text-dark" style="width: 200px;">
+                        <option value="">Semua Unit</option>
+                        @foreach($units as $u)
+                            <option value="{{ $u->id }}">{{ $u->nama_unit }}</option>
+                        @endforeach
+                    </select>
+                    @endif
+
+                    {{-- Filter Tahun --}}
+                    <select id="tahunFilter" class="form-select form-select-sm filter-select" style="width: 100px;">
+                        @foreach($daftarTahun as $t)
+                            <option value="{{ $t }}" {{ $t == $tahunAktif ? 'selected' : '' }}>{{ $t }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                {{-- Right: Actions Group --}}
+                <div class="d-flex align-items-center gap-3">
+                    {{-- Filter Quarter --}}
+                    <div class="btn-group btn-group-sm p-1 rounded border shadow-sm" role="group" aria-label="Filter Kuartal">
+                        <button class="btn btn-sm btn-primary active btn-quarter" data-q="Tahun" aria-pressed="true">All</button>
+                        <button class="btn btn-sm btn-light btn-quarter" data-q="Q1" aria-pressed="false">Q1</button>
+                        <button class="btn btn-sm btn-light btn-quarter" data-q="Q2" aria-pressed="false">Q2</button>
+                        <button class="btn btn-sm btn-light btn-quarter" data-q="Q3" aria-pressed="false">Q3</button>
+                        <button class="btn btn-sm btn-light btn-quarter" data-q="Q4" aria-pressed="false">Q4</button>
+                    </div>
+
+                    {{-- Tipe Chart --}}
+                    <div class="btn-group btn-group-sm rounded border overflow-hidden shadow-sm" role="group" aria-label="Tipe Grafik">
+                        <button id="btnLine" class="btn btn-brand-standar active" onclick="gantiTipeChart('line')" title="Line Chart" aria-label="Tampilkan grafik garis" aria-pressed="true">
+                            <i class="bi bi-graph-up"></i>
+                        </button>
+                        <button id="btnBar" class="btn btn-light border-start" onclick="gantiTipeChart('bar')" title="Bar Chart" aria-label="Tampilkan grafik batang" aria-pressed="false">
+                            <i class="bi bi-bar-chart"></i>
+                        </button>
+                    </div>
+
+                    {{-- Export PDF --}}
+                    <button class="btn btn-sm btn-brand-pencapaian px-3 shadow-sm" onclick="downloadSemuaPDF(event)" aria-label="Download Laporan PDF">
+                        <i class="bi bi-file-earmark-pdf-fill me-1"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+        </div>    </div>
 
         {{-- ── Chart Grid Container ── --}}
-        <div id="chartGridWrapper" class="bg-white rounded-bottom border border-top-0 shadow-sm min-vh-50">
+        <div id="chartGridWrapper" class="rounded-bottom border border-top-0 shadow-sm min-vh-50">
             <div id="chartGrid">
                 <div class="chart-grid-loader col-12">
                     <div class="spinner-border spinner-border-sm text-primary me-2"></div>
@@ -80,7 +107,16 @@
     <input type="hidden" name="judul">
     <input type="hidden" name="indicator_id">
     <input type="hidden" name="tahun">
+    <input type="hidden" name="is_batch">
+    <input type="hidden" name="batch">
 </form>
+
+{{-- Progress Overlay for Batch Export --}}
+<div id="batchExportOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
+    <div class="spinner-border text-primary mb-3" role="status"></div>
+    <div class="h5 fw-bold text-primary mb-1">Menyiapkan Laporan PDF...</div>
+    <div id="batchExportProgress" class="text-muted">Memproses indikator 0 / 0</div>
+</div>
 
 @push('js')
     {{-- Dependensi Chart.js --}}

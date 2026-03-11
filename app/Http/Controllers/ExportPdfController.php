@@ -10,6 +10,80 @@ class ExportPdfController extends Controller
 {
     public function exportChart(Request $request)
     {
+        if ($request->is_batch) {
+            set_time_limit(300); // 5 minutes for large batches
+            $batchData = json_decode($request->batch, true);
+            $tahun = $request->tahun;
+            
+            $indicatorIds = array_column($batchData, 'indicator_id');
+            $chartsByIndId = [];
+            foreach ($batchData as $item) {
+                $chartsByIndId[$item['indicator_id']] = $item['chart_image'];
+            }
+
+            // Batch Fetch all indicators
+            $indicatorsData = DB::table('tbl_indikator as i')
+                ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
+                ->leftJoin('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
+                ->select('i.*', 'u.nama_unit', 'ki.kategori_indikator', 'ki.numerator as label_numerator', 'ki.denominator as label_denominator')
+                ->whereIn('i.id', $indicatorIds)
+                ->get()
+                ->keyBy('id');
+
+            // Batch Fetch all monthly reports
+            $allReports = DB::table('tbl_laporan_dan_analis')
+                ->whereIn('indikator_id', $indicatorIds)
+                ->whereYear('tanggal_laporan', $tahun)
+                ->selectRaw('
+                    indikator_id,
+                    EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+                    SUM(numerator) as total_numerator,
+                    SUM(denominator) as total_denominator,
+                    AVG(nilai) as rata_nilai
+                ')
+                ->groupBy('indikator_id', DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
+                ->get()
+                ->groupBy('indikator_id');
+
+            $finalIndicators = [];
+            $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            foreach ($indicatorIds as $id) {
+                $ind = $indicatorsData->get($id);
+                if (!$ind) continue;
+
+                $indReports = $allReports->get($id, collect())->keyBy('bulan');
+                $monthlyData = [];
+                
+                foreach (range(1, 12) as $m) {
+                    $rep = $indReports->get($m);
+                    $monthlyData[] = [
+                        'bulan' => $months[$m - 1],
+                        'numerator' => $rep ? $rep->total_numerator : 0,
+                        'denominator' => $rep ? $rep->total_denominator : 0,
+                        'pencapaian' => $rep ? round($rep->rata_nilai, 2) : 0,
+                        'target' => (float) $ind->target_indikator
+                    ];
+                }
+
+                $finalIndicators[] = [
+                    'indicator' => $ind,
+                    'monthlyData' => $monthlyData,
+                    'chart' => $chartsByIndId[$id] ?? null,
+                    'judul' => $ind->nama_indikator
+                ];
+            }
+
+            $pdf = PDF::loadView('menu.ExportPdf.chart_batch', [
+                'indicators' => $finalIndicators,
+                'tahun' => $tahun,
+                'isBatch' => true
+            ])->setPaper('A4', 'portrait');
+
+            return $pdf->stream('Laporan_Batch_' . $tahun . '.pdf');
+        }
+
+        // Single Export Logic (Existing)
         $request->validate([
             'chart_image' => 'required',
             'judul' => 'required',

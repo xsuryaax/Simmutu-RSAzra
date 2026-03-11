@@ -159,7 +159,7 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="table-responsive-md table-dark">
+                        <div class="table-responsive-md">
                             <table class="table table-striped table-hover" id="table1">
                                 <thead>
                                     <tr>

@@ -48,51 +48,51 @@
             </div>
 
             <div class="card-body">
-                <div class="table-parent-container table-responsive-md table-dark">
-                    @php $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]); @endphp
+                @php $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]); @endphp
 
-                    <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3 align-items-end">
-                        <div class="col-md-1">
-                            <label>Filter Periode</label>
-                            <select name="periode_id" class="form-select" onchange="this.form.submit()">
-                                @foreach ($periodes as $p)
-                                    <option value="{{ $p->id }}" {{ $periodeId == $p->id ? 'selected' : '' }}>
-                                        {{ $p->tahun }}
+                <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-2 mb-3 align-items-end">
+                    <div class="col-md-1">
+                        <label>Filter Periode</label>
+                        <select name="periode_id" class="form-select" onchange="this.form.submit()">
+                            @foreach ($periodes as $p)
+                                <option value="{{ $p->id }}" {{ $periodeId == $p->id ? 'selected' : '' }}>
+                                    {{ $p->tahun }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    @if ($isAdminMutu)
+                        <div class="col-md-3">
+                            <label>Filter Unit</label>
+                            <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Semua Unit --</option>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                        {{ $unit->nama_unit }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+                    @endif
+                </form>
 
-                        @if ($isAdminMutu)
-                            <div class="col-md-3">
-                                <label>Filter Unit</label>
-                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
-                                    <option value="">-- Semua Unit --</option>
-                                    @foreach ($units as $unit)
-                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
-                                            {{ $unit->nama_unit }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        @endif
-                    </form>
-
-                    <div class="mb-3 d-flex flex-wrap gap-3">
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-danger me-2" style="width: 20px; height: 20px;">&nbsp;</span>
-                            <small class="text-primary text-primary-dark">Nasional</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-success me-2" style="width: 20px; height: 20px;">&nbsp;</span>
-                            <small class="text-primary text-primary-dark">Prioritas RS</small>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <span class="badge bg-light me-2" style="width: 20px; height: 20px;">&nbsp;</span>
-                            <small class="text-primary text-primary-dark">Prioritas Unit</small>
-                        </div>
+                <div class="mb-3 d-flex flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-danger me-2" style="width: 20px; height: 20px;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Nasional</small>
                     </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2" style="width: 20px; height: 20px;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas RS</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-light me-2" style="width: 20px; height: 20px;">&nbsp;</span>
+                        <small class="text-primary text-primary-dark">Prioritas Unit</small>
+                    </div>
+                </div>
 
+                <div class="table-parent-container table-responsive-md">
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>

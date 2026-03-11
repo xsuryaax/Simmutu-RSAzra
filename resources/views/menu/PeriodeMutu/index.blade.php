@@ -43,7 +43,7 @@
 @section('content')
     <section class="section">
         <div class="card">
-            <div class="card-body table-responsive table-dark">
+            <div class="card-body table-responsive">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Daftar Periode Mutu</h5>
                     <a href="{{ route('periode-mutu.create') }}" class="btn btn-primary btn-sm">

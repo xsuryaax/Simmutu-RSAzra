@@ -51,7 +51,7 @@
             </div>
 
             <div class="card-body">
-                <div class="table-parent-container table-responsive-md table-dark">
+                <div class="table-parent-container table-responsive-md">
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>

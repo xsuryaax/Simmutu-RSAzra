@@ -49,6 +49,22 @@
                 </a>
             </div>
             <div class="card-body">
+                @if ($isAdminMutu)
+                    <form method="GET" action="{{ route('kamus-indikator.index') }}" class="row g-2 mb-3 align-items-end">
+                        <div class="col-md-3">
+                            <label>Filter Unit</label>
+                            <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Semua Unit --</option>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->id }}" {{ $unitId == $unit->id ? 'selected' : '' }}>
+                                        {{ $unit->nama_unit }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+                @endif
+
                 <div class="mb-3 d-flex flex-wrap gap-3">
                     <div class="d-flex align-items-center">
                         <span class="badge bg-danger me-2"
@@ -66,7 +82,7 @@
                         <small class="text-primary text-primary-dark">Prioritas Unit</small>
                     </div>
                 </div>
-                <div class="table-parent-container table-responsive-md table-dark">
+                <div class="table-parent-container table-responsive-md">
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>

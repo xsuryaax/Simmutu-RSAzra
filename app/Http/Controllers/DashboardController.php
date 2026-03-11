@@ -12,24 +12,18 @@ class DashboardController extends Controller
 
     /**
      * AJAX endpoint untuk dashboard combined chart.
-     *
-     * Mode all=1 (default): kembalikan SEMUA indikator sesuai type,
-     * lengkap dengan data target + hasil 12 bulan untuk tahun berjalan.
-     * Quarter slicing dilakukan di front-end sehingga tidak perlu fetch ulang.
-     *
-     * Query params:
-     *   type   : imn | imprs | unit
-     *   all    : 1 (default)
      */
     public function getChartData(): \Illuminate\Http\JsonResponse
     {
         $type  = request('type', 'imn');
         $tahun = (int) request('tahun', $this->getTahunPeriodeAktif());
+        $unitId = request('unit_id');
         
         // Cek filter unit jika bukan admin/mutu
         $user = Auth::user();
-        $roleId = $user->role_id;
-        $unitId = in_array($roleId, [1, 2]) ? null : $user->unit_id;
+        if (!in_array($user->role_id, [1, 2])) {
+            $unitId = $user->unit_id;
+        }
 
         return match ($type) {
             'imprs' => $this->allImprsChartData($tahun, $unitId),
@@ -42,14 +36,6 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $roleId = $user->role_id;
-
-        $indikators = $this->getIndikators();
-
-        if (in_array($roleId, [1, 2])) {
-            $indikatorsForChart = $indikators;
-        } else {
-            $indikatorsForChart = $indikators->where('unit_id', $user->unit_id);
-        }
 
         // Tahun dari periode aktif — untuk default filter tahun di chart
         $periodeAktif = DB::table('tbl_periode')->where('status', 'aktif')->first();
@@ -74,22 +60,14 @@ class DashboardController extends Controller
             'roleId' => $roleId,
             'pdsaList' => collect(),
 
-            'totalIndikator' => $indikators->count(),
-            'indikators' => $indikators,
+            'totalIndikator' => DB::table('tbl_indikator')->count(),
             'years' => $this->getYears(),
             'tahunAktif'  => $tahunAktif,
             'daftarTahun' => $daftarTahun,
+            'units'       => DB::table('tbl_unit')->orderBy('nama_unit')->get(),
 
             ...$this->getStatistikUnit(),
             ...$this->getRecentIsi(),
-
-            'indikatorsForChart' => $indikatorsForChart,
-            'allDataJson' => json_encode($this->getUserChartData($indikators)),
-            'indikatorNasionalList' => $this->getIndikatorNasional(),
-            'nasionalYears' => $this->getNasionalYears(),
-            'nasionalChartJson' => $this->getNasionalChartData(),
-            'chartIMPRSJson' => $this->getIMPRSChartData(),
-            'chartIMPRSYears' => $this->getYears(),
         ];
 
         $pdsaData = in_array($roleId, [1, 2])
@@ -106,21 +84,10 @@ class DashboardController extends Controller
         $data['pdsaList'] = $pdsaData['pdsaList'];
 
         if (in_array($roleId, [1, 2])) {
-            $data['unitIndikatorMap'] = $this->getUnitIndikatorMap();
-            $data['divisionData'] = $this->getDivisionData($indikators);
+            // UnitIndikatorMap no longer used in combined-chart
         }
 
         return view('admin.dashboard', $data);
-    }
-
-
-    private function getBaseData(): array
-    {
-        return [
-            'totalIndikator' => DB::table('tbl_indikator')->count(),
-            'indikators' => $this->getIndikators(),
-            'years' => $this->getYears(),
-        ];
     }
 
     private function getIndikators()
@@ -137,20 +104,7 @@ class DashboardController extends Controller
             ->get();
     }
 
-    private function getUnitIndikatorMap()
-    {
-        return DB::table('tbl_unit as u')
-            ->join('tbl_indikator as i', 'i.unit_id', '=', 'u.id')
-            ->select(
-                'u.nama_unit',
-                'i.id as indikator_id',
-                'i.nama_indikator'
-            )
-            ->orderBy('u.nama_unit')
-            ->orderBy('i.nama_indikator')
-            ->get()
-            ->groupBy('nama_unit');
-    }
+    // deleted getUnitIndikatorMap
 
     private function getYears()
     {
@@ -166,35 +120,36 @@ class DashboardController extends Controller
         $bulanWajib = $now->copy()->subMonth()->month;
         $tahunWajib = $now->copy()->subMonth()->year;
 
-        $units = DB::table('tbl_unit')->get();
+        // Optimized: Fetch all stats in 2 queries and use collection mapping
+        $totalTerisi = DB::table('tbl_laporan_dan_analis')
+            ->whereMonth('tanggal_laporan', $bulanWajib)
+            ->whereYear('tanggal_laporan', $tahunWajib)
+            ->select('unit_id', 'indikator_id')
+            ->get()
+            ->groupBy('unit_id')
+            ->map(fn($items) => $items->pluck('indikator_id')->unique()->flip());
 
-        $semuaIndikator = DB::table('tbl_indikator as i')
-            ->select('i.id', 'i.nama_indikator', 'i.unit_id')
+        $units = DB::table('tbl_unit')->get();
+        $indikatorsByUnit = DB::table('tbl_indikator')
+            ->select('id', 'nama_indikator', 'unit_id')
             ->get()
             ->groupBy('unit_id');
 
-        $totalTerisiIds = DB::table('tbl_laporan_dan_analis as l')
-            ->whereMonth('l.tanggal_laporan', $bulanWajib)
-            ->whereYear('l.tanggal_laporan', $tahunWajib)
-            ->pluck('l.indikator_id')
-            ->toArray();
-
         $unitsSudah = [];
         $unitsBelum = [];
-
         $totalIndikatorSudah = 0;
         $totalIndikatorBelum = 0;
 
         foreach ($units as $unit) {
-            $indikators = $semuaIndikator->get($unit->id, collect());
-            if ($indikators->isEmpty())
-                continue;
+            $inds = $indikatorsByUnit->get($unit->id);
+            if (!$inds) continue;
 
             $sudah = [];
             $belum = [];
+            $terisiIds = $totalTerisi->get($unit->id, collect());
 
-            foreach ($indikators as $ind) {
-                if (in_array($ind->id, $totalTerisiIds)) {
+            foreach ($inds as $ind) {
+                if ($terisiIds->has($ind->id)) {
                     $sudah[] = $ind->nama_indikator;
                     $totalIndikatorSudah++;
                 } else {
@@ -204,17 +159,16 @@ class DashboardController extends Controller
             }
 
             if (count($sudah) > 0) {
-                $uSudah = clone $unit;
-                $uSudah->list_sudah = $sudah;
-                $uSudah->total_indikator = count($indikators);
-                $unitsSudah[] = $uSudah;
+                $unit->list_sudah = $sudah;
+                $unit->total_indikator = count($inds);
+                $unitsSudah[] = $unit;
             }
 
             if (count($belum) > 0) {
                 $uBelum = clone $unit;
                 $uBelum->list_belum = $belum;
                 $uBelum->list_sudah = $sudah;
-                $uBelum->total_indikator = count($indikators);
+                $uBelum->total_indikator = count($inds);
                 $unitsBelum[] = $uBelum;
             }
         }
@@ -242,253 +196,7 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getUserChartData($indikators): array
-    {
-        $user = Auth::user();
-        $years = $this->getYears();
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-        if (!in_array($user->role_id, [1, 2])) {
-            $indikators = $indikators->where('unit_id', $user->unit_id);
-        }
-
-        $data = [];
-
-        foreach ($indikators as $ind) {
-            foreach ($years as $tahun) {
-
-                $data[$ind->id][$tahun] = $this->buildIndikatorData(
-                    $ind,
-                    $tahun,
-                    $labels,
-                    in_array($user->role_id, [1, 2]) ? null : $user->unit_id
-                );
-            }
-        }
-
-        return $data;
-    }
-
-    private function getDivisionData($indikators): array
-    {
-        $units = DB::table('tbl_unit')->orderBy('nama_unit')->get();
-        $years = $this->getYears();
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-        $divisionData = [];
-
-        foreach ($years as $tahun) {
-            $divisionData[$tahun]['labels'] = $labels;
-
-            foreach ($units as $u) {
-                $divisionData[$tahun][$u->nama_unit]['indikators'] = [];
-
-                foreach ($indikators->where('unit_id', $u->id) as $ind) {
-                    $divisionData[$tahun][$u->nama_unit]['indikators'][$ind->id] = array_merge(
-                        [
-                            'nama_indikator' => $ind->nama_indikator
-                        ],
-                        $this->buildIndikatorData($ind, $tahun, $labels, $u->id)
-                    );
-                }
-            }
-        }
-
-        return $divisionData;
-    }
-
-    private function buildIndikatorData($ind, int $tahun, array $labels, $unitId = null): array
-    {
-        $hasil = array_fill(1, 12, null);
-        $target = array_fill(1, 12, $ind->target_indikator);
-
-        $query = DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Prioritas Unit%')
-            ->where('l.indikator_id', $ind->id)
-            ->whereYear('l.tanggal_laporan', $tahun);
-
-        if ($unitId) {
-            $query->where('l.unit_id', $unitId);
-        }
-
-        if (in_array($ind->periode_id, [1, 2])) {
-            $query = $query
-                ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, SUM(nilai) as total, COUNT(*) as jumlah')
-                ->groupBy('bulan')
-                ->get();
-
-            foreach ($query as $row) {
-                $hasil[$row->bulan] = round($row->total / $row->jumlah, 2);
-            }
-        } else {
-            $query = $query
-                ->selectRaw('EXTRACT(MONTH FROM tanggal_laporan) as bulan, nilai')
-                ->get();
-
-            foreach ($query as $row) {
-                $hasil[$row->bulan] = round($row->nilai, 2);
-            }
-        }
-
-        return [
-            'labels' => $labels,
-            'hasil' => array_values($hasil),
-            'target' => array_values($target),
-        ];
-    }
-
-    private function getIndikatorNasional()
-    {
-        return DB::table('tbl_indikator as i')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Nasional%')
-            ->select(
-                'i.id',
-                'i.nama_indikator',
-                'i.target_indikator'
-            )
-            ->orderBy('i.nama_indikator')
-            ->get();
-    }
-
-    private function getNasionalYears()
-    {
-        return DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Nasional%')
-            ->selectRaw('DISTINCT EXTRACT(YEAR FROM l.tanggal_laporan) as tahun')
-            ->orderByDesc('tahun')
-            ->pluck('tahun');
-    }
-
-
-    private function getNasionalChartData(): array
-    {
-        $indikators = $this->getIndikatorNasional();
-        $years = $this->getNasionalYears();
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-        $data = [];
-
-        foreach ($indikators as $ind) {
-            foreach ($years as $tahun) {
-                $data[$ind->id][$tahun] = $this->buildNasionalIndikatorData(
-                    $ind,
-                    $tahun,
-                    $labels
-                );
-            }
-        }
-
-        return $data;
-    }
-
-    private function buildNasionalIndikatorData($ind, int $tahun, array $labels): array
-    {
-        $hasil = array_fill(1, 12, null);
-        $target = array_fill(1, 12, $ind->target_indikator);
-
-        $rows = DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Nasional%')
-            ->where('l.indikator_id', $ind->id)
-            ->whereYear('l.tanggal_laporan', $tahun)
-            ->selectRaw('
-            EXTRACT(MONTH FROM l.tanggal_laporan) as bulan,
-            ROUND(AVG(l.nilai), 2) as nilai
-        ')
-            ->groupBy('bulan')
-            ->orderBy('bulan')
-            ->get();
-
-        foreach ($rows as $row) {
-            $hasil[$row->bulan] = $row->nilai;
-        }
-
-        return [
-            'labels' => $labels,
-            'hasil' => array_values($hasil),
-            'target' => array_values($target),
-        ];
-    }
-
-    private function getIMPRSChartData(): array
-    {
-
-        $indikators = DB::table('tbl_indikator as i')
-            ->join('tbl_kamus_indikator as km', 'km.id', '=', 'i.kamus_indikator_id')
-            ->leftJoin('tbl_kategori_imprs as k', 'k.id', '=', 'km.kategori_id')
-            ->select(
-                'i.id',
-                'i.nama_indikator',
-                'i.target_indikator',
-                'km.kategori_indikator',
-                'km.kategori_id',
-                'k.nama_kategori_imprs'
-            )
-            ->where('km.kategori_indikator', 'LIKE', '%Prioritas RS%')
-
-            ->orderBy('i.nama_indikator')
-            ->get();
-
-        $years = $this->getYears();
-        $data = [];
-
-        foreach ($indikators as $ind) {
-
-            $kategoriKey = $ind->nama_kategori_imprs ?? 'Tanpa Kategori';
-
-            if (!isset($data[$kategoriKey])) {
-                $data[$kategoriKey] = [
-                    'indikators' => []
-                ];
-            }
-
-            $data[$kategoriKey]['indikators'][$ind->id] = [
-                'judul' => $ind->nama_indikator,
-                'data' => []
-            ];
-
-            foreach ($years as $tahun) {
-                $data[$kategoriKey]['indikators'][$ind->id]['data'][$tahun]
-                    = $this->buildImprsData($ind, $tahun);
-            }
-        }
-        return $data;
-    }
-
-    private function buildImprsData($imprs, int $tahun): array
-    {
-        $target = array_fill(0, 12, (float) $imprs->target_indikator);
-
-        $hasilDB = DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'i.id', '=', 'l.indikator_id')
-            ->join('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->where('ki.kategori_indikator', 'LIKE', '%Prioritas RS%')
-            ->where('l.indikator_id', $imprs->id)
-            ->whereYear('l.tanggal_laporan', $tahun)
-            ->selectRaw('
-            EXTRACT(MONTH FROM l.tanggal_laporan) AS bulan,
-            ROUND(AVG(l.nilai), 2) AS nilai
-        ')
-            ->groupByRaw('EXTRACT(MONTH FROM l.tanggal_laporan)')
-            ->pluck('nilai', 'bulan')
-            ->toArray();
-
-        $hasil = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $hasil[] = $hasilDB[$i] ?? null;
-        }
-
-        return [
-            'target' => $target,
-            'hasil' => $hasil
-        ];
-    }
+    // deleted getDivisionData and its heavy builder
 
     private function getTotalPdsaAktif($unitId = null)
     {
@@ -502,99 +210,31 @@ class DashboardController extends Controller
         return $query->count();
     }
 
-    private function getPdsaNotification($unitId = null): array
-    {
-        $query = DB::table('tbl_pdsa_assignments as p')
-            ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
-            ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
-            ->whereIn('p.status_pdsa', ['assigned', 'submitted']);
-
-        if ($unitId) {
-            $query->where('p.unit_id', $unitId);
-        }
-
-        $total = (clone $query)->count();
-
-        $list = $query->select(
-            'p.id',
-            'p.status_pdsa',
-            'i.nama_indikator',
-            'p.unit_id',
-            'p.created_at',
-            'tbl_unit.nama_unit',
-            'p.quarter',
-            'p.tahun',
-        )
-            ->orderByDesc('p.created_at')
-            ->limit(5)
-            ->get();
-
-        return [
-            'pdsaTotal' => $total,
-            'pdsaList' => $list
-        ];
-    }
-
     private function getTotalPdsa($unitId = null)
     {
+        // Optimized: Remove redundant join and simplify aggregate calculation
         $query = DB::table('tbl_laporan_dan_analis as l')
-            ->leftJoin('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
-            ->leftJoin('tbl_unit as u', 'l.unit_id', '=', 'u.id')
-            ->leftJoin('tbl_pdsa_assignments as p', function ($join) {
-                $join->on('l.indikator_id', '=', 'p.indikator_id')
-                    ->on('l.unit_id', '=', 'p.unit_id')
-                    ->on(DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'), '=', 'p.tahun')
-                    ->on(DB::raw("
-                    CASE
-                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
-                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
-                        WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
-                        ELSE 'Q4'
-                    END
-                "), '=', 'p.quarter');
-            });
+            ->join('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
+            ->select(
+                'l.indikator_id',
+                'l.unit_id',
+                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
+                DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1 as quarter_num")
+            )
+            ->groupBy(
+                'l.indikator_id',
+                'l.unit_id',
+                'i.target_indikator',
+                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
+                DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1")
+            )
+            ->havingRaw('AVG(l.nilai) < i.target_indikator');
 
         if ($unitId) {
             $query->where('l.unit_id', $unitId);
         }
 
-        $result = $query->select(
-            'l.indikator_id',
-            'l.unit_id',
-            'i.nama_indikator',
-            'u.nama_unit',
-            'i.target_indikator',
-            DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
-            DB::raw("
-                CASE
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
-                    ELSE 'Q4'
-                END as quarter
-            "),
-            DB::raw('AVG(l.nilai) as nilai_avg')
-        )
-            ->groupBy(
-                'l.indikator_id',
-                'l.unit_id',
-                'i.nama_indikator',
-                'u.nama_unit',
-                'i.target_indikator',
-                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
-                DB::raw("
-                CASE
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 1 AND 3 THEN 'Q1'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 4 AND 6 THEN 'Q2'
-                    WHEN EXTRACT(MONTH FROM l.tanggal_laporan) BETWEEN 7 AND 9 THEN 'Q3'
-                    ELSE 'Q4'
-                END
-            ")
-            )
-            ->havingRaw('AVG(l.nilai) < i.target_indikator')
-            ->get();
-
-        return $result->count();
+        return $query->get()->count();
     }
 
     private function getPdsaList($unitId = null)

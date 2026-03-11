@@ -51,7 +51,7 @@
             </div>
 
             <div class="card-body">
-                <div class="table-responsive table-dark">
+                <div class="table-responsive">
                     <table class="table table-striped" id="tableIndikator">
                         <thead>
                             <tr>

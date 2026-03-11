@@ -68,11 +68,24 @@ html.dark .card-header {
     background-color: #2b2f34;
 }
 
-html.dark .table-dark th {
-    color: #007774;
+html.dark .table {
+    --bs-table-color: #e1f0ff;
+    --bs-table-bg: #2b2f34;
+    --bs-table-border-color: #3e4042;
+    --bs-table-striped-bg: #35393d;
+    --bs-table-striped-color: #e1f0ff;
+    --bs-table-active-bg: #3e4042;
+    --bs-table-active-color: #e1f0ff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #e1f0ff;
+    color: #e1f0ff;
 }
 
-html.dark .table-dark td {
+html.dark .table th {
+    color: #007774 !important;
+}
+
+html.dark .table td {
     color: #e1f0ff;
 }
 
@@ -134,4 +147,116 @@ html.dark .bg-danger {
 
 html.dark .text-dark {
     color: #fff !important;
+}
+
+/* Dashboard Specific Overrides */
+html.dark .dash-header-left h3 {
+    color: #e1f0ff;
+}
+
+html.dark .stats-icon.purple { background-color: #9694ff; }
+html.dark .stats-icon.blue { background-color: #57caeb; }
+html.dark .stats-icon.red { background-color: #ff7976; }
+html.dark .stats-icon.green { background-color: #5ddab4; }
+html.dark .stats-icon.bg-orange { background-color: #ff9f43; }
+
+html.dark .font-extrabold {
+    color: #fff !important;
+}
+
+/* Combined Chart Overrides */
+html.dark #chartGridWrapper {
+    background-color: #1e2023 !important;
+    border-color: #3e4042 !important;
+}
+
+html.dark #chartGrid {
+    background-color: #212529 !important;
+}
+
+html.dark .chart-card {
+    background-color: #2b2f34 !important;
+    border-color: #3e4042 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+html.dark .chart-card-header {
+    background-color: #2b2f34 !important;
+    border-bottom-color: #3e4042 !important;
+}
+
+html.dark .chart-ind-title {
+    color: #e1f0ff !important;
+}
+
+html.dark .chart-ind-subtitle {
+    color: #aeb9c7 !important;
+}
+
+html.dark .chart-card-body {
+    background-color: #212529 !important;
+}
+
+html.dark .chart-controls .btn-light {
+    background-color: #3e4042 !important;
+    color: #fff !important;
+    border-color: #4a4d50 !important;
+}
+
+html.dark .chart-controls .btn-group {
+    background-color: #2b2f34 !important;
+    border-color: #3e4042 !important;
+}
+
+html.dark .filter-select {
+    background-color: #2b2f34 !important;
+    color: #fff !important;
+    border-color: #3e4042 !important;
+}
+
+html.dark .search-container .input-group-text {
+    background-color: #2b2f34 !important;
+    border-color: #3e4042 !important;
+    color: #aeb9c7 !important;
+}
+
+html.dark #indicatorSearch {
+    background-color: #2b2f34 !important;
+    color: #fff !important;
+    border-color: #3e4042 !important;
+}
+
+html.dark #indicatorSearch::placeholder {
+    color: #888 !important;
+}
+
+/* Modal Dark Mode Fixes */
+html.dark .modal-content {
+    background-color: #2b2f34;
+    color: #e1f0ff;
+}
+
+html.dark .modal-header {
+    border-bottom-color: #3e4042;
+}
+
+html.dark .modal-body .table-light {
+    background-color: #3e4042 !important;
+    color: #fff !important;
+}
+
+html.dark .modal-body thead.table-light th {
+    background-color: #3e4042 !important;
+    color: #007774 !important;
+}
+
+html.dark .bg-light-warning {
+    background-color: #3e3822 !important;
+    border-left: 6px solid #f59f00 !important;
+}
+
+html.dark .bg-light-warning h5,
+html.dark .bg-light-warning p,
+html.dark .bg-light-warning strong {
+    color: #ffe69c !important;
 }

@@ -40,7 +40,7 @@ trait DashboardChartTrait
     {
         $query = DB::table('tbl_laporan_dan_analis as l')
             ->whereIn('l.indikator_id', $indIds)
-            ->whereYear('l.tanggal_laporan', $tahun);
+            ->whereBetween('l.tanggal_laporan', ["$tahun-01-01", "$tahun-12-31"]);
 
         if ($unitId) {
             $query->where('l.unit_id', $unitId);

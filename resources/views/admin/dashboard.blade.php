@@ -52,7 +52,7 @@
                 </div>
                 <div class="modal-body p-0" style="max-height: 500px; overflow-y: auto;">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light sticky-top">
+                        <thead class="sticky-top">
                             <tr>
                                 <th style="width: 30%;">Nama Unit</th>
                                 <th>Indikator Sudah Terisi</th>
@@ -93,7 +93,7 @@
                 </div>
                 <div class="modal-body p-0" style="max-height: 500px; overflow-y: auto;">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light sticky-top">
+                        <thead class="sticky-top">
                             <tr>
                                 <th style="width: 30%;">Nama Unit</th>
                                 <th>Indikator Belum Terisi</th>

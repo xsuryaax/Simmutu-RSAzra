@@ -26,8 +26,7 @@
 
     @if($pdsaPerluTindak->count() > 0)
         <div class="col-12 col-lg-9 mb-3">
-            <div class="card border-0 shadow-sm h-100"
-                style="background: linear-gradient(135deg, #fff3cd, #ffe69c); border-left: 6px solid #f59f00;">
+            <div class="card border-0 shadow-sm h-100 bg-light-warning">
                 <div class="card-body py-4 px-4 d-flex align-items-center">
                     <div class="me-3">
                         <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>

@@ -153,7 +153,7 @@ class AnalisaController extends Controller
 
         $rows = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $indikatorId)
-            ->whereYear('tanggal_laporan', $tahun)
+            ->whereBetween('tanggal_laporan', ["$tahun-01-01", "$tahun-12-31"])
             ->selectRaw('
             EXTRACT(MONTH FROM tanggal_laporan) as bulan,
             ROUND(AVG(nilai),2) as nilai

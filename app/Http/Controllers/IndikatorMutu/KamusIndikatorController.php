@@ -11,9 +11,10 @@ class KamusIndikatorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $unitId = $request->get('unit_id');
 
         $query = DB::table('tbl_kamus_indikator')
             ->join('tbl_indikator', 'tbl_kamus_indikator.indikator_id', '=', 'tbl_indikator.id')
@@ -53,15 +54,21 @@ class KamusIndikatorController extends Controller
                 'tbl_kategori_imprs.nama_kategori_imprs'
             );
 
-        if (in_array($user->unit_id, [1, 2])) {
+        $isAdminMutu = in_array($user->unit_id, [1, 2]);
+        $units = [];
+
+        if ($isAdminMutu) {
+            $units = DB::table('tbl_unit')->orderBy('nama_unit', 'ASC')->get();
+
+            if ($unitId) {
+                $query->where('tbl_indikator.unit_id', $unitId);
+            }
 
             $query->orderByRaw(
                 "CASE WHEN tbl_indikator.unit_id = ? THEN 0 ELSE 1 END",
                 [$user->unit_id]
             );
-
         } else {
-
             $query->where('tbl_indikator.unit_id', $user->unit_id);
         }
 
@@ -77,7 +84,7 @@ class KamusIndikatorController extends Controller
 
         $mutu = $query->get();
 
-        return view('menu.IndikatorMutu.kamus-indikator.index', compact('mutu'));
+        return view('menu.IndikatorMutu.kamus-indikator.index', compact('mutu', 'units', 'unitId', 'isAdminMutu'));
     }
 
     /**
