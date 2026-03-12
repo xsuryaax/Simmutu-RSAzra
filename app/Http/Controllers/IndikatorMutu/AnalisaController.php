@@ -7,25 +7,22 @@ use Illuminate\Http\Request;
 use Auth;
 use DB;
 use Carbon\Carbon;
+use App\Services\IndikatorMutuService;
 
 class AnalisaController extends Controller
 {
+    protected $indikatorService;
+
+    public function __construct(IndikatorMutuService $indikatorService)
+    {
+        $this->indikatorService = $indikatorService;
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
         $roleId = $user->role_id;
-
-        // =============================
-        // FILTER
-        // =============================
-        $kategori = $request->kategori_indikator;
-
-        // =============================
-        // PERIODE AKTIF
-        // =============================
-        $periode = DB::table('tbl_periode')
-            ->where('status', 'aktif')
-            ->first();
+        $periode = $this->indikatorService->getPeriodeAktif();
 
         $periodeMulai = Carbon::parse($periode->tanggal_mulai);
         $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
@@ -34,14 +31,11 @@ class AnalisaController extends Controller
             $periodeMulai->year,
             $periodeSelesai->year
         );
-        $bulan = $request->bulan ?? $periodeMulai->month;
         $tahun = $request->tahun ?? $periodeMulai->year;
-
-
-        // =============================
-        // AMBIL INDIKATOR
-        // =============================
-        $indikators = $this->getIndikator($user, $kategori);
+        $bulan = $request->bulan ?? $periodeMulai->month;
+        $kategori = $request->kategori_indikator;
+        $indikators = $this->indikatorService->getIndikator($user, $kategori);
+        $indikatorIds = $indikators->pluck('id')->toArray();
 
         // =============================
         // ANALISA PER BULAN
@@ -53,7 +47,7 @@ class AnalisaController extends Controller
                 !in_array($roleId, [1, 2]),
                 fn($q) => $q->where('unit_id', $user->unit_id)
             )
-            ->whereIn('indikator_id', $indikators->pluck('id'))
+            ->whereIn('indikator_id', $indikatorIds)
             ->get()
             ->keyBy('indikator_id');
 
@@ -79,33 +73,6 @@ class AnalisaController extends Controller
             'bulanDipilih' => $bulan,
             'kategoriDipilih' => $kategori
         ]);
-    }
-
-    private function getIndikator($user, $kategori = null)
-    {
-        return DB::table('tbl_indikator as i')
-            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-            ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
-            ->join('tbl_periode as p', fn($join) => $join->where('p.status', 'aktif'))
-            ->select(
-                'i.id',
-                'i.nama_indikator',
-                'i.unit_id',
-                'u.nama_unit',
-                'k.kategori_indikator'
-            )
-            ->where('i.status_indikator', 'aktif')
-            ->when(
-                $kategori,
-                fn($q) => $q->where('k.kategori_indikator', 'ILIKE', "%$kategori%")
-            )
-            ->when(
-                !in_array($user->role_id, [1, 2]),
-                fn($q) => $q->where('i.unit_id', $user->unit_id)
-            )
-            // ORDER indikator sesuai unit user di paling atas
-            ->orderByRaw("CASE WHEN i.unit_id = ? THEN 0 ELSE 1 END, i.id", [$user->unit_id])
-            ->get();
     }
 
     public function store(Request $request)

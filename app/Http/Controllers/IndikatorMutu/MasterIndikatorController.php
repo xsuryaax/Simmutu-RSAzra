@@ -7,8 +7,17 @@ use Auth;
 use DB;
 use Illuminate\Http\Request;
 
+use App\Services\IndikatorMutuService;
+
 class MasterIndikatorController extends Controller
 {
+    protected $indikatorService;
+
+    public function __construct(IndikatorMutuService $indikatorService)
+    {
+        $this->indikatorService = $indikatorService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -20,7 +29,7 @@ class MasterIndikatorController extends Controller
             ->orderBy('tahun', 'desc')
             ->get();
 
-        $periodeAktif = $this->getPeriodeAktif();
+        $periodeAktif = $this->indikatorService->getPeriodeAktif();
 
         $periodeId = $request->filled('periode_id')
             ? $request->periode_id
@@ -167,7 +176,7 @@ class MasterIndikatorController extends Controller
             }
         }
 
-        $periodeAktif = $this->getPeriodeAktif();
+        $periodeAktif = $this->indikatorService->getPeriodeAktif();
 
         if (!$periodeAktif) {
             return back()->withErrors([
@@ -344,12 +353,4 @@ class MasterIndikatorController extends Controller
         return back()->with('success', 'Indikator berhasil dihapus.');
     }
 
-    private function getPeriodeAktif()
-    {
-        return cache()->remember('periode_aktif', 60, function () {
-            return DB::table('tbl_periode')
-                ->where('status', 'aktif')
-                ->first();
-        });
-    }
 }

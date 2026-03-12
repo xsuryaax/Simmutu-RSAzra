@@ -7,13 +7,21 @@ use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
 use Storage;
+use App\Services\IndikatorMutuService;
 
 class ValidatorDataController extends Controller
 {
+    protected $indikatorService;
+
+    public function __construct(IndikatorMutuService $indikatorService)
+    {
+        $this->indikatorService = $indikatorService;
+    }
+
     public function index(Request $request)
     {
         $user = auth()->user();
-        $periodeAktif = $this->getPeriodeAktif();
+        $periodeAktif = $this->indikatorService->getPeriodeAktif();
 
         if (!$periodeAktif) {
             return back()->with('error', 'Periode mutu aktif belum disetting');
@@ -73,10 +81,8 @@ class ValidatorDataController extends Controller
         $kategoriIndikator = $request->filled('kategori_indikator')
             ? $request->kategori_indikator
             : null;
-
-        // Ambil semua indikator yang relevan
-        $allIndikators = $this->getIndikator($user, $kategoriIndikator);
-        $indikatorIds = $allIndikators->pluck('id')->toArray();
+        $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
+        $indikatorIds = $indikators->pluck('id')->toArray();
 
         // Optimasi: Ambil semua tanggal laporan pertama untuk indikator-indikator ini dalam satu query
         $firstReports = DB::table('tbl_laporan_dan_analis')
@@ -98,7 +104,7 @@ class ValidatorDataController extends Controller
         // Jika masih dalam periode, fallback ke bulan sekarang (dimaksimalkan ke awal periode)
         $defaultStart = ($now->gt($periodeEnd)) ? $periodeStart : $now->max($periodeStart);
 
-        $indikators = $allIndikators->filter(function ($ind) use ($bulan, $tahun, $firstReports, $defaultStart) {
+        $indikators = $indikators->filter(function ($ind) use ($bulan, $tahun, $firstReports, $defaultStart) {
             $key = $ind->id . '-' . $ind->unit_id;
             $firstReport = isset($firstReports[$key]) ? Carbon::parse($firstReports[$key]->first_report)->startOfMonth() : $defaultStart;
             
@@ -183,57 +189,11 @@ class ValidatorDataController extends Controller
         ]);
     }
 
-    private function getIndikator($user, $kategoriIndikator = null)
-    {
-        return DB::table('tbl_indikator as i')
-            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-            ->leftJoin('tbl_periode_pengumpulan_data as f', 'f.id', '=', 'k.periode_pengumpulan_data_id')
-            ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
-            ->join('tbl_indikator_periode as ip', 'ip.indikator_id', '=', 'i.id')
-            ->join('tbl_periode as p', 'p.id', '=', 'ip.periode_id')
-            ->where('p.status', 'aktif')
-            ->where('ip.status', 'aktif')
-            ->select(
-                'i.id',
-                'i.nama_indikator',
-                'i.unit_id',
-                'i.target_indikator',
-                'p.tanggal_mulai',
-                'p.tanggal_selesai',
-                'f.nama_periode_pengumpulan_data',
-                'u.nama_unit',
-                'k.kategori_indikator',
-                'i.target_min',
-                'i.target_max',
-                'i.arah_target',
-            )
-            ->when($kategoriIndikator, function ($q) use ($kategoriIndikator) {
-                $q->whereRaw(
-                    "LOWER(k.kategori_indikator) LIKE ?",
-                    ['%' . strtolower($kategoriIndikator) . '%']
-                );
-            })
-            ->when(
-                !in_array($user->unit_id, [1, 2]),
-                fn($q) => $q->where('i.unit_id', $user->unit_id)
-            )
-            ->where('status_indikator', 'aktif')
-            ->orderByRaw("CASE WHEN i.unit_id = ? THEN 0 ELSE 1 END", [$user->unit_id])
-            ->orderByRaw("
-    CASE
-        WHEN k.kategori_indikator ILIKE '%Nasional%' THEN 1
-        WHEN k.kategori_indikator ILIKE '%Prioritas RS%' THEN 2
-        WHEN k.kategori_indikator ILIKE '%Prioritas Unit%' THEN 3
-        ELSE 4
-    END
-")
-            ->orderBy('i.nama_indikator')
-            ->get();
-    }
+
 
     private function getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator = null)
     {
-        $indikators = $this->getIndikator($user, $kategoriIndikator);
+        $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
 
         $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
         $end = Carbon::create($tahun, $bulan, 1)->endOfMonth();
@@ -268,7 +228,7 @@ class ValidatorDataController extends Controller
                 if ($item->denominator === 0 || $item->nilai_rekap === null) {
                     $item->pencapaian = 'N/A';
                 } elseif ($indikator) {
-                    $item->pencapaian = $this->hitungPencapaian(
+                    $item->pencapaian = $this->indikatorService->hitungPencapaian(
                         $item->nilai_rekap,
                         $indikator->arah_target,
                         $indikator->target_indikator,
@@ -308,8 +268,7 @@ class ValidatorDataController extends Controller
         DB::beginTransaction();
 
         try {
-
-            $periodeAktif = $this->getPeriodeAktif();
+            $periodeAktif = $this->indikatorService->getPeriodeAktif();
 
             if (!$periodeAktif) {
                 return back()->with('error', 'Periode aktif tidak ditemukan');
@@ -367,7 +326,7 @@ class ValidatorDataController extends Controller
                     ? ($request->numerator / $request->denominator) * 100
                     : 0;
 
-                $tercapai = $this->hitungPencapaian(
+                $tercapai = $this->indikatorService->hitungPencapaian(
                     $nilaiValidator,
                     $indikatorFull->arah_target,
                     $indikatorFull->target_indikator,
@@ -419,7 +378,7 @@ class ValidatorDataController extends Controller
             $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
 
             // Hitung status validasi: valid jika rata analis >= 90% dari rata validator
-            $statusFinal = $this->hitungStatusValidasi($rataAnalis, $rataValidator);
+            $statusFinal = $this->indikatorService->hitungStatusValidasi($rataAnalis, $rataValidator);
 
             // Update SEMUA row analis bulan pertama agar nilai_validator konsisten di halaman analis
             DB::table('tbl_laporan_dan_analis')
@@ -468,14 +427,6 @@ class ValidatorDataController extends Controller
         ]);
     }
 
-    private function getPeriodeAktif()
-    {
-        return cache()->remember('periode_aktif', 60, function () {
-            return DB::table('tbl_periode')
-                ->where('status', 'aktif')
-                ->first();
-        });
-    }
 
     public function show($id)
     {
@@ -515,14 +466,13 @@ class ValidatorDataController extends Controller
         DB::beginTransaction();
 
         try {
-
             $data = DB::table('tbl_laporan_validator')->where('id', $id)->first();
 
             if (!$data) {
                 return back()->with('error', 'Data laporan tidak ditemukan');
             }
 
-            $periodeAktif = $this->getPeriodeAktif();
+            $periodeAktif = $this->indikatorService->getPeriodeAktif();
 
             if (!$periodeAktif) {
                 return back()->with('error', 'Periode aktif tidak ditemukan');
@@ -569,7 +519,7 @@ class ValidatorDataController extends Controller
                     ? ($request->numerator / $request->denominator) * 100
                     : 0;
 
-                $tercapai = $this->hitungPencapaian(
+                $tercapai = $this->indikatorService->hitungPencapaian(
                     $nilaiValidator,
                     $indikatorFull->arah_target,
                     $indikatorFull->target_indikator,
@@ -619,7 +569,7 @@ class ValidatorDataController extends Controller
             $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
 
             // Hitung status validasi: valid jika rata analis >= 90% dari rata validator
-            $statusFinal = $this->hitungStatusValidasi($rataAnalis, $rataValidator);
+            $statusFinal = $this->indikatorService->hitungStatusValidasi($rataAnalis, $rataValidator);
 
             // Update SEMUA row analis bulan pertama agar nilai_validator konsisten di halaman analis
             DB::table('tbl_laporan_dan_analis')
@@ -643,45 +593,10 @@ class ValidatorDataController extends Controller
         }
     }
 
-    private function hitungPencapaian($nilai, $arah, $target, $min, $max)
-    {
-        switch ($arah) {
-            case 'lebih_besar':
-                return $nilai >= $target;
-            case 'lebih_kecil':
-                return $nilai <= $target;
-            case 'range':
-                return $nilai >= $min && $nilai <= $max;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Hitung status validasi:
-     * Valid jika rata nilai analis >= 90% dari rata nilai validator (acuan = validator).
-     *
-     * Contoh: analis=80, validator=90 → 90% dari 90 = 81 → 80 < 81 → tidak-valid
-     * Contoh: analis=85, validator=90 → 90% dari 90 = 81 → 85 >= 81 → valid
-     */
-    private function hitungStatusValidasi($rataAnalis, $rataValidator)
-    {
-        // Belum ada data validator atau analis → status belum bisa ditentukan
-        if ($rataValidator === null || $rataAnalis === null) {
-            return null;
-        }
-
-        // Valid jika selisih absolut antara analis & validator <= 10% dari nilai validator
-        // Rumus: abs(validator - pengumpul) <= (validator * 0.10)
-        $toleransi = $rataValidator * 0.10;
-        $selisih = abs($rataValidator - $rataAnalis);
-
-        return ($selisih <= $toleransi) ? 'valid' : 'tidak-valid';
-    }
 
     private function getAvailableValidationMonths($user)
     {
-        $periode = $this->getPeriodeAktif();
+        $periode = $this->indikatorService->getPeriodeAktif();
         if (!$periode) return collect();
 
         $start = Carbon::parse($periode->tanggal_mulai)->startOfMonth();
@@ -732,24 +647,7 @@ class ValidatorDataController extends Controller
 
     private function getBulanValidasi($indikatorId, $unitId, $periodeAktif)
     {
-        $periodeStart = Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth();
-        $periodeEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
-
-        // Cari laporan pertama di periode ini
-        $firstReportDate = DB::table('tbl_laporan_dan_analis')
-            ->where('indikator_id', $indikatorId)
-            ->where('unit_id', $unitId)
-            ->whereBetween('tanggal_laporan', [$periodeStart, $periodeEnd])
-            ->orderBy('tanggal_laporan', 'asc')
-            ->value('tanggal_laporan');
-
-        if ($firstReportDate) {
-            return Carbon::parse($firstReportDate)->startOfMonth();
-        }
-
-        // Fallback ke bulan berjalan (clamped ke periode)
-        $now = now()->startOfMonth();
-        return $now->max($periodeStart)->min($periodeEnd);
+        return $this->indikatorService->getBulanValidasi($indikatorId, $unitId, $periodeAktif);
     }
 
     private function validasiDeadline($periodeAktif, $tanggal, $unitId)

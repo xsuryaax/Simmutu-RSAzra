@@ -105,23 +105,7 @@
                                 @endif
                             </form>
 
-                            <div class="mb-3 d-flex flex-wrap gap-3">
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-danger me-2"
-                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                                    <small class="text-primary text-primary-dark">Nasional</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-success me-2"
-                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                                    <small class="text-primary text-primary-dark">Prioritas RS</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-light me-2"
-                                        style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                                    <small class="text-primary text-primary-dark">Unit</small>
-                                </div>
-                            </div>
+                            @include('menu.IndikatorMutu.partials._legend')
 
                             <div class="table-parent-container table-responsive-md">
                                 <table class="table" id="table1">
@@ -264,144 +248,12 @@
                     </div>
                 </div>
 
-                @if ($kalenderData)
-                    <div class="col-5 col-lg-5 col-md-5 px-2">
-                        <div class="card" id="kalenderSection">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-center align-items-center text-center">
-                                    <div>
-                                        <h5 class="mb-1">{{ $selectedIndikator->nama_indikator }}</h5>
-                                        <small class="text-muted">
-                                            @if ($isAdminMutu)
-                                                {{ $selectedIndikator->nama_unit }} -
-                                            @endif
-                                            {{ $kalenderData['bulanNama'] }}
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card-body">
-                                <div class="calendar-grid border-0 shadow-sm rounded-3">
-                                    @foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $hari)
-                                        <div class="calendar-header">{{ $hari }}</div>
-                                    @endforeach
-
-                                    @for ($i = 0; $i < $kalenderData['skip']; $i++)
-                                        <div class="calendar-day bg-light"></div>
-                                    @endfor
-
-                                    @for ($d = 1; $d <= $kalenderData['daysInMonth']; $d++)
-                                        @php
-                                            $tglFull = Carbon::create($tahun, $bulan, $d)->format('Y-m-d');
-                                            $isToday = $tglFull == date('Y-m-d');
-                                            $pengisian = $kalenderData['dataPengisian']->get($tglFull);
-                                            $sudahIsi = $pengisian !== null;
-                                        @endphp
-
-                                        <div class="calendar-day"
-                                            onclick="handleDateClick(
-                                                '{{ $tglFull }}',
-                                                {{ $sudahIsi ? 'true' : 'false' }},
-                                                {{ $sudahIsi ? $pengisian->id : 'null' }})"
-                                            style="cursor:pointer">
-                                            <span
-                                                class="{{ $isToday ? 'today-highlight' : '' }}">{{ $d }}</span>
-
-                                            <div class="d-block mt-1 text-center">
-                                                @if ($sudahIsi)
-                                                    <span class="dot bg-success d-block mx-auto mb-1"></span>
-                                                    <small class="text-muted fw-semibold">
-                                                        {{ $pengisian->numerator }} / {{ $pengisian->denominator }}
-                                                    </small>
-                                                @else
-                                                    <span class="dot border d-block mx-auto"></span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endfor
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
+                @include('menu.IndikatorMutu.partials._kalender', ['isValidatorPage' => true])
             </div>
         </div>
 
         {{-- MODAL DETAIL DATA --}}
-        <div class="modal fade" id="modalDetailData" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content" style="border-radius:14px;">
-                    <div class="modal-header border-0">
-                        <div>
-                            <h5 class="modal-title text-primary fw-semibold">
-                                <i class="bi bi-eye"></i> Detail Laporan
-                            </h5>
-                            <small class="text-muted">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Tanggal Laporan</label>
-                                <p class="form-control-plaintext" id="detail_tanggal">-</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Tanggal Pengisian</label>
-                                <p class="form-control-plaintext">
-                                    <span class="fs-6 text-muted" id="detail_tanggal_pengisian">-</span>
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Numerator</label>
-                                <p class="form-control-plaintext" id="detail_numerator">-</p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Denominator</label>
-                                <p class="form-control-plaintext" id="detail_denominator">-</p>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Nilai</label>
-                                <p class="form-control-plaintext">
-                                    <span class="fs-6 text-muted" id="detail_nilai">-</span>
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-dark">Status Pencapaian</label>
-                                <p class="form-control-plaintext">
-                                    <span class="badge" id="detail_pencapaian">-</span>
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-dark">File Laporan</label>
-                            <p class="form-control-plaintext">
-                                <a href="#" id="detail_file_link" target="_blank"
-                                    class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-file-earmark-arrow-down"></i> Lihat File
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer border-0">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                        <button type="button" class="btn btn-warning" onclick="openEditModal()">
-                            <i class="bi bi-pencil"></i> Edit
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @include('menu.IndikatorMutu.partials._modal_detail', ['isValidatorPage' => true])
 
         {{-- MODAL INPUT DATA (Tambah Baru) --}}
         <div class="modal fade" id="modalInputData" tabindex="-1">
