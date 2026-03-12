@@ -15,6 +15,7 @@ class DummyLaporanSeeder extends Seeder
     {
         // 1. Dapatkan Periode Aktif (Tahun 2025)
         $periode = DB::table('tbl_periode')->where('status', 'aktif')->first();
+
         if (!$periode) {
             $periodeId = DB::table('tbl_periode')->insertGetId([
                 'nama_periode' => 'Periode Simulasi 2025',
@@ -22,6 +23,7 @@ class DummyLaporanSeeder extends Seeder
                 'tanggal_mulai' => '2025-01-01',
                 'tanggal_selesai' => '2025-12-31',
                 'deadline' => 5,
+                'status_deadline' => 0,
                 'status' => 'aktif',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
@@ -37,12 +39,16 @@ class DummyLaporanSeeder extends Seeder
             return;
         }
 
-        $this->command->info('Memulai seeding data laporan untuk ' . $indikators->count() . ' indikator...');
+        $this->command->info('Memulai seeding data laporan untuk ' . $indikators->count() . ' indikator (Januari - Desember)...');
+
+        // Hapus SEMUA data laporan analis & validator untuk tahun 2025 secara global (Clean Start)
+        DB::table('tbl_laporan_dan_analis')->whereYear('tanggal_laporan', 2025)->delete();
+        DB::table('tbl_laporan_validator')->whereYear('tanggal_laporan', 2025)->delete();
 
         foreach ($indikators as $ind) {
-            // A. Pastikan terhubung ke kamus_indikator (agar muncul di query join)
+            // ... (A & B logic remains same, just ensuring references)
+            // A. Pastikan terhubung ke kamus_indikator
             if (!$ind->kamus_indikator_id) {
-                // Tentukan kategori dummy berdasarkan ID (simulasi pembagian)
                 $kategori = 'Nasional';
                 if ($ind->id > 13) $kategori = 'Prioritas RS';
                 if ($ind->id > 30) $kategori = 'Prioritas Unit';
@@ -95,36 +101,21 @@ class DummyLaporanSeeder extends Seeder
                 ]);
             }
 
-            // C. Hapus data lama untuk indikator ini di tahun tersebut
-            DB::table('tbl_laporan_dan_analis')
-                ->where('indikator_id', $ind->id)
-                ->whereYear('tanggal_laporan', $periode->tahun)
-                ->delete();
+            // C. Data sudah dibersihkan di awal (global delete)
 
-            // D. Generate 12 Bulan Laporan
+            // D. Looping 12 Bulan (Januari - Desember)
             for ($bulan = 1; $bulan <= 12; $bulan++) {
                 $target = (float)($ind->target_indikator ?? 80);
                 $arah = $ind->arah_target ?? 'lebih_besar';
                 
-                // Buat nilai naik turun di sekitar target
                 $nilaiRand = $target + rand(-15, 20);
                 if ($nilaiRand > 100) $nilaiRand = 100;
                 if ($nilaiRand < 0) $nilaiRand = 0;
 
-                // Tentukan status pencapaian (enum: tercapai, tidak-tercapai, N/A)
-                $isTercapai = false;
-                if ($arah === 'lebih_besar') {
-                    $isTercapai = ($nilaiRand >= $target);
-                } elseif ($arah === 'lebih_kecil') {
-                    $isTercapai = ($nilaiRand <= $target);
-                } else {
-                    $isTercapai = true; // Range, anggap tercapai aja
-                }
+                $isTercapai = ($arah === 'lebih_besar') ? ($nilaiRand >= $target) : ($arah === 'lebih_kecil' ? ($nilaiRand <= $target) : true);
 
-                // Hitung Numerator/Denominator bayangan
                 $denominator = rand(50, 200);
                 $numerator = round(($nilaiRand / 100) * $denominator);
-                
                 $actualNilai = $denominator > 0 ? ($numerator / $denominator * 100) : 0;
 
                 DB::table('tbl_laporan_dan_analis')->insert([
@@ -143,7 +134,6 @@ class DummyLaporanSeeder extends Seeder
                 ]);
             }
         }
-
-        $this->command->info('Seeding selesai! ' . ($indikators->count() * 12) . ' data laporan telah dibuat.');
+        $this->command->info('Seeding selesai! ' . $indikators->count() * 12 . ' data laporan (Januari - Desember) telah dibuat.');
     }
 }

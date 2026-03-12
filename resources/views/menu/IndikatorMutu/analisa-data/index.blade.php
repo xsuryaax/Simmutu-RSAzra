@@ -278,6 +278,8 @@
 
     <script>
         const firstIndikator = @json($firstIndikator ?? null);
+        const csrfToken = "{{ csrf_token() }}";
+        const analisaStoreUrl = "{{ route('analisa-data.store') }}";
     </script>
 
     <script src="{{ asset('style/assets/js/pages/analisa-chart.js') }}"></script>

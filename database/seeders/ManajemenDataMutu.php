@@ -113,6 +113,7 @@ class ManajemenDataMutu extends Seeder
                 'tanggal_mulai' => '2025-01-01',
                 'tanggal_selesai' => '2025-12-31',
                 'deadline' => 5,
+                'status_deadline' => 0,
                 'status' => 'aktif',
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),

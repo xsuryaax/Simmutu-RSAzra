@@ -77,20 +77,6 @@
 
                         <div class="card-body">
 
-                            @if (session('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    {{ session('success') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            @endif
-
-                            @if (session('error'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ session('error') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            @endif
-
                             {{-- Filter Form --}}
                             <form id="filterForm" method="GET" action="{{ url()->current() }}"
                                 class="row g-2 align-items-end mb-4">
@@ -130,9 +116,9 @@
                                     <label class="form-label fw-semibold">Bulan</label>
                                     @php
                                         $tahunDipilih = request('tahun', $periodeMulai->year);
-                                        $bulanMulai = $tahunDipilih == $periodeMulai->year ? $periodeMulai->month : 1;
-                                        $bulanSelesai =
-                                            $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
+                                        $effectiveStart = $effectiveStart ?? $periodeMulai;
+                                        $bulanMulai = $tahunDipilih == $effectiveStart->year ? $effectiveStart->month : 1;
+                                        $bulanSelesai = $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
                                     @endphp
                                     <select name="bulan" class="form-select" onchange="filterForm.submit()">
                                         @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
@@ -176,10 +162,8 @@
                                             @endif
                                             <th class="text-center">TARGET</th>
                                             <th class="text-center">PENGUMPUL</th>
-                                            @if ($isBulanPertamaPeriode)
-                                                <th class="text-center">VALIDATOR</th>
-                                                <th class="text-center">STATUS LAPORAN</th>
-                                            @endif
+                                            <th class="text-center">VALIDATOR</th>
+                                            <th class="text-center">STATUS VALIDASI</th>
                                             <th class="text-center">STATUS NILAI</th>
                                             <th class="text-center">AKSI</th>
                                         </tr>
@@ -276,33 +260,46 @@
                                                 </td>
 
                                                 {{-- VALIDATOR --}}
-                                                @if ($isBulanPertamaPeriode)
-                                                    <td class="text-center">
-                                                        @php $nilaiValidator = $rekapBulanan[$key]->nilai_validator ?? null; @endphp
-                                                        @if ($nilaiValidator === null)
-                                                            <span>-</span>
-                                                        @elseif(($rekapBulanan[$key]->denominator ?? 1) == 0)
-                                                            <span class="badge bg-secondary">N/A</span>
-                                                        @else
-                                                            {{ fmod($nilaiValidator, 1) == 0 ? number_format($nilaiValidator, 0) : number_format($nilaiValidator, 1) }}%
-                                                        @endif
-                                                    </td>
-
-                                                    {{-- STATUS LAPORAN --}}
-                                                    <td class="text-center">
-                                                        @php $statusLaporan = $rekapBulanan[$key]->status_laporan ?? null; @endphp
-                                                        @if ($statusLaporan === null)
-                                                            <span>-</span>
-                                                        @elseif(($rekapBulanan[$key]->denominator ?? 1) == 0)
-                                                            <span class="badge bg-secondary">N/A</span>
-                                                        @else
-                                                            <span
-                                                                class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
-                                                                {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
+                                                <td class="text-center">
+                                                    @php 
+                                                        $rekapItem = $rekapBulanan[$key] ?? null;
+                                                        $nilaiValidator = $rekapItem->nilai_validator ?? null; 
+                                                        $vMonthName = $rekapItem->validation_month_name ?? '';
+                                                        $isDifferentMonth = ($rekapItem->validation_month ?? null) != $bulanDipilih || ($rekapItem->validation_year ?? null) != $tahunDipilih;
+                                                    @endphp
+                                                    
+                                                    @if ($nilaiValidator === null)
+                                                        <span>-</span>
+                                                    @elseif(($rekapItem->denominator ?? 1) == 0)
+                                                        <span class="badge bg-secondary">N/A</span>
+                                                    @else
+                                                        <div class="d-flex flex-column align-items-center">
+                                                            <span class="fw-semibold">
+                                                                {{ fmod($nilaiValidator, 1) == 0 ? number_format($nilaiValidator, 0) : number_format($nilaiValidator, 1) }}%
                                                             </span>
-                                                        @endif
-                                                    </td>
-                                                @endif
+                                                            @if($isDifferentMonth)
+                                                                <small class="text-muted" style="font-size: 0.7rem;">
+                                                                    (Divalidasi {{ $vMonthName }})
+                                                                </small>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </td>
+
+                                                {{-- STATUS VALIDASI --}}
+                                                <td class="text-center">
+                                                    @php $statusLaporan = $rekapItem->status_laporan ?? null; @endphp
+                                                    @if ($statusLaporan === null)
+                                                        <span>-</span>
+                                                    @elseif(($rekapItem->denominator ?? 1) == 0)
+                                                        <span class="badge bg-secondary">N/A</span>
+                                                    @else
+                                                        <span
+                                                            class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
+                                                            {{ $statusLaporan === 'valid' ? 'Valid' : 'Tidak Valid' }}
+                                                        </span>
+                                                    @endif
+                                                </td>
 
                                                 {{-- STATUS NILAI --}}
                                                 <td class="text-center">

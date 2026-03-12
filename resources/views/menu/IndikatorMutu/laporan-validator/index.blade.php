@@ -62,19 +62,6 @@
 
                         <div class="card-body">
 
-                            @if (session('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    {{ session('success') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            @endif
-                            @if (session('error'))
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ session('error') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            @endif
-
                             <form id="filterForm" method="GET" action="{{ url()->current() }}"
                                 class="row g-2 align-items-end mb-4">
                                 <div class="col-md-3">
@@ -96,6 +83,26 @@
                                         </option>
                                     </select>
                                 </div>
+                                @if($availableMonths->count() > 1)
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold">Bulan</label>
+                                    <select name="bulan" class="form-select"
+                                        onchange="document.getElementById('filterForm').submit()">
+                                        @forelse ($availableMonths as $m)
+                                            <option value="{{ $m->bulan }}"
+                                                {{ (int) request('bulan', $bulan) == $m->bulan && (int) request('tahun', $tahun) == $m->tahun ? 'selected' : '' }}>
+                                                {{ $m->nama }}
+                                            </option>
+                                        @empty
+                                            <option value="">-- Tidak ada data --</option>
+                                        @endforelse
+                                    </select>
+                                    <input type="hidden" name="tahun" id="tahun_hidden" value="{{ request('tahun', $tahun) }}">
+                                </div>
+                                @else
+                                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                                @endif
                             </form>
 
                             <div class="mb-3 d-flex flex-wrap gap-3">
@@ -238,8 +245,8 @@
                                                             request()->has('kategori_indikator') && request('kategori_indikator') !== ''
                                                                 ? request('kategori_indikator')
                                                                 : null,
-                                                        'bulan' => request('bulan', $periodeMulai->month),
-                                                        'tahun' => request('tahun', $periodeMulai->year),
+                                                        'bulan' => $bulan,
+                                                        'tahun' => $tahun,
                                                         'indikator_id' => $indikator->id,
                                                         'unit_id' => $indikator->unit_id,
                                                     ]) }}"
@@ -626,5 +633,22 @@
         }
     </script>
 
+    <script>
+        // Update tahun hidden input saat bulan berubah (untuk handle multi-tahun)
+        document.querySelector('select[name="bulan"]').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            // Kita asumsikan availableMonths sudah mengandung tahun yang benar
+            // Namun karena kita hanya kirim bulan ke route, kita butuh cara mencocokkan tahun.
+            // Cara terbaik adalah menyimpan data tahun di attribuut option.
+            @php 
+                $monthYearMap = $availableMonths->mapWithKeys(fn($m) => [$m->bulan => $m->tahun]);
+            @endphp
+            const map = @json($monthYearMap);
+            const selectedMonth = this.value;
+            if (map[selectedMonth]) {
+                document.getElementById('tahun_hidden').value = map[selectedMonth];
+            }
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

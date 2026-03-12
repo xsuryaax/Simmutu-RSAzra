@@ -45,6 +45,9 @@
 
             <div class="page-content">
                 <section class="section">
+                    {{-- Global Alerts --}}
+                    @include('layouts.includes.alerts')
+
                     {{-- Konten Utama Halaman --}}
                     @yield('content')
                 </section>

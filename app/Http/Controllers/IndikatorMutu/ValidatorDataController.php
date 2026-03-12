@@ -19,8 +19,53 @@ class ValidatorDataController extends Controller
             return back()->with('error', 'Periode mutu aktif belum disetting');
         }
 
-        $bulan = $request->bulan ?? Carbon::parse($periodeAktif->tanggal_mulai)->month;
-        $tahun = $request->tahun ?? Carbon::parse($periodeAktif->tanggal_mulai)->year;
+        $availableMonths = $this->getAvailableValidationMonths($user);
+
+        // Determine smart default month based on current time and period
+        $now = now();
+        $periodStart = Carbon::parse($periodeAktif->tanggal_mulai);
+        $periodEnd = Carbon::parse($periodeAktif->tanggal_selesai);
+
+        if ($now->between($periodStart, $periodEnd)) {
+            $smartDefaultBulan = $now->month;
+            $smartDefaultTahun = $now->year;
+        } elseif ($now->lt($periodStart)) {
+            $smartDefaultBulan = $periodStart->month;
+            $smartDefaultTahun = $periodStart->year;
+        } else {
+            $smartDefaultBulan = $periodEnd->month;
+            $smartDefaultTahun = $periodEnd->year;
+        }
+
+        if (!$request->has('bulan')) {
+            if ($availableMonths->isEmpty()) {
+                $bulan = $smartDefaultBulan;
+                $tahun = $smartDefaultTahun;
+            } else {
+                // Jika masa periode sudah lewat, utamakan bulan efektif pertama (Januari jika ada data/mulai)
+                if ($now->gt($periodEnd)) {
+                    $firstAvailable = $availableMonths->first();
+                    $bulan = $firstAvailable->bulan;
+                    $tahun = $firstAvailable->tahun;
+                } else {
+                    // Jika dalam/sebelum periode, utamakan bulan sekarang jika masuk dlm list
+                    $currentInAvailable = $availableMonths->first(fn($m) => $m->bulan == $smartDefaultBulan && $m->tahun == $smartDefaultTahun);
+                    if ($currentInAvailable) {
+                        $bulan = $smartDefaultBulan;
+                        $tahun = $smartDefaultTahun;
+                    } else {
+                        // Default to first available
+                        $firstAvailable = $availableMonths->first();
+                        $bulan = $firstAvailable->bulan;
+                        $tahun = $firstAvailable->tahun;
+                    }
+                }
+            }
+        } else {
+            $bulan = (int) $request->bulan;
+            $tahun = (int) $request->tahun;
+        }
+    
 
         $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
         $end = Carbon::create($tahun, $bulan, 1)->endOfMonth();
@@ -29,7 +74,37 @@ class ValidatorDataController extends Controller
             ? $request->kategori_indikator
             : null;
 
-        $indikators = $this->getIndikator($user, $kategoriIndikator);
+        // Ambil semua indikator yang relevan
+        $allIndikators = $this->getIndikator($user, $kategoriIndikator);
+        $indikatorIds = $allIndikators->pluck('id')->toArray();
+
+        // Optimasi: Ambil semua tanggal laporan pertama untuk indikator-indikator ini dalam satu query
+        $firstReports = DB::table('tbl_laporan_dan_analis')
+            ->select('indikator_id', 'unit_id', DB::raw('MIN(tanggal_laporan) as first_report'))
+            ->whereIn('indikator_id', $indikatorIds)
+            ->whereBetween('tanggal_laporan', [
+                Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth(),
+                Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth()
+            ])
+            ->groupBy('indikator_id', 'unit_id')
+            ->get()
+            ->keyBy(fn($item) => $item->indikator_id . '-' . $item->unit_id);
+
+        $periodeStart = Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth();
+        $periodeEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
+        $now = now()->startOfMonth();
+        
+        // Fix: Jika periode sudah lewat, fallback ke awal periode (Januari)
+        // Jika masih dalam periode, fallback ke bulan sekarang (dimaksimalkan ke awal periode)
+        $defaultStart = ($now->gt($periodeEnd)) ? $periodeStart : $now->max($periodeStart);
+
+        $indikators = $allIndikators->filter(function ($ind) use ($bulan, $tahun, $firstReports, $defaultStart) {
+            $key = $ind->id . '-' . $ind->unit_id;
+            $firstReport = isset($firstReports[$key]) ? Carbon::parse($firstReports[$key]->first_report)->startOfMonth() : $defaultStart;
+            
+            return $firstReport->month == $bulan && $firstReport->year == $tahun;
+        });
+
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator);
 
         $kategoriIndikatorList = DB::table('tbl_kamus_indikator')
@@ -86,7 +161,7 @@ class ValidatorDataController extends Controller
                     'daysInMonth' => $startOfMonth->daysInMonth,
                     'skip' => $startOfMonth->dayOfWeekIso - 1,
                     'dataPengisian' => $dataPengisian,
-                    'bulanNama' => $startOfMonth->translatedFormat('F Y'),
+                    'bulanNama' => $startOfMonth->translatedFormat('F'),
                 ];
             }
         }
@@ -100,6 +175,7 @@ class ValidatorDataController extends Controller
             'kategoriIndikator' => $kategoriIndikator,
             'bulan' => $bulan,
             'tahun' => $tahun,
+            'availableMonths' => $availableMonths,
             'kalenderData' => $kalenderData,
             'selectedIndikator' => $selectedIndikator,
             'selectedIndikatorId' => $selectedIndikatorId,
@@ -255,15 +331,21 @@ class ValidatorDataController extends Controller
                 );
             }
 
-            $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
-            $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
+            $validationMonth = $this->getBulanValidasi(
+                $request->indikator_id,
+                $request->unit_id,
+                $periodeAktif
+            );
 
-            if ($tanggal->month != $bulanAwal || $tanggal->year != $tahunAwal) {
-                return back()->with('error', 'Validator hanya boleh diisi pada bulan pertama periode');
+            if ($tanggal->month != $validationMonth->month || $tanggal->year != $validationMonth->year) {
+                return back()->with(
+                    'error',
+                    'Validator hanya boleh diisi pada bulan validasi (' . $validationMonth->translatedFormat('F Y') . ')'
+                );
             }
 
-            $start = Carbon::create($tahunAwal, $bulanAwal, 1)->startOfMonth();
-            $end = Carbon::create($tahunAwal, $bulanAwal, 1)->endOfMonth();
+            $start = $validationMonth->copy()->startOfMonth();
+            $end = $validationMonth->copy()->endOfMonth();
 
             // Pastikan ada minimal 1 data analis di bulan pertama
             $laporanAnalisId = DB::table('tbl_laporan_dan_analis')
@@ -462,15 +544,21 @@ class ValidatorDataController extends Controller
                 );
             }
 
-            $bulanAwal = Carbon::parse($periodeAktif->tanggal_mulai)->month;
-            $tahunAwal = Carbon::parse($periodeAktif->tanggal_mulai)->year;
+            $validationMonth = $this->getBulanValidasi(
+                $data->indikator_id,
+                $data->unit_id,
+                $periodeAktif
+            );
 
-            if ($tanggalValidator->month != $bulanAwal || $tanggalValidator->year != $tahunAwal) {
-                return back()->with('error', 'Validator hanya boleh diubah pada bulan pertama periode');
+            if ($tanggalValidator->month != $validationMonth->month || $tanggalValidator->year != $validationMonth->year) {
+                return back()->with(
+                    'error',
+                    'Validator hanya boleh diubah pada bulan validasi (' . $validationMonth->translatedFormat('F') . ')'
+                );
             }
 
-            $start = Carbon::create($tahunAwal, $bulanAwal, 1)->startOfMonth();
-            $end = Carbon::create($tahunAwal, $bulanAwal, 1)->endOfMonth();
+            $start = $validationMonth->copy()->startOfMonth();
+            $end = $validationMonth->copy()->endOfMonth();
 
             // Hitung nilai validator: jika 0/0 maka N/A (tidak ada kasus)
             if ($request->numerator == 0 && $request->denominator == 0) {
@@ -578,20 +666,90 @@ class ValidatorDataController extends Controller
      */
     private function hitungStatusValidasi($rataAnalis, $rataValidator)
     {
-        // Belum ada data validator → status belum bisa ditentukan
-        if ($rataValidator === null) {
+        // Belum ada data validator atau analis → status belum bisa ditentukan
+        if ($rataValidator === null || $rataAnalis === null) {
             return null;
         }
 
-        // Nilai analis N/A (semua 0/0) → tidak bisa divalidasi
-        if ($rataAnalis === null) {
-            return null;
+        // Valid jika selisih absolut antara analis & validator <= 10% dari nilai validator
+        // Rumus: abs(validator - pengumpul) <= (validator * 0.10)
+        $toleransi = $rataValidator * 0.10;
+        $selisih = abs($rataValidator - $rataAnalis);
+
+        return ($selisih <= $toleransi) ? 'valid' : 'tidak-valid';
+    }
+
+    private function getAvailableValidationMonths($user)
+    {
+        $periode = $this->getPeriodeAktif();
+        if (!$periode) return collect();
+
+        $start = Carbon::parse($periode->tanggal_mulai)->startOfMonth();
+        $end = Carbon::parse($periode->tanggal_selesai)->endOfMonth();
+        $now = now()->startOfMonth();
+
+        // Cari tanggal laporan paling awal untuk unit ini
+        $earliestReport = DB::table('tbl_laporan_dan_analis')
+            ->whereBetween('tanggal_laporan', [$start, $end]);
+
+        if (!in_array($user->unit_id, [1, 2])) {
+            $earliestReport->where('unit_id', $user->unit_id);
         }
 
-        // Valid jika rata analis >= 90% dari rata validator
-        $batasMinimal = $rataValidator * 0.9;
+        $earliestDate = $earliestReport->min('tanggal_laporan');
 
-        return $rataAnalis >= $batasMinimal ? 'valid' : 'tidak-valid';
+        // Logical Start Date: Yang lebih awal antara laporan pertama atau hari ini
+        $nowStart = $now->copy()->startOfMonth();
+        if ($nowStart->gt($end)) {
+            // Jika masa sekarang sudah melewati periode, tampilkan dari awal periode (Januari)
+            $effectiveStart = $start->copy();
+        } else {
+            // Jika dalam/sebelum periode, gunakan hari ini (clamped ke awal periode)
+            $effectiveStart = $nowStart->max($start);
+        }
+
+        if ($earliestDate) {
+            $eDate = Carbon::parse($earliestDate)->startOfMonth();
+            if ($eDate->lt($effectiveStart)) {
+                $effectiveStart = $eDate;
+            }
+        }
+
+        // Buat list berkelanjutan dari effectiveStart sampai akhir periode
+        $months = collect();
+        $current = $effectiveStart->copy();
+        while ($current->lte($end)) {
+            $months->push((object)[
+                'bulan' => $current->month,
+                'tahun' => $current->year,
+                'nama' => $current->translatedFormat('F')
+            ]);
+            $current->addMonth();
+        }
+
+        return $months;
+    }
+
+    private function getBulanValidasi($indikatorId, $unitId, $periodeAktif)
+    {
+        $periodeStart = Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth();
+        $periodeEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
+
+        // Cari laporan pertama di periode ini
+        $firstReportDate = DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $indikatorId)
+            ->where('unit_id', $unitId)
+            ->whereBetween('tanggal_laporan', [$periodeStart, $periodeEnd])
+            ->orderBy('tanggal_laporan', 'asc')
+            ->value('tanggal_laporan');
+
+        if ($firstReportDate) {
+            return Carbon::parse($firstReportDate)->startOfMonth();
+        }
+
+        // Fallback ke bulan berjalan (clamped ke periode)
+        $now = now()->startOfMonth();
+        return $now->max($periodeStart)->min($periodeEnd);
     }
 
     private function validasiDeadline($periodeAktif, $tanggal, $unitId)

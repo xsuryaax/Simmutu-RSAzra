@@ -11,6 +11,7 @@ const initJqueryDataTable = () => {
         const jquery_datatable = table1El.DataTable({
             responsive: true,
             autoWidth: false,
+            stateSave: true,
             dom: 
                 "<'row align-items-center'<'col-sm-12 col-md-1'l><'col-md-8 d-none d-md-block'><'col-sm-12 col-md-3'f>>" + 
                 "<'row dt-row'<'col-sm-12'tr>>" + 
@@ -39,6 +40,7 @@ const initCustomizedDataTable = () => {
         const customized_datatable = table2El.DataTable({
             responsive: true,
             pagingType: 'full_numbers',
+            stateSave: true,
             dom:
                 "<'row'<'col-4'l><'col-4'f>>" +
                 "<'row dt-row'<'col-sm-12'tr>>" +
