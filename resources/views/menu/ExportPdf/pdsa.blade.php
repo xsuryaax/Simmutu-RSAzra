@@ -233,7 +233,7 @@
                 @endphp
                 <tr>
                     <td class="center">{{ $index + 1 }}</td>
-                    <td>{{ $row->nama_indikator }}</td>
+                    <td class="center">{{ $row->nama_indikator }}</td>
                     <td class="center">{{ $row->nama_unit }}</td>
                     <td class="center">
                         {{ $row->tahun }} / {{ $row->quarter }}

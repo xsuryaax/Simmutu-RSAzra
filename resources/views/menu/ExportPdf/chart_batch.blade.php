@@ -66,7 +66,7 @@
             </td>
             <td style="text-align: center; vertical-align: middle;">
                 <div class="rs-name">Rumah Sakit AZRA</div>
-                <div class="doc-title">Laporan Grafik Indikator Mutu (Batch)</div>
+                <div class="doc-title">Laporan Indikator Mutu {{ $judul }}</div>
             </td>
             <td style="text-align: right; font-size: 7px; color: #999; width: 150px; line-height: 1.2; vertical-align: middle;">
                 Tahun Laporan: <strong>{{ $tahun }}</strong><br>

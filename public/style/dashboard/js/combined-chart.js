@@ -108,6 +108,16 @@
             ctx.restore();
         }
     };
+    const whiteBackgroundPlugin = {
+        id: 'whiteBackground',
+        beforeDraw(chart) {
+            const { ctx, width, height } = chart;
+            ctx.save();
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.restore();
+        }
+    };
 
     // ─────────────────────────────────────────────────────────
     // INIT
@@ -506,8 +516,8 @@
             // Re-use a single hidden canvas for all batch generation
             // Slightly reduced for batch to avoid massive payload/timeout, while still sharp for A4
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 1200;
-            tempCanvas.height = 600;
+            tempCanvas.width = 1000;
+            tempCanvas.height = 500;
             tempCanvas.style.display = 'none';
             document.body.appendChild(tempCanvas);
 
@@ -529,9 +539,11 @@
             document.body.removeChild(tempCanvas);
 
             if (form) {
+                const jenisText = document.getElementById('jenisFilter')?.options[document.getElementById('jenisFilter').selectedIndex].text || '';
                 form.querySelector('input[name="is_batch"]').value = "1";
                 form.querySelector('input[name="batch"]').value = JSON.stringify(batch);
                 form.querySelector('input[name="tahun"]').value = currentTahunFilter();
+                form.querySelector('input[name="judul"]').value = jenisText;
                 form.submit();
                 
                 // Reset batch fields after short delay so subsequent single downloads work
@@ -628,12 +640,12 @@
                     }
                 }
             },
-            plugins: [pencapaianLabelPlugin]
+            plugins: [pencapaianLabelPlugin, whiteBackgroundPlugin]
         });
 
         // Wait a tiny bit for render (50ms is usually enough for high-res once data is ready)
         await new Promise(r => setTimeout(r, 50));
-        const img = tempChart.toBase64Image();
+        const img = canvas.toDataURL('image/jpeg', 0.7);
         tempChart.destroy();
         return img;
     }
@@ -645,8 +657,8 @@
         // --- High-Res Export Logic ---
         // Create hidden canvas for rendering high-quality image
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 1600;  // Extra wide for sharp PDF
-        tempCanvas.height = 800;  // Extra height
+        tempCanvas.width = 1200;  // Sharp enough for A4
+        tempCanvas.height = 600;  
         tempCanvas.style.display = 'none';
         document.body.appendChild(tempCanvas);
 
@@ -736,13 +748,13 @@
                     }
                 }
             },
-            plugins: [pencapaianLabelPlugin]
+            plugins: [pencapaianLabelPlugin, whiteBackgroundPlugin]
         });
 
         // Wait a tiny bit for render
         await new Promise(r => setTimeout(r, 100));
 
-        const highResImage = tempChart.toBase64Image();
+        const highResImage = tempCanvas.toDataURL('image/jpeg', 0.8);
         
         // Cleanup
         tempChart.destroy();

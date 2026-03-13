@@ -11,6 +11,7 @@ class ExportPdfController extends Controller
     public function exportChart(Request $request)
     {
         if ($request->is_batch) {
+            ini_set('memory_limit', '512M');
             set_time_limit(300); // 5 minutes for large batches
             $batchData = json_decode($request->batch, true);
             $tahun = $request->tahun;
@@ -77,6 +78,7 @@ class ExportPdfController extends Controller
             $pdf = PDF::loadView('menu.ExportPdf.chart_batch', [
                 'indicators' => $finalIndicators,
                 'tahun' => $tahun,
+                'judul' => $request->judul ?? 'Laporan Grafik Indikator',
                 'isBatch' => true
             ])->setPaper('A4', 'portrait');
 
