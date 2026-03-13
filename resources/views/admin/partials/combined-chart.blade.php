@@ -121,8 +121,8 @@
 </div>
 
 @push('js')
-    {{-- Dependensi Chart.js --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    {{-- Dependensi Chart.js (Local) --}}
+    <script src="{{ asset('js/chart.umd.min.js') }}"></script>
     
     {{-- Config Passing --}}
     <script>
