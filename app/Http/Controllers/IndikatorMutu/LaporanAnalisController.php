@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use App\Services\IndikatorMutuService;
 
@@ -393,6 +394,9 @@ class LaporanAnalisController extends Controller
                 'updated_at' => now(),
             ]);
 
+        // Invalidate dashboard statistics cache
+        Cache::forget('dashboard_statistik_unit');
+
         return redirect()->route('laporan-analis.index', [
             'bulan' => $bulanLaporan,
             'tahun' => $tahunLaporan,
@@ -563,6 +567,9 @@ class LaporanAnalisController extends Controller
                 'status_laporan' => $statusFinal,
                 'updated_at' => now(),
             ]);
+
+        // Invalidate dashboard statistics cache
+        Cache::forget('dashboard_statistik_unit');
 
         return back()->with('success', 'Data laporan berhasil diperbarui');
     }

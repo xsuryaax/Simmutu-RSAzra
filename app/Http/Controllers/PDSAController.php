@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 
 class PDSAController extends Controller
@@ -170,6 +171,8 @@ AND
             'updated_at' => now(),
         ]);
 
+        $this->clearPdsaCache($data['unit_id']);
+
         return back()->with('success', 'PDSA berhasil ditugaskan');
     }
 
@@ -237,6 +240,9 @@ AND
                 'updated_at' => now()
             ]);
 
+        $assignment = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
+        $this->clearPdsaCache($assignment->unit_id ?? null);
+
         return redirect()->route('dashboard')->with('success', 'PDSA berhasil disubmit');
     }
 
@@ -296,10 +302,16 @@ AND
                     'updated_at' => now(),
                 ]);
 
+            $assignment = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
+            $this->clearPdsaCache($assignment->unit_id ?? null);
+            
             return redirect()
                 ->route('dashboard')
                 ->with('success', 'PDSA berhasil diperbarui dan dikirim kembali');
         }
+
+        $assignment = DB::table('tbl_pdsa_assignments')->where('id', $id)->first();
+        $this->clearPdsaCache($assignment->unit_id ?? null);
 
         return redirect()
             ->route('pdsa.show', $id)
@@ -329,6 +341,8 @@ AND
                 'status_pdsa' => 'approved',
                 'updated_at' => now(),
             ]);
+
+        $this->clearPdsaCache($assignment->unit_id);
 
         return redirect()
             ->route('pdsa.show', $id)
@@ -363,9 +377,22 @@ AND
                 'updated_at' => now(),
             ]);
 
+        $this->clearPdsaCache($assignment->unit_id);
+
         return redirect()
             ->route('pdsa.show', $id)
             ->with('success', 'PDSA dikembalikan untuk revisi');
     }
 
+    private function clearPdsaCache($unitId = null)
+    {
+        Cache::forget('dashboard_total_pdsa_aktif_all');
+        Cache::forget('dashboard_total_pdsa_all');
+        Cache::forget('dashboard_pdsa_list_all');
+        if ($unitId) {
+            Cache::forget('dashboard_total_pdsa_aktif_' . $unitId);
+            Cache::forget('dashboard_total_pdsa_' . $unitId);
+            Cache::forget('dashboard_pdsa_list_' . $unitId);
+        }
+    }
 }

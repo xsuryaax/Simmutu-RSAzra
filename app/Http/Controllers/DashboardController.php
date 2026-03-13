@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Traits\DashboardChartTrait;
 
@@ -117,70 +118,72 @@ class DashboardController extends Controller
 
     private function getStatistikUnit(): array
     {
-        $now = now();
-        $bulanWajib = $now->copy()->subMonth()->month;
-        $tahunWajib = $now->copy()->subMonth()->year;
+        return Cache::remember('dashboard_statistik_unit', 1800, function () { // 30 mins
+            $now = now();
+            $bulanWajib = $now->copy()->subMonth()->month;
+            $tahunWajib = $now->copy()->subMonth()->year;
 
-        // Optimized: Fetch all stats in 2 queries and use collection mapping
-        $totalTerisi = DB::table('tbl_laporan_dan_analis')
-            ->whereMonth('tanggal_laporan', $bulanWajib)
-            ->whereYear('tanggal_laporan', $tahunWajib)
-            ->select('unit_id', 'indikator_id')
-            ->get()
-            ->groupBy('unit_id')
-            ->map(fn($items) => $items->pluck('indikator_id')->unique()->flip());
+            // Optimized: Fetch all stats in 2 queries and use collection mapping
+            $totalTerisi = DB::table('tbl_laporan_dan_analis')
+                ->whereMonth('tanggal_laporan', $bulanWajib)
+                ->whereYear('tanggal_laporan', $tahunWajib)
+                ->select('unit_id', 'indikator_id')
+                ->get()
+                ->groupBy('unit_id')
+                ->map(fn($items) => $items->pluck('indikator_id')->unique()->flip());
 
-        $units = DB::table('tbl_unit')->get();
-        $indikatorsByUnit = DB::table('tbl_indikator')
-            ->select('id', 'nama_indikator', 'unit_id')
-            ->get()
-            ->groupBy('unit_id');
+            $units = DB::table('tbl_unit')->get();
+            $indikatorsByUnit = DB::table('tbl_indikator')
+                ->select('id', 'nama_indikator', 'unit_id')
+                ->get()
+                ->groupBy('unit_id');
 
-        $unitsSudah = [];
-        $unitsBelum = [];
-        $totalIndikatorSudah = 0;
-        $totalIndikatorBelum = 0;
+            $unitsSudah = [];
+            $unitsBelum = [];
+            $totalIndikatorSudah = 0;
+            $totalIndikatorBelum = 0;
 
-        foreach ($units as $unit) {
-            $inds = $indikatorsByUnit->get($unit->id);
-            if (!$inds) continue;
+            foreach ($units as $unit) {
+                $inds = $indikatorsByUnit->get($unit->id);
+                if (!$inds) continue;
 
-            $sudah = [];
-            $belum = [];
-            $terisiIds = $totalTerisi->get($unit->id, collect());
+                $sudah = [];
+                $belum = [];
+                $terisiIds = $totalTerisi->get($unit->id, collect());
 
-            foreach ($inds as $ind) {
-                if ($terisiIds->has($ind->id)) {
-                    $sudah[] = $ind->nama_indikator;
-                    $totalIndikatorSudah++;
-                } else {
-                    $belum[] = $ind->nama_indikator;
-                    $totalIndikatorBelum++;
+                foreach ($inds as $ind) {
+                    if ($terisiIds->has($ind->id)) {
+                        $sudah[] = $ind->nama_indikator;
+                        $totalIndikatorSudah++;
+                    } else {
+                        $belum[] = $ind->nama_indikator;
+                        $totalIndikatorBelum++;
+                    }
+                }
+
+                if (count($sudah) > 0) {
+                    $unit->list_sudah = $sudah;
+                    $unit->total_indikator = count($inds);
+                    $unitsSudah[] = $unit;
+                }
+
+                if (count($belum) > 0) {
+                    $uBelum = clone $unit;
+                    $uBelum->list_belum = $belum;
+                    $uBelum->list_sudah = $sudah;
+                    $uBelum->total_indikator = count($inds);
+                    $unitsBelum[] = $uBelum;
                 }
             }
 
-            if (count($sudah) > 0) {
-                $unit->list_sudah = $sudah;
-                $unit->total_indikator = count($inds);
-                $unitsSudah[] = $unit;
-            }
-
-            if (count($belum) > 0) {
-                $uBelum = clone $unit;
-                $uBelum->list_belum = $belum;
-                $uBelum->list_sudah = $sudah;
-                $uBelum->total_indikator = count($inds);
-                $unitsBelum[] = $uBelum;
-            }
-        }
-
-        return [
-            'totalUnit' => count($units),
-            'totalIndikatorSudah' => $totalIndikatorSudah,
-            'totalIndikatorBelum' => $totalIndikatorBelum,
-            'unitsSudah' => $unitsSudah,
-            'unitsBelum' => $unitsBelum,
-        ];
+            return [
+                'totalUnit' => count($units),
+                'totalIndikatorSudah' => $totalIndikatorSudah,
+                'totalIndikatorBelum' => $totalIndikatorBelum,
+                'unitsSudah' => $unitsSudah,
+                'unitsBelum' => $unitsBelum,
+            ];
+        });
     }
 
     private function getRecentIsi(): array
@@ -201,67 +204,76 @@ class DashboardController extends Controller
 
     private function getTotalPdsaAktif($unitId = null)
     {
-        $query = DB::table('tbl_pdsa_assignments as p')
-            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised', 'approved']);
+        $key = 'dashboard_total_pdsa_aktif_' . ($unitId ?? 'all');
+        return Cache::remember($key, 3600, function () use ($unitId) { // 1 hour
+            $query = DB::table('tbl_pdsa_assignments as p')
+                ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised', 'approved']);
 
-        if ($unitId) {
-            $query->where('p.unit_id', $unitId);
-        }
+            if ($unitId) {
+                $query->where('p.unit_id', $unitId);
+            }
 
-        return $query->count();
+            return $query->count();
+        });
     }
 
     private function getTotalPdsa($unitId = null)
     {
-        // Optimized: Remove redundant join and simplify aggregate calculation
-        $query = DB::table('tbl_laporan_dan_analis as l')
-            ->join('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
-            ->select(
-                'l.indikator_id',
-                'l.unit_id',
-                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
-                DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1 as quarter_num")
-            )
-            ->groupBy(
-                'l.indikator_id',
-                'l.unit_id',
-                'i.target_indikator',
-                DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
-                DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1")
-            )
-            ->havingRaw('AVG(l.nilai) < i.target_indikator');
+        $key = 'dashboard_total_pdsa_' . ($unitId ?? 'all');
+        return Cache::remember($key, 3600, function () use ($unitId) { // 1 hour
+            // Optimized: Remove redundant join and simplify aggregate calculation
+            $query = DB::table('tbl_laporan_dan_analis as l')
+                ->join('tbl_indikator as i', 'l.indikator_id', '=', 'i.id')
+                ->select(
+                    'l.indikator_id',
+                    'l.unit_id',
+                    DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan) as tahun'),
+                    DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1 as quarter_num")
+                )
+                ->groupBy(
+                    'l.indikator_id',
+                    'l.unit_id',
+                    'i.target_indikator',
+                    DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
+                    DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1")
+                )
+                ->havingRaw('AVG(l.nilai) < i.target_indikator');
 
-        if ($unitId) {
-            $query->where('l.unit_id', $unitId);
-        }
+            if ($unitId) {
+                $query->where('l.unit_id', $unitId);
+            }
 
-        return $query->get()->count();
+            return $query->get()->count();
+        });
     }
 
     private function getPdsaList($unitId = null)
     {
-        $query = DB::table('tbl_pdsa_assignments as p')
-            ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
-            ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
-            ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised', 'approved']);
+        $key = 'dashboard_pdsa_list_' . ($unitId ?? 'all');
+        return Cache::remember($key, 600, function () use ($unitId) { // 10 mins
+            $query = DB::table('tbl_pdsa_assignments as p')
+                ->join('tbl_unit', 'tbl_unit.id', '=', 'p.unit_id')
+                ->join('tbl_indikator as i', 'i.id', '=', 'p.indikator_id')
+                ->whereIn('p.status_pdsa', ['assigned', 'submitted', 'revised', 'approved']);
 
-        if ($unitId) {
-            $query->where('p.unit_id', $unitId);
-        }
+            if ($unitId) {
+                $query->where('p.unit_id', $unitId);
+            }
 
-        return $query->select(
-            'p.id',
-            'p.status_pdsa',
-            'i.nama_indikator',
-            'p.unit_id',
-            'p.created_at',
-            'tbl_unit.nama_unit',
-            'p.quarter',
-            'p.tahun',
-        )
-            ->orderByDesc('p.created_at')
-            ->limit(10)
-            ->get();
+            return $query->select(
+                'p.id',
+                'p.status_pdsa',
+                'i.nama_indikator',
+                'p.unit_id',
+                'p.created_at',
+                'tbl_unit.nama_unit',
+                'p.quarter',
+                'p.tahun',
+            )
+                ->orderByDesc('p.created_at')
+                ->limit(10)
+                ->get();
+        });
     }
 
     /**
