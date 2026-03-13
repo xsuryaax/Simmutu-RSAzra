@@ -13,10 +13,11 @@
         <div class="p-4 rounded-top border-bottom shadow-sm">
             {{-- ── Header Title Row ── --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="mb-0 fw-bold" id="multiChartTitle">
+                <div class="d-flex align-items-center">
                     <i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>
-                    Indikator Mutu Nasional — Tahun {{ $tahunAktif }}
-                </h4>
+                    <h4 class="mb-0 fw-bold" id="multiChartTitle" style="line-height:1;">Indikator Mutu Nasional — Tahun {{ $tahunAktif }}</h4>
+                    <span class="badge bg-primary text-white ms-3 rounded-pill px-3 py-1 fw-semibold shadow-sm" style="font-size: 0.85rem;" id="totalIndikatorBadge">Total: 0 Indikator</span>
+                </div>
             </div>
 
             {{-- ── Control Bar Row ── --}}
@@ -109,6 +110,7 @@
     <input type="hidden" name="tahun">
     <input type="hidden" name="is_batch">
     <input type="hidden" name="batch">
+    <input type="hidden" name="include_pdsa" id="inputIncludePdsa">
 </form>
 
 {{-- Progress Overlay for Batch Export --}}

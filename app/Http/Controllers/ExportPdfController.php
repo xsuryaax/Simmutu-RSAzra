@@ -136,12 +136,48 @@ class ExportPdfController extends Controller
             ];
         }
 
+        $pdsaData = [];
+        if ($request->include_pdsa == '1') {
+            $pdsaAssignments = DB::table('tbl_pdsa_assignments as a')
+                ->leftJoin('tbl_pdsa as p', 'a.id', '=', 'p.assignment_id')
+                ->where('a.indikator_id', $indicatorId)
+                ->where('a.tahun', $tahun)
+                ->select('a.quarter', 'a.status_pdsa', 'p.plan', 'p.do', 'p.study', 'p.action')
+                ->get()
+                ->keyBy('quarter');
+
+            foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $idx => $q) {
+                $assignment = $pdsaAssignments->get($q);
+                $twName = 'TW' . ($idx + 1);
+                
+                if (!$assignment) {
+                    $pdsaData[$twName] = null;
+                } else {
+                    $statusMap = [
+                        'assigned' => 'Perlu Diisi',
+                        'submitted' => 'Menunggu Review',
+                        'revised' => 'Perlu Revisi',
+                        'approved' => 'Disetujui'
+                    ];
+                    
+                    $pdsaData[$twName] = [
+                        'status' => $statusMap[$assignment->status_pdsa] ?? 'Unknown',
+                        'plan'   => $assignment->plan,
+                        'do'     => $assignment->do,
+                        'study'  => $assignment->study,
+                        'action' => $assignment->action
+                    ];
+                }
+            }
+        }
+
         $pdf = PDF::loadView('menu.ExportPdf.chart', [
             'judul' => $request->judul,
             'chart' => $request->chart_image,
             'indicator' => $indicator,
             'tahun' => $tahun,
-            'monthlyData' => $monthlyData
+            'monthlyData' => $monthlyData,
+            'pdsaData' => $pdsaData
         ])->setPaper('A4', 'portrait');
 
         return $pdf->stream(

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use DB;
+use Illuminate\Http\Request;
 use App\Traits\DashboardChartTrait;
 
 class DashboardController extends Controller
@@ -261,5 +262,109 @@ class DashboardController extends Controller
             ->orderByDesc('p.created_at')
             ->limit(10)
             ->get();
+    }
+
+    /**
+     * Get detailed indicator data including monthly values, N/D, and PDSA status
+     */
+    public function getIndikatorDetail(Request $request, $id)
+    {
+        $tahun = (int) $request->input('tahun', $this->getTahunPeriodeAktif());
+
+        // 1. Get Indicator Meta
+        $indicator = DB::table('tbl_indikator as i')
+            ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
+            ->leftJoin('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
+            ->select('i.*', 'u.nama_unit', 'ki.kategori_indikator', 'ki.numerator as label_numerator', 'ki.denominator as label_denominator')
+            ->where('i.id', $id)
+            ->first();
+
+        if (!$indicator) {
+            return response()->json(['error' => 'Indicator not found'], 404);
+        }
+
+        // 2. Get Monthly Reports (Numerator, Denominator, Nilai)
+        $reports = DB::table('tbl_laporan_dan_analis')
+            ->where('indikator_id', $id)
+            ->whereYear('tanggal_laporan', $tahun)
+            ->selectRaw('
+                EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+                SUM(numerator) as total_numerator,
+                SUM(denominator) as total_denominator,
+                AVG(nilai) as rata_nilai
+            ')
+            ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
+            ->get()
+            ->keyBy('bulan');
+
+        $monthlyData = [];
+        $hasil = array_fill(0, 12, null);
+        
+        foreach (range(1, 12) as $m) {
+            $rep = $reports->get($m);
+            $pencapaian = $rep ? round($rep->rata_nilai, 2) : 0;
+            
+            $monthlyData[] = [
+                'bulan' => $m,
+                'numerator' => $rep ? $rep->total_numerator : 0,
+                'denominator' => $rep ? $rep->total_denominator : 0,
+                'pencapaian' => $pencapaian,
+            ];
+
+            if ($rep) {
+                $hasil[$m - 1] = $pencapaian;
+            }
+        }
+
+        // 3. Get PDSA per Quarter (TW1 = Q1, TW2 = Q2, etc.)
+        $pdsaAssignments = DB::table('tbl_pdsa_assignments as a')
+            ->leftJoin('tbl_pdsa as p', 'a.id', '=', 'p.assignment_id')
+            ->where('a.indikator_id', $id)
+            ->where('a.tahun', $tahun)
+            ->select('a.quarter', 'a.status_pdsa', 'p.plan', 'p.do', 'p.study', 'p.action')
+            ->get()
+            ->keyBy('quarter');
+
+        $pdsaData = [];
+        foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $idx => $q) {
+            $assignment = $pdsaAssignments->get($q);
+            $twName = $q;
+            
+            if (!$assignment) {
+                $pdsaData[$twName] = [
+                    'status' => 'Belum Ada',
+                    'plan' => '-',
+                    'do' => '-',
+                    'study' => '-',
+                    'action' => '-',
+                    'color' => 'secondary'
+                ];
+            } else {
+                $statusMap = [
+                    'assigned' => ['label' => 'Perlu Diisi', 'color' => 'warning'],
+                    'submitted' => ['label' => 'Menunggu Review', 'color' => 'info'],
+                    'revised' => ['label' => 'Perlu Revisi', 'color' => 'danger'],
+                    'approved' => ['label' => 'Disetujui', 'color' => 'success']
+                ];
+                
+                $sd = $statusMap[$assignment->status_pdsa] ?? ['label' => 'Unknown', 'color' => 'dark'];
+                
+                $pdsaData[$twName] = [
+                    'status' => $sd['label'],
+                    'plan' => $assignment->plan ?? '',
+                    'do' => $assignment->do ?? '',
+                    'study' => $assignment->study ?? '',
+                    'action' => $assignment->action ?? '',
+                    'color' => $sd['color']
+                ];
+            }
+        }
+
+        return response()->json([
+            'meta' => $indicator,
+            'monthly' => $monthlyData,
+            'hasil' => $hasil, // For re-rendering chart if needed
+            'pdsa' => $pdsaData
+        ]);
     }
 }

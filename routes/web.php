@@ -146,6 +146,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])
         ->name('dashboard.chart-data');
+    Route::get('/dashboard/indikator-detail/{id}', [DashboardController::class, 'getIndikatorDetail'])
+        ->name('dashboard.indikator-detail');
 
     Route::resource('dashboard', DashboardController::class)
         ->middleware('check.role:dashboard');

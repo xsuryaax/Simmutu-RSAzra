@@ -116,6 +116,40 @@
     </div>
 </div>
 
+@if(isset($pdsaData) && count(array_filter($pdsaData)) > 0)
+<div style="margin-top: 30px; page-break-inside: avoid;">
+    <div style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px; border-bottom: 1px solid #1a3c6e; padding-bottom: 3px;">
+        Status PDSA (Plan-Do-Study-Act) Tahun {{ $tahun }}
+    </div>
+    <table class="data-table" style="margin-top: 10px; font-size: 9px;">
+        <thead>
+            <tr>
+                <th style="width: 6%;">Quarter</th>
+                <th style="width: 12%;">Status</th>
+                <th style="width: 20.5%;">Plan</th>
+                <th style="width: 20.5%;">Do</th>
+                <th style="width: 20.5%;">Study</th>
+                <th style="width: 20.5%;">Act</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($pdsaData as $tw => $pdsa)
+                @if($pdsa)
+                <tr>
+                    <td style="font-weight: bold;">{{ $tw }}</td>
+                    <td>{{ $pdsa['status'] }}</td>
+                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['plan'] ?: '-' }}</td>
+                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['do'] ?: '-' }}</td>
+                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['study'] ?: '-' }}</td>
+                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['action'] ?: '-' }}</td>
+                </tr>
+                @endif
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
+
 <div class="footer">
     Dicetak pada {{ date('d F Y H:i') }} &bull; SIM Mutu RS AZRA Bogor
 </div>

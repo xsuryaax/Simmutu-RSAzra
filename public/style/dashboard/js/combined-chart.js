@@ -229,9 +229,10 @@
     function updateHeaderTitle() {
         const titleEl = document.getElementById('multiChartTitle');
         const filterEl = document.getElementById('jenisFilter');
+        
         if (titleEl && filterEl) {
-            const icon = '<i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>';
-            titleEl.innerHTML = icon + filterEl.options[filterEl.selectedIndex].text + ' — Tahun ' + currentTahunFilter();
+            // Simply update text content since icon and badge are now siblings
+            titleEl.textContent = `${filterEl.options[filterEl.selectedIndex].text} — Tahun ${currentTahunFilter()}`;
         }
     }
 
@@ -292,6 +293,13 @@
             return;
         }
 
+        // --- UPDATE TOTAL INDICATOR BADGE ---
+        const badgeEl = document.getElementById('totalIndikatorBadge');
+        if (badgeEl) {
+            badgeEl.textContent = `Total: ${indikators.length} Indikator`;
+        }
+        // ------------------------------------
+
         // Use requestAnimationFrame to chunk the grid building and avoid long tasks (TBT Optimization)
         let chunkIndex = 0;
         const chunkSize = 4;
@@ -321,6 +329,13 @@
         // Store data for lazy loading
         wrapper.dataset.indicatorId = ind.id;
         wrapper.dataset.jsonData = JSON.stringify(ind);
+        
+        // Add click listener to open modal, but ignore clicks on the download dropdown
+        wrapper.style.cursor = 'pointer';
+        wrapper.onclick = function(e) {
+            if (e.target.closest('.dropdown, .dropstart')) return; // Ignore dropdown clicks
+            openDetailModal(ind.id);
+        };
 
         let parts = [];
         if (ind.unit) parts.push(`<span class="me-2"><i class="bi bi-hospital me-1"></i>${escHtml(ind.unit)}</span>`);
@@ -336,20 +351,27 @@
                     <div class="chart-ind-title">${escHtml(ind.nama)}</div>
                     ${subtitleHTML}
                 </div>
-                <div class="chart-legend mx-2 d-none d-sm-flex flex-shrink-0">
-                    <span class="legend-item me-2">
-                        <span class="legend-dot pencapaian"></span> <small>Pencapaian</small>
-                    </span>
-                    <span class="legend-item">
-                        <span class="legend-dot standar"></span> <small>Standar: ${ind.arah_target === 'lebih_kecil' ? '≤' : '≥'} ${ind.target_value}%</small>
-                    </span>
+                <div class="d-flex align-items-center flex-shrink-0 ms-auto">
+                    <div class="dropdown me-3">
+                        <button class="btn btn-danger btn-sm rounded d-flex align-items-center justify-content-center border-0 dropdown-toggle-custom btn-pdf-export text-white" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window" title="Opsi Cetak PDF" style="width: 32px; height: 32px; padding: 0; transition: all 0.2s;">
+                            <i class="bi bi-download"></i>
+                        </button>
+                        <ul class="dropdown-menu shadow-lg border-0 py-2 mt-1" style="font-size: 0.85rem; border-radius: 10px; min-width: 14rem;">
+                            <li><h6 class="dropdown-header text-uppercase text-muted fw-bold pb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Pilihan Ekspor</h6></li>
+                            <li><a class="dropdown-item py-2 px-3 fw-medium d-flex align-items-center mb-1" href="#" onclick="downloadSatuPDF(event, ${ind.id}, '${escJs(ind.nama)}', false)"><i class="bi bi-file-bar-graph fs-5 me-3 text-secondary"></i>Cetak Grafik Saja</a></li>
+                            <li><a class="dropdown-item py-2 px-3 fw-medium d-flex align-items-center bg-light text-dark rounded mx-2" href="#" onclick="downloadSatuPDF(event, ${ind.id}, '${escJs(ind.nama)}', true)"><i class="bi bi-file-earmark-medical fs-5 me-3 text-danger"></i>Beserta PDSA</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="chart-legend d-none d-sm-flex flex-shrink-0">
+                        <span class="legend-item me-2">
+                            <span class="legend-dot pencapaian"></span> <small>Pencapaian</small>
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-dot standar"></span> <small>Standar: ${ind.arah_target === 'lebih_kecil' ? '≤' : '≥'} ${ind.target_value}%</small>
+                        </span>
+                    </div>
                 </div>
-                <button class="btn btn-xs btn-download-ind ms-2 flex-shrink-0"
-                        onclick="downloadSatuPDF(${ind.id}, '${escJs(ind.nama)}')"
-                        title="Download PDF"
-                        aria-label="Download PDF untuk ${escHtml(ind.nama)}">
-                    <i class="bi bi-download" style="font-size: .8rem;"></i>
-                </button>
             </div>
             <div class="chart-card-body">
                 <canvas id="canvas-${ind.id}"></canvas>
@@ -368,6 +390,19 @@
 
         if (chartInstances[ind.id]) chartInstances[ind.id].destroy();
 
+        // Dynamic Color logic based on currentType
+        // IMN = Red, IMPRS = Green, UNIT = Gray
+        let chartColor = '#e63757'; // Default Red
+        let bgColor = currentChartType === 'bar' ? '#e63757cc' : '#e6375711';
+        
+        if (currentType === 'imprs') {
+            chartColor = '#198754'; // Green
+            bgColor = currentChartType === 'bar' ? '#198754cc' : '#19875411';
+        } else if (currentType === 'unit') {
+            chartColor = '#6c757d'; // Gray
+            bgColor = currentChartType === 'bar' ? '#6c757dcc' : '#6c757d11';
+        }
+
         chartInstances[ind.id] = new Chart(ctx, {
             type: currentChartType,
             data: {
@@ -376,13 +411,13 @@
                     {
                         label: 'Pencapaian',
                         data: hasil,
-                        borderColor: '#e63757',
-                        backgroundColor: currentChartType === 'bar' ? '#e63757cc' : '#e6375711',
+                        borderColor: chartColor,
+                        backgroundColor: bgColor,
                         borderWidth: 2.5,
                         tension: 0.35,
                         fill: currentChartType === 'line',
                         pointRadius: 4,
-                        pointBackgroundColor: '#e63757',
+                        pointBackgroundColor: chartColor,
                         pointBorderColor: '#fff',
                         pointBorderWidth: 1.5,
                         order: 0
@@ -491,8 +526,9 @@
         }
     }
 
-    window.downloadSatuPDF = function(indId, nama) {
-        // No need for chart instances, submitPdfExport renders its own from cache
+    window.downloadSatuPDF = function(e, indId, nama, includePdsa) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        document.getElementById('inputIncludePdsa').value = includePdsa ? '1' : '0';
         submitPdfExport(null, nama, indId);
     };
 
@@ -760,12 +796,175 @@
         tempChart.destroy();
         document.body.removeChild(tempCanvas);
 
-        // Submit form
         form.querySelector('input[name="chart_image"]').value = highResImage;
         form.querySelector('input[name="judul"]').value = judul;
         form.querySelector('input[name="indicator_id"]').value = indicatorId;
         form.querySelector('input[name="tahun"]').value = currentTahunFilter();
         form.submit();
+    }
+
+    // --- CHART MODAL LOGIC ---
+    let mdChartInstance = null;
+
+    window.openDetailModal = async function(indId) {
+        try {
+            // Check if modal instance exists or create it
+            const modalEl = document.getElementById('modalDetailChart');
+            if (!modalEl) return;
+            
+            // Bootstrap might be loaded via import or globally
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+
+            // Reset UI
+            document.getElementById('mdLoader').classList.remove('d-none');
+            document.getElementById('mdContent').classList.add('d-none');
+            
+            // Get Detail from API
+            const tahun = currentTahunFilter();
+            const res = await fetch(`/dashboard/indikator-detail/${indId}?tahun=${tahun}`);
+            const data = await res.json();
+
+            if (data.error) throw new Error(data.error);
+
+            // Populate Meta
+            document.getElementById('mdIndikatorTitle').textContent = data.meta.nama_indikator;
+            document.getElementById('mdIndikatorUnit').innerHTML = `<i class="bi bi-hospital me-1"></i> ${data.meta.nama_unit ?? 'Seluruh Rumah Sakit'}`;
+            document.getElementById('mdIndikatorKategori').innerHTML = `<i class="bi bi-tags me-1"></i> ${data.meta.kategori_indikator}`;
+            document.getElementById('mdIndikatorStandar').innerHTML = `<i class="bi bi-bullseye me-1"></i> Standar: ${data.meta.arah_target === 'lebih_kecil' ? '≤' : '≥'}${parseFloat(data.meta.target_indikator)}%`;
+            
+            // Populate Monthly Table
+            const tbodyBulanan = document.getElementById('mdTbodyBulanan');
+            tbodyBulanan.innerHTML = '';
+            const monthsNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            
+            data.monthly.forEach((m, idx) => {
+                const target = parseFloat(data.meta.target_indikator);
+                let achieved = false;
+                if (data.meta.arah_target === 'lebih_kecil') {
+                    achieved = m.pencapaian <= target && m.pencapaian !== null;
+                } else {
+                    achieved = m.pencapaian >= target && m.pencapaian !== null;
+                }
+                const colorClass = achieved ? 'text-success' : 'text-danger';
+
+                tbodyBulanan.innerHTML += `
+                    <tr>
+                        <td class="fw-bold bg-light py-1">${monthsNames[m.bulan - 1]}</td>
+                        <td class="py-1">${m.numerator.toLocaleString()}</td>
+                        <td class="py-1">${m.denominator.toLocaleString()}</td>
+                        <td class="fw-bold ${colorClass} py-1">${parseFloat(m.pencapaian).toFixed(2)}%</td>
+                    </tr>
+                `;
+            });
+
+            // Populate PDSA Table
+            const tbodyPdsa = document.getElementById('mdTbodyPdsa');
+            tbodyPdsa.innerHTML = '';
+            let hasPdsa = false;
+            Object.keys(data.pdsa).forEach(qName => {
+                const p = data.pdsa[qName];
+                if (p && p.status !== 'Belum Ada') {
+                    hasPdsa = true;
+                    tbodyPdsa.innerHTML += `
+                        <tr>
+                            <td class="fw-bold align-middle text-center py-1">${qName}</td>
+                            <td class="align-middle text-center py-1"><span class="badge bg-${p.color}">${p.status}</span></td>
+                            <td class="text-start align-top py-1" style="font-size: 0.8rem; white-space: pre-wrap;"><small>${escHtml(p.plan)}</small></td>
+                            <td class="text-start align-top py-1" style="font-size: 0.8rem; white-space: pre-wrap;"><small>${escHtml(p.do)}</small></td>
+                            <td class="text-start align-top py-1" style="font-size: 0.8rem; white-space: pre-wrap;"><small>${escHtml(p.study)}</small></td>
+                            <td class="text-start align-top py-1" style="font-size: 0.8rem; white-space: pre-wrap;"><small>${escHtml(p.action)}</small></td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (!hasPdsa) {
+                tbodyPdsa.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada penugasan PDSA untuk tahun ini.</td></tr>`;
+            }
+
+            // Configure Chart
+            const ctx = document.getElementById('mdChartCanvas');
+            if (mdChartInstance) mdChartInstance.destroy();
+
+            const targetArray = arrayFill(0, 12, parseFloat(data.meta.target_indikator));
+            
+            // Dynamic Color logic based on currentType
+            let chartColor = '#e63757'; // Default Red
+            let bgColor = currentChartType === 'bar' ? '#e63757cc' : '#e6375711';
+            
+            if (currentType === 'imprs') {
+                chartColor = '#198754'; // Green
+                bgColor = currentChartType === 'bar' ? '#198754cc' : '#19875411';
+            } else if (currentType === 'unit') {
+                chartColor = '#6c757d'; // Gray
+                bgColor = currentChartType === 'bar' ? '#6c757dcc' : '#6c757d11';
+            }
+
+            mdChartInstance = new Chart(ctx, {
+                type: currentChartType,
+                data: {
+                    labels: MONTHS_ALL,
+                    datasets: [
+                        {
+                            label: 'Pencapaian',
+                            data: data.hasil,
+                            borderColor: chartColor,
+                            backgroundColor: bgColor,
+                            borderWidth: 2.5,
+                            tension: 0.35,
+                            fill: currentChartType === 'line',
+                            pointRadius: 4,
+                            pointBackgroundColor: chartColor,
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 1.5,
+                            order: 0
+                        },
+                        {
+                            label: 'Standar',
+                            data: targetArray,
+                            borderColor: '#2c7be5',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 0,
+                            borderDash: currentChartType === 'line' ? [6, 4] : [],
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        pencapaianLabel: { enabled: true }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { borderDash: [4, 4] }
+                        },
+                        x: { 
+                            grid: { display: false } 
+                        }
+                    }
+                },
+                plugins: [pencapaianLabelPlugin]
+            });
+
+            // Show Content
+            document.getElementById('mdLoader').classList.add('d-none');
+            document.getElementById('mdContent').classList.remove('d-none');
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('mdLoader').innerHTML = `<div class="alert alert-danger w-100 mx-4 border-0 border-start border-4 border-danger"><i class="bi bi-exclamation-triangle me-2"></i> Gagal memuat data: ${err.message}</div>`;
+        }
+    };
+
+    function arrayFill(start, count, value) {
+        return Array(count).fill(value);
     }
 
     function escHtml(str) {
