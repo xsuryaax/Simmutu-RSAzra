@@ -61,4 +61,19 @@ class User extends Authenticatable
     {
         return $this->belongsTo(tbl_role::class, 'role_id');
     }
+
+    /**
+     * Check if user has permission to a specific menu key
+     */
+    public function hasPermission($menuKey)
+    {
+        // Admin always has permission
+        if ($this->role_id == 1) {
+            return true;
+        }
+
+        return tbl_hak_akses::where('role_id', $this->role_id)
+            ->where('menu_key', $menuKey)
+            ->exists();
+    }
 }

@@ -43,162 +43,147 @@
         </div>
         <div class="sidebar-menu">
             <ul class="menu">
-                <li class="sidebar-title">Menu Utama</li>
+                @php
+                    $menuGroups = config('menu');
+                @endphp
 
-                <li class="sidebar-item {{ Request::is('/') ? 'active' : '' }}">
-                    <a href="{{ url('/') }}" class='sidebar-link'>
-                        <i class="bi bi-grid-fill"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </li>
+                @foreach ($menuGroups as $groupKey => $group)
+                    @php
+                        // Check if user has permission for at least one menu in this group
+                        $hasGroupAccess = false;
+                        foreach ($group['menus'] as $m) {
+                            if (auth()->user()->hasPermission($m['key'])) {
+                                $hasGroupAccess = true;
+                                break;
+                            }
+                        }
+                    @endphp
 
-                <li
-                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-validator*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
-                    <a href="#" class="sidebar-link">
-                        <i class="bi bi-file-earmark-medical-fill"></i>
-                        <span>Indikator Mutu</span>
-                    </a>
-                    <ul class="submenu">
-                        <li class="submenu-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
-                            <a href="{{ route('master-indikator.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Master Indikator</a>
-                        </li>
-                        <li class="submenu-item {{ request()->is('kamus-indikator*') ? 'active' : '' }}">
-                            <a href="{{ route('kamus-indikator.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Profil Indikator</a>
-                        </li>
-                        <li class="submenu-item {{ request()->is('laporan-analis*') ? 'active' : '' }}">
-                            <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Pengisian Indikator</a>
-                        </li>
-                        @if(auth()->user()->role_id != 4)
-                            <li class="submenu-item {{ request()->is('laporan-validator*') ? 'active' : '' }}">
-                                <a href="{{ route('laporan-validator.index') }}" class="submenu-link"
-                                    style="text-decoration: none;">
-                                    Validasi Indikator
-                                </a>
-                            </li>
-                        @endif
-                        <li class="submenu-item {{ request()->is('analisa-data*') ? 'active' : '' }}">
-                            <a href="{{ route('analisa-data.index') }}" class="submenu-link"
-                                style="text-decoration: none;">Analisa Indikator</a>
-                        </li>
-                    </ul>
-                </li>
+                    @if ($hasGroupAccess)
+                        <li class="sidebar-title">{{ $group['title'] }}</li>
+
+                        @if ($groupKey === 'menu_utama')
+                            {{-- Special handling for Dashboard as it's the first item --}}
+                            @php $dashboard = collect($group['menus'])->firstWhere('key', 'dashboard'); @endphp
+                            @if (auth()->user()->hasPermission('dashboard'))
+                                <li class="sidebar-item {{ Request::is('/') ? 'active' : '' }}">
+                                    <a href="{{ url('/') }}" class='sidebar-link'>
+                                        <i class="bi bi-grid-fill"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                            @endif
+
+                            {{-- Indikator Mutu Submenu --}}
+                            @php
+                                $indikatorMenus = ['master_indikator', 'kamus_indikator', 'laporan_analis', 'laporan_validator', 'analisa_data'];
+                                $hasIndikatorAccess = false;
+                                foreach ($indikatorMenus as $k) {
+                                    if (auth()->user()->hasPermission($k)) {
+                                        $hasIndikatorAccess = true;
+                                        break;
+                                    }
+                                }
+                            @endphp
+
+                            @if ($hasIndikatorAccess)
+                                <li
+                                    class="sidebar-item has-sub {{ request()->is('laporan-analis*') || request()->is('laporan-validator*') || request()->is('kamus-indikator*') || request()->is('master-indikator*') || request()->is('analisa-data*') ? 'active' : '' }}">
+                                    <a href="#" class="sidebar-link">
+                                        <i class="bi bi-file-earmark-medical-fill"></i>
+                                        <span>Indikator Mutu</span>
+                                    </a>
+                                    <ul class="submenu">
+                                        @if (auth()->user()->hasPermission('master_indikator'))
+                                            <li class="submenu-item {{ request()->is('master-indikator*') ? 'active' : '' }}">
+                                                <a href="{{ route('master-indikator.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Master Indikator</a>
+                                            </li>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('kamus_indikator'))
+                                            <li class="submenu-item {{ request()->is('kamus-indikator*') ? 'active' : '' }}">
+                                                <a href="{{ route('kamus-indikator.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Profil Indikator</a>
+                                            </li>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('laporan_analis'))
+                                            <li class="submenu-item {{ request()->is('laporan-analis*') ? 'active' : '' }}">
+                                                <a href="{{ route('laporan-analis.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Pengisian Indikator</a>
+                                            </li>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('laporan_validator'))
+                                            <li class="submenu-item {{ request()->is('laporan-validator*') ? 'active' : '' }}">
+                                                <a href="{{ route('laporan-validator.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Validasi Indikator</a>
+                                            </li>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('analisa_data'))
+                                            <li class="submenu-item {{ request()->is('analisa-data*') ? 'active' : '' }}">
+                                                <a href="{{ route('analisa-data.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Analisa Indikator</a>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </li>
+                            @endif
+
+                            {{-- PDSA --}}
+                            @if (auth()->user()->hasPermission('pdsa'))
+                                <li class="sidebar-item {{ Request::is('pdsa*') ? 'active' : '' }}">
+                                    <a href="{{ url('/pdsa') }}" class='sidebar-link'>
+                                        <i class="bi-clipboard-fill"></i>
+                                        <span>PDSA</span>
+                                    </a>
+                                </li>
+                            @endif
 
 
-
-                @if (in_array(auth()->user()->unit_id, [1, 2]))
-                    <li class="sidebar-item {{ Request::is('pdsa*') ? 'active' : '' }}">
-                        <a href="{{ url('/pdsa') }}" class='sidebar-link'>
-                            <i class="bi-clipboard-fill"></i>
-                            <span>PDSA</span>
-                        </a>
-                    </li>
-                @endif
-
-                @if (auth()->user()->unit_id == 1)
-                    <li class="sidebar-title">Menu</li>
-
-                    <li
-                        class="sidebar-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('periode-analisis-data*') || request()->is('periode-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
-
-                        <a href="#" class="sidebar-link">
-                            <i class="bi bi-stack"></i>
-                            <span>Manajemen Data</span>
-                        </a>
-
-                        <ul class="submenu">
-                            {{-- Level 1 Menu --}}
+                        @elseif($groupKey === 'manajemen_data_mutu')
                             <li
-                                class="submenu-item has-sub {{ request()->is('dimensi-mutu*') || request()->is('periode-analisis-data*') || request()->is('periode-pengumpulan-data*') || request()->is('penyajian-data*') || request()->is('metode-pengumpulan-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
+                                class="sidebar-item has-sub {{ request()->is('cakupan-data*') || request()->is('dimensi-mutu*') || request()->is('periode-analisis-data*') || request()->is('periode-pengumpulan-data*') || request()->is('interpretasi-data*') || request()->is('metodologi-analisis-data*') || request()->is('metodologi-pengumpulan-data*') || request()->is('publikasi-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
 
-                                <a href="#" class="submenu-link" style="text-decoration: none;">Master Indikator
+                                <a href="#" class="sidebar-link">
+                                    <i class="bi bi-stack"></i>
+                                    <span>Manajemen Data</span>
                                 </a>
 
-                                {{-- Level 2 --}}
-                                <ul class="submenu submenu-level-2">
-
-                                    <li class="submenu-item {{ request()->is('kategori-imprs*') ? 'active' : '' }}">
-                                        <a href="{{ route('kategori-imprs.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Kategori IMPRS</a>
-                                    </li>
-
-                                    <li class="submenu-item {{ request()->is('jenis-indikator*') ? 'active' : '' }}">
-                                        <a href="{{ route('jenis-indikator.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Jenis Indikator</a>
-                                    </li>
-
-                                    <li class="submenu-item {{ request()->is('dimensi-mutu*') ? 'active' : '' }}">
-                                        <a href="{{ route('dimensi-mutu.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Dimensi Mutu</a>
-                                    </li>
-
-                                    <li class="submenu-item {{ request()->is('periode-analisis-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('periode-analisis-data.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Periode Analisa Data</a>
-                                    </li>
-
+                                <ul class="submenu">
                                     <li
-                                        class="submenu-item {{ request()->is('periode-pengumpulan-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('periode-pengumpulan-data.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Periode Pengumpulan
-                                            Data</a>
-                                    </li>
+                                        class="submenu-item has-sub {{ request()->is('dimensi-mutu*') || request()->is('periode-analisis-data*') || request()->is('periode-pengumpulan-data*') || request()->is('penyajian-data*') || request()->is('metode-pengumpulan-data*') || request()->is('kategori-imprs*') ? 'active' : '' }}">
 
-                                    <li class="submenu-item {{ request()->is('penyajian-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('penyajian-data.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Penyajian Data</a>
-                                    </li>
+                                        <a href="#" class="submenu-link" style="text-decoration: none;">Master
+                                            Indikator</a>
 
-                                    <li
-                                        class="submenu-item {{ request()->is('metode-pengumpulan-data*') ? 'active' : '' }}">
-                                        <a href="{{ route('metode-pengumpulan-data.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Metode Pengumpulan
-                                            Data</a>
+                                        <ul class="submenu submenu-level-2">
+                                            @foreach ($group['menus'] as $m)
+                                                @if (auth()->user()->hasPermission($m['key']))
+                                                    <li
+                                                        class="submenu-item {{ request()->is(explode('.', $m['route'])[0] . '*') ? 'active' : '' }}">
+                                                        <a href="{{ route($m['route']) }}" class="submenu-link"
+                                                            style="text-decoration: none;">{{ $m['label'] }}</a>
+                                                    </li>
+                                                @endif
+                                            @endforeach
+                                        </ul>
                                     </li>
-
                                 </ul>
                             </li>
-                        </ul>
-                    </li>
-
-
-                    <li class="sidebar-title">Pengaturan</li>
-
-                    <li class="sidebar-item {{ Request::is('hak-akses*') ? 'active' : '' }}">
-                        <a href="{{ route('hak-akses.index') }}" class='sidebar-link'>
-                            <i class="bi bi-key-fill"></i>
-                            <span>Hak Akses</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {{ Request::is('manajemen-user*') ? 'active' : '' }}">
-                        <a href="{{ route('manajemen-user.index') }}" class='sidebar-link'>
-                            <i class="bi bi-person-fill-gear"></i>
-                            <span>Manajemen User</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {{ Request::is('manajemen-role*') ? 'active' : '' }}">
-                        <a href="{{ route('manajemen-role.index') }}" class='sidebar-link'>
-                            <i class="bi bi-person-fill-check"></i>
-                            <span>Manajemen Role</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {{ Request::is('manajemen-unit*') ? 'active' : '' }}">
-                        <a href="{{ route('manajemen-unit.index') }}" class='sidebar-link'>
-                            <i class="bi bi-buildings-fill"></i>
-                            <span>Manajemen Unit</span>
-                        </a>
-                    </li>
-                @endif
-                @if (in_array(auth()->user()->unit_id, [1, 2]))
-                    <li class="sidebar-item {{ Request::is('periode-mutu*') ? 'active' : '' }}">
-                        <a href="{{ route('periode-mutu.index') }}" class='sidebar-link'>
-                            <i class="bi bi-calendar-event-fill"></i>
-                            <span>Manajemen Periode</span>
-                        </a>
-                    </li>
-                @endif
+                        @elseif($groupKey === 'pengaturan')
+                            @foreach ($group['menus'] as $m)
+                                @if (auth()->user()->hasPermission($m['key']))
+                                    <li class="sidebar-item {{ Request::is(explode('.', $m['route'])[0] . '*') ? 'active' : '' }}">
+                                        <a href="{{ route($m['route']) }}" class='sidebar-link'>
+                                            <i
+                                                class="bi {{ $m['key'] == 'manajemen_user' ? 'bi-person-fill-gear' : ($m['key'] == 'manage_role' ? 'bi-person-fill-check' : ($m['key'] == 'manajemen_unit' ? 'bi-buildings-fill' : ($m['key'] == 'periode_mutu' ? 'bi-calendar-event-fill' : 'bi-key-fill'))) }}"></i>
+                                            <span>{{ $m['label'] }}</span>
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        @endif
+                    @endif
+                @endforeach
             </ul>
         </div>
         <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
