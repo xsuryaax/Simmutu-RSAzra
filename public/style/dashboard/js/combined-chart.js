@@ -379,6 +379,38 @@
         return wrapper;
     }
 
+    const quarterDividerPlugin = {
+        id: 'quarterDivider',
+        beforeDraw: (chart) => {
+            const xAxis = chart.scales.x;
+            const yAxis = chart.scales.y;
+            if (!xAxis || !yAxis) return;
+            
+            const ctx = chart.ctx;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'; // Subtle divider color
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+
+            xAxis.ticks.forEach((tick, index) => {
+                const label = tick.label || xAxis.getLabelForValue(tick.value);
+                if (label === 'Mar' || label === 'Jun' || label === 'Sep') {
+                    if (index < xAxis.ticks.length - 1) {
+                        const x1 = xAxis.getPixelForTick(index);
+                        const x2 = xAxis.getPixelForTick(index + 1);
+                        const x = (x1 + x2) / 2;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(x, yAxis.top);
+                        ctx.lineTo(x, yAxis.bottom);
+                        ctx.stroke();
+                    }
+                }
+            });
+            ctx.restore();
+        }
+    };
+
     function renderMiniChart(ind) {
         const ctx = document.getElementById(`canvas-${ind.id}`);
         if (!ctx) return;
@@ -492,7 +524,7 @@
                     }
                 }
             },
-            plugins: [pencapaianLabelPlugin]
+            plugins: [quarterDividerPlugin]
         });
     }
 
@@ -805,6 +837,31 @@
 
     // --- CHART MODAL LOGIC ---
     let mdChartInstance = null;
+    let currentModalQuarter = 'Tahun';
+    let cachedModalData = null;
+
+    // Attach Event Listeners to Modal Quarter Buttons
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('#mdQuarterGroup .md-btn-quarter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentModalQuarter = this.dataset.q;
+                updateModalQuarterButtons();
+                if (cachedModalData) renderModalContent();
+            });
+        });
+    });
+
+    function updateModalQuarterButtons() {
+        document.querySelectorAll('#mdQuarterGroup .md-btn-quarter').forEach(btn => {
+            if (btn.dataset.q === currentModalQuarter) {
+                btn.classList.remove('btn-light', 'border');
+                btn.classList.add('btn-primary', 'active');
+            } else {
+                btn.classList.remove('btn-primary', 'active');
+                btn.classList.add('btn-light', 'border');
+            }
+        });
+    }
 
     window.openDetailModal = async function(indId) {
         try {
@@ -818,8 +875,17 @@
 
             // Reset UI
             document.getElementById('mdLoader').classList.remove('d-none');
+            document.getElementById('mdLoader').innerHTML = `
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="ms-3 fw-semibold text-secondary">Sedang memuat rincian data...</span>
+            `;
             document.getElementById('mdContent').classList.add('d-none');
             
+            currentModalQuarter = currentQuarter; // Inherit dashboard context
+            updateModalQuarterButtons();
+
             // Get Detail from API
             const tahun = currentTahunFilter();
             const res = await fetch(`/dashboard/indikator-detail/${indId}?tahun=${tahun}`);
@@ -827,18 +893,42 @@
 
             if (data.error) throw new Error(data.error);
 
+            cachedModalData = data;
+            renderModalContent();
+
+        } catch (err) {
+            console.error(err);
+            document.getElementById('mdLoader').innerHTML = `<div class="alert alert-danger w-100 mx-4 border-0 border-start border-4 border-danger"><i class="bi bi-exclamation-triangle me-2"></i> Gagal memuat data: ${err.message}</div>`;
+        }
+    };
+
+    function renderModalContent() {
+        const data = cachedModalData;
+        if (!data) return;
+
             // Populate Meta
             document.getElementById('mdIndikatorTitle').textContent = data.meta.nama_indikator;
             document.getElementById('mdIndikatorUnit').innerHTML = `<i class="bi bi-hospital me-1"></i> ${data.meta.nama_unit ?? 'Seluruh Rumah Sakit'}`;
             document.getElementById('mdIndikatorKategori').innerHTML = `<i class="bi bi-tags me-1"></i> ${data.meta.kategori_indikator}`;
             document.getElementById('mdIndikatorStandar').innerHTML = `<i class="bi bi-bullseye me-1"></i> Standar: ${data.meta.arah_target === 'lebih_kecil' ? '≤' : '≥'}${parseFloat(data.meta.target_indikator)}%`;
             
+            // Slice Monthly Table and Chart Data based on currentModalQuarter
+            const [startMonth, endMonth] = QUARTER_MAP[currentModalQuarter] || [0, 12];
+            const activeMonths = MONTHS_ALL.slice(startMonth, endMonth);
+            const activeMonthlyData = data.monthly.slice(startMonth, endMonth);
+            const activeHasilData = data.hasil.slice(startMonth, endMonth);
+            const activeTargetArray = arrayFill(0, endMonth - startMonth, parseFloat(data.meta.target_indikator));
+            
             // Populate Monthly Table
             const tbodyBulanan = document.getElementById('mdTbodyBulanan');
             tbodyBulanan.innerHTML = '';
-            const monthsNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             
-            data.monthly.forEach((m, idx) => {
+            let totalNum = 0;
+            let totalDen = 0;
+            let totalPencapaian = 0;
+            let validMonths = 0;
+
+            activeMonthlyData.forEach((m, idx) => {
                 const target = parseFloat(data.meta.target_indikator);
                 let achieved = false;
                 if (data.meta.arah_target === 'lebih_kecil') {
@@ -847,22 +937,59 @@
                     achieved = m.pencapaian >= target && m.pencapaian !== null;
                 }
                 const colorClass = achieved ? 'text-success' : 'text-danger';
+                
+                // Format pencapaian to remove trailing .00
+                const pencapaianVal = m.pencapaian !== null ? Number(m.pencapaian).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + '%' : '-';
 
                 tbodyBulanan.innerHTML += `
                     <tr>
-                        <td class="fw-bold bg-light py-1">${monthsNames[m.bulan - 1]}</td>
-                        <td class="py-1">${m.numerator.toLocaleString()}</td>
-                        <td class="py-1">${m.denominator.toLocaleString()}</td>
-                        <td class="fw-bold ${colorClass} py-1">${parseFloat(m.pencapaian).toFixed(2)}%</td>
+                        <td class="fw-bold bg-light py-1">${activeMonths[idx]}</td>
+                        <td class="py-1">${m.numerator.toLocaleString('id-ID')}</td>
+                        <td class="py-1">${m.denominator.toLocaleString('id-ID')}</td>
+                        <td class="fw-bold ${colorClass} py-1">${pencapaianVal}</td>
                     </tr>
                 `;
+
+                if (m.pencapaian !== null) {
+                    totalPencapaian += parseFloat(m.pencapaian);
+                    validMonths++;
+                }
             });
+
+            // Add Summary Row for Quarter
+            if (currentModalQuarter !== 'Tahun') {
+                const avgPencapaian = validMonths > 0 ? (totalPencapaian / 3) : 0; // Divided by 3 months in a quarter
+                const target = parseFloat(data.meta.target_indikator);
+                let avgAchieved = false;
+                if (data.meta.arah_target === 'lebih_kecil') {
+                    avgAchieved = avgPencapaian <= target;
+                } else {
+                    avgAchieved = avgPencapaian >= target;
+                }
+                
+                const avgColorClass = avgAchieved ? 'text-success' : 'text-danger';
+                const avgLabel = avgAchieved ? 'Tercapai' : 'Tidak Tercapai';
+                const avgPencapaianVal = Number(avgPencapaian).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + '%';
+
+                tbodyBulanan.innerHTML += `
+                    <tr class="table-secondary">
+                        <td colspan="3" class="fw-bold text-center py-2">Rata-rata ${currentModalQuarter} (${avgLabel}):</td>
+                        <td class="fw-bold py-2 text-center border-start border-light ${avgColorClass}">${avgPencapaianVal}</td>
+                    </tr>
+                `;
+            }
 
             // Populate PDSA Table
             const tbodyPdsa = document.getElementById('mdTbodyPdsa');
             tbodyPdsa.innerHTML = '';
             let hasPdsa = false;
-            Object.keys(data.pdsa).forEach(qName => {
+            
+            let pdsaKeys = Object.keys(data.pdsa);
+            if (currentModalQuarter !== 'Tahun') {
+                pdsaKeys = pdsaKeys.filter(q => q === currentModalQuarter);
+            }
+
+            pdsaKeys.forEach(qName => {
                 const p = data.pdsa[qName];
                 if (p && p.status !== 'Belum Ada') {
                     hasPdsa = true;
@@ -880,14 +1007,13 @@
             });
 
             if (!hasPdsa) {
-                tbodyPdsa.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">Tidak ada penugasan PDSA untuk tahun ini.</td></tr>`;
+                const emptyMessage = currentModalQuarter !== 'Tahun' ? `Tidak ada penugasan PDSA untuk ${currentModalQuarter}.` : `Tidak ada penugasan PDSA untuk tahun ini.`;
+                tbodyPdsa.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">${emptyMessage}</td></tr>`;
             }
 
             // Configure Chart
             const ctx = document.getElementById('mdChartCanvas');
             if (mdChartInstance) mdChartInstance.destroy();
-
-            const targetArray = arrayFill(0, 12, parseFloat(data.meta.target_indikator));
             
             // Dynamic Color logic based on currentType
             let chartColor = '#e63757'; // Default Red
@@ -904,11 +1030,11 @@
             mdChartInstance = new Chart(ctx, {
                 type: currentChartType,
                 data: {
-                    labels: MONTHS_ALL,
+                    labels: activeMonths,
                     datasets: [
                         {
                             label: 'Pencapaian',
-                            data: data.hasil,
+                            data: activeHasilData,
                             borderColor: chartColor,
                             backgroundColor: bgColor,
                             borderWidth: 2.5,
@@ -922,7 +1048,7 @@
                         },
                         {
                             label: 'Standar',
-                            data: targetArray,
+                            data: activeTargetArray,
                             borderColor: '#2c7be5',
                             backgroundColor: 'transparent',
                             borderWidth: 2,
@@ -950,18 +1076,14 @@
                         }
                     }
                 },
-                plugins: [pencapaianLabelPlugin]
+                plugins: [pencapaianLabelPlugin, quarterDividerPlugin]
             });
 
             // Show Content
             document.getElementById('mdLoader').classList.add('d-none');
             document.getElementById('mdContent').classList.remove('d-none');
 
-        } catch (err) {
-            console.error(err);
-            document.getElementById('mdLoader').innerHTML = `<div class="alert alert-danger w-100 mx-4 border-0 border-start border-4 border-danger"><i class="bi bi-exclamation-triangle me-2"></i> Gagal memuat data: ${err.message}</div>`;
-        }
-    };
+    }
 
     function arrayFill(start, count, value) {
         return Array(count).fill(value);

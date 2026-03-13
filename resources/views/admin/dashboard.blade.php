@@ -150,6 +150,16 @@
 
                     <!-- Modal Content -->
                     <div id="mdContent" class="d-none p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-filter-square text-primary me-2"></i>Filter Kuartal Rincian</h6>
+                            <div class="btn-group btn-group-sm shadow-sm" role="group" id="mdQuarterGroup">
+                                <button class="btn btn-primary active md-btn-quarter" data-q="Tahun">Tahun / All</button>
+                                <button class="btn btn-light md-btn-quarter border" data-q="Q1">Q1</button>
+                                <button class="btn btn-light md-btn-quarter border" data-q="Q2">Q2</button>
+                                <button class="btn btn-light md-btn-quarter border" data-q="Q3">Q3</button>
+                                <button class="btn btn-light md-btn-quarter border" data-q="Q4">Q4</button>
+                            </div>
+                        </div>
                         <div class="row g-4 mb-4">
                             <!-- Left: Chart -->
                             <div class="col-lg-7">
