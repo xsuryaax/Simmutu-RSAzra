@@ -46,6 +46,15 @@ class ExportPdfController extends Controller
                 ->get()
                 ->groupBy('indikator_id');
 
+            // Batch Fetch PDSA
+            $pdsaAssignments = DB::table('tbl_pdsa_assignments as a')
+                ->leftJoin('tbl_pdsa as p', 'a.id', '=', 'p.assignment_id')
+                ->whereIn('a.indikator_id', $indicatorIds)
+                ->where('a.tahun', $tahun)
+                ->select('a.indikator_id', 'a.quarter', 'a.status_pdsa', 'p.plan', 'p.do', 'p.study', 'p.action')
+                ->get()
+                ->groupBy('indikator_id');
+
             $finalIndicators = [];
             $months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -67,11 +76,37 @@ class ExportPdfController extends Controller
                     ];
                 }
 
+                // Map PDSA data for this indicator
+                $indPdsaRaw = $pdsaAssignments->get($id, collect())->keyBy('quarter');
+                $pdsaData = [];
+                $statusMap = [
+                    'assigned'  => 'Perlu Diisi',
+                    'submitted' => 'Menunggu Review',
+                    'revised'   => 'Perlu Revisi',
+                    'approved'  => 'Disetujui'
+                ];
+                foreach (['Q1', 'Q2', 'Q3', 'Q4'] as $idx => $q) {
+                    $assignment = $indPdsaRaw->get($q);
+                    $twName = 'TW' . ($idx + 1);
+                    if (!$assignment) {
+                        $pdsaData[$twName] = null;
+                    } else {
+                        $pdsaData[$twName] = [
+                            'status' => $statusMap[$assignment->status_pdsa] ?? 'Unknown',
+                            'plan'   => $assignment->plan,
+                            'do'     => $assignment->do,
+                            'study'  => $assignment->study,
+                            'action' => $assignment->action
+                        ];
+                    }
+                }
+
                 $finalIndicators[] = [
-                    'indicator' => $ind,
+                    'indicator'   => $ind,
                     'monthlyData' => $monthlyData,
-                    'chart' => $chartsByIndId[$id] ?? null,
-                    'judul' => $ind->nama_indikator
+                    'chart'       => $chartsByIndId[$id] ?? null,
+                    'judul'       => $ind->nama_indikator,
+                    'pdsaData'    => $pdsaData
                 ];
             }
 

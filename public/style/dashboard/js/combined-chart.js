@@ -15,6 +15,21 @@
     const MONTHS_ALL  = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
     const QUARTER_MAP = { Tahun:[0,12], Q1:[0,3], Q2:[3,6], Q3:[6,9], Q4:[9,12] };
 
+    // ─────────────────────────────────────────────────────────
+    // HELPERS
+    // ─────────────────────────────────────────────────────────
+    function getIndicatorColors(type, chartType = 'line') {
+        let chartColor = '#e63757'; // Default Red (Nasional)
+        if (type === 'imprs') {
+            chartColor = '#198754'; // Green
+        } else if (type === 'unit') {
+            chartColor = '#6c757d'; // Gray
+        }
+        
+        const bgColor = chartType === 'bar' ? `${chartColor}cc` : `${chartColor}11`;
+        return { chartColor, bgColor };
+    }
+
     let currentType    = 'imn';
     let currentUnit    = '';
     let currentQuarter = 'Tahun';
@@ -73,37 +88,42 @@
 
             // Scale font and dot based on chart height (for PDF resolution)
             const isHighRes = chart.width > 800;
-            const fontSize = isHighRes ? 18 : 10;
-            const dotSize = isHighRes ? 5 : 3;
-            const spacing = isHighRes ? 7 : 4;
-            const offsetY = isHighRes ? 24 : 16;
-            const textOffsetY = isHighRes ? 18 : 12;
+            const fontSize = isHighRes ? 16 : 10;
+            const dotRadius = isHighRes ? 4 : 2.5;
+            const spacing = isHighRes ? 8 : 4;
+            const offsetY = isHighRes ? 35 : 22; // Distance from X-axis bottom
+            const textOffsetY = isHighRes ? 28 : 18; // Vertical alignment for text
 
             ctx.save();
             ctx.font = `600 ${fontSize}px sans-serif`;
             ctx.textBaseline = 'top';
 
+            // Draw Dot Indicator at the far left if not enough space?
+            // Actually, we'll draw a dot + value for EACH point below the month name.
+            
             dataset.data.forEach((value, i) => {
                 const xPos = x.getPixelForValue(i);
                 if (isNaN(xPos)) return;
                 
-                const label = (value !== null && value !== undefined) ? Math.floor(value) + '%' : '-';
+                const label = (value !== null && value !== undefined) ? Math.round(value) + '%' : '-';
                 const textWidth = ctx.measureText(label).width;
-                const totalWidth = (dotSize * 2) + spacing + textWidth;
+                const totalWidth = (dotRadius * 2) + spacing + textWidth;
                 
-                // Calculate start X to center the dot + text combo
+                // Calculate start X to center the dot + text combo under the tick
                 const startX = xPos - (totalWidth / 2);
                 
-                // Draw Red Dot
+                // Draw Dot (use dataset colors)
                 ctx.beginPath();
-                ctx.arc(startX + dotSize, x.bottom + offsetY, dotSize, 0, Math.PI * 2);
-                ctx.fillStyle = '#e63757';
+                ctx.arc(startX + dotRadius, x.bottom + offsetY, dotRadius, 0, Math.PI * 2);
+                
+                const { chartColor } = getIndicatorColors(currentType);
+                ctx.fillStyle = dataset.pointBackgroundColor || dataset.borderColor || chartColor;
                 ctx.fill();
                 
                 // Draw Text
-                ctx.fillStyle = '#333';
+                ctx.fillStyle = '#4a5568'; // Muted dark color
                 ctx.textAlign = 'left';
-                ctx.fillText(label, startX + (dotSize * 2) + spacing, x.bottom + textOffsetY);
+                ctx.fillText(label, startX + (dotRadius * 2) + spacing, x.bottom + textOffsetY);
             });
             ctx.restore();
         }
@@ -365,7 +385,7 @@
 
                     <div class="chart-legend d-none d-sm-flex flex-shrink-0">
                         <span class="legend-item me-2">
-                            <span class="legend-dot pencapaian"></span> <small>Pencapaian</small>
+                            <span class="legend-dot pencapaian" style="background-color: ${getIndicatorColors(currentType).chartColor}"></span> <small>Pencapaian</small>
                         </span>
                         <span class="legend-item">
                             <span class="legend-dot standar"></span> <small>Standar: ${ind.arah_target === 'lebih_kecil' ? '≤' : '≥'} ${ind.target_value}%</small>
@@ -422,18 +442,7 @@
 
         if (chartInstances[ind.id]) chartInstances[ind.id].destroy();
 
-        // Dynamic Color logic based on currentType
-        // IMN = Red, IMPRS = Green, UNIT = Gray
-        let chartColor = '#e63757'; // Default Red
-        let bgColor = currentChartType === 'bar' ? '#e63757cc' : '#e6375711';
-        
-        if (currentType === 'imprs') {
-            chartColor = '#198754'; // Green
-            bgColor = currentChartType === 'bar' ? '#198754cc' : '#19875411';
-        } else if (currentType === 'unit') {
-            chartColor = '#6c757d'; // Gray
-            bgColor = currentChartType === 'bar' ? '#6c757dcc' : '#6c757d11';
-        }
+        const { chartColor, bgColor } = getIndicatorColors(currentType, currentChartType);
 
         chartInstances[ind.id] = new Chart(ctx, {
             type: currentChartType,
@@ -471,9 +480,10 @@
                 animation: false, // Disable animations for performance
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { bottom: 20 } },
+                layout: { padding: { bottom: 35 } },
                 plugins: {
                     legend: { display: false },
+                    pencapaianLabel: { enabled: true },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
@@ -524,7 +534,7 @@
                     }
                 }
             },
-            plugins: [quarterDividerPlugin]
+            plugins: [pencapaianLabelPlugin, quarterDividerPlugin]
         });
     }
 
@@ -645,13 +655,13 @@
                     {
                         label: 'Pencapaian',
                         data: hasil,
-                        borderColor: '#e63757',
-                        backgroundColor: currentChartType === 'bar' ? '#e63757cc' : '#e6375711',
+                        borderColor: getIndicatorColors(currentType).chartColor,
+                        backgroundColor: getIndicatorColors(currentType, currentChartType).bgColor,
                         borderWidth: 3,
                         tension: 0.35,
                         fill: currentChartType === 'line',
                         pointRadius: 5,
-                        pointBackgroundColor: '#e63757',
+                        pointBackgroundColor: getIndicatorColors(currentType).chartColor,
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                     },
@@ -779,6 +789,7 @@
             options: {
                 animation: false,
                 devicePixelRatio: 2, // High DPI
+                layout: { padding: { bottom: 60 } },
                 plugins: { 
                     legend: { display: false },
                     pencapaianLabel: { enabled: true } // Ensure plugin runs
@@ -1015,16 +1026,12 @@
             const ctx = document.getElementById('mdChartCanvas');
             if (mdChartInstance) mdChartInstance.destroy();
             
-            // Dynamic Color logic based on currentType
-            let chartColor = '#e63757'; // Default Red
-            let bgColor = currentChartType === 'bar' ? '#e63757cc' : '#e6375711';
-            
-            if (currentType === 'imprs') {
-                chartColor = '#198754'; // Green
-                bgColor = currentChartType === 'bar' ? '#198754cc' : '#19875411';
-            } else if (currentType === 'unit') {
-                chartColor = '#6c757d'; // Gray
-                bgColor = currentChartType === 'bar' ? '#6c757dcc' : '#6c757d11';
+            const { chartColor, bgColor } = getIndicatorColors(currentType, currentChartType);
+
+            // Update Legend Dot Color in Modal
+            const mdLegendDot = document.querySelector('#modalDetailChart .legend-dot.pencapaian');
+            if (mdLegendDot) {
+                mdLegendDot.style.backgroundColor = chartColor;
             }
 
             mdChartInstance = new Chart(ctx, {
@@ -1066,6 +1073,7 @@
                         legend: { display: false },
                         pencapaianLabel: { enabled: true }
                     },
+                    layout: { padding: { bottom: 35 } },
                     scales: {
                         y: { 
                             beginAtZero: true, 

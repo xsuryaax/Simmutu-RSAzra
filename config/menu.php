@@ -33,10 +33,10 @@ return [
         'icon' => 'ri-database-2-line',
         'menus' => [
             ['key' => 'hak_akses', 'label' => 'Hak Akses', 'route' => 'hak-akses.index'],
-            ['key' => 'periode_mutu', 'label' => 'Manajemen Periode', 'route' => 'periode-mutu.index'],
             ['key' => 'manajemen_user', 'label' => 'Manajemen User', 'route' => 'manajemen-user.index'],
             ['key' => 'manage_role', 'label' => 'Manajemen Role', 'route' => 'manajemen-role.index'],
             ['key' => 'manajemen_unit', 'label' => 'Manajemen Unit', 'route' => 'manajemen-unit.index'],
+            ['key' => 'periode_mutu', 'label' => 'Manajemen Periode', 'route' => 'periode-mutu.index'],
         ]
     ]
 ];

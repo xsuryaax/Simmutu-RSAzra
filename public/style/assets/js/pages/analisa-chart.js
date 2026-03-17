@@ -2,6 +2,24 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', '
 
 let chart = null;
 let chartType = 'line';
+let currentCategory = 'Nasional'; // State to store current category
+
+function getIndicatorColors(category, type = 'line') {
+    let color = '#e63757'; // Default Red (Nasional)
+    const cat = category ? category.toLowerCase() : '';
+    
+    if (cat.includes('rs') || cat.includes('imprs') || cat.includes('rumah sakit')) {
+        color = '#198754'; // Green
+    } else if (cat.includes('unit') || cat.includes('prioritas unit')) {
+        color = '#6c757d'; // Gray
+    }
+    
+    return {
+        borderColor: color,
+        backgroundColor: type === 'bar' ? `${color}cc` : `${color}11`,
+        pointColor: color
+    };
+}
 
 // Untuk nilai di bawah sumbu X — selalu dibulatkan, tanpa desimal
 function formatNumber(value) {
@@ -32,13 +50,15 @@ const pencapaianLabelPlugin = {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
 
-        // Titik merah di paling kiri
+        // Titik indikator di paling kiri
         const dotRadius = 4;
         const dotX = x.left - 25;
         const dotY = x.bottom + 20;
         ctx.beginPath();
         ctx.arc(dotX, dotY, dotRadius, 0, Math.PI * 2);
-        ctx.fillStyle = '#e63757';
+        
+        const colors = getIndicatorColors(currentCategory);
+        ctx.fillStyle = colors.pointColor;
         ctx.fill();
 
         // Nilai pencapaian sejajar dengan bulan — dibulatkan
@@ -75,22 +95,25 @@ function renderChart(targetData = [], realisasiData = []) {
                     label: ' Standar',
                     data: targetData,
                     borderColor: '#2c7be5',
-                    backgroundColor: '#2c7be5',
+                    backgroundColor: 'transparent',
                     borderWidth: 2,
                     tension: 0.3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
+                    pointRadius: 0,
+                    borderDash: chartType === 'line' ? [6, 4] : [],
                     order: 1
                 },
                 {
                     label: ' Pencapaian',
                     data: realisasiData,
-                    borderColor: '#e63757',
-                    backgroundColor: '#e63757',
-                    borderWidth: 2,
-                    tension: 0.3,
+                    borderColor: getIndicatorColors(currentCategory).borderColor,
+                    backgroundColor: getIndicatorColors(currentCategory, chartType).backgroundColor,
+                    borderWidth: 2.5,
+                    tension: 0.35,
+                    fill: chartType === 'line',
                     pointRadius: 4,
-                    pointHoverRadius: 6,
+                    pointBackgroundColor: getIndicatorColors(currentCategory).pointColor,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
                     order: 0
                 }
             ]
@@ -138,9 +161,16 @@ function renderChart(targetData = [], realisasiData = []) {
     });
 }
 
-window.loadChart = function (indikatorId, namaIndikator, namaUnit) {
+window.loadChart = function (indikatorId, namaIndikator, namaUnit, kategori) {
     document.getElementById('chart-title').textContent = namaIndikator;
     document.getElementById('chart-subtitle').textContent = namaUnit;
+    currentCategory = kategori || 'Nasional';
+
+    // Update legend dot color in view
+    const legendDot = document.querySelector('.legend-dot.realisasi');
+    if (legendDot) {
+        legendDot.style.backgroundColor = getIndicatorColors(currentCategory).pointColor;
+    }
 
     const tahun = document.querySelector('select[name="tahun"]').value;
 

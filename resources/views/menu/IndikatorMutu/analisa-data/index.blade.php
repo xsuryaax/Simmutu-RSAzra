@@ -158,7 +158,7 @@
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-info"
-                                                        onclick="loadChart({{ $ind->id }}, '{{ $ind->nama_indikator }}', '{{ $ind->nama_unit }}')">
+                                                        onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_indikator) }}', '{{ addslashes($ind->nama_unit) }}', '{{ $ind->kategori_indikator }}')">
                                                         <i class="bi bi-bar-chart"></i>
                                                     </button>
                                                 </td>
