@@ -56,7 +56,8 @@
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="nama_lengkap">Nama Lengkap</label>
+                                                <label for="nama_lengkap">Nama Lengkap <span
+                                                        class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="nama_lengkap"
                                                         placeholder="Masukkan nama lengkap" id="nama_lengkap" required />
@@ -68,7 +69,19 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="username">Username</label>
+                                                <label for="nip">NIP <span class="text-danger">*</span></label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control" name="nip"
+                                                        placeholder="Masukkan NIP" id="nip" required />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-card-heading"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="username">Username <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="username"
                                                         placeholder="Masukkan username" id="username" required />
@@ -80,7 +93,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="email">Email</label>
+                                                <label for="email">Email <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="email"
                                                         placeholder="Masukkan alamat email" id="email" required />
@@ -92,7 +105,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="password">Password</label>
+                                                <label for="password">Password <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="password" class="form-control" name="password"
                                                         placeholder="Masukkan password" id="password" required />
@@ -104,7 +117,8 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="password_confirmation">Konfirmasi Password</label>
+                                                <label for="password_confirmation">Konfirmasi Password <span
+                                                        class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="password" class="form-control" name="password_confirmation"
                                                         placeholder="Ulangi password" id="password_confirmation" required />
@@ -114,27 +128,15 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label for="role">Role</label>
+                                                <label for="unit">Unit / Organisasi <span
+                                                        class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <fieldset class="form-group">
-                                                        <select class="form-select" id="role_id" name="role_id">
-                                                            @foreach ($roles as $r)
-                                                                <option value="{{ $r->id }}">{{ $r->nama_role }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </fieldset>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="unit">Unit</label>
-                                                <div class="position-relative">
-                                                    <fieldset class="form-group">
-                                                        <select class="form-select" id="unit_id" name="unit_id">
+                                                        <select class="form-select" id="unit_id" name="unit_id" required>
+                                                            <option value="" disabled selected>Pilih Unit / Organisasi</option>
                                                             @foreach ($units as $u)
                                                                 <option value="{{ $u->id }}">{{ $u->nama_unit }}
                                                                 </option>
@@ -145,10 +147,54 @@
                                             </div>
                                         </div>
                                         <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="role">Role / Jabatan <span
+                                                        class="text-danger">*</span></label>
+                                                <div class="position-relative">
+                                                    <fieldset class="form-group">
+                                                        <select class="form-select" id="role_id" name="role_id" required>
+                                                            <option value="" disabled selected>Pilih Role / Jabatan</option>
+                                                            @foreach ($roles as $r)
+                                                                <option value="{{ $r->id }}">{{ $r->nama_role }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="profesi">Profesi</label>
+                                                <div class="position-relative">
+                                                    <fieldset class="form-group">
+                                                        <select class="form-select" id="profesi" name="profesi">
+                                                            <option value="" disabled selected>Pilih Profesi</option>
+                                                            <option value="Medis">Medis</option>
+                                                            <option value="Non Medis">Non Medis</option>
+                                                        </select>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group has-icon-left">
+                                                <label for="atasan_langsung">Atasan Langsung</label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control" name="atasan_langsung"
+                                                        placeholder="Masukkan Nama Atasan" id="atasan_langsung" />
+                                                    <div class="form-control-icon">
+                                                        <i class="bi bi-person-check"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
                                             <div class="form-check">
                                                 <div class="checkbox mt-2">
-                                                    <input type="checkbox" id="status_user" name="status_user" value="aktif"
-                                                        class="form-check-input" required />
+                                                    <input type="checkbox" id="status_user" name="status_user"
+                                                        value="aktif" class="form-check-input" />
                                                     <label for="status_user">User Aktif</label>
                                                 </div>
                                             </div>
@@ -179,12 +225,13 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nama</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                        <th>Unit</th>
-                                        <th>Status</th>
-                                        <th>Aksi</th>
+                                        <th>Nama Karyawan</th>
+                                        <th class="text-center">Email</th>
+                                        <th class="text-center">Role / Jabatan</th>
+                                        <th class="text-center">Unit / Organisasi</th>
+                                        <th class="text-center">Atasan Langsung</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -194,14 +241,23 @@
 
                                             <td>
                                                 <strong>{{ $u->nama_lengkap }}</strong><br>
-                                                <small class="text-muted">{{ $u->username }}</small>
+                                                <small class="text-muted">{{ $u->username }} | NIP :
+                                                    {{ $u->nip ?? '-' }}</small><br>
+                                                <small class="text-muted"><i class="bi bi-person-badge"></i>
+                                                    {{ $u->profesi ?? '-' }}</small>
                                             </td>
 
-                                            <td>{{ $u->email }}</td>
-                                            <td>{{ $u->nama_role }}</td>
-                                            <td>{{ $u->nama_unit ?? '-' }}</td>
+                                            <td class="text-center">{{ $u->email }}</td>
+                                            <td class="text-center">{{ $u->nama_role }}</td>
+                                            <td class="text-center">
+                                                {{ $u->nama_unit ?? '-' }}
+                                            </td>
 
-                                            <td>
+                                            <td class="text-center">
+                                                {{ $u->atasan_langsung ?? '-' }}
+                                            </td>
+
+                                            <td class="text-center">
                                                 @if ($u->status_user == 'aktif')
                                                     <span class="badge bg-success">Aktif</span>
                                                 @else
@@ -209,13 +265,15 @@
                                                 @endif
                                             </td>
 
-                                            <td>
-                                                <button class="btn btn-warning btn-sm" onclick='openEditModal(@json($u))'>
+                                            <td class="text-center">
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick='openEditModal(@json($u))'>
                                                     <i class="bi bi-pencil"></i>
                                                 </button>
 
-                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}" method="POST"
-                                                    class="d-inline" onsubmit="return confirm('Hapus user ini?')">
+                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}"
+                                                    method="POST" class="d-inline"
+                                                    onsubmit="return confirm('Hapus user ini?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button class="btn btn-danger btn-sm">
@@ -254,7 +312,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Nama Lengkap</label>
-                                    <input type="text" id="eNama" name="nama_lengkap" class="form-control" required>
+                                    <input type="text" id="eNama" name="nama_lengkap" class="form-control"
+                                        required>
                                 </div>
 
                                 <div class="mb-3">
@@ -267,6 +326,20 @@
                                     <input type="email" id="eEmail" name="email" class="form-control" required>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label">NIP (Opsional)</label>
+                                    <input type="text" id="eNip" name="nip" class="form-control">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Profesi (Opsional)</label>
+                                    <select name="profesi" id="eProfesi" class="form-control">
+                                        <option value="">Pilih Profesi</option>
+                                        <option value="Medis">Medis</option>
+                                        <option value="Non Medis">Non Medis</option>
+                                    </select>
+                                </div>
+
                             </div>
 
                             <div class="col-md-6">
@@ -275,7 +348,7 @@
                                     <label class="form-label">Password (Opsional)</label>
                                     <input type="password" name="password" class="form-control">
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <label class="form-label">Konfirmasi Password</label>
                                     <input type="password" name="password_confirmation" class="form-control">
@@ -283,7 +356,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Role</label>
-                                    <select name="role_id" id="eRole" class="form-control">
+                                    <select name="role_id" id="eRole" class="form-control" required>
+                                        <option value="" disabled selected>Pilih Role</option>
                                         @foreach ($roles as $r)
                                             <option value="{{ $r->id }}">{{ $r->nama_role }}</option>
                                         @endforeach
@@ -292,12 +366,18 @@
 
                                 <div class="mb-3">
                                     <label class="form-label">Unit</label>
-                                    <select name="unit_id" id="eUnit" class="form-control">
+                                    <select name="unit_id" id="eUnit" class="form-control" required>
+                                        <option value="" disabled selected>Pilih Unit</option>
                                         <option value="">Tidak Ada</option>
                                         @foreach ($units as $u)
                                             <option value="{{ $u->id }}">{{ $u->nama_unit }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Atasan Langsung (Opsional)</label>
+                                    <input type="text" id="eAtasan" name="atasan_langsung" class="form-control">
                                 </div>
 
                                 <div class="mb-3">
@@ -337,6 +417,9 @@
             document.getElementById('eEmail').value = user.email;
             document.getElementById('eRole').value = user.role_id;
             document.getElementById('eUnit').value = user.unit_id ?? "";
+            document.getElementById('eNip').value = user.nip ?? "";
+            document.getElementById('eProfesi').value = user.profesi ?? "";
+            document.getElementById('eAtasan').value = user.atasan_langsung ?? "";
             document.getElementById('eStatus').value = user.status_user;
 
             // Set action form

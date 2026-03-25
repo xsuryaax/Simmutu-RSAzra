@@ -193,7 +193,7 @@
     <!-- HEADER -->
     <div class="header">
         <div class="header-logo-wrap">
-            <img src="{{ public_path('assets/logo/azra-logo.png') }}" class="header-logo" alt="Logo AZRA">
+            <!-- Logo sengaja dikosongkan -->
         </div>
         <div class="header-body">
             <div class="rs-name">Rumah Sakit AZRA</div>

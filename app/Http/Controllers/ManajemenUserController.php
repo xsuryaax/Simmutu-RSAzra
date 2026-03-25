@@ -34,22 +34,28 @@ class ManajemenUserController extends Controller
     {
         $request->validate([
             'nama_lengkap' => 'required',
+            'nip' => 'nullable|string|max:50',
             'username' => 'required|unique:users',
             'email' => 'required|unique:users',
             'password' => 'required|min:6|confirmed',
             'role_id' => 'required',
             'unit_id' => 'nullable',
+            'profesi' => 'nullable|in:Medis,Non Medis',
+            'atasan_langsung' => 'nullable|string|max:255',
         ]);
 
         $status = $request->status_user ? 'aktif' : 'non-aktif';
 
         User::create([
             'nama_lengkap' => $request->nama_lengkap,
+            'nip' => $request->nip,
             'username' => $request->username,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'role_id' => $request->role_id,
             'unit_id' => $request->unit_id,
+            'profesi' => $request->profesi,
+            'atasan_langsung' => $request->atasan_langsung,
             'status_user' => $status,
         ]);
 
@@ -63,18 +69,24 @@ class ManajemenUserController extends Controller
 
         $request->validate([
             'nama_lengkap' => 'required',
+            'nip' => 'nullable|string|max:50',
             'username' => 'required|unique:users,username,' . $id,
             'email' => 'required|unique:users,email,' . $id,
             'role_id' => 'required',
             'password' => 'nullable|min:6|confirmed',
+            'profesi' => 'nullable|in:Medis,Non Medis',
+            'atasan_langsung' => 'nullable|string|max:255',
         ]);
 
         $data = [
             'nama_lengkap' => $request->nama_lengkap,
+            'nip' => $request->nip,
             'username' => $request->username,
             'email' => $request->email,
             'role_id' => $request->role_id,
             'unit_id' => $request->unit_id,
+            'profesi' => $request->profesi,
+            'atasan_langsung' => $request->atasan_langsung,
             'status_user' => $request->status_user,
         ];
 

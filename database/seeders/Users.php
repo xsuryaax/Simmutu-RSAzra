@@ -19,11 +19,14 @@ class Users extends Seeder
 
         DB::table('users')->insert([
             'nama_lengkap' => 'Administrator',
+            'nip' => '1234567890',
             'username' => 'admin',
             'email' => 'administrator@rsazra.co.id',
             'password' => Hash::make('admin123'),
             'role_id' => 1,
             'unit_id' => 1,
+            'profesi' => 'Non Medis',
+            'atasan_langsung' => 'Direktur Utama',
             'status_user' => 'aktif',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
@@ -31,11 +34,14 @@ class Users extends Seeder
 
         DB::table('users')->insert([
             'nama_lengkap' => 'Mutu',
+            'nip' => '0987654321',
             'username' => 'mutu',
             'email' => 'mutu@rsazra.co.id',
             'password' => Hash::make('mutu123'),
             'role_id' => 2,
             'unit_id' => 2,
+            'profesi' => 'Medis',
+            'atasan_langsung' => 'Ketua Komite Mutu',
             'status_user' => 'aktif',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
@@ -58,11 +64,14 @@ class Users extends Seeder
 
         //     DB::table('users')->insert([
         //         'nama_lengkap' => $unit->nama_unit,
+        //         'nip' => '1111111111',
         //         'username' => $username,
         //         'email' => $username . '@rsazra.co.id',
         //         'password' => Hash::make($username . '123'),
         //         'role_id' => $roleId,
         //         'unit_id' => $unit->id,
+        //         'profesi' => 'Non Medis',
+        //         'atasan_langsung' => 'Manajer',
         //         'status_user' => 'aktif',
         //         'created_at' => Carbon::now(),
         //         'updated_at' => Carbon::now(),

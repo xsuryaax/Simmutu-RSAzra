@@ -52,18 +52,24 @@ class AuthController extends Controller
     {
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
+            'nip' => 'nullable|string|max:50',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:5|confirmed',
+            'profesi' => 'nullable|in:Medis,Non Medis',
+            'atasan_langsung' => 'nullable|string|max:255',
         ]);
 
         User::create([
             'nama_lengkap' => $request->nama_lengkap,
+            'nip' => $request->nip,
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role_id' => null,
             'unit_id' => null,
+            'profesi' => $request->profesi,
+            'atasan_langsung' => $request->atasan_langsung,
             'status_user' => 'pending',
         ]);
 

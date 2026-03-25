@@ -13,12 +13,15 @@ return new class extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lengkap');
+            $table->string('nip')->nullable();
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->integer('role_id')->nullable();
             $table->integer('unit_id')->nullable();
+            $table->enum('profesi', ['Medis', 'Non Medis'])->nullable();
+            $table->string('atasan_langsung')->nullable();
             $table->enum('status_user', ['pending', 'aktif', 'non-aktif'])->default('pending');
             $table->rememberToken();
             $table->timestamps();

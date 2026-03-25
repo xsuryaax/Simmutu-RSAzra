@@ -87,6 +87,36 @@
                             </div>
                         </div>
 
+                        {{-- NIP --}}
+                        <div class="form-group position-relative has-icon-left mb-4">
+                            <input type="text" name="nip" class="form-control form-control-xl"
+                                placeholder="NIP (Optional)" value="{{ old('nip') }}">
+                            <div class="form-control-icon">
+                                <i class="bi bi-card-heading"></i>
+                            </div>
+                        </div>
+
+                        {{-- Profesi --}}
+                        <div class="form-group position-relative has-icon-left mb-4">
+                            <select name="profesi" class="form-select form-select-xl">
+                                <option value="" disabled selected>Pilih Profesi (Optional)</option>
+                                <option value="Medis" {{ old('profesi') == 'Medis' ? 'selected' : '' }}>Medis</option>
+                                <option value="Non Medis" {{ old('profesi') == 'Non Medis' ? 'selected' : '' }}>Non Medis</option>
+                            </select>
+                            <div class="form-control-icon">
+                                <i class="bi bi-briefcase"></i>
+                            </div>
+                        </div>
+
+                        {{-- Atasan Langsung --}}
+                        <div class="form-group position-relative has-icon-left mb-4">
+                            <input type="text" name="atasan_langsung" class="form-control form-control-xl"
+                                placeholder="Nama Atasan Langsung (Optional)" value="{{ old('atasan_langsung') }}">
+                            <div class="form-control-icon">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+                        </div>
+
                         {{-- EMAIL --}}
                         <div class="form-group position-relative has-icon-left mb-4">
                             <input type="email" name="email" class="form-control form-control-xl"
