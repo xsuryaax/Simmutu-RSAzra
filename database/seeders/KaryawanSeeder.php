@@ -404,8 +404,8 @@ class KaryawanSeeder extends Seeder
             $email = $username . '@rsazra.co.id';
 
             // 3. LOGIC PASSWORD TANPA UBAH DATABASE
-            // Jadikan "NIP" sebagai Default Password, supaya secure. Jika NIP kosong, default "password"
-            $passwordToHash = $nip ?: 'password';
+            // Jadikan "rsazra" sebagai Default Password
+            $passwordToHash = 'rsazra';
             $password = Hash::make($passwordToHash);
 
             User::updateOrCreate(
