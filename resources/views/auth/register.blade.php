@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('style/assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('style/assets/css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('style/assets/css/pages/auth.css') }}">
+    <link rel="icon" href="{{ asset('favicon_azra.png') }}" type="image/png">
     <style>
         #auth-right {
             min-width: 60vw;

@@ -383,8 +383,10 @@ class KaryawanSeeder extends Seeder
             }
 
             // 1. LOGIC USERNAME (Kata pertama . Kata kedua dalam format huruf kecil tanpa koma/kredit gelar)
-            // Hilangkan tanda baca yang sering muncul di nama dan gelar (, . dll) supaya split kata bersih
-            $cleanName = preg_replace('/[,.]/', ' ', $namaLengkap); // jadikan spasi
+            // Hilangkan gelar dengan mengambil bagian sebelum koma (jika ada)
+            $nameOnly = explode(',', $namaLengkap)[0];
+            // Hilangkan tanda baca yang sering muncul di nama supaya split kata bersih (misal dots pada M. Rangga)
+            $cleanName = preg_replace('/[.]/', ' ', $nameOnly);
             $words = array_values(array_filter(explode(' ', trim($cleanName))));
 
             $firstName = strtolower($words[0] ?? 'user');
@@ -395,7 +397,9 @@ class KaryawanSeeder extends Seeder
             // Pastikan username unik sebelum distore (antisipasi jika ada 2 orang bernama sama misal Budi.Santoso)
             $originalUsername = $username;
             $counter = 1;
-            while (User::where('username', $username)->exists()) {
+
+            // Jika kita mengupdate user berdasarkan NIP, kita harus mengecek keunikan username terhadap user LAIN
+            while (User::where('username', $username)->where('nip', '!=', $nip)->exists()) {
                 $username = $originalUsername . $counter;
                 $counter++;
             }
@@ -409,10 +413,10 @@ class KaryawanSeeder extends Seeder
             $password = Hash::make($passwordToHash);
 
             User::updateOrCreate(
-                ['username' => $username], // kondisi supaya tidak dobel dibrun ulang
+                ['nip' => $nip ?: null], // Gunakan NIP sebagai kunci pencarian agar records ter-update (bukan duplikat)
                 [
+                    'username' => $username,
                     'nama_lengkap' => $namaLengkap,
-                    'nip' => $nip ?: null,
                     'email' => $email,
                     'password' => $password,
                     'role_id' => $karyawan['role_id'],

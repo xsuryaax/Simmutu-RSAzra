@@ -8,6 +8,7 @@
     <title>Masuk - SIMMUTU RS AZRA</title>
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="icon" href="{{ asset('favicon_azra.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ Vite::asset('resources/css/app.css') }}">
     <style>
         body {
