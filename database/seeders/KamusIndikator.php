@@ -57,8 +57,8 @@ class KamusIndikator extends Seeder
                 'periode_analisis_data_id' => $periodeAnalisis->id ?? 1,
                 'penyajian_data_id' => $penyajian->id ?? 1,
                 'penanggung_jawab' => 'test',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'created_at' => Carbon::create(2026, 1, 1, 0, 0, 0),
+                'updated_at' => Carbon::create(2026, 1, 1, 0, 0, 0),
             ]);
 
             // update indikator supaya terhubung

@@ -19,7 +19,7 @@
 
 /* Legend Styling from Analisa Data */
 .chart-legend {
-    font-size: 11px;
+    font-size: 0.7rem;
     display: flex;
     align-items: center;
 }

@@ -27,8 +27,8 @@ class IndikatorPeriodeSeeder extends Seeder
                 'indikator_id' => $indikator->id,
                 'periode_id' => $periode->id,
                 'status' => 'aktif',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'created_at' => Carbon::create(2026, 1, 1, 0, 0, 0),
+                'updated_at' => Carbon::create(2026, 1, 1, 0, 0, 0),
             ]);
         }
     }

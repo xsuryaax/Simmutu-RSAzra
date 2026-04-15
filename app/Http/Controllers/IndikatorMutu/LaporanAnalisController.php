@@ -49,7 +49,7 @@ class LaporanAnalisController extends Controller
             $effectiveStart = $periodStart->copy();
         } else {
             // Jika dalam/sebelum periode, gunakan hari ini (clamped ke awal periode)
-            $effectiveStart = $nowStart->max($periodStart);
+            $effectiveStart = $periodStart->copy();
         }
 
         if ($earliestDate) {
@@ -61,17 +61,8 @@ class LaporanAnalisController extends Controller
     
 
         if (!$request->has('bulan')) {
-            if ($now->between($periodStart, $periodEnd)) {
-                $bulan = $now->month;
-                $tahun = $now->year;
-            } elseif ($now->lt($periodStart)) {
-                $bulan = $periodStart->month;
-                $tahun = $periodStart->year;
-            } else {
-                // Jika sudah lewat periode, default ke bulan efektif pertama (Januari jika ada data/awal)
-                $bulan = $effectiveStart->month;
-                $tahun = $effectiveStart->year;
-            }
+            $bulan = $periodStart->month;
+            $tahun = $periodStart->year;
         } else {
             $bulan = (int)$request->bulan;
             $tahun = (int)$request->tahun;
@@ -82,6 +73,19 @@ class LaporanAnalisController extends Controller
             : null;
 
         $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
+        
+        // Cari entry date paling awal dari semua indikator unit ini untuk batas dropdown
+        $earliestEntry = $indikators->min('entry_date');
+        if ($earliestEntry) {
+            $effectiveStart = Carbon::parse($earliestEntry)->startOfMonth();
+        }
+
+        // Filter: Hanya tampilkan indikator yang sudah "masuk" pada bulan yang dipilih
+        $currentDate = Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        $indikators = $indikators->filter(function($ind) use ($currentDate) {
+            return Carbon::parse($ind->entry_date)->startOfMonth()->lte($currentDate);
+        });
+
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator);
 
         $kategoriIndikatorList = DB::table('tbl_kamus_indikator')
@@ -212,7 +216,7 @@ class LaporanAnalisController extends Controller
         $periodeStart = Carbon::parse($periode->tanggal_mulai)->startOfMonth();
         $periodeEnd = Carbon::parse($periode->tanggal_selesai)->endOfMonth();
         $now = now()->startOfMonth();
-        $defaultStart = $now->max($periodeStart)->min($periodeEnd);
+        $defaultStart = $periodeStart;
 
         $rekap = $results->map(function ($r) use ($firstReports, $defaultStart) {
                 $r->denominator = (int) $r->denominator;

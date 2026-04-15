@@ -50,7 +50,7 @@ class Indikator extends Seeder
             ['nama_indikator' => 'Kepatuhan Tatalaksanan Clinical Pathway DHF', 'unit_id' => 45, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
             // Tujuan Strategis RS
             ['nama_indikator' => 'kesesuaian waktu tunggu pemulangan pasien rawat inap < 2 jam', 'unit_id' => 45, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
-            ['nama_indikator' => 'Maternity : Ketidaktepatan Waktu Operasi SC Elektif < 45 menit sesuai jadwal', 'unit_id' => 27, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Maternity : Ketepatan Waktu Operasi SC Elektif < 45 menit sesuai jadwal', 'unit_id' => 27, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
             // Perbaikan Sistem Lintas Unit
             ['nama_indikator' => 'Waktu tunggu Obat lama di Farmasi (Obat Jadi < 25 menit, Obat Racikan < 55 menit)', 'unit_id' => 21, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
             ['nama_indikator' => 'Kelengkapan berkas Discharge Planning H-1', 'unit_id' => 45, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
@@ -95,6 +95,11 @@ class Indikator extends Seeder
             /* ================== 8. Kamar Operasi (27) ================== */
             ['nama_indikator' => 'Keterlambatan Waktu Mulai Operasi >30 Menit', 'unit_id' => 27, 'target_indikator' => 2, 'arah_target' => 'lebih_kecil'],
             ['nama_indikator' => 'Tidak Ada Kesalahan Penjadwalan Tindakan Operasi', 'unit_id' => 27, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Ketersedian alat medis steril untuk tindak pelayanan pasien (Kamar Operasi dan IGD)', 'unit_id' => 27, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Tidak adanya Kesalahan dalam proses packing dan labeling', 'unit_id' => 27, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Tidak adanya kerusakan kemasan setelah post sterilisasi', 'unit_id' => 27, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Kepatuhan pengisian formulir permintaan sterilisasi', 'unit_id' => 27, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Ketepatan kemasan alat medis dan linen steril sesuai perubahan warna indicator post sterilisasi', 'unit_id' => 27, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
 
             /* ================== 9. Radiologi (34) ================== */
             ['nama_indikator' => 'Pemenuhan Waktu Tunggu Rontgen Thorax Cito < 30 Menit', 'unit_id' => 34, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
@@ -127,6 +132,8 @@ class Indikator extends Seeder
             ['nama_indikator' => 'Persentase Kesalahan Input Data Identitas Pasien di Bagian Pendaftaran.', 'unit_id' => 37, 'target_indikator' => 0, 'arah_target' => 'lebih_kecil'],
             ['nama_indikator' => 'Persentase Kesesuaian Booking Online dengan Kehadiran Pasien Rawat Jalan', 'unit_id' => 37, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
             ['nama_indikator' => 'Persentase Akurasi Penentuan Payor Asuransi di Pendaftaran Rawat Jalan', 'unit_id' => 37, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Waktu Tunggu Pelayanan Pendaftaran Pasien Poliklinik Rawat Jalan Dengan Penjaminan Assuransi/Perusahaaan', 'unit_id' => 37, 'target_indikator' => 15, 'arah_target' => 'lebih_kecil'],
+            ['nama_indikator' => 'Persentase Pemanggilan Kembali (Callback) Terhadap Panggilan yang Tidak Terjawab (Missed Call) di Unit Callcenter', 'unit_id' => 37, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
 
             /* ================== 16. Humas (20) ================== */
             ['nama_indikator' => 'Penanganan Langsung Handling Komplain Pasien oleh Masing Masing Unit', 'unit_id' => 20, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
@@ -140,6 +147,7 @@ class Indikator extends Seeder
             ['nama_indikator' => 'Respon Time Menanggapi Kerusakan Alat', 'unit_id' => 6, 'target_indikator' => 90, 'arah_target' => 'lebih_besar'],
             ['nama_indikator' => 'Ketepatan Waktu Pemeliharaan Utilitas', 'unit_id' => 6, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
             ['nama_indikator' => 'Angka Keluhan yang Ditindaklanjuti  dari Data Angket Keluhan Terkait Fasilitas', 'unit_id' => 6, 'target_indikator' => 90, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Laporan Harian Internal Terkait Fasillitas', 'unit_id' => 6, 'target_indikator' => 90, 'arah_target' => 'lebih_besar'],
 
             /* ================== ATEM (31 Maintenance) ================== */
             ['nama_indikator' => 'Ketepatan Waktu Preventive Alkes', 'unit_id' => 31, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
@@ -175,13 +183,14 @@ class Indikator extends Seeder
             /* ================== Kasir & Pentarifan (30 Kasir) ================== */
             ['nama_indikator' => 'Kecepatan Waktu Tunggu Perhitungan Pasien RI < 2 Jam', 'unit_id' => 30, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
 
-            /* ================== AR (43 Keuangan) ================== */
-            ['nama_indikator' => 'Penagihan Klaim Asuransi', 'unit_id' => 43, 'target_indikator' => 5, 'arah_target' => 'lebih_kecil'],
-            ['nama_indikator' => 'Pemantauan Aging Piutang Asuransi', 'unit_id' => 43, 'target_indikator' => 10, 'arah_target' => 'lebih_kecil'],
+            /* ================== AR (52) ================== */
+            ['nama_indikator' => 'Penagihan Klaim Asuransi', 'unit_id' => 52, 'target_indikator' => 5, 'arah_target' => 'lebih_kecil'],
+            ['nama_indikator' => 'Pemantauan Aging Piutang Asuransi', 'unit_id' => 52, 'target_indikator' => 10, 'arah_target' => 'lebih_kecil'],
 
             /* ================== Akuntansi & Pajak (40) ================== */
             ['nama_indikator' => 'Ketepatan penyajian nilai pendapatan BPJS dalam laporan keuangan', 'unit_id' => 40, 'target_indikator' => 30, 'arah_target' => 'lebih_kecil'],
             ['nama_indikator' => 'Ketepatan Waktu dalam Penyusunan, Pembayaran dan Pelaporan Pajak', 'unit_id' => 40, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Rasio Arus Kas terhadap Pendapatan', 'unit_id' => 40, 'target_indikator' => 80, 'arah_target' => 'lebih_besar'],
 
             /* ================== Procurement (28 / 21) ================== */
             ['nama_indikator' => 'Ketepatan dalam Pengadaan Logistik Umum', 'unit_id' => 28, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
@@ -192,6 +201,7 @@ class Indikator extends Seeder
             ['nama_indikator' => 'Angka Insiden Petugas Tertusuk Benda Tajam dan Jarum', 'unit_id' => 35, 'target_indikator' => 0, 'arah_target' => 'lebih_kecil'],
             ['nama_indikator' => 'Kepatuhan Penempatan Pasien Di Ruang Isolasi Sesuai Indikasi', 'unit_id' => 35, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
             ['nama_indikator' => 'Kepatuhan petugas memilah limbah medis sesuai jenisnya di unit pelayanan', 'unit_id' => 35, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
+            ['nama_indikator' => 'Pencatatan Suhu Area Instalasi Gizi', 'unit_id' => 35, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
             ['nama_indikator' => 'Kesesuaian suhu penyimpanan bahan makanan didalam Chiller', 'unit_id' => 3, 'target_indikator' => 100, 'arah_target' => 'lebih_besar'],
 
             /* ================== K3RS (31 / 36) ================== */
@@ -213,9 +223,10 @@ class Indikator extends Seeder
                 'target_max' => $indikator['target_max'] ?? null,
                 'status_indikator' => 'aktif',
                 'kamus_indikator_id' => null,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'created_at' => Carbon::create(2026, 1, 1, 0, 0, 0),
+                'updated_at' => Carbon::create(2026, 1, 1, 0, 0, 0),
             ]);
         }
+
     }
 }

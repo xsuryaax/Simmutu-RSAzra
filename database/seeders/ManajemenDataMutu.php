@@ -106,7 +106,7 @@ class ManajemenDataMutu extends Seeder
             ['id' => 34, 'kode_unit' => 'UNIT034', 'nama_unit' => 'Instalasi radiologi', 'status_unit' => 'aktif'],
             ['id' => 35, 'kode_unit' => 'UNIT035', 'nama_unit' => 'PPI', 'status_unit' => 'aktif'],
             ['id' => 36, 'kode_unit' => 'UNIT036', 'nama_unit' => 'SDM', 'status_unit' => 'aktif'],
-            ['id' => 37, 'kode_unit' => 'UNIT037', 'nama_unit' => 'Admission', 'status_unit' => 'aktif'],
+            ['id' => 37, 'kode_unit' => 'UNIT037', 'nama_unit' => 'AO & Call center', 'status_unit' => 'aktif'],
             ['id' => 38, 'kode_unit' => 'UNIT038', 'nama_unit' => 'Perinatologi', 'status_unit' => 'aktif'],
             ['id' => 39, 'kode_unit' => 'UNIT039', 'nama_unit' => 'CSSD', 'status_unit' => 'aktif'],
             ['id' => 40, 'kode_unit' => 'UNIT040', 'nama_unit' => 'Akuntansi & pajak', 'status_unit' => 'aktif'],
@@ -121,14 +121,15 @@ class ManajemenDataMutu extends Seeder
             ['id' => 49, 'kode_unit' => 'UNIT049', 'nama_unit' => 'Duty officer', 'status_unit' => 'aktif'],
             ['id' => 50, 'kode_unit' => 'UNIT050', 'nama_unit' => 'Divisi keperawatan', 'status_unit' => 'aktif'],
             ['id' => 51, 'kode_unit' => 'UNIT051', 'nama_unit' => 'Laundry', 'status_unit' => 'aktif'],
+            ['id' => 52, 'kode_unit' => 'UNIT052', 'nama_unit' => 'AR', 'status_unit' => 'aktif'],
         ]);
 
         DB::table('tbl_periode')->insert([
             [
-                'nama_periode' => 'Periode 1',
-                'tahun' => 2025,
-                'tanggal_mulai' => '2025-01-01',
-                'tanggal_selesai' => '2025-12-31',
+                'nama_periode' => 'Periode Mutu 2026',
+                'tahun' => 2026,
+                'tanggal_mulai' => '2026-01-01',
+                'tanggal_selesai' => '2026-12-31',
                 'deadline' => 5,
                 'status_deadline' => 0,
                 'status' => 'aktif',

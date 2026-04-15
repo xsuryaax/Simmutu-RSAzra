@@ -46,28 +46,13 @@ class ValidatorDataController extends Controller
         }
 
         if (!$request->has('bulan')) {
-            if ($availableMonths->isEmpty()) {
+            if ($availableMonths->isNotEmpty()) {
+                $firstAvailable = $availableMonths->first();
+                $bulan = $firstAvailable->bulan;
+                $tahun = $firstAvailable->tahun;
+            } else {
                 $bulan = $smartDefaultBulan;
                 $tahun = $smartDefaultTahun;
-            } else {
-                // Jika masa periode sudah lewat, utamakan bulan efektif pertama (Januari jika ada data/mulai)
-                if ($now->gt($periodEnd)) {
-                    $firstAvailable = $availableMonths->first();
-                    $bulan = $firstAvailable->bulan;
-                    $tahun = $firstAvailable->tahun;
-                } else {
-                    // Jika dalam/sebelum periode, utamakan bulan sekarang jika masuk dlm list
-                    $currentInAvailable = $availableMonths->first(fn($m) => $m->bulan == $smartDefaultBulan && $m->tahun == $smartDefaultTahun);
-                    if ($currentInAvailable) {
-                        $bulan = $smartDefaultBulan;
-                        $tahun = $smartDefaultTahun;
-                    } else {
-                        // Default to first available
-                        $firstAvailable = $availableMonths->first();
-                        $bulan = $firstAvailable->bulan;
-                        $tahun = $firstAvailable->tahun;
-                    }
-                }
             }
         } else {
             $bulan = (int) $request->bulan;
@@ -82,6 +67,13 @@ class ValidatorDataController extends Controller
             ? $request->kategori_indikator
             : null;
         $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
+        
+        // Filter: Hanya tampilkan indikator pada bulan masuknya (entry_date)
+        $indikators = $indikators->filter(function($ind) use ($bulan, $tahun) {
+            $entry = Carbon::parse($ind->entry_date);
+            return $entry->month == $bulan && $entry->year == $tahun;
+        });
+
         $indikatorIds = $indikators->pluck('id')->toArray();
 
         // Optimasi: Ambil semua tanggal laporan pertama untuk indikator-indikator ini dalam satu query
@@ -100,9 +92,8 @@ class ValidatorDataController extends Controller
         $periodeEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
         $now = now()->startOfMonth();
         
-        // Fix: Jika periode sudah lewat, fallback ke awal periode (Januari)
         // Jika masih dalam periode, fallback ke bulan sekarang (dimaksimalkan ke awal periode)
-        $defaultStart = ($now->gt($periodeEnd)) ? $periodeStart : $now->max($periodeStart);
+        $defaultStart = ($now->gt($periodeEnd)) ? $periodeStart : $periodeStart->copy();
 
         $indikators = $indikators->filter(function ($ind) use ($bulan, $tahun, $firstReports, $defaultStart) {
             $key = $ind->id . '-' . $ind->unit_id;
@@ -620,7 +611,7 @@ class ValidatorDataController extends Controller
             $effectiveStart = $start->copy();
         } else {
             // Jika dalam/sebelum periode, gunakan hari ini (clamped ke awal periode)
-            $effectiveStart = $nowStart->max($start);
+            $effectiveStart = $start->copy();
         }
 
         if ($earliestDate) {

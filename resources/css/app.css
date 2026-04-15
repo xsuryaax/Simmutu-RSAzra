@@ -1,3 +1,6 @@
+html {
+  font-size: 75% !important;
+}
 :root {
   --primary-color: #007774;
   --primary-dark: #006663;
@@ -277,12 +280,12 @@
   color: #fff;
   letter-spacing: 0.8px;
   font-weight: 400;
-  font-size: 1.3rem;
+  font-size: 1.5rem; /* Increased from 1.3rem */
   margin-bottom: 0;
   margin-top: 5px;
 }
 .card.card-statistic .card-right p {
-  font-size: 1.5rem;
+  font-size: 1.8rem; /* Increased from 1.5rem */
   color: #fff;
   margin-bottom: 0;
 }
@@ -312,7 +315,7 @@
   font-size: 1.2rem;
 }
 .card .card-body {
-  padding: 1.5rem;
+  padding: 1.8rem; /* Increased from 1.5rem */
 }
 .card .card-heading {
   color: #555;
@@ -1007,13 +1010,13 @@
   left: 0;
 }
 #sidebar:not(.active) .sidebar-wrapper {
-  left: -400px;
+  left: -300px;
 }
 #sidebar:not(.active) ~ #main {
   margin-left: 0;
 }
 .sidebar-wrapper {
-  width: 325px;
+  width: 244px;
   height: 100vh;
   position: fixed;
   top: 0;
@@ -1060,6 +1063,7 @@
   transition: all 0.5s;
   text-decoration: none;
   color: #25396f;
+  position: relative;
 }
 .sidebar-wrapper .menu .sidebar-link i,
 .sidebar-wrapper .menu .sidebar-link svg {
@@ -1080,8 +1084,9 @@
   content: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><path stroke="gray" stroke-width="1" d="M6 9l6 6 6-6"/></svg>');
   position: absolute;
   color: #ccc;
-  left: 220px;
-  top: 15px;
+  right: 15px; /* Use right instead of hardcoded left */
+  top: 50%;
+  transform: translateY(-50%);
   display: block;
 }
 .sidebar-wrapper .menu .sidebar-item.active .sidebar-link {
@@ -1197,7 +1202,7 @@
   background-color: #fff;
 }
 .navbar {
-  height: 90px;
+  height: 68px;
   padding: 1.5rem;
 }
 .navbar .navbar-brand img {
@@ -1447,7 +1452,7 @@
   display: none;
 }
 #main {
-  margin-left: 300px;
+  margin-left: 225px;
   padding: 2rem;
 }
 @media screen and (max-width: 1199px) {

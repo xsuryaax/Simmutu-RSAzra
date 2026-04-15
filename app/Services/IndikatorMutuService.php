@@ -46,7 +46,8 @@ class IndikatorMutuService
                 'k.kategori_indikator',
                 'i.target_min',
                 'i.target_max',
-                'i.arah_target'
+                'i.arah_target',
+                'ip.created_at as entry_date'
             )
             ->when($kategori, function ($q) use ($kategori) {
                 $q->whereRaw(

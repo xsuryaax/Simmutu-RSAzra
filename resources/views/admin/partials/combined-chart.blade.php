@@ -21,13 +21,13 @@
             </div>
 
             {{-- ── Control Bar Row ── --}}
-            <div class="chart-controls d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="chart-controls d-flex justify-content-between align-items-center flex-wrap gap-2">
                 
                 {{-- Left: Filter Group --}}
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     {{-- Pencarian Indikator --}}
                     <div class="search-container my-0">
-                        <div class="input-group input-group-sm mb-0" style="width: 250px;">
+                        <div class="input-group input-group-sm mb-0" style="width: 180px;">
                             <span class="input-group-text border-end-0 bg-transparent text-muted">
                                 <i class="bi bi-search"></i>
                             </span>
@@ -36,7 +36,7 @@
                     </div>
 
                     {{-- Filter Jenis --}}
-                    <select id="jenisFilter" class="form-select form-select-sm filter-select fw-semibold text-primary" style="width: 180px;">
+                    <select id="jenisFilter" class="form-select form-select-sm filter-select fw-semibold text-primary" style="width: 140px;">
                         <option value="imn" selected>Nasional (IMN)</option>
                         <option value="imprs">Prioritas RS</option>
                         <option value="unit">Prioritas Unit</option>
@@ -44,7 +44,7 @@
 
                     {{-- Filter Unit (Admin Only) --}}
                     @if(in_array($roleId, [1, 2]))
-                    <select id="unitFilter" name="unit_id" class="form-select form-select-sm filter-select fw-semibold text-dark" style="width: 200px;">
+                    <select id="unitFilter" name="unit_id" class="form-select form-select-sm filter-select fw-semibold text-dark" style="width: 160px;">
                         <option value="">Semua Unit</option>
                         @foreach($units as $u)
                             <option value="{{ $u->id }}">{{ $u->nama_unit }}</option>
@@ -61,7 +61,7 @@
                 </div>
 
                 {{-- Right: Actions Group --}}
-                <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center gap-2">
                     {{-- Filter Quarter --}}
                     <div class="btn-group btn-group-sm p-1 rounded border shadow-sm" role="group" aria-label="Filter Kuartal">
                         <button class="btn btn-sm btn-primary active btn-quarter" data-q="Tahun" aria-pressed="true">All</button>
