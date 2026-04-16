@@ -103,6 +103,7 @@ class DashboardController extends Controller
                 'tbl_indikator.unit_id',
                 'tbl_kamus_indikator.periode_pengumpulan_data_id as periode_id'
             )
+            ->orderBy('tbl_indikator.id')
             ->get();
     }
 
@@ -135,6 +136,7 @@ class DashboardController extends Controller
             $units = DB::table('tbl_unit')->get();
             $indikatorsByUnit = DB::table('tbl_indikator')
                 ->select('id', 'nama_indikator', 'unit_id')
+                ->orderBy('id')
                 ->get()
                 ->groupBy('unit_id');
 

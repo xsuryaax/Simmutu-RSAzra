@@ -88,7 +88,7 @@ class MasterIndikatorController extends Controller
     END
 ")
 
-            ->orderBy('tbl_indikator.nama_indikator', 'ASC');
+            ->orderBy('tbl_indikator.id', 'ASC');
 
         $indikators = $query->get();
 

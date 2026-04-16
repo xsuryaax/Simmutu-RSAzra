@@ -68,7 +68,7 @@ class IndikatorMutuService
                     ELSE 4
                 END
             ")
-            ->orderBy('i.nama_indikator')
+            ->orderBy('i.id')
             ->get();
     }
 

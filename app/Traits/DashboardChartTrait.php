@@ -67,7 +67,7 @@ trait DashboardChartTrait
         }
 
         $indikators = $query->select('i.id', 'i.nama_indikator', 'i.target_indikator', 'i.arah_target', 'u.nama_unit')
-            ->orderBy('i.nama_indikator')
+            ->orderBy('i.id')
             ->get();
 
         if ($indikators->isEmpty()) {
@@ -114,7 +114,7 @@ trait DashboardChartTrait
 
         $indikators = $query->select('i.id', 'i.nama_indikator', 'i.target_indikator', 'i.arah_target', 'k.nama_kategori_imprs', 'u.nama_unit')
             ->orderBy('k.nama_kategori_imprs')
-            ->orderBy('i.nama_indikator')
+            ->orderBy('i.id')
             ->get();
 
         if ($indikators->isEmpty()) {
@@ -161,7 +161,7 @@ trait DashboardChartTrait
 
         $indikators = $query->select('i.id', 'i.nama_indikator', 'i.target_indikator', 'i.arah_target', 'i.unit_id', 'u.nama_unit')
             ->orderBy('u.nama_unit')
-            ->orderBy('i.nama_indikator')
+            ->orderBy('i.id')
             ->get();
 
         if ($indikators->isEmpty()) {

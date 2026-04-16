@@ -17,7 +17,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             ManajemenDataMutu::class,
-            Users::class,
             KaryawanSeeder::class,
             Indikator::class,
             KamusIndikator::class,

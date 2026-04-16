@@ -45,6 +45,7 @@ class KamusIndikatorController extends Controller
             )
             ->groupBy(
                 'tbl_kamus_indikator.id',
+                'tbl_indikator.id',
                 'tbl_indikator.nama_indikator',
                 'tbl_indikator.unit_id',
                 'tbl_unit.nama_unit',
@@ -80,7 +81,7 @@ class KamusIndikatorController extends Controller
         ELSE 4
     END
 ")
-            ->orderBy('tbl_indikator.nama_indikator', 'ASC');
+            ->orderBy('tbl_indikator.id', 'ASC');
 
         $mutu = $query->get();
 
