@@ -26,7 +26,11 @@ class ManajemenUserController extends Controller
             ->orderBy('users.id', 'ASC')
             ->get();
 
-        return view('menu.ManajemenUser.index', compact('users', 'roles', 'units'));
+        $totalUser = DB::table('users')->count();
+        $totalAktif = DB::table('users')->where('status_user', 'aktif')->count();
+        $totalNonaktif = $totalUser - $totalAktif;
+
+        return view('menu.ManajemenUser.index', compact('users', 'roles', 'units', 'totalUser', 'totalAktif', 'totalNonaktif'));
     }
 
     // Store new user

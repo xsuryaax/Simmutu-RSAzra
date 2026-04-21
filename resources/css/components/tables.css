@@ -1,0 +1,122 @@
+/* Simplified Table Layouts */
+.table-filter-section {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1.5rem;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+}
+
+.table-filter-section .filter-label {
+    font-weight: 600;
+    color: #4b4b4b;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.card .card-header {
+    border-bottom: 1px solid #f1f3f5;
+    background-color: transparent;
+    padding: 1.25rem 1.5rem;
+}
+
+.card .card-title, .card h5 {
+    margin-bottom: 0;
+    font-weight: 700;
+    color: #25396f;
+}
+
+/* DataTables Overrides */
+/* DataTables Overrides - Dashboard Style Search */
+.dataTables_filter {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Injecting search icon via CSS for maximum reliability */
+.dataTables_filter::before {
+    content: "\f52a"; /* bi-search hex code */
+    font-family: "bootstrap-icons" !important;
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.dataTables_filter input {
+    border-radius: 20px !important;
+    padding: 8px 12px 8px 35px !important; /* Left padding for icon */
+    border: 1.5px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    font-size: 0.85rem !important;
+    width: 250px !important;
+    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    height: 38px !important;
+}
+
+.dataTables_filter input:focus {
+    border-color: #007774 !important;
+    background-color: #fff !important;
+    box-shadow: 0 0 0 4px rgba(0, 119, 116, 0.1) !important;
+    outline: none !important;
+}
+
+.dataTables_filter label {
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+}
+
+
+
+.dataTables_wrapper .dataTables_info {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.dataTables_wrapper .pagination {
+    margin-top: 1rem;
+}
+
+.dataTables_wrapper .pagination .page-link {
+    border-radius: 8px;
+    margin: 0 3px;
+    border: none;
+    background: #f8f9fa;
+    color: #4b4b4b;
+}
+
+.dataTables_wrapper .pagination .page-item.active .page-link {
+    background: #435ebe;
+    color: #fff;
+}
+
+/* Custom Scrollbar Visibility for Mobile */
+.table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+    padding-bottom: 5px; /* Prevent scrollbar from clipping */
+}
+
+/* Webkit specific scrollbar styling */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+    background-color: #f8fafc;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8;
+}

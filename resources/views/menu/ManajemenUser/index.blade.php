@@ -4,44 +4,66 @@
 @section('title', 'Manajemen User')
 
 {{-- Bagian Breadcrumb dan Halaman Title --}}
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Manajemen User</h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk mengelola user dalam sistem.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="justify-content-end d-flex">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Manajemen User
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
+@section('subtitle', 'Halaman untuk mengelola user dalam sistem.')
 
 {{-- Bagian Konten Utama --}}
 @section('content')
     <section class="section">
+        <div class="row">
+            <div class="col-6 col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                                <h6 class="text-muted font-semibold">
+                                    Total User
+                                </h6>
+                                <h6 class="font-extrabold mb-0">{{ $totalUser }}</h6>
+                            </div>
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
+                                <div class="stats-icon blue mb-2">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                                <h6 class="text-muted font-semibold">Total User Aktif</h6>
+                                <h6 class="font-extrabold mb-0">{{ $totalAktif }}</h6>
+                            </div>
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
+                                <div class="stats-icon green mb-2">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                                <h6 class="text-muted font-semibold">Total User Tidak Aktif</h6>
+                                <h6 class="font-extrabold mb-0">{{ $totalNonaktif }}</h6>
+                            </div>
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
+                                <div class="stats-icon red mb-2">
+                                    <i class="bi bi-person-x-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-4 col-12">
                 <div class="card">
@@ -220,18 +242,16 @@
                         <h5 class="card-title">Daftar User</h5>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive-md">
-                            <table class="table table-striped" id="table1">
+
+                        <table class="table table-striped" id="table1">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
-                                        <th>Nama Karyawan</th>
-                                        <th class="text-center">Email</th>
-                                        <th class="text-center">Role / Jabatan</th>
-                                        <th class="text-center">Unit / Organisasi</th>
-                                        <th class="text-center">Atasan Langsung</th>
-                                        <th class="text-center">Status</th>
-                                        <th class="text-center">Aksi</th>
+                                        <th>NO</th>
+                                        <th>DATA KARYAWAN</th>
+                                        <th>USERNAME / EMAIL</th>
+                                        <th>AKSES</th>
+                                        <th class="text-center">STATUS</th>
+                                        <th class="text-center">AKSI</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -240,52 +260,52 @@
                                             <td>{{ $loop->iteration }}</td>
 
                                             <td>
-                                                <strong>{{ $u->nama_lengkap }}</strong><br>
-                                                <small class="text-muted">{{ $u->username }} | NIP :
-                                                    {{ $u->nip ?? '-' }}</small><br>
-                                                <small class="text-muted"><i class="bi bi-person-badge"></i>
-                                                    {{ $u->profesi ?? '-' }}</small>
+                                                @if($u->nama_lengkap)
+                                                    <strong class="text-dark">{{ $u->nama_lengkap }}</strong><br>
+                                                @endif
+                                                <small class="text-muted">NIP: {{ $u->nip ?? '-' }} | {{ $u->profesi ?? '-' }}</small>
                                             </td>
 
-                                            <td class="text-center">{{ $u->email }}</td>
-                                            <td class="text-center">{{ $u->nama_role }}</td>
-                                            <td class="text-center">
-                                                {{ $u->nama_unit ?? '-' }}
+                                            <td>
+                                                <strong class="text-dark">{{ $u->username }}</strong><br>
+                                                <small class="text-muted">{{ $u->email }}</small>
                                             </td>
 
-                                            <td class="text-center">
-                                                {{ $u->atasan_langsung ?? '-' }}
+                                            <td>
+                                                <div class="d-flex align-items-start">
+                                                    <div>
+                                                        <strong class="text-dark">{{ $u->nama_role }}</strong><br>
+                                                        <small class="text-muted">{{ $u->nama_unit ?? '-' }}</small>
+                                                    </div>
+                                                </div>
                                             </td>
 
-                                            <td class="text-center">
+                                            <td class="text-center align-middle">
                                                 @if ($u->status_user == 'aktif')
-                                                    <span class="badge bg-success">Aktif</span>
+                                                    <span class="badge bg-success text-white px-2 py-1 text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">AKTIF</span>
                                                 @else
-                                                    <span class="badge bg-secondary">Non-Aktif</span>
+                                                    <span class="badge bg-secondary text-white px-2 py-1 text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px;">NON-AKTIF</span>
                                                 @endif
                                             </td>
 
-                                            <td class="text-center">
-                                                <button class="btn btn-warning btn-sm"
-                                                    onclick='openEditModal(@json($u))'>
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-
-                                                <form action="{{ route('manajemen-user.destroy', $u->id) }}"
-                                                    method="POST" class="d-inline"
-                                                    onsubmit="return confirm('Hapus user ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-danger btn-sm">
-                                                        <i class="bi bi-trash"></i>
+                                            <td class="text-center align-middle">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <button class="btn btn-warning btn-sm" onclick='openEditModal(@json($u))'>
+                                                        <i class="bi bi-pencil"></i>
                                                     </button>
-                                                </form>
+                                                    <form action="{{ route('manajemen-user.destroy', $u->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus user ini?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button class="btn btn-danger btn-sm">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -429,5 +449,5 @@
             new bootstrap.Modal(document.getElementById('modalEditUser')).show();
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 @endpush

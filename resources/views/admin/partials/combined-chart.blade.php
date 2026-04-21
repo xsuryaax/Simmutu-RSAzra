@@ -40,6 +40,7 @@
                         <option value="imn" selected>Nasional (IMN)</option>
                         <option value="imprs">Prioritas RS</option>
                         <option value="unit">Prioritas Unit</option>
+                        <option value="spm">SPM</option>
                     </select>
 
                     {{-- Filter Unit (Admin Only) --}}

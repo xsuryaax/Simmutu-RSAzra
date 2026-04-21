@@ -51,8 +51,8 @@
             </div>
 
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped" id="tableIndikator">
+
+                <table class="table table-striped" id="tableIndikator">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -86,8 +86,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
-                </div>
+                </table>
             </div>
         </div>
     </section>

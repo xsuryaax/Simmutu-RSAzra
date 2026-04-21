@@ -16,7 +16,7 @@ return [
         ]
     ],
     'manajemen_data_mutu' => [
-        'title' => 'Manajemen Data Mutu',
+        'title' => 'Manajemen Data',
         'icon' => 'ri-list-check-2',
         'menus' => [
             ['key' => 'kategori_imprs', 'label' => 'Kategori IMPRS', 'route' => 'kategori-imprs.index'],

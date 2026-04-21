@@ -11,10 +11,11 @@
 #chartGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    align-items: start; /* Fix: Prevent cards from stretching vertically in a tall grid */
     gap: 1.25rem;
     padding: 1.25rem;
-    background: #f4f7fa; /* Slightly cooler grey */
-    min-height: 600px; /* CLS Fix: Prevents grid from collapsing during data switches */
+    background: #f4f7fa; 
+    min-height: 600px;
 }
 
 /* Legend Styling from Analisa Data */
@@ -90,6 +91,11 @@
     position: relative;
     height: 280px;
     background-color: #fdfdfd;
+}
+
+.chart-card-body canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* Lazy Loading & Animations */

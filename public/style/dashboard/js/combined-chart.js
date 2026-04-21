@@ -24,6 +24,8 @@
             chartColor = '#198754'; // Green
         } else if (type === 'unit') {
             chartColor = '#6c757d'; // Gray
+        } else if (type === 'spm') {
+            chartColor = '#fd7e14'; // Orange for SPM
         }
         
         const bgColor = chartType === 'bar' ? `${chartColor}cc` : `${chartColor}11`;
@@ -899,7 +901,7 @@
 
             // Get Detail from API
             const tahun = currentTahunFilter();
-            const res = await fetch(`/dashboard/indikator-detail/${indId}?tahun=${tahun}`);
+            const res = await fetch(`/dashboard/indikator-detail/${indId}?tahun=${tahun}&type=${currentType}`);
             const data = await res.json();
 
             if (data.error) throw new Error(data.error);

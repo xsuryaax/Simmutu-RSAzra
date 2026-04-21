@@ -133,10 +133,10 @@
         <table>
             <tr>
                 <td style="width: 150px; vertical-align: middle;">
-                    <img src="{{ public_path('assets/logo/azra-logo.png') }}" style="height: 45px;">
+                    <div style="font-size: 16px; font-weight: bold; color: #007774; letter-spacing: 1px;">RS AZRA</div>
+                    <div style="font-size: 8px; color: #666; margin-top: 2px;">BOGOR</div>
                 </td>
                 <td style="text-align: center; vertical-align: middle;">
-                    <div class="rs-name">Rumah Sakit AZRA</div>
                     <div class="doc-title">Laporan Grafik Indikator Mutu</div>
                 </td>
                 <td
@@ -199,9 +199,10 @@
         </div>
     </div>
 
-    @if(isset($pdsaData))
+    @if (isset($pdsaData))
         <div style="margin-top: 30px; page-break-inside: avoid;">
-            <div style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px; border-bottom: 1px solid #1a3c6e; padding-bottom: 3px;">
+            <div
+                style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px; border-bottom: 1px solid #1a3c6e; padding-bottom: 3px;">
                 Status PDSA (Plan-Do-Study-Act) Tahun {{ $tahun }}
             </div>
             <table class="data-table" style="margin-top: 10px; font-size: 9px;">

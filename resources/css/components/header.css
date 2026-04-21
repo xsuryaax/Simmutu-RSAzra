@@ -1,0 +1,135 @@
+/* Header & Navbar Styles */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2.2rem;
+    background: #fff;
+    border-bottom: 2px solid #f1f5f9;
+    margin-bottom: 1.5rem;
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+@media screen and (max-width: 768px) {
+    .page-header {
+        padding: 1rem 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+.page-header h3 {
+    margin-bottom: 0;
+    font-weight: 800;
+    color: #25396f;
+    font-size: 1.4rem;
+}
+
+.page-header .text-muted.small {
+    font-size: 0.85rem !important;
+    font-weight: 600;
+}
+
+.btn-user-profile {
+    background: #007774;
+    border: 2px solid #ffffff;
+    border-radius: 50px;
+    transition: background-color 0.1s, color 0.1s;
+    color: #ffffff;
+    padding: 6px 16px !important;
+    font-weight: 800;
+    box-shadow: 0 4px 8px rgba(0, 119, 116, 0.15);
+}
+
+.btn-user-profile .user-avatar-wrapper {
+    width: 34px;
+    height: 34px;
+    border: 2px solid #fff;
+}
+
+.btn-user-profile:hover {
+    background: #006663;
+    border-color: #ffffff;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 119, 116, 0.25);
+}
+
+.btn-user-profile .user-name-text {
+    color: #ffffff;
+}
+
+.user-avatar-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #fff;
+}
+
+.user-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-name-text {
+    font-size: 0.9rem;
+    color: #4b4b4b;
+}
+
+.user-dropdown .dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 10px !important;
+}
+
+.user-dropdown .dropdown-item {
+    border-radius: 8px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #4b4b4b;
+}
+
+.user-dropdown .dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #25396f;
+}
+
+.user-dropdown .dropdown-item.text-danger:hover {
+    background-color: #fff5f5;
+    color: #dc3545;
+}
+
+/* Burger Button */
+.burger-btn {
+    padding: 0;
+    line-height: 0;
+    transition: all 0.3s;
+}
+
+.burger-btn:hover {
+    opacity: 0.7;
+}
+
+@media screen and (max-width: 992px) {
+    .btn-user-profile {
+        padding: 4px !important;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        justify-content: center;
+    }
+
+    .user-name-text {
+        display: none !important;
+    }
+    
+    .btn-user-profile.dropdown-toggle::after {
+        display: none;
+    }
+}

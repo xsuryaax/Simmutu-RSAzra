@@ -30,6 +30,7 @@ class DashboardController extends Controller
         return match ($type) {
             'imprs' => $this->allImprsChartData($tahun, $unitId),
             'unit'  => $this->allUnitChartData($tahun, $unitId),
+            'spm'   => $this->allSpmChartData($tahun, $unitId),
             default => $this->allImnChartData($tahun, $unitId),
         };
     }
@@ -235,11 +236,26 @@ class DashboardController extends Controller
                 ->groupBy(
                     'l.indikator_id',
                     'l.unit_id',
+                    'i.arah_target',
+                    'i.target_min',
+                    'i.target_max',
                     'i.target_indikator',
                     DB::raw('EXTRACT(YEAR FROM l.tanggal_laporan)'),
                     DB::raw("FLOOR((EXTRACT(MONTH FROM l.tanggal_laporan) - 1) / 3) + 1")
                 )
-                ->havingRaw('AVG(l.nilai) < i.target_indikator');
+                ->havingRaw("
+                    COUNT(DISTINCT EXTRACT(MONTH FROM l.tanggal_laporan)) = 3
+                    AND
+                    (
+                        (i.arah_target = 'lebih_besar' AND AVG(l.nilai) < i.target_indikator)
+                        OR
+                        (i.arah_target = 'lebih_kecil' AND AVG(l.nilai) > i.target_indikator)
+                        OR
+                        (i.arah_target = 'range' AND 
+                            (AVG(l.nilai) < i.target_min OR AVG(l.nilai) > i.target_max)
+                        )
+                    )
+                ");
 
             if ($unitId) {
                 $query->where('l.unit_id', $unitId);
@@ -284,32 +300,70 @@ class DashboardController extends Controller
     public function getIndikatorDetail(Request $request, $id)
     {
         $tahun = (int) $request->input('tahun', $this->getTahunPeriodeAktif());
+        $type  = $request->input('type', 'imn');
 
-        // 1. Get Indicator Meta
-        $indicator = DB::table('tbl_indikator as i')
-            ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
-            ->leftJoin('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
-            ->select('i.*', 'u.nama_unit', 'ki.kategori_indikator', 'ki.numerator as label_numerator', 'ki.denominator as label_denominator')
-            ->where('i.id', $id)
-            ->first();
+        if ($type === 'spm') {
+            // 1. Get SPM Meta
+            $indicator = DB::table('tbl_spm as s')
+                ->leftJoin('tbl_unit as u', 'u.id', '=', 's.unit_id')
+                ->select(
+                    's.id',
+                    's.nama_spm as nama_indikator',
+                    's.target_spm as target_indikator',
+                    's.arah_target',
+                    'u.nama_unit'
+                )
+                ->where('s.id', $id)
+                ->first();
+            
+            if ($indicator) {
+                // Mock category and labels for SPM to match modal expectation
+                $indicator->kategori_indikator = 'Standar Pelayanan Minimal';
+                $indicator->label_numerator = 'Numerator';
+                $indicator->label_denominator = 'Denominator';
+            }
+        } else {
+            // 1. Get Indicator Meta
+            $indicator = DB::table('tbl_indikator as i')
+                ->leftJoin('tbl_unit as u', 'u.id', '=', 'i.unit_id')
+                ->leftJoin('tbl_kamus_indikator as ki', 'ki.id', '=', 'i.kamus_indikator_id')
+                ->select('i.*', 'u.nama_unit', 'ki.kategori_indikator', 'ki.numerator as label_numerator', 'ki.denominator as label_denominator')
+                ->where('i.id', $id)
+                ->first();
+        }
 
         if (!$indicator) {
             return response()->json(['error' => 'Indicator not found'], 404);
         }
 
-        // 2. Get Monthly Reports (Numerator, Denominator, Nilai)
-        $reports = DB::table('tbl_laporan_dan_analis')
-            ->where('indikator_id', $id)
-            ->whereYear('tanggal_laporan', $tahun)
-            ->selectRaw('
-                EXTRACT(MONTH FROM tanggal_laporan) as bulan,
-                SUM(numerator) as total_numerator,
-                SUM(denominator) as total_denominator,
-                AVG(nilai) as rata_nilai
-            ')
-            ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
-            ->get()
-            ->keyBy('bulan');
+        // 2. Get Monthly Reports
+        if ($type === 'spm') {
+            $reports = DB::table('tbl_spm_laporan_dan_analis')
+                ->where('spm_id', $id)
+                ->whereYear('tanggal_laporan', $tahun)
+                ->selectRaw('
+                    EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+                    SUM(numerator) as total_numerator,
+                    SUM(denominator) as total_denominator,
+                    AVG(nilai) as rata_nilai
+                ')
+                ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
+                ->get()
+                ->keyBy('bulan');
+        } else {
+            $reports = DB::table('tbl_laporan_dan_analis')
+                ->where('indikator_id', $id)
+                ->whereYear('tanggal_laporan', $tahun)
+                ->selectRaw('
+                    EXTRACT(MONTH FROM tanggal_laporan) as bulan,
+                    SUM(numerator) as total_numerator,
+                    SUM(denominator) as total_denominator,
+                    CAST(AVG(nilai) AS numeric) as rata_nilai
+                ')
+                ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
+                ->get()
+                ->keyBy('bulan');
+        }
 
         $monthlyData = [];
         $hasil = array_fill(0, 12, null);

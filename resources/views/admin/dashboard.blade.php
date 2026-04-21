@@ -2,24 +2,7 @@
 
 {{-- Bagian Title Halaman --}}
 @section('title', 'Dashboard')
-
-@section('page-title')
-    <div class="dash-header">
-        <div class="dash-header-left">
-            <h3>Dashboard</h3>
-        </div>
-        <div class="dash-header-right">
-            <form method="POST" action="/logout">
-                <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                @csrf
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-box-arrow-right"></i>
-                    Keluar
-                </button>
-            </form>
-        </div>
-    </div>
-@endsection
+@section('subtitle', 'Ringkasan capaian indikator mutu rumah sakit')
 
 {{-- Bagian Konten Utama --}}
 @section('content')

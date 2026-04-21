@@ -1,146 +1,101 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan dan Analisis')
+@section('title', 'Pengisian Indikator')
 
 @php
     use Carbon\Carbon;
-
+    
     $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
-
-    function formatIndikator($nilai)
-    {
-        if ($nilai === null) {
-            return '-';
-        }
-        return fmod($nilai, 1) == 0 ? number_format($nilai, 0) : number_format($nilai, 1);
-    }
-
     $periodeMulai = Carbon::parse($periode->tanggal_mulai);
     $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
     $tahunAktif = range($periodeMulai->year, $periodeSelesai->year);
-
-    $bulanAwalPeriode = Carbon::parse($periode->tanggal_mulai)->month;
-    $tahunAwalPeriode = Carbon::parse($periode->tanggal_mulai)->year;
-    $bulanDipilih = request('bulan', $periodeMulai->month);
-    $tahunDipilih = request('tahun', $periodeMulai->year);
-    $isBulanPertamaPeriode = $bulanDipilih == $bulanAwalPeriode && $tahunDipilih == $tahunAwalPeriode;
 @endphp
 
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Pengisian Indikator</h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk pengisian untuk pengumpul data indikator mutu.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="logout-btn">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Pengisian Indikator
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
+@section('subtitle', 'Entri data capaian, analisa, dan rencana tindak lanjut (RTL) indikator mutu')
 
 @section('content')
     <section class="section">
-        <div class="col-12 col-md-12 col-lg-12">
-            <div class="row mb-4">
+        {{-- Filter & Legend Section --}}
+        <div class="table-filter-section mb-4">
+            <div class="row align-items-end">
+                <div class="col">
+                    <form id="filterForm" method="GET" action="{{ url()->current() }}"
+                        class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="filter-label">Jenis Indikator</label>
+                            <select name="kategori_indikator" class="form-select"
+                                onchange="document.getElementById('filterForm').submit()">
+                                <option value="">-- Semua Indikator --</option>
+                                <option value="prioritas unit"
+                                    {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                                    Prioritas Unit
+                                </option>
+                                <option value="nasional"
+                                    {{ request('kategori_indikator') == 'nasional' ? 'selected' : '' }}>
+                                    Nasional
+                                </option>
+                                <option value="prioritas rs"
+                                    {{ request('kategori_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                                    Prioritas RS
+                                </option>
+                            </select>
+                        </div>
 
+                        <div class="col-md-2">
+                            <label class="filter-label">Tahun</label>
+                            <select name="tahun" class="form-select" onchange="filterForm.submit()">
+                                @foreach ($tahunAktif as $t)
+                                    <option value="{{ $t }}"
+                                        {{ $tahun == $t ? 'selected' : '' }}>
+                                        {{ $t }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="filter-label">Bulan</label>
+                            @php
+                                $tahunDipilih = $tahun;
+                                $effectiveStart = $effectiveStart ?? $periodeMulai;
+                                $bulanMulai = $tahunDipilih == $effectiveStart->year ? $effectiveStart->month : 1;
+                                $bulanSelesai = $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
+                            @endphp
+                            <select name="bulan" class="form-select" onchange="filterForm.submit()">
+                                @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
+                                    <option value="{{ $b }}"
+                                        {{ $bulan == $b ? 'selected' : '' }}>
+                                        {{ Carbon::create()->month($b)->translatedFormat('F') }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-md-12 col-lg-12">
+            <div class="row flex-wrap flex-xl-nowrap mb-4">
                 {{-- ================================================ --}}
                 {{-- TABEL DATA INDIKATOR                              --}}
                 {{-- ================================================ --}}
-                <div class="col-5 col-lg-7 col-md-5 px-2">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Data Indikator Laporan</h5>
-                        </div>
-
+                <div class="col-12 col-xl table-column-grow px-2" style="min-width: 0;">
+                    <div class="card shadow-sm border-0">
+                        @include('menu.IndikatorMutu.partials._legend')
                         <div class="card-body">
-
-                            {{-- Filter Form --}}
-                            <form id="filterForm" method="GET" action="{{ url()->current() }}"
-                                class="row g-2 align-items-end mb-4">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Jenis Indikator</label>
-                                    <select name="kategori_indikator" class="form-select"
-                                        onchange="document.getElementById('filterForm').submit()">
-                                        <option value="">-- Semua Indikator --</option>
-                                        <option value="prioritas unit"
-                                            {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
-                                            Prioritas Unit
-                                        </option>
-                                        <option value="nasional"
-                                            {{ request('kategori_indikator') == 'nasional' ? 'selected' : '' }}>
-                                            Nasional
-                                        </option>
-                                        <option value="prioritas rs"
-                                            {{ request('kategori_indikator') == 'prioritas rs' ? 'selected' : '' }}>
-                                            Prioritas RS
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Tahun</label>
-                                    <select name="tahun" class="form-select" onchange="filterForm.submit()">
-                                        @foreach ($tahunAktif as $t)
-                                            <option value="{{ $t }}"
-                                                {{ request('tahun', $periodeMulai->year) == $t ? 'selected' : '' }}>
-                                                {{ $t }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Bulan</label>
-                                    @php
-                                        $tahunDipilih = request('tahun', $periodeMulai->year);
-                                        $effectiveStart = $effectiveStart ?? $periodeMulai;
-                                        $bulanMulai = $tahunDipilih == $effectiveStart->year ? $effectiveStart->month : 1;
-                                        $bulanSelesai = $tahunDipilih == $periodeSelesai->year ? $periodeSelesai->month : 12;
-                                    @endphp
-                                    <select name="bulan" class="form-select" onchange="filterForm.submit()">
-                                        @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
-                                            <option value="{{ $b }}"
-                                                {{ request('bulan', $periodeMulai->month) == $b ? 'selected' : '' }}>
-                                                {{ Carbon::create()->month($b)->translatedFormat('F') }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </div>
-                            </form>
-
-                            {{-- Legend --}}
-                            @include('menu.IndikatorMutu.partials._legend')
+                            <div id="table-actions-content" class="d-none">
+                                <div id="table-legend-placeholder"></div>
+                            </div>
 
                             {{-- Tabel --}}
-                            <div class="table-parent-container table-responsive-md">
+                            <div>
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
-                                            <th>INDIKATOR</th>
+                                            <th style="min-width: 350px;">INDIKATOR</th>
                                             @if ($isAdminMutu)
                                                 <th class="text-center">UNIT</th>
                                             @endif
@@ -249,7 +204,7 @@
                                                         $rekapItem = $rekapBulanan[$key] ?? null;
                                                         $nilaiValidator = $rekapItem->nilai_validator ?? null; 
                                                         $vMonthName = $rekapItem->validation_month_name ?? '';
-                                                        $isDifferentMonth = ($rekapItem->validation_month ?? null) != $bulanDipilih || ($rekapItem->validation_year ?? null) != $tahunDipilih;
+                                                        $isDifferentMonth = ($rekapItem->validation_month ?? null) != $bulan || ($rekapItem->validation_year ?? null) != $tahun;
                                                     @endphp
                                                     
                                                     @if ($nilaiValidator === null)
@@ -311,21 +266,19 @@
                                                     @endif
                                                 </td>
 
-                                                {{-- Aksi --}}
                                                 <td class="text-center">
                                                     <a href="{{ route('laporan-analis.index', [
                                                         'kategori_indikator' =>
                                                             request()->has('kategori_indikator') && request('kategori_indikator') !== ''
                                                                 ? request('kategori_indikator')
                                                                 : null,
-                                                        'bulan' => request('bulan', $periodeMulai->month),
-                                                        'tahun' => request('tahun', $periodeMulai->year),
+                                                        'bulan' => $bulan,
+                                                        'tahun' => $tahun,
                                                         'indikator_id' => $indikator->id,
                                                         'unit_id' => $indikator->unit_id,
-                                                    ]) }}"
-                                                        class="text-primary" title="Lihat Kalender">
-                                                        <i
-                                                            class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
+                                                    ]) . '#kalenderSection' }}"
+                                                        title="Lihat Kalender" class="text-decoration-none">
+                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -338,7 +291,10 @@
                     </div>
                 </div>
 
-                @include('menu.IndikatorMutu.partials._kalender', ['isAnalisPage' => true])
+                @include('menu.IndikatorMutu.partials._kalender', [
+                    'isValidatorPage' => false,
+                    'colClass' => 'col-12 col-xl-auto calendar-column-fixed px-2'
+                ])
 
             </div>
         </div>
@@ -568,5 +524,5 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 @endpush

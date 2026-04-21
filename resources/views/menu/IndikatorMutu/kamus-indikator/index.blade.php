@@ -1,93 +1,68 @@
 @extends('layouts.app')
 
 @section('title', 'Profil Indikator')
+@section('subtitle', 'Detail pengukuran dan definisi operasional indikator mutu')
 
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Profil Indikator Mutu </h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk mengelola profil indikator mutu dalam sistem.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="justify-content-end d-flex">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Profil Indikator Mutu
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
-
-{{-- Bagian Konten Utama --}}
 @section('content')
     <section class="section">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center gap-3">
-                <h5 class="card-title mb-0">Profil Indikator Mutu</h5>
-
-                <a href="{{ route('kamus-indikator.create') }}" class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus"></i> Tambah Data
-                </a>
+        {{-- Filter & Legend Section --}}
+        <div class="table-filter-section mb-4">
+            <div class="row align-items-end">
+                <div class="col">
+                    @if ($isAdminMutu)
+                        <form method="GET" action="{{ route('kamus-indikator.index') }}" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="filter-label">Unit / Organisasi</label>
+                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}" {{ $unitId == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </form>
+                    @endif
+                </div>
+                <div class="col-auto pb-2">
+                    <div id="table-legend-placeholder"></div>
+                </div>
             </div>
-            <div class="card-body">
-                @if ($isAdminMutu)
-                    <form method="GET" action="{{ route('kamus-indikator.index') }}" class="row g-2 mb-3 align-items-end">
-                        <div class="col-md-3">
-                            <label>Filter Unit</label>
-                            <select name="unit_id" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Semua Unit --</option>
-                                @foreach ($units as $unit)
-                                    <option value="{{ $unit->id }}" {{ $unitId == $unit->id ? 'selected' : '' }}>
-                                        {{ $unit->nama_unit }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </form>
-                @endif
+        </div>
 
-                <div class="mb-3 d-flex flex-wrap gap-3">
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-danger me-2"
-                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Nasional</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-success me-2"
-                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Prioritas RS</small>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-light me-2"
-                            style="width: 20px; height: 20px; border: 1px solid #f0f2f4;">&nbsp;</span>
-                        <small class="text-primary text-primary-dark">Prioritas Unit</small>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                {{-- Unified Table Controls --}}
+                <div id="table-actions-content" class="d-none">
+                    <a href="{{ route('kamus-indikator.create') }}" class="btn btn-primary shadow-sm btn-sm">
+                        <i class="bi bi-plus-lg"></i> Tambah Data
+                    </a>
+                </div>
+
+                {{-- This legend will be moved into the DataTable header by JS --}}
+                <div id="table-legend-content" class="d-none">
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-danger me-2" style="width: 15px; height: 15px; border-radius: 4px;">&nbsp;</span>
+                            <small class="text-muted fw-medium">Nasional</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-success me-2" style="width: 15px; height: 15px; border-radius: 4px;">&nbsp;</span>
+                            <small class="text-muted fw-medium">Prioritas RS</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-light border me-2" style="width: 15px; height: 15px; border-radius: 4px;">&nbsp;</span>
+                            <small class="text-muted fw-medium">Prioritas Unit</small>
+                        </div>
                     </div>
                 </div>
-                <div class="table-parent-container table-responsive-md">
+                <div>
                     <table class="table table-striped" id="table1">
                         <thead>
                             <tr>
                                 <th class="text-center">No</th>
-                                <th style="width: 300px;">Indikator</th>
+                                <th style="min-width: 350px;">Indikator</th>
                                 <th class="text-center">Unit</th>
                                 <th class="text-center">Kategori Indikator</th>
                                 <th class="text-center">Dimensi Mutu</th>

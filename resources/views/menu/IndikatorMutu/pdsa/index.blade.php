@@ -1,74 +1,34 @@
 @extends('layouts.app')
 
-{{-- Title Halaman --}}
 @section('title', 'PDSA')
-
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>PDSA (Plan Do Study Action)</h3>
-            <p class="text-subtitle text-muted">
-                Daftar indikator mutu yang tidak tercapai dan memerlukan PDSA
-            </p>
-        </div>
-
-        <div class="page-header-right">
-            <div class="justify-content-end d-flex">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card">
-                        <strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong>
-                    </span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
-                        <i class="bi bi-box-arrow-right"></i> Logout
-                    </button>
-                </form>
-            </div>
-
-            <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            PDSA
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
+@section('subtitle', 'Siklus perbaikan mutu melalui tahapan Plan-Do-Study-Action')
 
 @section('content')
     <section class="section">
-
-        @if (in_array(Auth::user()->unit_id, [1, 2]))
-
-            <div class="card">
-                <div class="card-header">
-                    <h5>Indikator Tidak Tercapai (Perlu PDSA)</h5>
-                </div>
-
-                <div class="card-body">
-                    <form method="GET" class="row g-2 mb-3">
-
-                        <div class="col-md-3">
-                            <select name="unit_id" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Semua Unit --</option>
-                                @foreach($units as $unit)
-                                    <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
-                                        {{ $unit->nama_unit }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+        {{-- Filter & Actions Section --}}
+        <div class="table-filter-section mb-4">
+            <div class="row align-items-end">
+                <div class="col">
+                    <form method="GET" class="row g-3 align-items-end">
+                        @if (in_array(Auth::user()->unit_id, [1, 2]))
+                            <div class="col-md-4">
+                                <label class="filter-label">Unit / Organisasi</label>
+                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $unit)
+                                        <option value="{{ $unit->id }}" {{ request('unit_id') == $unit->id ? 'selected' : '' }}>
+                                            {{ $unit->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
 
                         <div class="col-md-3">
+                            <label class="filter-label">Tahun</label>
                             <select name="tahun" class="form-select" onchange="this.form.submit()">
                                 <option value="">-- Semua Tahun --</option>
-                                @foreach($tahunList as $tahun)
+                                @foreach ($tahunList as $tahun)
                                     <option value="{{ $tahun }}" {{ request('tahun') == $tahun ? 'selected' : '' }}>
                                         {{ $tahun }}
                                     </option>
@@ -76,17 +36,26 @@
                             </select>
                         </div>
                     </form>
+                </div>
+                <div class="col-auto pb-2">
+                    <div id="table-legend-placeholder"></div>
+                </div>
+            </div>
+        </div>
 
-                    <div class="d-flex justify-content-end mb-3">
-                        <a href="{{ route('pdsa.export.pdf', [
-                'unit_id' => request('unit_id'),
-                'tahun' => request('tahun')
-            ]) }}" class="btn btn-danger btn-sm">
+        @if (in_array(Auth::user()->unit_id, [1, 2]))
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    {{-- Integrated Actions for DataTable --}}
+                    <div id="table-actions-content" class="d-none">
+                        <a href="{{ route('pdsa.export.pdf', ['unit_id' => request('unit_id'), 'tahun' => request('tahun')]) }}"
+                            class="btn btn-danger shadow-sm btn-sm">
                             <i class="bi bi-file-earmark-pdf"></i> Download PDF
                         </a>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="table1">
+                    
+
+                    <table class="table table-striped" id="table1">
                             <thead>
                                 <tr>
                                     <th class="text-center">NO</th>
@@ -154,9 +123,9 @@
                                                 </form>
                                             @else
                                                 {{-- Lihat / Isi PDSA --}}
-                                                <a href="{{ route('pdsa.show', $row->pdsa_id) }}" class="btn btn-link p-0"
+                                                <a href="{{ route('pdsa.show', $row->pdsa_id) }}" class="btn btn-outline-primary btn-sm"
                                                     title="Lihat PDSA">
-                                                    <i class="bi bi-eye fs-5 text-primary"></i>
+                                                    <i class="bi bi-eye"></i>
                                                 </a>
                                             @endif
                                         </td>
@@ -164,20 +133,22 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div>
 
         @else
-
-            <div class="card">
-                <div class="card-header">
-                    <h5>Daftar PDSA Perlu Ditindaklanjuti</h5>
-                </div>
-
+            <div class="card shadow-sm border-0">
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
+                    {{-- Integrated Actions for DataTable --}}
+                    <div id="table-actions-content" class="d-none">
+                        <a href="{{ route('pdsa.export.pdf', ['unit_id' => request('unit_id'), 'tahun' => request('tahun')]) }}"
+                            class="btn btn-danger shadow-sm btn-sm">
+                            <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                        </a>
+                    </div>
+
+
+                    <table class="table table-striped" id="table1">
                             <thead>
                                 <tr>
                                     <th class="text-center">NO</th>
@@ -232,7 +203,6 @@
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div>
 

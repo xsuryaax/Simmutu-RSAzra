@@ -1,56 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Master Periode Mutu')
-
-@section('page-title')
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <div>
-            <h3>Master Periode Mutu</h3>
-            <p class="text-subtitle text-muted">
-                Pengaturan periode global untuk laporan indikator mutu.
-            </p>
-        </div>
-
-        <div class="d-flex gap-2 align-items-center">
-            <div class="page-header-right">
-                <div class="justify-content-end d-flex">
-                    <form method="POST" action="/logout">
-                        <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                        @csrf
-                        <button type="submit" class="btn btn-primary logout-btn">
-                            <i class="bi bi-box-arrow-right"></i>
-                            Logout
-                        </button>
-                    </form>
-                </div>
-                <div>
-                    <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item">
-                                <a href="{{ url('/') }}">Dashboard</a>
-                            </li>
-                            <li class="breadcrumb-item active" aria-current="page">
-                                Master Periode Mutu
-                            </li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+@section('title', 'Manajemen Periode Mutu')
+@section('subtitle', 'Halaman untuk mengelola periode waktu pelaporan mutu.')
 
 @section('content')
     <section class="section">
         <div class="card">
-            <div class="card-body table-responsive">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Daftar Periode Mutu</h5>
-                    <a href="{{ route('periode-mutu.create') }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus-circle"></i> Tambah Periode
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0 fw-bold text-primary">Daftar Periode Mutu</h5>
+                    <a href="{{ route('periode-mutu.create') }}" class="btn btn-primary btn-sm px-3 rounded-pill">
+                        <i class="bi bi-plus-lg"></i> Tambah Periode
                     </a>
                 </div>
-                <table class="table table-striped">
+
+                    <table class="table table-striped table-hover" id="table1">
                     <thead>
                         <tr>
                             <th class="text-center">NO</th>

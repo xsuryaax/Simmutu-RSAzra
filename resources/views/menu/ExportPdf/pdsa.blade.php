@@ -192,11 +192,11 @@
 
     <!-- HEADER -->
     <div class="header">
-        <div class="header-logo-wrap">
-            <!-- Logo sengaja dikosongkan -->
+        <div class="header-logo-wrap" style="width: 150px; vertical-align: middle;">
+            <div style="font-size: 16px; font-weight: bold; color: #007774; letter-spacing: 1px;">RS AZRA</div>
+            <div style="font-size: 8px; color: #666; margin-top: 2px;">BOGOR</div>
         </div>
         <div class="header-body">
-            <div class="rs-name">Rumah Sakit AZRA</div>
             <div class="doc-title">Laporan Data PDSA</div>
             <div class="doc-sub">Plan &ndash; Do &ndash; Study &ndash; Action</div>
         </div>

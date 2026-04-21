@@ -43,6 +43,24 @@ class Sidebar {
             .forEach((el) =>
                 el.addEventListener("click", this.toggle.bind(this))
             );
+        // Toggle button inside sidebar header
+        document
+            .querySelectorAll(".sidebar-toggle-btn")
+            .forEach((el) =>
+                el.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    this.toggle();
+                })
+            );
+        // In mini mode, clicking any icon expands sidebar
+        document.querySelectorAll(".sidebar-link").forEach((el) => {
+            el.addEventListener("click", (e) => {
+                if (!this.sidebarEL.classList.contains("active") && isDesktop(window)) {
+                    e.preventDefault();
+                    this.show();
+                }
+            });
+        });
         window.addEventListener("resize", this.onResize.bind(this));
 
         const toggleSubmenu = (el) => {
@@ -111,15 +129,7 @@ class Sidebar {
     }
 
     onResize() {
-        if (isDesktop(window)) {
-            this.sidebarEL.classList.add("active");
-            this.sidebarEL.classList.remove("inactive");
-        } else {
-            this.sidebarEL.classList.remove("active");
-            this.sidebarEL.classList.add("inactive");
-        }
-
-        // reset
+        // On resize, just ensure backdrop is cleaned up
         this.deleteBackdrop();
         this.toggleOverflowBody(true);
     }

@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             Indikator::class,
             KamusIndikator::class,
             IndikatorPeriodeSeeder::class,
+            SpmSeeder::class,
+            DummyLaporanSeeder::class,
         ]);
     }
 }

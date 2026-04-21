@@ -1,118 +1,88 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan dan Analisis')
-
-@php
-    $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
-@endphp
+@section('title', 'Validasi Indikator')
 
 @php
     use Carbon\Carbon;
-
+    
+    $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
     $periodeMulai = Carbon::parse($periode->tanggal_mulai);
     $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
-
     $tahunAktif = range($periodeMulai->year, $periodeSelesai->year);
 @endphp
 
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Laporan Validator</h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk pengisian untuk validator data indikator mutu.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="logout-btn">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Validator Data
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
+@section('subtitle', 'Halaman verifikasi dan validasi data capaian indikator mutu oleh validator unit')
 
 @section('content')
     <section class="section">
-        <div class="col-12 col-md-12 col-lg-12">
-            <div class="row mb-4">
-                <div class="col-5 col-lg-7 col-md-5 px-2">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Data Indikator</h5>
+        {{-- Filter & Legend Section --}}
+        <div class="table-filter-section mb-4">
+            <div class="row align-items-end">
+                <div class="col">
+                    <form id="filterForm" method="GET" action="{{ url()->current() }}"
+                        class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="filter-label">Jenis Indikator</label>
+                            <select name="kategori_indikator" class="form-select"
+                                onchange="document.getElementById('filterForm').submit()">
+                                <option value="">-- Semua Indikator --</option>
+                                <option value="prioritas unit"
+                                    {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                                    Prioritas Unit
+                                </option>
+                                <option value="nasional"
+                                    {{ request('kategori_indikator') == 'nasional' ? 'selected' : '' }}>
+                                    Nasional
+                                </option>
+                                <option value="prioritas rs"
+                                    {{ request('kategori_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                                    Prioritas RS
+                                </option>
+                            </select>
                         </div>
 
+                        @if($availableMonths->count() > 1)
+                        <div class="col-md-3">
+                            <label class="filter-label">Bulan</label>
+                            <select name="bulan" class="form-select"
+                                onchange="document.getElementById('filterForm').submit()">
+                                @forelse ($availableMonths as $m)
+                                    <option value="{{ $m->bulan }}"
+                                        {{ (int) request('bulan', $bulan) == $m->bulan && (int) request('tahun', $tahun) == $m->tahun ? 'selected' : '' }}>
+                                        {{ $m->nama }}
+                                    </option>
+                                @empty
+                                    <option value="">-- Tidak ada data --</option>
+                                @endforelse
+                            </select>
+                            <input type="hidden" name="tahun" id="tahun_hidden" value="{{ request('tahun', $tahun) }}">
+                        </div>
+                        @else
+                            <input type="hidden" name="bulan" value="{{ $bulan }}">
+                            <input type="hidden" name="tahun" value="{{ $tahun }}">
+                        @endif
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-md-12 col-lg-12">
+            <div class="row flex-wrap flex-xl-nowrap mb-4">
+                <div class="col-12 col-xl table-column-grow px-2" style="min-width: 0;">
+                    <div class="card shadow-sm border-0">
+                        @include('menu.IndikatorMutu.partials._legend')
                         <div class="card-body">
+                            <div id="table-actions-content" class="d-none">
+                                <div id="table-legend-placeholder"></div>
+                            </div>
 
-                            <form id="filterForm" method="GET" action="{{ url()->current() }}"
-                                class="row g-2 align-items-end mb-4">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Jenis Indikator</label>
-                                    <select name="kategori_indikator" class="form-select"
-                                        onchange="document.getElementById('filterForm').submit()">
-                                        <option value="">-- Semua Indikator --</option>
-                                        <option value="prioritas unit"
-                                            {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
-                                            Prioritas Unit
-                                        </option>
-                                        <option value="nasional"
-                                            {{ request('kategori_indikator') == 'nasional' ? 'selected' : '' }}>
-                                            Nasional
-                                        </option>
-                                        <option value="prioritas rs"
-                                            {{ request('kategori_indikator') == 'prioritas rs' ? 'selected' : '' }}>
-                                            Prioritas RS
-                                        </option>
-                                    </select>
-                                </div>
-                                @if($availableMonths->count() > 1)
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Bulan</label>
-                                    <select name="bulan" class="form-select"
-                                        onchange="document.getElementById('filterForm').submit()">
-                                        @forelse ($availableMonths as $m)
-                                            <option value="{{ $m->bulan }}"
-                                                {{ (int) request('bulan', $bulan) == $m->bulan && (int) request('tahun', $tahun) == $m->tahun ? 'selected' : '' }}>
-                                                {{ $m->nama }}
-                                            </option>
-                                        @empty
-                                            <option value="">-- Tidak ada data --</option>
-                                        @endforelse
-                                    </select>
-                                    <input type="hidden" name="tahun" id="tahun_hidden" value="{{ request('tahun', $tahun) }}">
-                                </div>
-                                @else
-                                    <input type="hidden" name="bulan" value="{{ $bulan }}">
-                                    <input type="hidden" name="tahun" value="{{ $tahun }}">
-                                @endif
-                            </form>
-
-                            @include('menu.IndikatorMutu.partials._legend')
-
-                            <div class="table-parent-container table-responsive-md">
+                            <div>
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
-                                            <th>INDIKATOR</th>
+                                            <th style="min-width: 350px;">INDIKATOR</th>
                                             @if ($isAdminMutu)
                                                 <th class="text-center">UNIT</th>
                                             @endif
@@ -233,10 +203,9 @@
                                                         'tahun' => $tahun,
                                                         'indikator_id' => $indikator->id,
                                                         'unit_id' => $indikator->unit_id,
-                                                    ]) }}"
-                                                        class="text-primary" title="Lihat Kalender">
-                                                        <i
-                                                            class="bi bi-calendar-check fs-5 {{ $isSelected ? 'text-primary' : 'text-dark' }} action-icon"></i>
+                                                    ]) . '#kalenderSection' }}"
+                                                        title="Lihat Kalender" class="text-decoration-none">
+                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -248,7 +217,10 @@
                     </div>
                 </div>
 
-                @include('menu.IndikatorMutu.partials._kalender', ['isValidatorPage' => true])
+                @include('menu.IndikatorMutu.partials._kalender', [
+                    'isValidatorPage' => true,
+                    'colClass' => 'col-12 col-xl-auto calendar-column-fixed px-2'
+                ])
             </div>
         </div>
 
@@ -502,5 +474,5 @@
             }
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 @endpush

@@ -16,7 +16,7 @@
 
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
-        @vite(['resources/css/app.css', 'resources/css/bootstrap.css', 'resources/css/app-dark.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/css/bootstrap.css', 'resources/css/components/header.css', 'resources/css/components/tables.css', 'resources/js/app.js'])
     @else
         <style>
             /*! tailwindcss v4.0.7 | MIT License | https://tailwindcss.com */
@@ -39,10 +39,6 @@
             @include('layouts.includes.header')
 
             {{-- Konten --}}
-            <div class="page-heading">
-                {{-- Title Page dan Breadcrumb --}}
-                @yield('page-title')
-            </div>
 
             <div class="page-content">
                 <section class="section">

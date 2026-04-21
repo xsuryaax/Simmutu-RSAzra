@@ -2,103 +2,66 @@
 
 @section('title', 'Manajemen Role')
 
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Manajemen Role</h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk mengelola role dalam sistem.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="justify-content-end d-flex">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Manajemen Role
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-
-
-    {{-- ==================== CARD STATISTIK ===================== --}}
-    <div class="row">
-        <div class="col-6 col-lg-4 col-md-6">
-            <div class="card">
-                <div class="card-body px-4 py-4-5">
-                    <div class="row">
-                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                            <h6 class="text-muted font-semibold">
-                                Total Role
-                            </h6>
-                            <h6 class="font-extrabold mb-0">{{ $total_role }}</h6>
-                        </div>
-                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                            <div class="stats-icon purple mb-2">
-                                <i class="bi bi-shield-lock-fill"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-4 col-md-6">
-            <div class="card">
-                <div class="card-body px-4 py-4-5">
-                    <div class="row">
-                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                            <h6 class="text-muted font-semibold">Role Aktif</h6>
-                            <h6 class="font-extrabold mb-0">{{ $role_aktif }}</h6>
-                        </div>
-                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                            <div class="stats-icon green mb-2">
-                                <i class="bi bi-shield-check"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-4 col-md-6">
-            <div class="card">
-                <div class="card-body px-4 py-4-5">
-                    <div class="row">
-                        <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                            <h6 class="text-muted font-semibold">Role Tidak Aktif</h6>
-                            <h6 class="font-extrabold mb-0">{{ $role_nonaktif }}</h6>
-                        </div>
-                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                            <div class="stats-icon red mb-2">
-                                <i class="bi bi-shield-x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-@endsection
+@section('subtitle', 'Halaman untuk mengelola role dalam sistem.')
 
 @section('content')
 
     <section class="section">
+        <div class="row">
+            <div class="col-6 col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                                <h6 class="text-muted font-semibold">
+                                    Total Role
+                                </h6>
+                                <h6 class="font-extrabold mb-0">{{ $total_role }}</h6>
+                            </div>
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
+                                <div class="stats-icon blue mb-2">
+                                    <i class="bi bi-shield-lock-fill"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                                <h6 class="text-muted font-semibold">Role Aktif</h6>
+                                <h6 class="font-extrabold mb-0">{{ $role_aktif }}</h6>
+                            </div>
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
+                                <div class="stats-icon green mb-2">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-4 col-md-6">
+                <div class="card">
+                    <div class="card-body px-4 py-4-5">
+                        <div class="row">
+                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
+                                <h6 class="text-muted font-semibold">Role Tidak Aktif</h6>
+                                <h6 class="font-extrabold mb-0">{{ $role_nonaktif }}</h6>
+                            </div>
+                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
+                                <div class="stats-icon red mb-2">
+                                    <i class="bi bi-shield-x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
 
             {{-- ================= CARD TAMBAH ROLE ================= --}}
@@ -159,8 +122,8 @@
                     </div>
 
                     <div class="card-body">
-                        <div class="table-responsive-md">
-                            <table class="table table-striped table-hover" id="table1">
+
+                        <table class="table table-striped table-hover" id="table1">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -207,7 +170,6 @@
                                 </tbody>
 
                             </table>
-                        </div>
 
                     </div>
                 </div>
@@ -270,7 +232,7 @@
 @endsection
 
 @push('js')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <script>
         // DataTable

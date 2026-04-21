@@ -61,8 +61,17 @@ class LaporanAnalisController extends Controller
     
 
         if (!$request->has('bulan')) {
-            $bulan = $periodStart->month;
-            $tahun = $periodStart->year;
+            // Default to current month if within period, otherwise start of period
+            if ($now->between($periodStart, $periodEnd)) {
+                $bulan = $now->month;
+                $tahun = $now->year;
+            } elseif ($now->lt($periodStart)) {
+                $bulan = $periodStart->month;
+                $tahun = $periodStart->year;
+            } else {
+                $bulan = $periodEnd->month;
+                $tahun = $periodEnd->year;
+            }
         } else {
             $bulan = (int)$request->bulan;
             $tahun = (int)$request->tahun;
@@ -77,14 +86,17 @@ class LaporanAnalisController extends Controller
         // Cari entry date paling awal dari semua indikator unit ini untuk batas dropdown
         $earliestEntry = $indikators->min('entry_date');
         if ($earliestEntry) {
-            $effectiveStart = Carbon::parse($earliestEntry)->startOfMonth();
+            $eEntry = Carbon::parse($earliestEntry)->startOfMonth();
+            if ($eEntry->lt($effectiveStart)) {
+                $effectiveStart = $eEntry;
+            }
         }
 
-        // Filter: Hanya tampilkan indikator yang sudah "masuk" pada bulan yang dipilih
-        $currentDate = Carbon::create($tahun, $bulan, 1)->startOfMonth();
-        $indikators = $indikators->filter(function($ind) use ($currentDate) {
-            return Carbon::parse($ind->entry_date)->startOfMonth()->lte($currentDate);
-        });
+        // Filter deactivated: showing all indicators mapped to the period
+        // $currentDate = Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        // $indikators = $indikators->filter(function($ind) use ($currentDate) {
+        //     return Carbon::parse($ind->entry_date)->startOfMonth()->lte($currentDate);
+        // });
 
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator);
 

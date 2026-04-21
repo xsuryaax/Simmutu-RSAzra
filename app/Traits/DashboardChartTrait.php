@@ -50,7 +50,7 @@ trait DashboardChartTrait
                 l.indikator_id,
                 l.unit_id,
                 EXTRACT(MONTH FROM l.tanggal_laporan) AS bulan,
-                ROUND(AVG(l.nilai), 2) AS nilai
+                ROUND(CAST(AVG(l.nilai) AS numeric), 2) AS nilai
             ')
             ->groupBy('l.indikator_id', 'l.unit_id', DB::raw('EXTRACT(MONTH FROM l.tanggal_laporan)'))
             ->get()
@@ -194,5 +194,61 @@ trait DashboardChartTrait
         })->values();
 
         return response()->json(['type' => 'unit', 'indikators' => $result, 'tahun' => $tahun]);
+    }
+
+    public function allSpmChartData(int $tahun, $unitId = null): \Illuminate\Http\JsonResponse
+    {
+        $query = DB::table('tbl_spm as s')
+            ->join('tbl_unit as u', 'u.id', '=', 's.unit_id')
+            ->where('s.status_spm', 'aktif');
+
+        if ($unitId) {
+            $query->where('s.unit_id', $unitId);
+        }
+
+        $spms = $query->select('s.id', 's.nama_spm', 's.target_spm', 's.arah_target', 's.unit_id', 'u.nama_unit')
+            ->orderBy('u.nama_unit')
+            ->orderBy('s.urutan')
+            ->get();
+
+        if ($spms->isEmpty()) {
+            return response()->json(['type' => 'spm', 'indikators' => [], 'tahun' => $tahun]);
+        }
+
+        $spmIds = $spms->pluck('id')->toArray();
+
+        // Ambil laporan SPM batch
+        $laporan = DB::table('tbl_spm_laporan_dan_analis as l')
+            ->whereIn('l.spm_id', $spmIds)
+            ->whereBetween('l.tanggal_laporan', ["$tahun-01-01", "$tahun-12-31"])
+            ->selectRaw('
+                l.spm_id,
+                EXTRACT(MONTH FROM l.tanggal_laporan) AS bulan,
+                ROUND(CAST(AVG(l.nilai) AS numeric), 2) AS nilai
+            ')
+            ->groupBy('l.spm_id', DB::raw('EXTRACT(MONTH FROM l.tanggal_laporan)'))
+            ->get()
+            ->groupBy('spm_id');
+
+        $result = $spms->map(function ($spm) use ($laporan) {
+            $target = array_fill(0, 12, (float) $spm->target_spm);
+            $hasil  = array_fill(0, 12, null);
+
+            foreach ($laporan->get($spm->id, collect()) as $row) {
+                $hasil[(int)$row->bulan - 1] = (float) $row->nilai;
+            }
+
+            return [
+                'id'           => $spm->id,
+                'nama'         => $spm->nama_spm,
+                'unit'         => $spm->nama_unit,
+                'target'       => $target,
+                'hasil'        => $hasil,
+                'target_value' => (float) $spm->target_spm,
+                'arah_target'  => $spm->arah_target,
+            ];
+        })->values();
+
+        return response()->json(['type' => 'spm', 'indikators' => $result, 'tahun' => $tahun]);
     }
 }

@@ -1,105 +1,84 @@
 @extends('layouts.app')
 
-@section('title', 'Analisa dan Visualisasi')
+@section('title', 'Analisa Data')
 
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Analisa dan Visualisasi</h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk mengelola menganalisis laporan dan visualisasi data indikator mutu.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="logout-btn">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Analisa dan Visualisasi
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
+@php
+    use Carbon\Carbon;
+    
+    $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
+    $periodeMulai = Carbon::parse($periodeAktif->tanggal_mulai ?? now());
+    $periodeSelesai = Carbon::parse($periodeAktif->tanggal_selesai ?? now());
+    $tahunAktif = range($periodeMulai->year, $periodeSelesai->year);
+@endphp
+
+@section('subtitle', 'Visualisasi capaian indikator, pengisian analisa data, dan rencana tindak lanjut')
 
 @section('content')
     <section class="section">
-        <div class="col-12 col-md-12 col-lg-12">
-            <div class="row row-cols-sm-1 mb-4">
-                <div class="col-12 col-md-5 col-lg-7 col-md-5 px-2">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5>Data Laporan Indikator</h5>
+        {{-- Filter & Legend Section --}}
+        <div class="table-filter-section mb-4">
+            <div class="row align-items-end">
+                <div class="col">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="filter-label">Jenis Indikator</label>
+                            <select name="kategori_indikator" class="form-select" onchange="this.form.submit()">
+                                <option value="">Semua Indikator</option>
+                                <option value="Nasional" {{ $kategoriDipilih == 'Nasional' ? 'selected' : '' }}>
+                                    Nasional
+                                </option>
+                                <option value="Prioritas RS"
+                                    {{ $kategoriDipilih == 'Prioritas RS' ? 'selected' : '' }}>
+                                    Prioritas RS</option>
+                                <option value="Prioritas Unit"
+                                    {{ $kategoriDipilih == 'Prioritas Unit' ? 'selected' : '' }}>Prioritas Unit
+                                </option>
+                            </select>
                         </div>
 
+                        <div class="col-md-2">
+                            <label class="filter-label">Tahun</label>
+                            <select name="tahun" class="form-select" onchange="this.form.submit()">
+                                @foreach ($tahunAktif as $t)
+                                    <option value="{{ $t }}" {{ $tahunDipilih == $t ? 'selected' : '' }}>
+                                        {{ $t }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
+                        <div class="col-md-2">
+                            <label class="filter-label">Bulan</label>
+                            <select name="bulan" class="form-select" onchange="this.form.submit()">
+                                @for ($b = 1; $b <= 12; $b++)
+                                    <option value="{{ $b }}" {{ $bulanDipilih == $b ? 'selected' : '' }}>
+                                        {{ \Carbon\Carbon::create()->month($b)->translatedFormat('F') }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                    </form>
+                </div>
 
+            </div>
+        </div>
+
+        <div class="col-12 col-md-12 col-lg-12">
+            <div class="row flex-wrap flex-xl-nowrap mb-4">
+                <div class="col-12 col-xl table-column-grow px-2" style="min-width: 0;">
+                    <div class="card shadow-sm border-0">
+                        @include('menu.IndikatorMutu.partials._legend')
                         <div class="card-body">
-                            <form method="GET" class="row mb-3">
+                            <div id="table-actions-content" class="d-none">
+                                <div id="table-legend-placeholder"></div>
+                            </div>
 
-
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Jenis Indikator</label>
-                                    <select name="kategori_indikator" class="form-select" onchange="this.form.submit()">
-                                        <option value="">Semua Indikator</option>
-                                        <option value="Nasional" {{ $kategoriDipilih == 'Nasional' ? 'selected' : '' }}>
-                                            Nasional
-                                        </option>
-                                        <option value="Prioritas RS"
-                                            {{ $kategoriDipilih == 'Prioritas RS' ? 'selected' : '' }}>
-                                            Prioritas RS</option>
-                                        <option value="Prioritas Unit"
-                                            {{ $kategoriDipilih == 'Prioritas Unit' ? 'selected' : '' }}>Prioritas Unit
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <label class="form-label fw-semibold">Tahun</label>
-                                    <select name="tahun" class="form-select" onchange="this.form.submit()">
-                                        @foreach ($tahunAktif as $t)
-                                            <option value="{{ $t }}" {{ $tahunDipilih == $t ? 'selected' : '' }}>
-                                                {{ $t }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="col-md-2">
-                                    <label class="form-label fw-semibold">Bulan</label>
-                                    <select name="bulan" class="form-select" onchange="this.form.submit()">
-                                        @for ($b = 1; $b <= 12; $b++)
-                                            <option value="{{ $b }}" {{ $bulanDipilih == $b ? 'selected' : '' }}>
-                                                {{ \Carbon\Carbon::create()->month($b)->translatedFormat('F') }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                </div>
-                            </form>
-
-                            @include('menu.IndikatorMutu.partials._legend')
-
-                            <div class="table-parent-container table-responsive-md">
+                            <div>
                                 <table class="table" id="table1">
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
-                                            <th>INDIKATOR</th>
+                                            <th style="min-width: 350px;">INDIKATOR</th>
                                             <th class="text-center">UNIT</th>
                                             <th class="text-center">ANALISA</th>
                                             <th class="text-center">RENCANA TINDAK LANJUT</th>
@@ -149,12 +128,12 @@
 
                                                 <td class="text-center">
                                                     <button class="btn btn-sm btn-warning"
-                                                        onclick="openModal(
-                                                                                                                                                                                                                                        {{ $ind->id }},
-                                                                                                                                                                                                                                        '{{ addslashes($ind->nama_indikator) }}',
-                                                                                                                                                                                                                                        '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}',
-                                                                                                                                                                                                                                        '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}'
-                                                                                                                                                                                                                                    )">
+                                                        onclick='openModal(
+                                                            {{ $ind->id }},
+                                                            @json($ind->nama_indikator),
+                                                            @json(isset($analisaData[$ind->id]["analisa"]) && $analisaData[$ind->id]["analisa"] !== "-" ? $analisaData[$ind->id]["analisa"] : ""),
+                                                            @json(isset($analisaData[$ind->id]["tindak_lanjut"]) && $analisaData[$ind->id]["tindak_lanjut"] !== "-" ? $analisaData[$ind->id]["tindak_lanjut"] : "")
+                                                        )'>
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-info"
@@ -179,9 +158,9 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-md-5 col-lg-5 col-md-5 px-2">
-                    <div class="card">
-                        <div class="card-header">
+                <div class="col-12 col-xl-5 px-2">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header pb-0">
                             <div class="d-flex justify-content-center align-items-center text-center">
                                 <div>
                                     <h5 class="mb-1" id="chart-title">Nama Indikator</h5>

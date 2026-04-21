@@ -68,11 +68,11 @@ class ValidatorDataController extends Controller
             : null;
         $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
         
-        // Filter: Hanya tampilkan indikator pada bulan masuknya (entry_date)
-        $indikators = $indikators->filter(function($ind) use ($bulan, $tahun) {
-            $entry = Carbon::parse($ind->entry_date);
-            return $entry->month == $bulan && $entry->year == $tahun;
-        });
+        // Removed restrictive monthly filters to allow all active indicators for the period to show up
+        // $indikators = $indikators->filter(function($ind) use ($bulan, $tahun) {
+        //     $entry = Carbon::parse($ind->entry_date);
+        //     return $entry->month == $bulan && $entry->year == $tahun;
+        // });
 
         $indikatorIds = $indikators->pluck('id')->toArray();
 
@@ -90,17 +90,17 @@ class ValidatorDataController extends Controller
 
         $periodeStart = Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth();
         $periodeEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
-        $now = now()->startOfMonth();
+        $nowStart = now()->startOfMonth();
         
-        // Jika masih dalam periode, fallback ke bulan sekarang (dimaksimalkan ke awal periode)
-        $defaultStart = ($now->gt($periodeEnd)) ? $periodeStart : $periodeStart->copy();
+        // Logical default start
+        $defaultStart = $periodeStart;
 
-        $indikators = $indikators->filter(function ($ind) use ($bulan, $tahun, $firstReports, $defaultStart) {
-            $key = $ind->id . '-' . $ind->unit_id;
-            $firstReport = isset($firstReports[$key]) ? Carbon::parse($firstReports[$key]->first_report)->startOfMonth() : $defaultStart;
-            
-            return $firstReport->month == $bulan && $firstReport->year == $tahun;
-        });
+        // Second filter also removed to ensure all indicators are listed
+        // $indikators = $indikators->filter(function ($ind) use ($bulan, $tahun, $firstReports, $defaultStart) {
+        //     $key = $ind->id . '-' . $ind->unit_id;
+        //     $firstReport = isset($firstReports[$key]) ? Carbon::parse($firstReports[$key]->first_report)->startOfMonth() : $defaultStart;
+        //     return $firstReport->month == $bulan && $firstReport->year == $tahun;
+        // });
 
         $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator);
 

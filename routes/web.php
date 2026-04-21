@@ -25,6 +25,10 @@ use App\Http\Controllers\ManajemenMutu\PeriodePengumpulanDataController;
 use App\Http\Controllers\ManajemenMutu\PenyajianDataController;
 
 use App\Http\Controllers\PeriodeController;
+use App\Http\Controllers\Spm\MasterSpmController;
+use App\Http\Controllers\Spm\LaporanSpmController;
+use App\Http\Controllers\Spm\AnalisaSpmController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -143,6 +147,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/pdsa/{id}/approve', [PDSAController::class, 'approve'])
         ->name('pdsa.approve')
         ->middleware('check.role:pdsa');
+
+    // SPM (Standar Pelayanan Minimal)
+    Route::resource('master-spm', MasterSpmController::class);
+    Route::post('/master-spm/{id}/active', [MasterSpmController::class, 'setPeriodeAktif'])->name('spm.active');
+    Route::get('laporan-spm', [LaporanSpmController::class, 'index'])->name('laporan-spm.index');
+    Route::post('laporan-spm', [LaporanSpmController::class, 'store'])->name('laporan-spm.store');
+    Route::get('laporan-spm/{id}/detail', [LaporanSpmController::class, 'detail'])->name('laporan-spm.detail');
+    Route::put('laporan-spm/{id}', [LaporanSpmController::class, 'update'])->name('laporan-spm.update');
+    Route::get('analisa-spm', [AnalisaSpmController::class, 'index'])->name('analisa-spm.index');
+    Route::post('analisa-spm', [AnalisaSpmController::class, 'store'])->name('analisa-spm.store');
+    Route::get('/analisa-spm/chart/{spm}', [AnalisaSpmController::class, 'chartData'])->name('analisa-spm.chart');
 
     Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])
         ->name('dashboard.chart-data');

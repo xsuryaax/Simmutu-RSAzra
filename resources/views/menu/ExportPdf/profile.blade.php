@@ -134,9 +134,17 @@
             color: #fff;
         }
 
-        .nasional { background: #dc3545; }
-        .rs { background: #198754; }
-        .unit { background: #6c757d; }
+        .nasional {
+            background: #dc3545;
+        }
+
+        .rs {
+            background: #198754;
+        }
+
+        .unit {
+            background: #6c757d;
+        }
 
         /* Footer */
         .footer {
@@ -152,88 +160,151 @@
 
 <body>
 
-@php
-    $kategoriClass = '';
-    if(str_contains($data->kategori_indikator,'Nasional')) $kategoriClass='nasional';
-    elseif(str_contains($data->kategori_indikator,'Prioritas RS')) $kategoriClass='rs';
-    else $kategoriClass='unit';
-@endphp
+    @php
+        $kategoriClass = '';
+        if (str_contains($data->kategori_indikator, 'Nasional')) {
+            $kategoriClass = 'nasional';
+        } elseif (str_contains($data->kategori_indikator, 'Prioritas RS')) {
+            $kategoriClass = 'rs';
+        } else {
+            $kategoriClass = 'unit';
+        }
+    @endphp
 
-<!-- HEADER -->
-<div class="header">
-    <div class="header-logo-wrap">
-        <img src="{{ public_path('assets/logo/azra-logo.png') }}" class="header-logo">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-logo-wrap" style="width: 150px; vertical-align: middle;">
+            <div style="font-size: 16px; font-weight: bold; color: #007774; letter-spacing: 1px;">RS AZRA</div>
+            <div style="font-size: 8px; color: #666; margin-top: 2px; font-weight: normal;">BOGOR</div>
+        </div>
+
+        <div class="header-body">
+
+            <div class="doc-title">Profil Indikator Mutu</div>
+            <div class="doc-sub">Dokumen Sistem Informasi Manajemen Mutu</div>
+        </div>
+
+        <div class="header-meta">
+            <p>Tanggal Cetak<br><strong>{{ date('d F Y') }}</strong></p>
+            <p style="margin-top:6px;">Unit<br><strong>{{ $data->nama_unit }}</strong></p>
+        </div>
     </div>
 
-    <div class="header-body">
-        <div class="rs-name">Rumah Sakit AZRA</div>
-        <div class="doc-title">Profil Indikator Mutu</div>
-        <div class="doc-sub">Dokumen Sistem Informasi Manajemen Mutu</div>
+    <div class="section-title">Identitas Indikator</div>
+    <table class="detail">
+        <tr>
+            <td class="label">Nama Indikator</td>
+            <td class="value"><strong>{{ $data->nama_indikator }}</strong></td>
+        </tr>
+        <tr>
+            <td class="label">Kategori Indikator</td>
+            <td class="value">
+                <span>
+                    {{ $data->kategori_indikator }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Dimensi Mutu</td>
+            <td class="value">{{ $data->nama_dimensi_mutu }}</td>
+        </tr>
+        <tr>
+            <td class="label">Jenis Indikator</td>
+            <td class="value">{{ $data->nama_jenis_indikator }}</td>
+        </tr>
+    </table>
+
+    <!-- RINCIAN -->
+    <div class="section-title">Rincian Indikator</div>
+    <table class="detail">
+        <tr>
+            <td class="label">Dasar Pemikiran</td>
+            <td class="value">{{ $data->dasar_pemikiran }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tujuan</td>
+            <td class="value">{{ $data->tujuan }}</td>
+        </tr>
+        <tr>
+            <td class="label">Definisi Operasional</td>
+            <td class="value">{{ $data->definisi_operasional }}</td>
+        </tr>
+        <tr>
+            <td class="label">Numerator</td>
+            <td class="value">{{ $data->numerator }}</td>
+        </tr>
+        <tr>
+            <td class="label">Denominator</td>
+            <td class="value">{{ $data->denominator }}</td>
+        </tr>
+        <tr>
+            <td class="label">Formula</td>
+            <td class="value">{{ $data->formula }}</td>
+        </tr>
+        <tr>
+            <td class="label">Satuan Pengukuran</td>
+            <td class="value">{{ $data->satuan_pengukuran }}</td>
+        </tr>
+        <tr>
+            <td class="label">Target Pencapaian</td>
+            <td class="value">{{ $data->target_pencapaian }}</td>
+        </tr>
+        <tr>
+            <td class="label">Kriteria Inklusi</td>
+            <td class="value">{{ $data->kriteria_inklusi }}</td>
+        </tr>
+        <tr>
+            <td class="label">Kriteria Eksklusi</td>
+            <td class="value">{{ $data->kriteria_eksklusi }}</td>
+        </tr>
+        <tr>
+            <td class="label">Metode Pengumpulan Data</td>
+            <td class="value">{{ $data->metode_pengumpulan_data }}</td>
+        </tr>
+        <tr>
+            <td class="label">Sumber Data</td>
+            <td class="value">{{ $data->sumber_data }}</td>
+        </tr>
+        <tr>
+            <td class="label">Instrumen Pengambilan Data</td>
+            <td class="value">{{ $data->instrumen_pengambilan_data }}</td>
+        </tr>
+        <tr>
+            <td class="label">Populasi</td>
+            <td class="value">{{ $data->populasi }}</td>
+        </tr>
+        <tr>
+            <td class="label">Sampel</td>
+            <td class="value">{{ $data->sampel }}</td>
+        </tr>
+    </table>
+
+    <!-- PERIODE -->
+    <div class="section-title">Periode & Pelaporan</div>
+    <table class="detail">
+        <tr>
+            <td class="label">Periode Pengumpulan</td>
+            <td class="value">{{ $data->nama_periode_pengumpulan_data }}</td>
+        </tr>
+        <tr>
+            <td class="label">Periode Analisis</td>
+            <td class="value">{{ $data->nama_periode_analisis_data }}</td>
+        </tr>
+        <tr>
+            <td class="label">Penyajian Data</td>
+            <td class="value">{{ $data->nama_penyajian_data }}</td>
+        </tr>
+        <tr>
+            <td class="label">Penanggung Jawab</td>
+            <td class="value">{{ $data->penanggung_jawab }}</td>
+        </tr>
+    </table>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        Sistem Informasi Manajemen Mutu &nbsp;&bull;&nbsp; {{ date('Y') }} Rumah Sakit AZRA
     </div>
-
-    <div class="header-meta">
-        <p>Tanggal Cetak<br><strong>{{ date('d F Y') }}</strong></p>
-        <p style="margin-top:6px;">Unit<br><strong>{{ $data->nama_unit }}</strong></p>
-    </div>
-</div>
-
-<div class="section-title">Identitas Indikator</div>
-<table class="detail">
-    <tr>
-        <td class="label">Nama Indikator</td>
-        <td class="value"><strong>{{ $data->nama_indikator }}</strong></td>
-    </tr>
-    <tr>
-        <td class="label">Kategori Indikator</td>
-        <td class="value">
-            <span>
-                {{ $data->kategori_indikator }}
-            </span>
-        </td>
-    </tr>
-    <tr>
-        <td class="label">Dimensi Mutu</td>
-        <td class="value">{{ $data->nama_dimensi_mutu }}</td>
-    </tr>
-    <tr>
-        <td class="label">Jenis Indikator</td>
-        <td class="value">{{ $data->nama_jenis_indikator }}</td>
-    </tr>
-</table>
-
-<!-- RINCIAN -->
-<div class="section-title">Rincian Indikator</div>
-<table class="detail">
-    <tr><td class="label">Dasar Pemikiran</td><td class="value">{{ $data->dasar_pemikiran }}</td></tr>
-    <tr><td class="label">Tujuan</td><td class="value">{{ $data->tujuan }}</td></tr>
-    <tr><td class="label">Definisi Operasional</td><td class="value">{{ $data->definisi_operasional }}</td></tr>
-    <tr><td class="label">Numerator</td><td class="value">{{ $data->numerator }}</td></tr>
-    <tr><td class="label">Denominator</td><td class="value">{{ $data->denominator }}</td></tr>
-    <tr><td class="label">Formula</td><td class="value">{{ $data->formula }}</td></tr>
-    <tr><td class="label">Satuan Pengukuran</td><td class="value">{{ $data->satuan_pengukuran }}</td></tr>
-    <tr><td class="label">Target Pencapaian</td><td class="value">{{ $data->target_pencapaian }}</td></tr>
-    <tr><td class="label">Kriteria Inklusi</td><td class="value">{{ $data->kriteria_inklusi }}</td></tr>
-    <tr><td class="label">Kriteria Eksklusi</td><td class="value">{{ $data->kriteria_eksklusi }}</td></tr>
-    <tr><td class="label">Metode Pengumpulan Data</td><td class="value">{{ $data->metode_pengumpulan_data }}</td></tr>
-    <tr><td class="label">Sumber Data</td><td class="value">{{ $data->sumber_data }}</td></tr>
-    <tr><td class="label">Instrumen Pengambilan Data</td><td class="value">{{ $data->instrumen_pengambilan_data }}</td></tr>
-    <tr><td class="label">Populasi</td><td class="value">{{ $data->populasi }}</td></tr>
-    <tr><td class="label">Sampel</td><td class="value">{{ $data->sampel }}</td></tr>
-</table>
-
-<!-- PERIODE -->
-<div class="section-title">Periode & Pelaporan</div>
-<table class="detail">
-    <tr><td class="label">Periode Pengumpulan</td><td class="value">{{ $data->nama_periode_pengumpulan_data }}</td></tr>
-    <tr><td class="label">Periode Analisis</td><td class="value">{{ $data->nama_periode_analisis_data }}</td></tr>
-    <tr><td class="label">Penyajian Data</td><td class="value">{{ $data->nama_penyajian_data }}</td></tr>
-    <tr><td class="label">Penanggung Jawab</td><td class="value">{{ $data->penanggung_jawab }}</td></tr>
-</table>
-
-<!-- FOOTER -->
-<div class="footer">
-    Sistem Informasi Manajemen Mutu &nbsp;&bull;&nbsp; {{ date('Y') }} Rumah Sakit AZRA
-</div>
 
 </body>
+
 </html>

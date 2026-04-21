@@ -3,6 +3,7 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', '
 let chart = null;
 let chartType = 'line';
 let currentCategory = 'Nasional'; // State to store current category
+let isSpmMode = false; // State to store if we are in SPM mode
 
 function getIndicatorColors(category, type = 'line') {
     let color = '#e63757'; // Default Red (Nasional)
@@ -165,6 +166,7 @@ window.loadChart = function (indikatorId, namaIndikator, namaUnit, kategori) {
     document.getElementById('chart-title').textContent = namaIndikator;
     document.getElementById('chart-subtitle').textContent = namaUnit;
     currentCategory = kategori || 'Nasional';
+    isSpmMode = (kategori === 'SPM');
 
     // Update legend dot color in view
     const legendDot = document.querySelector('.legend-dot.realisasi');
@@ -173,20 +175,27 @@ window.loadChart = function (indikatorId, namaIndikator, namaUnit, kategori) {
     }
 
     const tahun = document.querySelector('select[name="tahun"]').value;
+    const chartUrl = isSpmMode
+        ? `/analisa-spm/chart/${indikatorId}?tahun=${tahun}`
+        : `/analisa-data/chart/${indikatorId}?tahun=${tahun}`;
 
-    fetch(`/analisa-data/chart/${indikatorId}?tahun=${tahun}`)
-        .then(res => res.json())
+    fetch(chartUrl)
+        .then(res => {
+            if (!res.ok) throw new Error('Network response was not ok');
+            return res.json();
+        })
         .then(res => {
             renderChart(res.target, res.realisasi);
         })
         .catch(err => {
             console.error(err);
-            alert("Gagal memuat chart");
+            alert("Gagal memuat data chart");
         });
 };
 
 window.openModal = function (id, nama, analisa = '', tindakLanjut = '') {
-    document.getElementById('indikator_id').value = id;
+    const idInput = document.getElementById('indikator_id') || document.getElementById('spm_id');
+    if (idInput) idInput.value = id;
     document.getElementById('analysisModalLabel').textContent = `Edit Analisa untuk ${nama}`;
     document.getElementById('analisa').value = analisa;
     document.getElementById('tindak_lanjut').value = tindakLanjut;
@@ -196,14 +205,19 @@ window.openModal = function (id, nama, analisa = '', tindakLanjut = '') {
 };
 
 window.saveAnalysis = function () {
-    const indikator_id = document.getElementById('indikator_id').value;
+    const idInput = document.getElementById('indikator_id') || document.getElementById('spm_id');
+    const idValue = idInput ? idInput.value : null;
     const analisa = document.getElementById('analisa').value;
     const tindak_lanjut = document.getElementById('tindak_lanjut').value;
     const tahun = document.querySelector('select[name="tahun"]').value;
     const bulan = document.querySelector('select[name="bulan"]').value;
 
     const formData = new FormData();
-    formData.append('indikator_id', indikator_id);
+    if (isSpmMode) {
+        formData.append('spm_id', idValue);
+    } else {
+        formData.append('indikator_id', idValue);
+    }
     formData.append('analisa', analisa);
     formData.append('tindak_lanjut', tindak_lanjut);
     formData.append('tahun', tahun);
@@ -235,6 +249,16 @@ document.addEventListener('DOMContentLoaded', function () {
             firstIndikator.nama_unit
         );
     }
+
+    if (typeof firstSpm !== "undefined" && firstSpm) {
+        loadChart(
+            firstSpm.id,
+            firstSpm.nama_spm,
+            firstSpm.nama_unit,
+            "SPM"
+        );
+    }
+
 
     document.getElementById('line-chart-btn')?.addEventListener('click', () => {
         chartType = 'line';

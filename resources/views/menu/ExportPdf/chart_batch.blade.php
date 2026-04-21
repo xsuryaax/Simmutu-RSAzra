@@ -26,6 +26,7 @@
         .indicator-page {
             page-break-before: always;
         }
+
         .indicator-page:first-child {
             page-break-before: avoid;
         }
@@ -137,135 +138,145 @@
 
 <body>
 
-@foreach($indicators as $item)
-    @php
-        $indicator  = $item['indicator'];
-        $monthlyData = $item['monthlyData'];
-        $pdsaData   = $item['pdsaData'] ?? null;
-    @endphp
+    @foreach ($indicators as $item)
+        @php
+            $indicator = $item['indicator'];
+            $monthlyData = $item['monthlyData'];
+            $pdsaData = $item['pdsaData'] ?? null;
+        @endphp
 
-    <div class="indicator-page">
+        <div class="indicator-page">
 
-        {{-- ── Page Header ── --}}
-        <div class="header">
-            <table>
-                <tr>
-                    <td style="width: 150px; vertical-align: middle;">
-                        <img src="{{ public_path('assets/logo/azra-logo.png') }}" style="height: 45px;">
-                    </td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <div class="rs-name">Rumah Sakit AZRA</div>
-                        <div class="doc-title">Laporan Grafik Indikator Mutu</div>
-                    </td>
-                    <td style="text-align: right; font-size: 8px; color: #999; width: 150px; line-height: 1.3; vertical-align: middle;">
-                        Periode: <strong>{{ $tahun }}</strong><br>
-                        Dicetak: {{ date('d F Y H:i') }}
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        {{-- ── Indicator Name & Meta ── --}}
-        <div class="ind-header">
-            <div class="ind-title">{{ $indicator->nama_indikator }}</div>
-            <div class="ind-meta">
-                <strong>Unit:</strong> {{ $indicator->nama_unit ?? 'Seluruh Rumah Sakit' }} &nbsp; | &nbsp;
-                <strong>Kategori:</strong> {{ $indicator->kategori_indikator }} &nbsp; | &nbsp;
-                <strong>Standar:</strong> {{ $indicator->arah_target === 'lebih_kecil' ? '≤' : '≥' }}
-                {{ round($indicator->target_indikator) }}%
+            {{-- ── Page Header ── --}}
+            <div class="header">
+                <table>
+                    <tr>
+                        <td style="width: 150px; vertical-align: middle;">
+                            <div style="font-size: 16px; font-weight: bold; color: #007774; letter-spacing: 1px;">RS AZRA
+                            </div>
+                            <div style="font-size: 8px; color: #666; margin-top: 2px;">BOGOR</div>
+                        </td>
+                        <td style="text-align: center; vertical-align: middle;">
+                            <div class="doc-title">Laporan Grafik Indikator Mutu</div>
+                        </td>
+                        <td
+                            style="text-align: right; font-size: 8px; color: #999; width: 150px; line-height: 1.3; vertical-align: middle;">
+                            Periode: <strong>{{ $tahun }}</strong><br>
+                            Dicetak: {{ date('d F Y H:i') }}
+                        </td>
+                    </tr>
+                </table>
             </div>
-        </div>
 
-        {{-- ── Chart (left) + Monthly Table (right) ── --}}
-        <div class="content-wrapper">
-            <div class="left-col">
-                <div class="chart-container">
-                    <img src="{{ $item['chart'] }}" class="chart-image">
-                </div>
-                <div style="margin-top: 10px; font-size: 8px; color: #888; font-style: italic;">
-                    * Grafik menampilkan tren bulanan periode tahun {{ $tahun }}
+            {{-- ── Indicator Name & Meta ── --}}
+            <div class="ind-header">
+                <div class="ind-title">{{ $indicator->nama_indikator }}</div>
+                <div class="ind-meta">
+                    <strong>Unit:</strong> {{ $indicator->nama_unit ?? 'Seluruh Rumah Sakit' }} &nbsp; | &nbsp;
+                    <strong>Kategori:</strong> {{ $indicator->kategori_indikator }} &nbsp; | &nbsp;
+                    <strong>Standar:</strong> {{ $indicator->arah_target === 'lebih_kecil' ? '≤' : '≥' }}
+                    {{ round($indicator->target_indikator) }}%
                 </div>
             </div>
-            <div class="right-col">
-                <div style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px;">Rincian Nilai Bulanan</div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th rowspan="2">Bulan</th>
-                            <th colspan="2">Data Dasar</th>
-                            <th rowspan="2">%</th>
-                        </tr>
-                        <tr>
-                            <th>N</th>
-                            <th>D</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($monthlyData as $row)
+
+            {{-- ── Chart (left) + Monthly Table (right) ── --}}
+            <div class="content-wrapper">
+                <div class="left-col">
+                    <div class="chart-container">
+                        <img src="{{ $item['chart'] }}" class="chart-image">
+                    </div>
+                    <div style="margin-top: 10px; font-size: 8px; color: #888; font-style: italic;">
+                        * Grafik menampilkan tren bulanan periode tahun {{ $tahun }}
+                    </div>
+                </div>
+                <div class="right-col">
+                    <div style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px;">Rincian Nilai
+                        Bulanan</div>
+                    <table class="data-table">
+                        <thead>
                             <tr>
-                                <td style="text-align: left; font-weight: bold;">{{ substr($row['bulan'], 0, 3) }}</td>
-                                <td>{{ number_format($row['numerator'], 0, ',', '.') }}</td>
-                                <td>{{ number_format($row['denominator'], 0, ',', '.') }}</td>
-                                <td style="font-weight: bold; color: {{ $row['pencapaian'] >= $row['target'] ? '#198754' : '#dc3545' }};">
-                                    {{ floor($row['pencapaian']) }}%
-                                </td>
+                                <th rowspan="2">Bulan</th>
+                                <th colspan="2">Data Dasar</th>
+                                <th rowspan="2">%</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {{-- ── PDSA (always shown) ── --}}
-        @if(isset($pdsaData))
-            <div style="margin-top: 30px; page-break-inside: avoid;">
-                <div style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px; border-bottom: 1px solid #1a3c6e; padding-bottom: 3px;">
-                    Status PDSA (Plan-Do-Study-Act) Tahun {{ $tahun }}
-                </div>
-                <table class="data-table" style="margin-top: 10px; font-size: 9px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 6%;">Quarter</th>
-                            <th style="width: 12%;">Status</th>
-                            <th style="width: 20.5%;">Plan</th>
-                            <th style="width: 20.5%;">Do</th>
-                            <th style="width: 20.5%;">Study</th>
-                            <th style="width: 20.5%;">Act</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($pdsaData as $tw => $pdsa)
-                            @if($pdsa)
+                            <tr>
+                                <th>N</th>
+                                <th>D</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($monthlyData as $row)
                                 <tr>
-                                    <td style="font-weight: bold;">{{ $tw }}</td>
-                                    <td>{{ $pdsa['status'] }}</td>
-                                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['plan'] ?: '-' }}</td>
-                                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['do'] ?: '-' }}</td>
-                                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['study'] ?: '-' }}</td>
-                                    <td style="text-align: left; vertical-align: top;">{{ $pdsa['action'] ?: '-' }}</td>
+                                    <td style="text-align: left; font-weight: bold;">{{ substr($row['bulan'], 0, 3) }}
+                                    </td>
+                                    <td>{{ number_format($row['numerator'], 0, ',', '.') }}</td>
+                                    <td>{{ number_format($row['denominator'], 0, ',', '.') }}</td>
+                                    <td
+                                        style="font-weight: bold; color: {{ $row['pencapaian'] >= $row['target'] ? '#198754' : '#dc3545' }};">
+                                        {{ floor($row['pencapaian']) }}%
+                                    </td>
                                 </tr>
-                            @else
-                                <tr style="color: #aaa; font-style: italic;">
-                                    <td style="font-weight: bold; color: #999;">{{ $tw }}</td>
-                                    <td style="color: #aaa;">Belum ada PDSA</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                </tr>
-                            @endif
-                        @endforeach
-                    </tbody>
-                </table>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        @endif
 
-    </div>{{-- end .indicator-page --}}
-@endforeach
+            {{-- ── PDSA (always shown) ── --}}
+            @if (isset($pdsaData))
+                <div style="margin-top: 30px; page-break-inside: avoid;">
+                    <div
+                        style="font-weight: bold; color: #1a3c6e; margin-bottom: 5px; font-size: 10px; border-bottom: 1px solid #1a3c6e; padding-bottom: 3px;">
+                        Status PDSA (Plan-Do-Study-Act) Tahun {{ $tahun }}
+                    </div>
+                    <table class="data-table" style="margin-top: 10px; font-size: 9px;">
+                        <thead>
+                            <tr>
+                                <th style="width: 6%;">Quarter</th>
+                                <th style="width: 12%;">Status</th>
+                                <th style="width: 20.5%;">Plan</th>
+                                <th style="width: 20.5%;">Do</th>
+                                <th style="width: 20.5%;">Study</th>
+                                <th style="width: 20.5%;">Act</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($pdsaData as $tw => $pdsa)
+                                @if ($pdsa)
+                                    <tr>
+                                        <td style="font-weight: bold;">{{ $tw }}</td>
+                                        <td>{{ $pdsa['status'] }}</td>
+                                        <td style="text-align: left; vertical-align: top;">{{ $pdsa['plan'] ?: '-' }}
+                                        </td>
+                                        <td style="text-align: left; vertical-align: top;">{{ $pdsa['do'] ?: '-' }}
+                                        </td>
+                                        <td style="text-align: left; vertical-align: top;">{{ $pdsa['study'] ?: '-' }}
+                                        </td>
+                                        <td style="text-align: left; vertical-align: top;">{{ $pdsa['action'] ?: '-' }}
+                                        </td>
+                                    </tr>
+                                @else
+                                    <tr style="color: #aaa; font-style: italic;">
+                                        <td style="font-weight: bold; color: #999;">{{ $tw }}</td>
+                                        <td style="color: #aaa;">Belum ada PDSA</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                @endif
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
 
-<div class="footer">
-    Dicetak pada {{ date('d F Y H:i') }} &bull; SIM Mutu RS AZRA Bogor
-</div>
+        </div>{{-- end .indicator-page --}}
+    @endforeach
+
+    <div class="footer">
+        Dicetak pada {{ date('d F Y H:i') }} &bull; SIM Mutu RS AZRA Bogor
+    </div>
 
 </body>
 

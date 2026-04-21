@@ -4,40 +4,7 @@
 @section('title', 'Manajemen Unit')
 
 {{-- Bagian Breadcrumb dan Halaman Title --}}
-@section('page-title')
-    <div class="page-header">
-        <div class="page-header-left">
-            <h3>Manajemen Unit</h3>
-            <p class="text-subtitle text-muted">
-                Halaman untuk mengelola unit dalam sistem.
-            </p>
-        </div>
-        <div class="page-header-right">
-            <div class="justify-content-end d-flex">
-                <form method="POST" action="/logout">
-                    <span class="greeting-card"><strong>👋 Hello, {{ Auth::user()->unit->nama_unit }}</strong></span>
-                    @csrf
-                    <button type="submit" class="btn btn-primary logout-btn">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Logout
-                    </button>
-                </form>
-            </div>
-            <div>
-                <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="{{ url('/') }}">Dashboard</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">
-                            Manajemen Unit
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-@endsection
+@section('subtitle', 'Halaman untuk mengelola unit dalam sistem.')
 
 {{-- Bagian Konten Utama --}}
 @section('content')
@@ -177,8 +144,8 @@
                         <h5 class="card-title">Daftar Unit</h5>
                     </div>
                     <div class="card-body">
-                        <div class="table-responsive-md">
-                            <table class="table table-striped" id="table1">
+
+                        <table class="table table-striped" id="table1">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -223,7 +190,6 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
                     </div>
                 </div>
             </div>
