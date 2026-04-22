@@ -18,31 +18,15 @@
             </div>
         </div>
 
-        <div class="page-header-right">
-            <div class="dropdown user-dropdown">
-                <button class="btn btn-user-profile dropdown-toggle d-flex align-items-center gap-2 p-1 pe-3" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    <div class="user-avatar-wrapper shadow-sm">
-                        <img src="{{ asset('img/profile.jpg') }}" alt="Profile" class="user-avatar-img">
-                    </div>
-                    <span class="user-name-text d-none d-lg-inline">👋 Hello, {{ Auth::user()->nama_lengkap }}</span>
+        <div class="page-header-right d-flex align-items-center gap-3">
+            <span class="user-name-text d-none d-lg-inline fw-bold" style="color: #25396f; font-size: 1.1rem;">👋 Hallo, {{ Auth::user()->nama_lengkap }}</span>
+            <form method="POST" action="/logout" id="logout-form" class="m-0">
+                @csrf
+                <button type="submit" class="btn btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm border-0 text-white" style="background-color: #007774;">
+                    <i class="bi bi-box-arrow-right"></i> 
+                    <span class="fw-bold">Keluar</span>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 p-2" aria-labelledby="userMenuButton" style="min-width: 200px; border-radius: 15px;">
-                    {{-- User Details inside dropdown for mobile --}}
-                    <li class="d-lg-none px-3 py-3 border-bottom mb-2 bg-light rounded-top">
-                         <div class="small text-muted mb-1">Signed in as:</div>
-                         <div class="fw-bold text-primary">{{ Auth::user()->nama_lengkap }}</div>
-                    </li>
-                    <li>
-                        <form method="POST" action="/logout" id="logout-form">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger py-2 rounded-3 d-flex align-items-center gap-2">
-                                <i class="bi bi-box-arrow-right fs-5"></i> 
-                                <span class="fw-600">Logout</span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+            </form>
         </div>
     </div>
 </header>

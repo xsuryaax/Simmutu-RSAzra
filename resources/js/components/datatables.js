@@ -15,9 +15,9 @@ const initJqueryDataTable = () => {
             lengthChange: false, 
             pageLength: 10,
             dom: 
-                "<'table-custom-controls d-flex justify-content-between align-items-center mb-3'<'dt-search-container'f><'#table-actions-placeholder'>>" +
+                "<'table-custom-controls d-flex justify-content-between align-items-center mb-3'<'dt-search-container'f><'dt-actions-group'<'#table-actions-placeholder'>>>" +
                 "<'table-responsive'tr>" +
-                "<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-md-end justify-content-center'p>>",
+                "<'row mt-4'<'col-12 d-flex justify-content-center'p>>",
             language: {
                 search: "",
                 searchPlaceholder: "Cari data...",
@@ -75,10 +75,10 @@ const initCustomizedDataTable = () => {
                 "<'row dt-row'<'col-sm-12'tr>>" +
                 "<'row'<'col-4'i><'col-8'p>>",
             "language": {
-                "info": "Page _PAGE_ of _PAGES_",
                 "lengthMenu": "_MENU_ ",
                 "search": "",
-                "searchPlaceholder": "Search.."
+                "searchPlaceholder": "Search..",
+                "info": ""
             }
         });
         // Terapkan pewarnaan saat draw event

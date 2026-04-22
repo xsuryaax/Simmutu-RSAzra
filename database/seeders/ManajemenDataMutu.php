@@ -859,6 +859,55 @@ class ManajemenDataMutu extends Seeder
             DB::table('tbl_kategori_imprs')->updateOrInsert(['id' => $item['id']], $item);
         }
 
-        $this->command->info("Master data synchronized.");
+        // --- SEED HAK AKSES ---
+        $mapping_hak_akses = [
+            // Role 2: Tim Mutu - Akses Semua Halaman
+            2 => [
+                'dashboard', 'master_indikator', 'kamus_indikator', 'laporan_analis', 'laporan_validator', 'analisa_data', 'pdsa',
+                'master_spm', 'laporan_spm', 'analisa_spm',
+                'kategori_imprs', 'jenis_indikator', 'dimensi_mutu', 'periode_analisis_data', 'periode_pengumpulan_data', 'penyajian_data', 'metode_pengumpulan_data',
+                'hak_akses', 'manajemen_user', 'manage_role', 'manajemen_unit', 'periode_mutu'
+            ],
+
+            // Role 3: Validator
+            3 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_validator'],
+
+            // Role 4: Staff
+            4 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_analis'],
+
+            // Role 5: Koordinator
+            5 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_analis', 'laporan_validator'],
+
+            // Role 6: Penanggung Jawab
+            6 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_analis'],
+
+            // Role 7: Supervisor
+            7 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_validator', 'analisa_data', 'pdsa'],
+
+            // Role 8: Kepala unit
+            8 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_validator', 'analisa_data', 'pdsa'],
+
+            // Role 9: Kepala
+            9 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'analisa_data'],
+
+            // Role 10: Dokter Spesialis
+            10 => ['dashboard', 'kamus_indikator', 'laporan_spm', 'analisa_spm', 'laporan_analis']
+        ];
+
+        foreach ($mapping_hak_akses as $role_id => $menus) {
+            // Hapus hak akses lama untuk role ini agar tidak duplikat saat re-seed
+            DB::table('tbl_hak_akses')->where('role_id', $role_id)->delete();
+
+            foreach ($menus as $menu_key) {
+                DB::table('tbl_hak_akses')->insert([
+                    'role_id' => $role_id,
+                    'menu_key' => $menu_key,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        $this->command->info("Master data and Hak Akses synchronized.");
     }
 }

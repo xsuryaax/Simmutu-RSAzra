@@ -12,6 +12,9 @@ return [
             ['key' => 'laporan_validator', 'label' => 'Validasi Indikator', 'route' => 'laporan-validator.index'],
             ['key' => 'analisa_data', 'label' => 'Analisa Indikator', 'route' => 'analisa-data.index'],
             ['key' => 'pdsa', 'label' => 'PDSA', 'route' => 'pdsa.index'],
+            ['key' => 'master_spm', 'label' => 'Master SPM', 'route' => 'master-spm.index'],
+            ['key' => 'laporan_spm', 'label' => 'Pengisian SPM', 'route' => 'laporan-spm.index'],
+            ['key' => 'analisa_spm', 'label' => 'Analisa SPM', 'route' => 'analisa-spm.index'],
 
         ]
     ],

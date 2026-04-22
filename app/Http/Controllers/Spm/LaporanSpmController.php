@@ -27,22 +27,59 @@ class LaporanSpmController extends Controller
 
         $effectiveStart = $periodStart->copy();
 
+        // Reset filters if coming from a different page
+        $prevPath = parse_url(url()->previous(), PHP_URL_PATH);
+        $currPath = $request->getPathInfo();
+        if ($prevPath !== $currPath && !$request->ajax() && !$request->hasAny(['bulan', 'tahun', 'unit_id', 'spm_id', 'kategori_spm', 'page'])) {
+            session()->forget('simmutu_filters');
+        }
+
+        // Use structured session for filters
+        $filters = session('simmutu_filters', []);
+
         if (!$request->has('bulan')) {
-            // Default to current month if within period, otherwise start of period
-            if ($now->between($periodStart, $periodEnd)) {
-                $bulan = $now->month;
-                $tahun = $now->year;
-            } elseif ($now->lt($periodStart)) {
-                $bulan = $periodStart->month;
-                $tahun = $periodStart->year;
-            } else {
-                $bulan = $periodEnd->month;
-                $tahun = $periodEnd->year;
+            $bulan = $filters['bulan'] ?? null;
+            $tahun = $filters['tahun'] ?? null;
+            
+            if (!$bulan || !$tahun) {
+                if ($now->between($periodStart, $periodEnd)) {
+                    $bulan = $now->month;
+                    $tahun = $now->year;
+                } elseif ($now->lt($periodStart)) {
+                    $bulan = $periodStart->month;
+                    $tahun = $periodStart->year;
+                } else {
+                    $bulan = $periodEnd->month;
+                    $tahun = $periodEnd->year;
+                }
             }
         } else {
             $bulan = (int)$request->bulan;
             $tahun = (int)$request->tahun;
         }
+
+        $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
+        if (in_array($user->unit_id, [1, 2])) {
+            if ($request->has('unit_id')) {
+                $unitIdFilter = $request->unit_id ?: null;
+            }
+        } else {
+            $unitIdFilter = $user->unit_id;
+        }
+
+        $selectedSpmId = $request->spm_id ?? ($filters['spm_id'] ?? null);
+        if ($request->has('spm_id')) {
+            $selectedSpmId = $request->spm_id;
+        }
+
+        // Update session with new structured data
+        $filters = [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'unit_id' => $unitIdFilter,
+            'spm_id' => $selectedSpmId
+        ];
+        session(['simmutu_filters' => $filters]);
 
         $kategoriSpm = null;
 
@@ -55,23 +92,27 @@ class LaporanSpmController extends Controller
             })
             ->select('tbl_spm.*', 'tbl_unit.nama_unit')
             ->where('tbl_spm.status_spm', 'aktif');
-        if (!in_array($user->unit_id, [1, 2])) {
-            $spmsQuery->where('tbl_spm.unit_id', $user->unit_id);
+        if ($unitIdFilter) {
+            $spmsQuery->where('tbl_spm.unit_id', $unitIdFilter);
         }
         $spms = $spmsQuery->get();
 
-        $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun);
+        $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun)->keyBy(function($item) {
+            return $item->spm_id . '-' . $item->unit_id;
+        });
 
         $kategoriSpmList = collect([]);
 
-        $selectedSpmId = $request->spm_id;
-        $selectedUnitId = $request->unit_id;
+        $selectedSpmId = $filters['spm_id'];
+        $selectedUnitId = $filters['unit_id'];
 
-        if (!$selectedSpmId && $spms->isNotEmpty()) {
-            $selectedSpmId = $spms->first()->id;
-        }
-        if (!$selectedUnitId && $spms->isNotEmpty()) {
-            $selectedUnitId = $spms->first()->unit_id;
+        if ($spms->isNotEmpty()) {
+            // Keep current if still available, otherwise use first
+            if (!$selectedSpmId || !$spms->contains('id', $selectedSpmId)) {
+                $selectedSpmId = $spms->first()->id;
+                $filters['spm_id'] = $selectedSpmId;
+                session(['simmutu_filters' => $filters]);
+            }
         }
 
         $selectedSpm = $spms->firstWhere('id', $selectedSpmId);
@@ -84,27 +125,34 @@ class LaporanSpmController extends Controller
             ];
         }
 
-        $kalenderData = [];
-        if ($selectedSpmId) {
-            $dataPengisian = DB::table('tbl_spm_laporan_dan_analis')
+        $startOfMonth = Carbon::create($tahun, $bulan, 1);
+        $kalenderData = [
+            'daysInMonth' => $startOfMonth->daysInMonth,
+            'skip' => $startOfMonth->dayOfWeekIso - 1,
+            'dataPengisian' => collect(),
+            'bulanNama' => $startOfMonth->translatedFormat('F'),
+        ];
+
+        $calendarUnitId = $selectedSpm && isset($selectedSpm->id) && $selectedSpm->id != -1 
+            ? ($selectedSpm->unit_id ?? $user->unit_id) 
+            : $selectedUnitId;
+
+        if ($selectedSpmId && $selectedSpmId != -1) {
+            $kalenderData['dataPengisian'] = DB::table('tbl_spm_laporan_dan_analis')
                 ->where('spm_id', $selectedSpmId)
-                ->where('unit_id', $selectedUnitId)
+                ->where('unit_id', $calendarUnitId)
                 ->whereYear('tanggal_laporan', $tahun)
                 ->whereMonth('tanggal_laporan', $bulan)
                 ->get()
                 ->keyBy(fn($item) => Carbon::parse($item->tanggal_laporan)->format('Y-m-d'));
-
-            $startOfMonth = Carbon::create($tahun, $bulan, 1);
-
-            $kalenderData = [
-                'daysInMonth' => $startOfMonth->daysInMonth,
-                'skip' => $startOfMonth->dayOfWeekIso - 1,
-                'dataPengisian' => $dataPengisian,
-                'bulanNama' => $startOfMonth->translatedFormat('F'),
-            ];
         }
 
-        return view('menu.spm.laporan-spm.index', [
+        $units = [];
+        if (in_array($user->unit_id, [1, 2])) {
+            $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
+        }
+
+        $viewData = [
             'spms' => $spms,
             'rekapBulanan' => $rekapBulanan,
             'periodeAktif' => $periodeAktif,
@@ -114,12 +162,21 @@ class LaporanSpmController extends Controller
             'bulan' => $bulan,
             'tahun' => $tahun,
             'kalenderData' => $kalenderData,
-            'laporanData' => $kalenderData, // Adding alias just in case
+            'laporanData' => $kalenderData,
             'selectedSpm' => $selectedSpm,
-            'selectedSpmId' => $selectedSpmId,
-            'selectedUnitId' => $selectedUnitId,
+            'selectedSpmId' => (int)$selectedSpmId,
+            'selectedUnitId' => (int)$selectedUnitId,
             'effectiveStart' => $effectiveStart,
-        ]);
+            'units' => $units,
+            'isAdminMutu' => in_array($user->unit_id, [1, 2]),
+        ];
+
+        if ($request->ajax()) {
+            $viewData['noWrapper'] = true;
+            return view('menu.spm.partials._kalender', $viewData);
+        }
+
+        return view('menu.spm.laporan-spm.index', $viewData);
     }
 
     private function getRekapBulanan($user, $bulan, $tahun)
@@ -160,14 +217,18 @@ class LaporanSpmController extends Controller
 
     public function store(Request $request)
     {
+        $spm = DB::table('tbl_spm')->where('id', $request->spm_id)->first();
+        if (!$spm) return back()->with('error', 'SPM tidak ditemukan');
+
+        $unitId = $request->unit_id ?: ($spm->unit_id ?? auth()->user()->unit_id);
+        $request->merge(['unit_id' => $unitId]);
+
         $request->validate([
             'spm_id' => 'required',
-            'unit_id' => 'required',
+            'unit_id' => 'nullable|exists:tbl_unit,id',
             'tanggal_laporan' => 'required|date',
-            'numerator' => 'required|numeric|lte:denominator',
+            'numerator' => 'required|numeric',
             'denominator' => 'required|numeric',
-        ], [
-            'numerator.lte' => 'Numerator tidak boleh lebih besar dari Denominator'
         ]);
 
         $tanggal = Carbon::parse($request->tanggal_laporan);
@@ -195,7 +256,7 @@ class LaporanSpmController extends Controller
         SpmLaporanAnalis::updateOrCreate(
             [
                 'spm_id' => $request->spm_id,
-                'unit_id' => $request->unit_id,
+                'unit_id' => $unitId,
                 'tanggal_laporan' => $tanggal->format('Y-m-d')
             ],
             [
@@ -235,10 +296,8 @@ class LaporanSpmController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'numerator' => 'required|numeric|lte:denominator',
+            'numerator' => 'required|numeric',
             'denominator' => 'required|numeric',
-        ], [
-            'numerator.lte' => 'Numerator tidak boleh lebih besar dari Denominator'
         ]);
 
         $laporan = SpmLaporanAnalis::findOrFail($id);

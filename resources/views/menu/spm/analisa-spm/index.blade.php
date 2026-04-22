@@ -12,6 +12,21 @@
             <div class="row align-items-end">
                 <div class="col">
                     <form method="GET" class="row g-3 align-items-end">
+                        @if (in_array(auth()->user()->unit_id, [1, 2]))
+                            <div class="col-md-3">
+                                <label class="filter-label">Unit</label>
+                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $u)
+                                        <option value="{{ $u->id }}"
+                                            {{ $selectedUnitId == $u->id ? 'selected' : '' }}>
+                                            {{ $u->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-2">
                             <label class="filter-label">Tahun</label>
                             <select name="tahun" class="form-select" onchange="this.form.submit()">
@@ -51,17 +66,29 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
+                                            <th class="text-center">AKSI</th>
                                             <th style="min-width: 350px;">SPM</th>
                                             <th class="text-center">UNIT</th>
                                             <th class="text-center">ANALISA</th>
                                             <th class="text-center">RENCANA TINDAK LANJUT</th>
-                                            <th class="text-center">AKSI</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($spms as $i => $ind)
-                                            <tr>
+                                            <tr data-id="{{ $ind->id }}" 
+                                                onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($ind->nama_unit ?? '-') }}', 'SPM', '{{ $ind->unit_id }}')" 
+                                                style="cursor: pointer;">
                                                 <td class="text-center">{{ $i + 1 }}</td>
+                                                <td class="text-center" onclick="event.stopPropagation()">
+                                                    <button class="btn btn-sm btn-warning"
+                                                        onclick="openModal({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}', '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}', '{{ $ind->unit_id }}')">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info"
+                                                        onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($ind->nama_unit ?? '-') }}', 'SPM', '{{ $ind->unit_id }}')">
+                                                        <i class="bi bi-bar-chart"></i>
+                                                    </button>
+                                                </td>
                                                 <td class="fw-semibold">{{ $ind->nama_spm }}</td>
 
                                                 <td class="text-center">
@@ -74,17 +101,6 @@
 
                                                 <td class="text-center">
                                                     {{ $analisaData[$ind->id]['tindak_lanjut'] ?? '-' }}
-                                                </td>
-
-                                                <td class="text-center">
-                                                    <button class="btn btn-sm btn-warning"
-                                                        onclick="openModal({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($analisaData[$ind->id]['analisa'] !== '-' ? $analisaData[$ind->id]['analisa'] : '') }}', '{{ addslashes($analisaData[$ind->id]['tindak_lanjut'] !== '-' ? $analisaData[$ind->id]['tindak_lanjut'] : '') }}')">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info"
-                                                        onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($ind->nama_unit ?? '') }}', 'SPM')">
-                                                        <i class="bi bi-bar-chart"></i>
-                                                    </button>
                                                 </td>
                                             </tr>
                                         @empty

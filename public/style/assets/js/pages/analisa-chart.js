@@ -146,7 +146,7 @@ function renderChart(targetData = [], realisasiData = []) {
             },
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: false,
                     ticks: {
                         callback: value => value + "%"
                     }
@@ -162,11 +162,24 @@ function renderChart(targetData = [], realisasiData = []) {
     });
 }
 
-window.loadChart = function (indikatorId, namaIndikator, namaUnit, kategori) {
+window.loadChart = function (indikatorId, namaIndikator, namaUnit, kategori, unitId) {
     document.getElementById('chart-title').textContent = namaIndikator;
     document.getElementById('chart-subtitle').textContent = namaUnit;
     currentCategory = kategori || 'Nasional';
     isSpmMode = (kategori === 'SPM');
+
+    // Highlight row
+    document.querySelectorAll('table tbody tr').forEach(row => {
+        row.classList.remove('table-active');
+    });
+    
+    const selector = isSpmMode 
+        ? `tr[data-id="${indikatorId}"]` 
+        : `tr[data-id="${indikatorId}"][data-unit="${unitId}"]`;
+    const selectedRow = document.querySelector(selector);
+    if (selectedRow) {
+        selectedRow.classList.add('table-active');
+    }
 
     // Update legend dot color in view
     const legendDot = document.querySelector('.legend-dot.realisasi');
@@ -193,20 +206,27 @@ window.loadChart = function (indikatorId, namaIndikator, namaUnit, kategori) {
         });
 };
 
-window.openModal = function (id, nama, analisa = '', tindakLanjut = '') {
+window.openModal = function (id, nama, analisa = '', tindakLanjut = '', unitId = null) {
     const idInput = document.getElementById('indikator_id') || document.getElementById('spm_id');
     if (idInput) idInput.value = id;
+
+    // Store unitId for saveAnalysis
+    const modal = document.getElementById('analysisModal');
+    if (unitId) modal.setAttribute('data-unit-id', unitId);
+
     document.getElementById('analysisModalLabel').textContent = `Edit Analisa untuk ${nama}`;
     document.getElementById('analisa').value = analisa;
     document.getElementById('tindak_lanjut').value = tindakLanjut;
 
-    const modal = new bootstrap.Modal(document.getElementById('analysisModal'));
-    modal.show();
+    const modalInstance = new bootstrap.Modal(document.getElementById('analysisModal'));
+    modalInstance.show();
 };
 
 window.saveAnalysis = function () {
+    const analysisModalElem = document.getElementById('analysisModal');
     const idInput = document.getElementById('indikator_id') || document.getElementById('spm_id');
     const idValue = idInput ? idInput.value : null;
+    const unitId = analysisModalElem.getAttribute('data-unit-id');
     const analisa = document.getElementById('analisa').value;
     const tindak_lanjut = document.getElementById('tindak_lanjut').value;
     const tahun = document.querySelector('select[name="tahun"]').value;
@@ -222,6 +242,7 @@ window.saveAnalysis = function () {
     formData.append('tindak_lanjut', tindak_lanjut);
     formData.append('tahun', tahun);
     formData.append('bulan', bulan);
+    if (unitId) formData.append('unit_id', unitId);
 
     fetch(analisaStoreUrl, {
         method: "POST",
@@ -246,7 +267,9 @@ document.addEventListener('DOMContentLoaded', function () {
         loadChart(
             firstIndikator.id,
             firstIndikator.nama_indikator,
-            firstIndikator.nama_unit
+            firstIndikator.nama_unit,
+            firstIndikator.kategori_indikator,
+            firstIndikator.unit_id
         );
     }
 
@@ -255,7 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
             firstSpm.id,
             firstSpm.nama_spm,
             firstSpm.nama_unit,
-            "SPM"
+            "SPM",
+            firstSpm.unit_id
         );
     }
 

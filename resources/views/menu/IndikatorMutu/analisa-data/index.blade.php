@@ -20,6 +20,21 @@
             <div class="row align-items-end">
                 <div class="col">
                     <form method="GET" class="row g-3 align-items-end">
+                        @if (in_array(auth()->user()->unit_id, [1, 2]))
+                            <div class="col-md-3">
+                                <label class="filter-label">Unit</label>
+                                <select name="unit_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $u)
+                                        <option value="{{ $u->id }}"
+                                            {{ $selectedUnitId == $u->id ? 'selected' : '' }}>
+                                            {{ $u->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-3">
                             <label class="filter-label">Jenis Indikator</label>
                             <select name="kategori_indikator" class="form-select" onchange="this.form.submit()">
@@ -78,11 +93,11 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
+                                            <th class="text-center">AKSI</th>
                                             <th style="min-width: 350px;">INDIKATOR</th>
                                             <th class="text-center">UNIT</th>
                                             <th class="text-center">ANALISA</th>
                                             <th class="text-center">RENCANA TINDAK LANJUT</th>
-                                            <th class="text-center">AKSI</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -110,8 +125,20 @@
                                                     }
                                                 }
                                             @endphp
-                                            <tr>
+                                            <tr data-id="{{ $ind->id }}" data-unit="{{ $ind->unit_id }}" 
+                                                onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_indikator) }}', '{{ addslashes($ind->nama_unit ?? '-') }}', '{{ $ind->kategori_indikator }}', '{{ $ind->unit_id }}')" 
+                                                style="cursor: pointer;">
                                                 <td class="text-center">{{ $i + 1 }}</td>
+                                                <td class="text-center" onclick="event.stopPropagation()">
+                                                    <button class="btn btn-sm btn-warning"
+                                                        onclick="openModal({{ $ind->id }}, '{{ addslashes($ind->nama_indikator) }}', '{{ addslashes(data_get($analisaData, $ind->id.'.analisa', '-')) }}', '{{ addslashes(data_get($analisaData, $ind->id.'.tindak_lanjut', '-')) }}', '{{ $ind->unit_id }}')">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-info"
+                                                        onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_indikator) }}', '{{ addslashes($ind->nama_unit ?? '-') }}', '{{ $ind->kategori_indikator }}', '{{ $ind->unit_id }}')">
+                                                        <i class="bi bi-bar-chart"></i>
+                                                    </button>
+                                                </td>
                                                 <td class="{{ $colColor }}">{{ $ind->nama_indikator }}</td>
 
                                                 <td class="text-center">
@@ -119,27 +146,11 @@
                                                 </td>
 
                                                 <td class="text-center">
-                                                    {{ $analisaData[$ind->id]['analisa'] ?? '-' }}
+                                                    {{ data_get($analisaData, $ind->id.'.analisa', '-') }}
                                                 </td>
 
                                                 <td class="text-center">
-                                                    {{ $analisaData[$ind->id]['tindak_lanjut'] ?? '-' }}
-                                                </td>
-
-                                                <td class="text-center">
-                                                    <button class="btn btn-sm btn-warning"
-                                                        onclick='openModal(
-                                                            {{ $ind->id }},
-                                                            @json($ind->nama_indikator),
-                                                            @json(isset($analisaData[$ind->id]["analisa"]) && $analisaData[$ind->id]["analisa"] !== "-" ? $analisaData[$ind->id]["analisa"] : ""),
-                                                            @json(isset($analisaData[$ind->id]["tindak_lanjut"]) && $analisaData[$ind->id]["tindak_lanjut"] !== "-" ? $analisaData[$ind->id]["tindak_lanjut"] : "")
-                                                        )'>
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn btn-sm btn-info"
-                                                        onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_indikator) }}', '{{ addslashes($ind->nama_unit) }}', '{{ $ind->kategori_indikator }}')">
-                                                        <i class="bi bi-bar-chart"></i>
-                                                    </button>
+                                                    {{ data_get($analisaData, $ind->id.'.tindak_lanjut', '-') }}
                                                 </td>
                                             </tr>
                                         @empty

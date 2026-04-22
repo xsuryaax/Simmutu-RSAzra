@@ -5,7 +5,7 @@ namespace App\Http\Controllers\IndikatorMutu;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Auth;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Services\IndikatorMutuService;
 
@@ -31,10 +31,50 @@ class AnalisaController extends Controller
             $periodeMulai->year,
             $periodeSelesai->year
         );
-        $tahun = $request->tahun ?? $periodeMulai->year;
-        $bulan = $request->bulan ?? $periodeMulai->month;
-        $kategori = $request->kategori_indikator;
-        $indikators = $this->indikatorService->getIndikator($user, $kategori);
+        // Reset filters if coming from a different page
+        $prevPath = parse_url(url()->previous(), PHP_URL_PATH);
+        $currPath = $request->getPathInfo();
+        if ($prevPath !== $currPath && !$request->ajax() && !$request->hasAny(['bulan', 'tahun', 'unit_id', 'kategori_indikator', 'page'])) {
+            session()->forget('simmutu_filters');
+        }
+
+        $filters = session('simmutu_filters', []);
+
+        if (!$request->has('bulan')) {
+            $bulan = $filters['bulan'] ?? $periodeMulai->month;
+            $tahun = $filters['tahun'] ?? $periodeMulai->year;
+        } else {
+            $bulan = (int)$request->bulan;
+            $tahun = (int)$request->tahun;
+        }
+
+        $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
+        if (in_array($roleId, [1, 2])) {
+            if ($request->has('unit_id')) {
+                $unitIdFilter = $request->unit_id;
+            }
+        } else {
+            $unitIdFilter = $user->unit_id;
+        }
+
+        $kategori = $request->kategori_indikator ?? ($filters['kategori'] ?? null);
+
+        // Update session with new structured data
+        $filters = [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'unit_id' => $unitIdFilter,
+            'kategori' => $kategori
+        ];
+        session(['simmutu_filters' => $filters]);
+
+        // Clone user for filtering if unitIdFilter is provided
+        $unitFilterUser = clone $user;
+        if ($unitIdFilter) {
+            $unitFilterUser->unit_id = $unitIdFilter;
+        }
+
+        $indikators = $this->indikatorService->getIndikator($unitFilterUser, $kategori);
         $indikatorIds = $indikators->pluck('id')->toArray();
 
         // =============================
@@ -43,10 +83,6 @@ class AnalisaController extends Controller
         $analisaRows = DB::table('tbl_hasil_analisa')
             ->whereYear('tanggal_analisa', $tahun)
             ->whereMonth('tanggal_analisa', $bulan)
-            ->when(
-                !in_array($roleId, [1, 2]),
-                fn($q) => $q->where('unit_id', $user->unit_id)
-            )
             ->whereIn('indikator_id', $indikatorIds)
             ->get()
             ->keyBy('indikator_id');
@@ -54,12 +90,16 @@ class AnalisaController extends Controller
         $analisaData = [];
 
         foreach ($indikators as $ind) {
-            $analisa = $analisaRows[$ind->id] ?? null;
-
+            $rowAnalisa = $analisaRows->get($ind->id);
             $analisaData[$ind->id] = [
-                'analisa' => $analisa->analisa ?? '-',
-                'tindak_lanjut' => $analisa->tindak_lanjut ?? '-',
+                'analisa' => optional($rowAnalisa)->analisa ?? '-',
+                'tindak_lanjut' => optional($rowAnalisa)->tindak_lanjut ?? '-',
             ];
+        }
+
+        $units = [];
+        if (in_array($roleId, [1, 2])) {
+            $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
         }
 
         return view('menu.IndikatorMutu.analisa-data.index', [
@@ -71,7 +111,9 @@ class AnalisaController extends Controller
             'periodeSelesai' => $periodeSelesai,
             'tahunDipilih' => $tahun,
             'bulanDipilih' => $bulan,
-            'kategoriDipilih' => $kategori
+            'kategoriDipilih' => $kategori,
+            'units' => $units,
+            'selectedUnitId' => (int)$unitIdFilter,
         ]);
     }
 
@@ -86,10 +128,14 @@ class AnalisaController extends Controller
         // Buat tanggal sesuai filter (tanggal 1 saja cukup)
         $tanggalAnalisa = Carbon::createFromDate($tahun, $bulan, 1);
 
+        $unitId = (in_array($user->unit_id, [1, 2])) 
+            ? ($request->unit_id ?? $user->unit_id) 
+            : $user->unit_id;
+
         DB::table('tbl_hasil_analisa')->updateOrInsert(
             [
                 'indikator_id' => $request->indikator_id,
-                'unit_id' => $user->unit_id,
+                'unit_id' => $unitId,
                 'tanggal_analisa' => $tanggalAnalisa
             ],
             [

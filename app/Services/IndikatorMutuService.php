@@ -100,7 +100,7 @@ class IndikatorMutuService
             return null;
         }
 
-        $toleransi = $rataValidator * 0.10;
+        $toleransi = abs($rataValidator) * 0.10;
         $selisih = abs($rataValidator - $rataAnalis);
 
         return ($selisih <= $toleransi) ? 'valid' : 'tidak-valid';

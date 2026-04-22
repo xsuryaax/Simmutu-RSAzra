@@ -149,13 +149,16 @@ Route::middleware('auth')->group(function () {
         ->middleware('check.role:pdsa');
 
     // SPM (Standar Pelayanan Minimal)
-    Route::resource('master-spm', MasterSpmController::class);
+    Route::resource('master-spm', MasterSpmController::class)
+        ->middleware('check.role:master_spm');
     Route::post('/master-spm/{id}/active', [MasterSpmController::class, 'setPeriodeAktif'])->name('spm.active');
-    Route::get('laporan-spm', [LaporanSpmController::class, 'index'])->name('laporan-spm.index');
+    Route::get('laporan-spm', [LaporanSpmController::class, 'index'])->name('laporan-spm.index')
+        ->middleware('check.role:laporan_spm');
     Route::post('laporan-spm', [LaporanSpmController::class, 'store'])->name('laporan-spm.store');
     Route::get('laporan-spm/{id}/detail', [LaporanSpmController::class, 'detail'])->name('laporan-spm.detail');
     Route::put('laporan-spm/{id}', [LaporanSpmController::class, 'update'])->name('laporan-spm.update');
-    Route::get('analisa-spm', [AnalisaSpmController::class, 'index'])->name('analisa-spm.index');
+    Route::get('analisa-spm', [AnalisaSpmController::class, 'index'])->name('analisa-spm.index')
+        ->middleware('check.role:analisa_spm');
     Route::post('analisa-spm', [AnalisaSpmController::class, 'store'])->name('analisa-spm.store');
     Route::get('/analisa-spm/chart/{spm}', [AnalisaSpmController::class, 'chartData'])->name('analisa-spm.chart');
 

@@ -60,28 +60,72 @@ class LaporanAnalisController extends Controller
         }
     
 
+        // Reset filters if coming from a different page (not from same path, not AJAX, and no explicit filters)
+        $prevPath = parse_url(url()->previous(), PHP_URL_PATH);
+        $currPath = $request->getPathInfo();
+        if ($prevPath !== $currPath && !$request->ajax() && !$request->hasAny(['bulan', 'tahun', 'unit_id', 'indikator_id', 'kategori_indikator', 'page'])) {
+            session()->forget('simmutu_filters');
+        }
+
+        // Use structured session for filters
+        $filters = session('simmutu_filters', []);
+
         if (!$request->has('bulan')) {
-            // Default to current month if within period, otherwise start of period
-            if ($now->between($periodStart, $periodEnd)) {
-                $bulan = $now->month;
-                $tahun = $now->year;
-            } elseif ($now->lt($periodStart)) {
-                $bulan = $periodStart->month;
-                $tahun = $periodStart->year;
-            } else {
-                $bulan = $periodEnd->month;
-                $tahun = $periodEnd->year;
+            $bulan = $filters['bulan'] ?? null;
+            $tahun = $filters['tahun'] ?? null;
+            
+            if (!$bulan || !$tahun) {
+                if ($now->between($periodStart, $periodEnd)) {
+                    $bulan = $now->month;
+                    $tahun = $now->year;
+                } elseif ($now->lt($periodStart)) {
+                    $bulan = $periodStart->month;
+                    $tahun = $periodStart->year;
+                } else {
+                    $bulan = $periodEnd->month;
+                    $tahun = $periodEnd->year;
+                }
             }
         } else {
             $bulan = (int)$request->bulan;
             $tahun = (int)$request->tahun;
         }
 
-        $kategoriIndikator = $request->filled('kategori_indikator')
-            ? $request->kategori_indikator
-            : null;
+        $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
+        if (in_array($user->unit_id, [1, 2])) {
+            if ($request->has('unit_id')) {
+                $unitIdFilter = $request->unit_id ?: null;
+            }
+        } else {
+            $unitIdFilter = $user->unit_id;
+        }
 
-        $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
+        $selectedIndikatorId = $request->indikator_id ?? ($filters['indikator_id'] ?? null);
+        if ($request->has('indikator_id')) {
+            $selectedIndikatorId = $request->indikator_id;
+        }
+
+        $kategoriIndikator = $request->has('kategori_indikator')
+            ? $request->kategori_indikator
+            : ($filters['kategori'] ?? null);
+
+        // Update session with new structured data
+        $filters = [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'unit_id' => $unitIdFilter,
+            'indikator_id' => $selectedIndikatorId,
+            'kategori' => $kategoriIndikator
+        ];
+        session(['simmutu_filters' => $filters]);
+
+        // Clone user for filtering if unitIdFilter is provided
+        $unitFilterUser = clone $user;
+        if ($unitIdFilter) {
+            $unitFilterUser->unit_id = $unitIdFilter;
+        }
+
+        $indikators = $this->indikatorService->getIndikator($unitFilterUser, $kategoriIndikator);
         
         // Cari entry date paling awal dari semua indikator unit ini untuk batas dropdown
         $earliestEntry = $indikators->min('entry_date');
@@ -92,13 +136,7 @@ class LaporanAnalisController extends Controller
             }
         }
 
-        // Filter deactivated: showing all indicators mapped to the period
-        // $currentDate = Carbon::create($tahun, $bulan, 1)->startOfMonth();
-        // $indikators = $indikators->filter(function($ind) use ($currentDate) {
-        //     return Carbon::parse($ind->entry_date)->startOfMonth()->lte($currentDate);
-        // });
-
-        $rekapBulanan = $this->getRekapBulanan($user, $bulan, $tahun, $kategoriIndikator);
+        $rekapBulanan = $this->getRekapBulanan($unitFilterUser, $bulan, $tahun, $kategoriIndikator);
 
         $kategoriIndikatorList = DB::table('tbl_kamus_indikator')
             ->select('kategori_indikator')
@@ -107,76 +145,75 @@ class LaporanAnalisController extends Controller
             ->orderBy('kategori_indikator')
             ->pluck('kategori_indikator');
 
-        $selectedIndikatorId = $request->indikator_id;
-        $selectedUnitId = $request->unit_id;
+        $selectedIndikatorId = $filters['indikator_id'];
+        $selectedUnitId = $filters['unit_id'];
 
-        if (!$selectedIndikatorId && $indikators->isNotEmpty()) {
-            $firstIndikator = $indikators->first();
-            $selectedIndikatorId = $firstIndikator->id;
-            $selectedUnitId = $firstIndikator->unit_id;
-        }
-
-        $kalenderData = null;
-        $selectedIndikator = null;
-
-        if ($selectedIndikatorId) {
-
-            $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
-
-            if ($selectedIndikator) {
-
-                $query = DB::table('tbl_laporan_dan_analis')
-                    ->select(
-                        'id',
-                        'tanggal_laporan',
-                        'numerator',
-                        'denominator',
-                        'nilai',
-                        'indikator_id',
-                        'unit_id',
-                        'kategori_indikator',
-                        'nilai_validator',
-                        'status_laporan',
-                    )
-                    ->where('indikator_id', $selectedIndikatorId)
-                    ->whereMonth('tanggal_laporan', $bulan)
-                    ->whereYear('tanggal_laporan', $tahun);
-
-                if ($selectedUnitId) {
-                    $query->where('unit_id', $selectedUnitId);
-                }
-
-                $dataPengisian = $query->get()
-                    ->keyBy(function ($item) {
-                        return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
-                    });
-
-                $startOfMonth = Carbon::create($tahun, $bulan, 1);
-
-                $kalenderData = [
-                    'daysInMonth' => $startOfMonth->daysInMonth,
-                    'skip' => $startOfMonth->dayOfWeekIso - 1,
-                    'dataPengisian' => $dataPengisian,
-                    'bulanNama' => $startOfMonth->translatedFormat('F'),
-                ];
+        if ($indikators->isNotEmpty()) {
+            // Keep current if still available, otherwise use first
+            if (!$selectedIndikatorId || !$indikators->contains('id', $selectedIndikatorId)) {
+                $selectedIndikatorId = $indikators->first()->id;
+                $filters['indikator_id'] = $selectedIndikatorId;
+                session(['simmutu_filters' => $filters]);
             }
         }
 
-        return view('menu.IndikatorMutu.laporan-analis.index', [
+        $startOfMonth = Carbon::create($tahun, $bulan, 1);
+        $kalenderData = [
+            'daysInMonth' => $startOfMonth->daysInMonth,
+            'skip' => $startOfMonth->dayOfWeekIso - 1,
+            'dataPengisian' => collect(),
+            'bulanNama' => $startOfMonth->translatedFormat('F'),
+        ];
+
+        $selectedIndikator = null;
+        if ($selectedIndikatorId) {
+            $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
+            if ($selectedIndikator) {
+                $calendarUnitId = $selectedIndikator->unit_id ?? $user->unit_id;
+
+                $query = DB::table('tbl_laporan_dan_analis')
+                    ->select('id', 'tanggal_laporan', 'numerator', 'denominator', 'nilai', 'indikator_id', 'unit_id', 'nilai_validator', 'status_laporan')
+                    ->where('indikator_id', $selectedIndikatorId)
+                    ->whereMonth('tanggal_laporan', $bulan)
+                    ->whereYear('tanggal_laporan', $tahun)
+                    ->where('unit_id', $calendarUnitId);
+
+
+                $kalenderData['dataPengisian'] = $query->get()
+                    ->keyBy(function ($item) {
+                        return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
+                    });
+            }
+        }
+
+        $units = [];
+        if (in_array($user->unit_id, [1, 2])) {
+            $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
+        }
+
+        $viewData = [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
-            'periodeAktif' => $periodeAktif,
             'periode' => $periodeAktif,
             'kategoriIndikatorList' => $kategoriIndikatorList,
-            'kategoriIndikator' => $kategoriIndikator,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'kalenderData' => $kalenderData,
             'selectedIndikator' => $selectedIndikator,
-            'selectedIndikatorId' => $selectedIndikatorId,
-            'selectedUnitId' => $selectedUnitId,
+            'selectedIndikatorId' => (int)$selectedIndikatorId,
+            'selectedUnitId' => (int)$selectedUnitId,
             'effectiveStart' => $effectiveStart,
-        ]);
+            'units' => $units,
+            'isAdminMutu' => in_array($user->unit_id, [1, 2]),
+            'kategoriIndikator' => $kategoriIndikator,
+        ];
+
+        if ($request->ajax()) {
+            $viewData['noWrapper'] = true;
+            return view('menu.IndikatorMutu.partials._kalender', $viewData);
+        }
+
+        return view('menu.IndikatorMutu.laporan-analis.index', $viewData);
     }
 
 
@@ -253,20 +290,26 @@ class LaporanAnalisController extends Controller
     public function store(Request $request)
     {
         $indikatorFull = DB::table('tbl_indikator')
-            ->where('id', $request->indikator_id)
+            ->join('tbl_kamus_indikator', 'tbl_kamus_indikator.id', '=', 'tbl_indikator.kamus_indikator_id')
+            ->where('tbl_indikator.id', $request->indikator_id)
+            ->select('tbl_indikator.*', 'tbl_kamus_indikator.kategori_indikator')
             ->first();
 
         if (!$indikatorFull) {
             return back()->with('error', 'Indikator tidak ditemukan');
         }
 
+        $unitId = $request->unit_id ?: ($indikatorFull->unit_id ?? auth()->user()->unit_id);
+        
+        $request->merge(['unit_id' => $unitId]);
+
         $request->validate([
             'indikator_id' => 'required|exists:tbl_indikator,id',
             'tanggal_laporan' => 'required|date',
-            'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric',
+            'denominator' => 'required|numeric',
             'file_laporan' => 'nullable|file|max:5120',
-            'unit_id' => 'sometimes|exists:tbl_unit,id',
+            'unit_id' => 'nullable|exists:tbl_unit,id',
         ]);
 
         if ($request->denominator == 0 && $request->numerator > 0) {
@@ -291,24 +334,11 @@ class LaporanAnalisController extends Controller
         if ($tanggalLaporan->lt($periodeMulai) || $tanggalLaporan->gt($periodeSelesai)) {
             return back()->with('error', 'Tanggal laporan harus berada dalam periode mutu aktif');
         }
-
-        $unitId = $request->unit_id ?? auth()->user()->unit_id;
-
         if (!$this->bolehInputLaporan($periode, $tanggalLaporan, $unitId)) {
             return back()->with('error', 'Batas waktu pengisian laporan telah lewat');
         }
 
-        $indikator = DB::table('tbl_indikator as i')
-            ->join('tbl_kamus_indikator as k', 'k.id', '=', 'i.kamus_indikator_id')
-            ->where('i.id', $request->indikator_id)
-            ->select('k.kategori_indikator', 'k.kategori_id')
-            ->first();
-
-        if (!$indikator) {
-            return back()->with('error', 'Indikator tidak ditemukan');
-        }
-
-        $kategoriLower = strtolower($indikator->kategori_indikator);
+        $kategoriLower = strtolower($indikatorFull->kategori_indikator);
 
         if (
             str_contains($kategoriLower, 'prioritas unit') ||
@@ -413,13 +443,7 @@ class LaporanAnalisController extends Controller
         // Invalidate dashboard statistics cache
         Cache::forget('dashboard_statistik_unit');
 
-        return redirect()->route('laporan-analis.index', [
-            'bulan' => $bulanLaporan,
-            'tahun' => $tahunLaporan,
-            'kategori_indikator' => $request->kategori_indikator,
-            'indikator_id' => $request->indikator_id,
-            'unit_id' => $request->unit_id,
-        ])->with('success', 'Data laporan berhasil disimpan');
+        return back()->with('success', 'Data laporan berhasil disimpan');
     }
 
     public function getDetail($id)
@@ -476,8 +500,8 @@ class LaporanAnalisController extends Controller
             ->first();
 
         $request->validate([
-            'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric',
+            'denominator' => 'required|numeric',
             'file_laporan' => 'nullable|file|max:5120',
         ]);
 

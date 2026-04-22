@@ -7,9 +7,8 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="mb-0 fw-bold text-primary">Daftar Periode Mutu</h5>
-                    <a href="{{ route('periode-mutu.create') }}" class="btn btn-primary btn-sm px-3 rounded-pill">
+                <div id="table-actions-content" class="d-none">
+                    <a href="{{ route('periode-mutu.create') }}" class="btn btn-primary btn-sm px-3 rounded-pill" style="height: 38px; display: flex; align-items: center; gap: 5px;">
                         <i class="bi bi-plus-lg"></i> Tambah Periode
                     </a>
                 </div>

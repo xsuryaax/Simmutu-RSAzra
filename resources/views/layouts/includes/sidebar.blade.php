@@ -125,29 +125,48 @@
                             @endif
 
                             {{-- SPM (Standar Pelayanan Minimal) --}}
-                            <li
-                                class="sidebar-item has-sub {{ request()->is('master-spm*') || request()->is('laporan-spm*') || request()->is('analisa-spm*') ? 'active' : '' }}">
-                                <a href="#" class="sidebar-link">
-                                    <div class="sidebar-icon">
-                                        <i class="bi bi-clipboard-check-fill"></i>
-                                    </div>
-                                    <span>SPM</span>
-                                </a>
-                                <ul class="submenu">
-                                    <li class="submenu-item {{ request()->is('master-spm*') ? 'active' : '' }}">
-                                        <a href="{{ route('master-spm.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Master SPM</a>
-                                    </li>
-                                    <li class="submenu-item {{ request()->is('laporan-spm*') ? 'active' : '' }}">
-                                        <a href="{{ route('laporan-spm.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Pengisian SPM</a>
-                                    </li>
-                                    <li class="submenu-item {{ request()->is('analisa-spm*') ? 'active' : '' }}">
-                                        <a href="{{ route('analisa-spm.index') }}" class="submenu-link"
-                                            style="text-decoration: none;">Analisa SPM</a>
-                                    </li>
-                                </ul>
-                            </li>
+                            @php
+                                $spmMenus = ['master_spm', 'laporan_spm', 'analisa_spm'];
+                                $hasSpmAccess = false;
+                                foreach ($spmMenus as $k) {
+                                    if (auth()->user()->hasPermission($k)) {
+                                        $hasSpmAccess = true;
+                                        break;
+                                    }
+                                }
+                            @endphp
+
+                            @if ($hasSpmAccess)
+                                <li
+                                    class="sidebar-item has-sub {{ request()->is('master-spm*') || request()->is('laporan-spm*') || request()->is('analisa-spm*') ? 'active' : '' }}">
+                                    <a href="#" class="sidebar-link">
+                                        <div class="sidebar-icon">
+                                            <i class="bi bi-clipboard-check-fill"></i>
+                                        </div>
+                                        <span>SPM</span>
+                                    </a>
+                                    <ul class="submenu">
+                                        @if (auth()->user()->hasPermission('master_spm'))
+                                            <li class="submenu-item {{ request()->is('master-spm*') ? 'active' : '' }}">
+                                                <a href="{{ route('master-spm.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Master SPM</a>
+                                            </li>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('laporan_spm'))
+                                            <li class="submenu-item {{ request()->is('laporan-spm*') ? 'active' : '' }}">
+                                                <a href="{{ route('laporan-spm.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Pengisian SPM</a>
+                                            </li>
+                                        @endif
+                                        @if (auth()->user()->hasPermission('analisa_spm'))
+                                            <li class="submenu-item {{ request()->is('analisa-spm*') ? 'active' : '' }}">
+                                                <a href="{{ route('analisa-spm.index') }}" class="submenu-link"
+                                                    style="text-decoration: none;">Analisa SPM</a>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </li>
+                            @endif
                         @elseif($groupKey === 'manajemen_data_mutu')
                             <li
                                 class="sidebar-item has-sub {{ request()->is('dimensi-mutu*') || request()->is('periode-analisis-data*') || request()->is('periode-pengumpulan-data*') || request()->is('penyajian-data*') || request()->is('metode-pengumpulan-data*') || request()->is('kategori-imprs*') || request()->is('jenis-indikator*') ? 'active' : '' }}">

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\IndikatorMutu;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Storage;
 use App\Services\IndikatorMutuService;
@@ -45,19 +45,62 @@ class ValidatorDataController extends Controller
             $smartDefaultTahun = $periodEnd->year;
         }
 
+        // Reset filters if coming from a different page
+        $prevPath = parse_url(url()->previous(), PHP_URL_PATH);
+        $currPath = $request->getPathInfo();
+        if ($prevPath !== $currPath && !$request->ajax() && !$request->hasAny(['bulan', 'tahun', 'unit_id', 'indikator_id', 'kategori_indikator', 'page'])) {
+            session()->forget('simmutu_filters');
+        }
+
+        // Use structured session for filters
+        $filters = session('simmutu_filters', []);
+
         if (!$request->has('bulan')) {
-            if ($availableMonths->isNotEmpty()) {
-                $firstAvailable = $availableMonths->first();
-                $bulan = $firstAvailable->bulan;
-                $tahun = $firstAvailable->tahun;
-            } else {
-                $bulan = $smartDefaultBulan;
-                $tahun = $smartDefaultTahun;
+            $bulan = $filters['bulan'] ?? null;
+            $tahun = $filters['tahun'] ?? null;
+            
+            if (!$bulan || !$tahun) {
+                if ($availableMonths->isNotEmpty()) {
+                    $firstAvailable = $availableMonths->first();
+                    $bulan = $firstAvailable->bulan;
+                    $tahun = $firstAvailable->tahun;
+                } else {
+                    $bulan = $smartDefaultBulan;
+                    $tahun = $smartDefaultTahun;
+                }
             }
         } else {
-            $bulan = (int) $request->bulan;
-            $tahun = (int) $request->tahun;
+            $bulan = (int)$request->bulan;
+            $tahun = (int)$request->tahun;
         }
+
+        $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
+        if (in_array($user->unit_id, [1, 2])) {
+            if ($request->has('unit_id')) {
+                $unitIdFilter = $request->unit_id ?: null;
+            }
+        } else {
+            $unitIdFilter = $user->unit_id;
+        }
+
+        $selectedIndikatorId = $request->indikator_id ?? ($filters['indikator_id'] ?? null);
+        if ($request->has('indikator_id')) {
+            $selectedIndikatorId = $request->indikator_id;
+        }
+
+        $kategoriIndikator = $request->has('kategori_indikator')
+            ? $request->kategori_indikator
+            : ($filters['kategori'] ?? null);
+
+        // Update session with new structured data
+        $filters = [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'unit_id' => $unitIdFilter,
+            'indikator_id' => $selectedIndikatorId,
+            'kategori' => $kategoriIndikator
+        ];
+        session(['simmutu_filters' => $filters]);
     
 
         $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
@@ -111,73 +154,73 @@ class ValidatorDataController extends Controller
             ->orderBy('kategori_indikator')
             ->pluck('kategori_indikator');
 
-        $selectedIndikatorId = $request->indikator_id;
-        $selectedUnitId = $request->unit_id;
+        $selectedIndikatorId = $filters['indikator_id'];
+        $selectedUnitId = $filters['unit_id'];
 
-        if (!$selectedIndikatorId && $indikators->isNotEmpty()) {
-            $firstIndikator = $indikators->first();
-            $selectedIndikatorId = $firstIndikator->id;
-            $selectedUnitId = $firstIndikator->unit_id;
-        }
-
-        $kalenderData = null;
-        $selectedIndikator = null;
-
-        if ($selectedIndikatorId) {
-
-            $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
-
-            if ($selectedIndikator) {
-
-                $query = DB::table('tbl_laporan_validator')
-                    ->select(
-                        'id',
-                        'tanggal_laporan',
-                        'numerator',
-                        'denominator',
-                        'nilai_validator',
-                        'indikator_id',
-                        'unit_id',
-                        'kategori_indikator',
-                    )
-                    ->where('indikator_id', $selectedIndikatorId)
-                    ->whereBetween('tanggal_laporan', [$start, $end]);
-
-                if ($selectedUnitId) {
-                    $query->where('unit_id', $selectedUnitId);
-                }
-
-                $dataPengisian = $query->get()
-                    ->keyBy(function ($item) {
-                        return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
-                    });
-
-                $startOfMonth = Carbon::create($tahun, $bulan, 1);
-
-                $kalenderData = [
-                    'daysInMonth' => $startOfMonth->daysInMonth,
-                    'skip' => $startOfMonth->dayOfWeekIso - 1,
-                    'dataPengisian' => $dataPengisian,
-                    'bulanNama' => $startOfMonth->translatedFormat('F'),
-                ];
+        if ($indikators->isNotEmpty()) {
+            // Keep current if still available, otherwise use first
+            if (!$selectedIndikatorId || !$indikators->contains('id', $selectedIndikatorId)) {
+                $selectedIndikatorId = $indikators->first()->id;
+                $filters['indikator_id'] = $selectedIndikatorId;
+                session(['simmutu_filters' => $filters]);
             }
         }
 
-        return view('menu.IndikatorMutu.laporan-validator.index', [
+        $startOfMonth = Carbon::create($tahun, $bulan, 1);
+        $kalenderData = [
+            'daysInMonth' => $startOfMonth->daysInMonth,
+            'skip' => $startOfMonth->dayOfWeekIso - 1,
+            'dataPengisian' => collect(),
+            'bulanNama' => $startOfMonth->translatedFormat('F'),
+        ];
+
+        $selectedIndikator = null;
+        if ($selectedIndikatorId) {
+            $selectedIndikator = $indikators->firstWhere('id', $selectedIndikatorId);
+            if ($selectedIndikator) {
+                $calendarUnitId = $selectedIndikator->unit_id ?? $user->unit_id;
+
+                $query = DB::table('tbl_laporan_validator')
+                    ->select('id', 'tanggal_laporan', 'numerator', 'denominator', 'nilai_validator', 'indikator_id', 'unit_id')
+                    ->where('indikator_id', $selectedIndikatorId)
+                    ->whereBetween('tanggal_laporan', [$start, $end])
+                    ->where('unit_id', $calendarUnitId);
+
+                $kalenderData['dataPengisian'] = $query->get()
+                    ->keyBy(function ($item) {
+                        return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
+                    });
+            }
+        }
+
+        $units = [];
+        if (in_array($user->unit_id, [1, 2])) {
+            $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
+        }
+
+        $viewData = [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
-            'periodeAktif' => $periodeAktif,
             'periode' => $periodeAktif,
             'kategoriIndikatorList' => $kategoriIndikatorList,
-            'kategoriIndikator' => $kategoriIndikator,
             'bulan' => $bulan,
             'tahun' => $tahun,
-            'availableMonths' => $availableMonths,
             'kalenderData' => $kalenderData,
             'selectedIndikator' => $selectedIndikator,
-            'selectedIndikatorId' => $selectedIndikatorId,
-            'selectedUnitId' => $selectedUnitId,
-        ]);
+            'selectedIndikatorId' => (int)$selectedIndikatorId,
+            'selectedUnitId' => (int)$selectedUnitId,
+            'units' => $units,
+            'availableMonths' => $availableMonths,
+            'isAdminMutu' => in_array($user->unit_id, [1, 2]),
+            'kategoriIndikator' => $kategoriIndikator,
+        ];
+
+        if ($request->ajax()) {
+            $viewData['noWrapper'] = true;
+            return view('menu.IndikatorMutu.partials._kalender', $viewData);
+        }
+
+        return view('menu.IndikatorMutu.laporan-validator.index', $viewData);
     }
 
 
@@ -247,12 +290,17 @@ class ValidatorDataController extends Controller
             return back()->with('error', 'Indikator tidak ditemukan');
         }
 
+        $unitId = $request->unit_id ?: ($indikatorFull->unit_id ?? auth()->user()->unit_id);
+        
+        $request->merge(['unit_id' => $unitId]);
+
+
         $request->validate([
             'tanggal_laporan' => 'required|date',
             'indikator_id' => 'required',
-            'unit_id' => 'required',
-            'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:0',
+            'unit_id' => 'nullable|exists:tbl_unit,id',
+            'numerator' => 'required|numeric',
+            'denominator' => 'required|numeric',
             'file_laporan' => 'nullable|file|mimes:xlsx,xls,pdf',
         ]);
 
@@ -270,7 +318,7 @@ class ValidatorDataController extends Controller
             $resultDeadline = $this->validasiDeadline(
                 $periodeAktif,
                 $tanggal,
-                $request->unit_id
+                $unitId
             );
 
             if ($resultDeadline !== true) {
@@ -283,14 +331,14 @@ class ValidatorDataController extends Controller
 
             $validationMonth = $this->getBulanValidasi(
                 $request->indikator_id,
-                $request->unit_id,
+                $unitId,
                 $periodeAktif
             );
 
-            if ($tanggal->month != $validationMonth->month || $tanggal->year != $validationMonth->year) {
+            if (!$validationMonth || $tanggal->month != $validationMonth->month || $tanggal->year != $validationMonth->year) {
                 return back()->with(
                     'error',
-                    'Validator hanya boleh diisi pada bulan validasi (' . $validationMonth->translatedFormat('F Y') . ')'
+                    'Validator hanya boleh diisi pada bulan validasi (' . ($validationMonth ? $validationMonth->translatedFormat('F Y') : 'Unknown') . ')'
                 );
             }
 
@@ -300,7 +348,7 @@ class ValidatorDataController extends Controller
             // Pastikan ada minimal 1 data analis di bulan pertama
             $laporanAnalisId = DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $request->indikator_id)
-                ->where('unit_id', $request->unit_id)
+                ->where('unit_id', $unitId)
                 ->whereBetween('tanggal_laporan', [$start, $end])
                 ->value('id');
 
@@ -339,7 +387,7 @@ class ValidatorDataController extends Controller
                 'laporan_analis_id' => $laporanAnalisId,
                 'tanggal_laporan' => $request->tanggal_laporan,
                 'indikator_id' => $request->indikator_id,
-                'unit_id' => $request->unit_id,
+                'unit_id' => $unitId,
                 'numerator' => $request->numerator,
                 'denominator' => $request->denominator,
                 'nilai_validator' => $nilaiValidator !== null ? round($nilaiValidator, 2) : null,
@@ -353,7 +401,7 @@ class ValidatorDataController extends Controller
             // Hitung ulang rata-rata validator bulan pertama (null/N/A diabaikan SQL AVG)
             $rataValidator = DB::table('tbl_laporan_validator')
                 ->where('indikator_id', $request->indikator_id)
-                ->where('unit_id', $request->unit_id)
+                ->where('unit_id', $unitId)
                 ->whereBetween('tanggal_laporan', [$start, $end])
                 ->avg('nilai_validator');
 
@@ -362,7 +410,7 @@ class ValidatorDataController extends Controller
             // Ambil rata-rata nilai analis bulan pertama sebagai acuan status validasi
             $rataAnalis = DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $request->indikator_id)
-                ->where('unit_id', $request->unit_id)
+                ->where('unit_id', $unitId)
                 ->whereBetween('tanggal_laporan', [$start, $end])
                 ->avg('nilai');
 
@@ -374,7 +422,7 @@ class ValidatorDataController extends Controller
             // Update SEMUA row analis bulan pertama agar nilai_validator konsisten di halaman analis
             DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $request->indikator_id)
-                ->where('unit_id', $request->unit_id)
+                ->where('unit_id', $unitId)
                 ->whereBetween('tanggal_laporan', [$start, $end])
                 ->update([
                     'nilai_validator' => $rataValidator,
@@ -449,8 +497,8 @@ class ValidatorDataController extends Controller
         }
 
         $request->validate([
-            'numerator' => 'required|numeric|min:0|lte:denominator',
-            'denominator' => 'required|numeric|min:0',
+            'numerator' => 'required|numeric',
+            'denominator' => 'required|numeric',
             'file_laporan' => 'nullable|file|mimes:xlsx,xls,pdf|max:5120',
         ]);
 
@@ -491,10 +539,10 @@ class ValidatorDataController extends Controller
                 $periodeAktif
             );
 
-            if ($tanggalValidator->month != $validationMonth->month || $tanggalValidator->year != $validationMonth->year) {
+            if (!$validationMonth || $tanggalValidator->month != $validationMonth->month || $tanggalValidator->year != $validationMonth->year) {
                 return back()->with(
                     'error',
-                    'Validator hanya boleh diubah pada bulan validasi (' . $validationMonth->translatedFormat('F') . ')'
+                    'Validator hanya boleh diubah pada bulan validasi (' . ($validationMonth ? $validationMonth->translatedFormat('F') : 'Unknown') . ')'
                 );
             }
 

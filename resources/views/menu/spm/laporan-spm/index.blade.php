@@ -56,6 +56,21 @@
                             </select>
                         </div>
 
+                        @if (in_array(auth()->user()->unit_id, [1, 2]))
+                            <div class="col-md-3">
+                                <label class="filter-label">Unit</label>
+                                <select name="unit_id" class="form-select" onchange="filterForm.submit()">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $u)
+                                        <option value="{{ $u->id }}"
+                                            {{ $selectedUnitId == $u->id ? 'selected' : '' }}>
+                                            {{ $u->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-3">
                             <label class="filter-label">Bulan</label>
                             @php
@@ -94,6 +109,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
+                                            <th class="text-center">AKSI</th>
                                             <th style="min-width: 350px;">SPM</th>
                                             @if ($isAdminMutu)
                                                 <th class="text-center">UNIT</th>
@@ -101,23 +117,30 @@
                                             <th class="text-center">TARGET</th>
                                             <th class="text-center">PENGUMPUL</th>
                                             <th class="text-center">STATUS NILAI</th>
-                                            <th class="text-center">AKSI</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($spms as $spm)
                                             @php
                                                 $key = $spm->id . '-' . $spm->unit_id;
-                                                $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
-                                                $nilaiDenom = $rekapBulanan[$key]->denominator ?? null;
-                                                $key = $spm->id . '-' . $spm->unit_id;
+                                                $nilaiRekap = data_get($rekapBulanan, "$key.nilai_rekap");
+                                                $nilaiDenom = data_get($rekapBulanan, "$key.denominator");
                                                 $isSelected =
-                                                    $selectedSpmId == $spm->id &&
-                                                    $selectedUnitId == $spm->unit_id;
+                                                    $selectedSpmId == $spm->id;
                                             @endphp
 
-                                            <tr>
+                                            <tr onclick="loadCalendar({{ $spm->id }}, {{ $spm->unit_id }})" 
+                                                class="{{ $isSelected ? 'table-active' : '' }}"
+                                                style="cursor: pointer;"
+                                                data-spm-id="{{ $spm->id }}"
+                                                data-unit-id="{{ $spm->unit_id }}">
                                                 <td class="text-center">{{ $loop->iteration }}</td>
+                                                <td class="text-center" onclick="event.stopPropagation()">
+                                                    <a href="javascript:void(0)" onclick="loadCalendar({{ $spm->id }}, {{ $spm->unit_id }}); event.stopPropagation();"
+                                                        title="Lihat Kalender" class="text-decoration-none">
+                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
+                                                    </a>
+                                                </td>
                                                 <td class="fw-semibold">
                                                     {{ $spm->nama_spm }}
                                                 </td>
@@ -196,23 +219,6 @@
                                                         </span>
                                                     @endif
                                                 </td>
-
-                                                {{-- Aksi --}}
-                                                <td class="text-center">
-                                                    <a href="{{ route('laporan-spm.index', [
-                                                        'kategori_spm' =>
-                                                            request()->has('kategori_spm') && request('kategori_spm') !== ''
-                                                                ? request('kategori_spm')
-                                                                : null,
-                                                        'bulan' => request('bulan', $periodeMulai->month),
-                                                        'tahun' => request('tahun', $periodeMulai->year),
-                                                        'spm_id' => $spm->id,
-                                                        'unit_id' => $spm->unit_id,
-                                                    ]) . '#kalenderSection' }}"
-                                                        title="Lihat Kalender" class="text-decoration-none">
-                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
-                                                    </a>
-                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -223,10 +229,12 @@
                     </div>
                 </div>
 
-                @include('menu.spm.partials._kalender', [
-                    'isAnalisPage' => true,
-                    'colClass' => 'col-12 col-xl-auto calendar-column-fixed px-2'
-                ])
+                <div id="calendar-container" class="col-12 col-xl-auto calendar-column-fixed px-2">
+                    @include('menu.spm.partials._kalender', [
+                        'isAnalisPage' => true,
+                        'noWrapper' => true
+                    ])
+                </div>
 
             </div>
         </div>
@@ -239,7 +247,7 @@
                     <div class="modal-header border-0">
                         <div>
                             <h5 class="modal-title text-success fw-semibold">+ Tambah Data Laporan</h5>
-                            <small class="text-muted">{{ $selectedSpm->nama_spm ?? '' }}</small>
+                            <small class="text-muted modal_dynamic_name">{{ $selectedSpm->nama_spm ?? '' }}</small>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -284,7 +292,7 @@
 
                         <div class="modal-footer border-0">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-success" onclick="return validateSpmForm('formInputData')">
+                            <button type="submit" class="btn btn-success">
                                 <i class="bi bi-check-circle"></i> Simpan
                             </button>
                         </div>
@@ -297,9 +305,12 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content" style="border-radius:14px;">
                     <div class="modal-header border-0">
-                        <h5 class="modal-title text-warning fw-semibold">
-                            <i class="bi bi-pencil"></i> Edit Laporan
-                        </h5>
+                        <div>
+                            <h5 class="modal-title text-warning fw-semibold">
+                                <i class="bi bi-pencil"></i> Edit Laporan
+                            </h5>
+                            <small class="text-muted modal_dynamic_name">{{ $selectedSpm->nama_spm ?? '' }}</small>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -331,7 +342,7 @@
 
                         <div class="modal-footer border-0">
                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-warning" onclick="return validateSpmForm('formEditData')">
+                            <button type="submit" class="btn btn-warning">
                                 <i class="bi bi-save"></i> Simpan Perubahan
                             </button>
                         </div>
@@ -362,8 +373,6 @@
         function openInputModal(tanggalLaporan) {
             document.getElementById('formInputData').reset();
 
-            document.getElementById('modal_spm_id').value = {{ $selectedSpmId ?? 'null' }};
-            document.getElementById('modal_unit_id').value = {{ $selectedUnitId ?? 'null' }};
             document.getElementById('tanggal_laporan').value = tanggalLaporan;
 
             const tgl = new Date(tanggalLaporan);
@@ -457,16 +466,77 @@
                     ).show();
                 });
         }
-        function validateSpmForm(formId) {
-            const form = document.getElementById(formId);
-            const num = parseFloat(form.querySelector('input[name="numerator"]').value);
-            const den = parseFloat(form.querySelector('input[name="denominator"]').value);
+        // function validateSpmForm(formId) {
+        //     const form = document.getElementById(formId);
+        //     const num = parseFloat(form.querySelector('input[name="numerator"]').value);
+        //     const den = parseFloat(form.querySelector('input[name="denominator"]').value);
 
-            if (num > den) {
-                alert('Numerator tidak boleh lebih besar dari Denominator!');
-                return false;
-            }
-            return true;
+        //     if (num > den) {
+        //         alert('Numerator tidak boleh lebih besar dari Denominator!');
+        //         return false;
+        //     }
+        //     return true;
+        // }
+        // AJAX Calendar Loader
+        function loadCalendar(id, unitId) {
+            const container = document.getElementById('calendar-container');
+            container.style.opacity = '0.5';
+
+            const bulan = document.querySelector('select[name="bulan"]').value;
+            const tahun = document.querySelector('select[name="tahun"]').value;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('spm_id', id);
+            url.searchParams.set('bulan', bulan);
+            url.searchParams.set('tahun', tahun);
+
+            // Update modal context
+            const modalSpmId = document.getElementById('modal_spm_id');
+            const modalUnitId = document.getElementById('modal_unit_id');
+            if (modalSpmId) modalSpmId.value = id || '';
+            if (modalUnitId) modalUnitId.value = unitId || '';
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                container.style.opacity = '1';
+                
+                // Update URL without reload
+                window.history.pushState({}, '', url);
+
+                // Update highlights
+                document.querySelectorAll('tr[onclick^="loadCalendar"]').forEach(tr => {
+                    tr.classList.remove('table-active');
+                    const icon = tr.querySelector('i.bi-calendar-check-fill');
+                    if (icon) {
+                        icon.classList.replace('bi-calendar-check-fill', 'bi-calendar-check');
+                    }
+                });
+
+                const selectedRow = document.querySelector(`tr[data-spm-id="${id}"][data-unit-id="${unitId}"]`);
+                if (selectedRow) {
+                    selectedRow.classList.add('table-active');
+                    const icon = selectedRow.querySelector('i.bi-calendar-check');
+                    if (icon) {
+                        icon.classList.replace('bi-calendar-check', 'bi-calendar-check-fill');
+                    }
+                    
+                    const namaSpm = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
+                    document.querySelectorAll('.modal_dynamic_name').forEach(el => {
+                        el.textContent = namaSpm;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.style.opacity = '1';
+                window.location.href = url.href; // Fallback
+            });
         }
     </script>
 

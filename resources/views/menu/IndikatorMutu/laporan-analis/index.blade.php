@@ -21,21 +21,36 @@
                 <div class="col">
                     <form id="filterForm" method="GET" action="{{ url()->current() }}"
                         class="row g-3 align-items-end">
+                        @if (in_array(auth()->user()->unit_id, [1, 2]))
+                            <div class="col-md-3">
+                                <label class="filter-label">Unit</label>
+                                <select name="unit_id" class="form-select" onchange="filterForm.submit()">
+                                    <option value="">-- Semua Unit --</option>
+                                    @foreach ($units as $u)
+                                        <option value="{{ $u->id }}"
+                                            {{ $selectedUnitId == $u->id ? 'selected' : '' }}>
+                                            {{ $u->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
+
                         <div class="col-md-3">
                             <label class="filter-label">Jenis Indikator</label>
                             <select name="kategori_indikator" class="form-select"
                                 onchange="document.getElementById('filterForm').submit()">
                                 <option value="">-- Semua Indikator --</option>
                                 <option value="prioritas unit"
-                                    {{ request('kategori_indikator') == 'prioritas unit' ? 'selected' : '' }}>
+                                    {{ ($kategoriIndikator ?? '') == 'prioritas unit' ? 'selected' : '' }}>
                                     Prioritas Unit
                                 </option>
                                 <option value="nasional"
-                                    {{ request('kategori_indikator') == 'nasional' ? 'selected' : '' }}>
+                                    {{ ($kategoriIndikator ?? '') == 'nasional' ? 'selected' : '' }}>
                                     Nasional
                                 </option>
                                 <option value="prioritas rs"
-                                    {{ request('kategori_indikator') == 'prioritas rs' ? 'selected' : '' }}>
+                                    {{ ($kategoriIndikator ?? '') == 'prioritas rs' ? 'selected' : '' }}>
                                     Prioritas RS
                                 </option>
                             </select>
@@ -95,6 +110,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">NO</th>
+                                            <th class="text-center">AKSI</th>
                                             <th style="min-width: 350px;">INDIKATOR</th>
                                             @if ($isAdminMutu)
                                                 <th class="text-center">UNIT</th>
@@ -104,19 +120,16 @@
                                             <th class="text-center">VALIDATOR</th>
                                             <th class="text-center">STATUS VALIDASI</th>
                                             <th class="text-center">STATUS NILAI</th>
-                                            <th class="text-center">AKSI</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($indikators as $indikator)
                                             @php
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
-                                                $nilaiRekap = $rekapBulanan[$key]->nilai_rekap ?? null;
-                                                $nilaiDenom = $rekapBulanan[$key]->denominator ?? null;
-                                                $key = $indikator->id . '-' . $indikator->unit_id;
+                                                $nilaiRekap = data_get($rekapBulanan, "$key.nilai_rekap");
+                                                $nilaiDenom = data_get($rekapBulanan, "$key.denominator");
                                                 $isSelected =
-                                                    $selectedIndikatorId == $indikator->id &&
-                                                    $selectedUnitId == $indikator->unit_id;
+                                                    $selectedIndikatorId == $indikator->id;
 
                                                 $colColor = '';
                                                 $filterKategori = strtolower(request('kategori_indikator'));
@@ -141,8 +154,18 @@
                                                 }
                                             @endphp
 
-                                            <tr>
+                                            <tr onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }})" 
+                                                class="{{ $isSelected ? 'table-active' : '' }}"
+                                                style="cursor: pointer;"
+                                                data-indikator-id="{{ $indikator->id }}"
+                                                data-unit-id="{{ $indikator->unit_id }}">
                                                 <td class="text-center">{{ $loop->iteration }}</td>
+                                                <td class="text-center" onclick="event.stopPropagation()">
+                                                    <a href="javascript:void(0)" onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }}); event.stopPropagation();"
+                                                        title="Lihat Kalender" class="text-decoration-none">
+                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
+                                                    </a>
+                                                </td>
                                                 <td class="{{ $colColor }} fw-semibold">
                                                     {{ $indikator->nama_indikator }}
                                                 </td>
@@ -216,11 +239,6 @@
                                                             <span class="fw-semibold">
                                                                 {{ fmod($nilaiValidator, 1) == 0 ? number_format($nilaiValidator, 0) : number_format($nilaiValidator, 1) }}%
                                                             </span>
-                                                            @if($isDifferentMonth)
-                                                                <small class="text-muted" style="font-size: 0.7rem;">
-                                                                    (Divalidasi {{ $vMonthName }})
-                                                                </small>
-                                                            @endif
                                                         </div>
                                                     @endif
                                                 </td>
@@ -265,22 +283,6 @@
                                                         </span>
                                                     @endif
                                                 </td>
-
-                                                <td class="text-center">
-                                                    <a href="{{ route('laporan-analis.index', [
-                                                        'kategori_indikator' =>
-                                                            request()->has('kategori_indikator') && request('kategori_indikator') !== ''
-                                                                ? request('kategori_indikator')
-                                                                : null,
-                                                        'bulan' => $bulan,
-                                                        'tahun' => $tahun,
-                                                        'indikator_id' => $indikator->id,
-                                                        'unit_id' => $indikator->unit_id,
-                                                    ]) . '#kalenderSection' }}"
-                                                        title="Lihat Kalender" class="text-decoration-none">
-                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
-                                                    </a>
-                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -291,10 +293,12 @@
                     </div>
                 </div>
 
-                @include('menu.IndikatorMutu.partials._kalender', [
-                    'isValidatorPage' => false,
-                    'colClass' => 'col-12 col-xl-auto calendar-column-fixed px-2'
-                ])
+                <div id="calendar-container" class="col-12 col-xl-auto calendar-column-fixed px-2">
+                    @include('menu.IndikatorMutu.partials._kalender', [
+                        'isValidatorPage' => false,
+                        'noWrapper' => true
+                    ])
+                </div>
 
             </div>
         </div>
@@ -307,7 +311,7 @@
                     <div class="modal-header border-0">
                         <div>
                             <h5 class="modal-title text-success fw-semibold">+ Tambah Data Laporan</h5>
-                            <small class="text-muted">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
+                            <small class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -317,8 +321,8 @@
                         @csrf
                         <div class="modal-body">
                             <input type="hidden" name="indikator_id" id="modal_indikator_id"
-                                value="{{ $selectedIndikatorId }}">
-                            <input type="hidden" name="unit_id" id="modal_unit_id" value="{{ $selectedUnitId }}">
+                                value="{{ $selectedIndikator->id ?? '' }}">
+                            <input type="hidden" name="unit_id" id="modal_unit_id" value="{{ $selectedIndikator->unit_id ?? '' }}">
                             <input type="hidden" name="bulan" value="{{ request('bulan', $periodeMulai->month) }}">
                             <input type="hidden" name="tahun" value="{{ request('tahun', $periodeMulai->year) }}">
                             <input type="hidden" name="kategori_indikator" value="{{ request('kategori_indikator') }}">
@@ -365,9 +369,12 @@
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content" style="border-radius:14px;">
                     <div class="modal-header border-0">
-                        <h5 class="modal-title text-warning fw-semibold">
-                            <i class="bi bi-pencil"></i> Edit Laporan
-                        </h5>
+                        <div>
+                            <h5 class="modal-title text-warning fw-semibold">
+                                <i class="bi bi-pencil"></i> Edit Laporan
+                            </h5>
+                            <small class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
+                        </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -430,8 +437,6 @@
         function openInputModal(tanggalLaporan) {
             document.getElementById('formInputData').reset();
 
-            document.getElementById('modal_indikator_id').value = {{ $selectedIndikatorId ?? 'null' }};
-            document.getElementById('modal_unit_id').value = {{ $selectedUnitId ?? 'null' }};
             document.getElementById('tanggal_laporan').value = tanggalLaporan;
 
             const tgl = new Date(tanggalLaporan);
@@ -521,6 +526,65 @@
                         document.getElementById('modalEditData')
                     ).show();
                 });
+        }
+        // AJAX Calendar Loader
+        function loadCalendar(id, unitId) {
+            const container = document.getElementById('calendar-container');
+            container.style.opacity = '0.5';
+
+            const bulan = document.querySelector('select[name="bulan"]').value;
+            const tahun = document.querySelector('select[name="tahun"]').value;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('indikator_id', id);
+            url.searchParams.set('bulan', bulan);
+            url.searchParams.set('tahun', tahun);
+
+            // Anticipate modal update
+            document.getElementById('modal_indikator_id').value = id || '';
+            document.getElementById('modal_unit_id').value = unitId || '';
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                container.innerHTML = html;
+                container.style.opacity = '1';
+                
+                // Update URL without reload
+                window.history.pushState({}, '', url);
+
+                // Update highlights
+                document.querySelectorAll('tr[onclick^="loadCalendar"]').forEach(tr => {
+                    tr.classList.remove('table-active');
+                    const icon = tr.querySelector('i.bi-calendar-check-fill');
+                    if (icon) {
+                        icon.classList.replace('bi-calendar-check-fill', 'bi-calendar-check');
+                    }
+                });
+
+                const selectedRow = document.querySelector(`tr[data-indikator-id="${id}"][data-unit-id="${unitId}"]`);
+                if (selectedRow) {
+                    selectedRow.classList.add('table-active');
+                    const icon = selectedRow.querySelector('i.bi-calendar-check');
+                    if (icon) {
+                        icon.classList.replace('bi-calendar-check', 'bi-calendar-check-fill');
+                    }
+                    
+                    const namaIndikator = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
+                    document.querySelectorAll('.modal_dynamic_name').forEach(el => {
+                        el.textContent = namaIndikator;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                container.style.opacity = '1';
+                window.location.href = url.href; // Fallback
+            });
         }
     </script>
 

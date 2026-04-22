@@ -1,15 +1,16 @@
-@if ($kalenderData)
+@if (!isset($noWrapper) || !$noWrapper)
     <div class="{{ $colClass ?? 'col-5 col-lg-5 col-md-5' }} px-2">
-        <div class="card" id="kalenderSection">
+@endif
+    <div class="card" id="kalenderSection">
             <div class="card-header">
                 <div class="d-flex justify-content-center align-items-center text-center">
                     <div>
-                        <h5 class="mb-1">{{ $selectedIndikator->nama_indikator }}</h5>
+                        <h5 class="mb-1">{{ $selectedIndikator->nama_indikator ?? 'Tidak ada data' }}</h5>
                         <small class="text-muted">
-                            @if ($isAdminMutu)
+                            @if (($isAdminMutu ?? false) && isset($selectedIndikator->nama_unit))
                                 {{ $selectedIndikator->nama_unit }} -
                             @endif
-                            {{ $kalenderData['bulanNama'] }}
+                            {{ $kalenderData['bulanNama'] ?? '' }}
                         </small>
                     </div>
                 </div>
@@ -59,5 +60,6 @@
                 </div>
             </div>
         </div>
-    </div>
-@endif
+    @if (!isset($noWrapper) || !$noWrapper)
+        </div>
+    @endif

@@ -30,8 +30,49 @@ class AnalisaSpmController extends Controller
             $periodeSelesai->year
         );
         
-        $tahun = $request->tahun ?? $periodeMulai->year;
-        $bulan = $request->bulan ?? $periodeMulai->month;
+        // Reset filters if coming from a different page
+        $prevPath = parse_url(url()->previous(), PHP_URL_PATH);
+        $currPath = $request->getPathInfo();
+        if ($prevPath !== $currPath && !$request->ajax() && !$request->hasAny(['bulan', 'tahun', 'unit_id', 'kategori_spm', 'page'])) {
+            session()->forget('simmutu_filters');
+        }
+
+        // Use structured session for filters
+        $filters = session('simmutu_filters', []);
+
+        if (!$request->has('bulan')) {
+            $bulan = $filters['bulan'] ?? null;
+            $tahun = $filters['tahun'] ?? null;
+            
+            if (!$bulan || !$tahun) {
+                $bulan = $periodeMulai->month;
+                $tahun = $periodeMulai->year;
+            }
+        } else {
+            $bulan = (int)$request->bulan;
+            $tahun = (int)$request->tahun;
+        }
+
+        $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
+        if (in_array($roleId, [1, 2])) {
+            if ($request->has('unit_id')) {
+                $unitIdFilter = $request->unit_id;
+            }
+        } else {
+            $unitIdFilter = $user->unit_id;
+        }
+
+        $kategori = $request->kategori_spm ?? ($filters['kategori'] ?? null);
+
+        // Update session with new structured data
+        $filters = [
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+            'unit_id' => $unitIdFilter,
+            'kategori' => $kategori
+        ];
+        session(['simmutu_filters' => $filters]);
+
         $kategori = $request->kategori_spm ?? null;
 
         $spmsQuery = DB::table('tbl_spm')
@@ -44,8 +85,8 @@ class AnalisaSpmController extends Controller
             ->select('tbl_spm.*', 'tbl_unit.nama_unit')
             ->where('tbl_spm.status_spm', 'aktif');
             
-        if (!in_array($roleId, [1, 2])) {
-            $spmsQuery->where('tbl_spm.unit_id', $user->unit_id);
+        if ($unitIdFilter) {
+            $spmsQuery->where('tbl_spm.unit_id', $unitIdFilter);
         }
         $spms = $spmsQuery->get();
 
@@ -58,22 +99,22 @@ class AnalisaSpmController extends Controller
             ->whereYear('tanggal_analisa', $tahun)
             ->whereMonth('tanggal_analisa', $bulan)
             ->whereIn('spm_id', $spmIds)
-            ->when(
-                !in_array($roleId, [1, 2]),
-                fn($q) => $q->where('unit_id', $user->unit_id)
-            )
             ->get()
             ->keyBy('spm_id');
 
         $analisaData = [];
 
         foreach ($spms as $spm) {
-            $analisa = $analisaRows[$spm->id] ?? null;
-
+            $rowAnalisa = $analisaRows->get($spm->id);
             $analisaData[$spm->id] = [
-                'analisa' => $analisa->analisa ?? '-',
-                'tindak_lanjut' => $analisa->tindak_lanjut ?? '-',
+                'analisa' => optional($rowAnalisa)->analisa ?? '-',
+                'tindak_lanjut' => optional($rowAnalisa)->tindak_lanjut ?? '-',
             ];
+        }
+
+        $units = [];
+        if (in_array($roleId, [1, 2])) {
+            $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
         }
 
         return view('menu.spm.analisa-spm.index', [
@@ -85,7 +126,9 @@ class AnalisaSpmController extends Controller
             'periodeSelesai' => $periodeSelesai,
             'tahunDipilih' => $tahun,
             'bulanDipilih' => $bulan,
-            'kategoriDipilih' => $kategori
+            'kategoriDipilih' => $kategori,
+            'units' => $units,
+            'selectedUnitId' => (int)$unitIdFilter,
         ]);
     }
 
@@ -98,10 +141,14 @@ class AnalisaSpmController extends Controller
 
         $tanggalAnalisa = Carbon::createFromDate($tahun, $bulan, 1);
 
+        $unitId = (in_array($user->unit_id, [1, 2])) 
+            ? ($request->unit_id ?? $user->unit_id) 
+            : $user->unit_id;
+
         SpmHasilAnalisa::updateOrCreate(
             [
                 'spm_id' => $request->spm_id,
-                'unit_id' => $user->unit_id,
+                'unit_id' => $unitId,
                 'tanggal_analisa' => $tanggalAnalisa->format('Y-m-d')
             ],
             [
