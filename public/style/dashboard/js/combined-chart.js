@@ -482,7 +482,7 @@
                 animation: false, // Disable animations for performance
                 responsive: true,
                 maintainAspectRatio: false,
-                layout: { padding: { bottom: 35 } },
+                layout: { padding: { bottom: 50 } },
                 plugins: {
                     legend: { display: false },
                     pencapaianLabel: { enabled: true },

@@ -124,7 +124,7 @@ function renderChart(targetData = [], realisasiData = []) {
             maintainAspectRatio: false,
             layout: {
                 padding: {
-                    bottom: 30
+                    bottom: 45
                 }
             },
             plugins: {

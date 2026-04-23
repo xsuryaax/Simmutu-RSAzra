@@ -949,6 +949,18 @@ html {
 .modal.modal-borderless .modal-footer {
   border-top: 0;
 }
+
+/* Fix modal backdrop/overlay at body zoom: 90% */
+.modal-backdrop {
+  width: calc(100% / 0.9) !important;
+  height: calc(100% / 0.9) !important;
+  top: 0;
+  left: 0;
+}
+.modal {
+  width: calc(100% / 0.9) !important;
+  height: calc(100% / 0.9) !important;
+}
 #sidebar.active .sidebar-wrapper {
   left: 0;
   width: 230px;
@@ -1009,7 +1021,7 @@ html {
 
 .sidebar-wrapper {
   width: 230px;
-  height: 100vh;
+  height: calc(100vh / 0.9);
   position: fixed;
   top: 0;
   z-index: 10;
@@ -1023,8 +1035,8 @@ html {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: calc(100vw / 0.9);
+  height: calc(100vh / 0.9);
   background-color: rgba(0, 0, 0, 0.4);
   z-index: 9;
 }

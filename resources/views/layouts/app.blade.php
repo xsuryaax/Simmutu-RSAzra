@@ -27,7 +27,7 @@
     @stack('css')
 </head>
 
-<body>
+<body style="zoom: 90%;">
     <div id="app">
 
         {{-- Sidebar --}}
