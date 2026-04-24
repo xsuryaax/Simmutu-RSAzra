@@ -73,7 +73,22 @@
     align-items: center;
 }
 
+.dt-actions-group select {
+    border-radius: 20px !important;
+    padding: 8px 12px !important;
+    border: 1.5px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    font-size: 0.85rem !important;
+    height: 38px !important;
+    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
+.dt-actions-group select:focus {
+    border-color: #007774 !important;
+    background-color: #fff !important;
+    box-shadow: 0 0 0 4px rgba(0, 119, 116, 0.1) !important;
+    outline: none !important;
+}
 
 .dataTables_wrapper .dataTables_info {
     display: none !important;

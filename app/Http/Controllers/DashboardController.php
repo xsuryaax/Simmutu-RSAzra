@@ -64,6 +64,7 @@ class DashboardController extends Controller
             'pdsaList' => collect(),
 
             'totalIndikator' => DB::table('tbl_indikator')->count(),
+            'totalIndikatorSpm' => DB::table('tbl_spm')->count(),
             'years' => $this->getYears(),
             'tahunAktif'  => $tahunAktif,
             'daftarTahun' => $daftarTahun,
@@ -345,7 +346,11 @@ class DashboardController extends Controller
                     EXTRACT(MONTH FROM tanggal_laporan) as bulan,
                     SUM(numerator) as total_numerator,
                     SUM(denominator) as total_denominator,
-                    AVG(nilai) as rata_nilai
+                    CASE 
+                        WHEN SUM(denominator) > 0 THEN ROUND(SUM(numerator) * 100.0 / SUM(denominator), 2)
+                        WHEN SUM(numerator) = 0 AND SUM(denominator) = 0 THEN NULL
+                        ELSE 0
+                    END as rekap_nilai
                 ')
                 ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
                 ->get()
@@ -358,7 +363,11 @@ class DashboardController extends Controller
                     EXTRACT(MONTH FROM tanggal_laporan) as bulan,
                     SUM(numerator) as total_numerator,
                     SUM(denominator) as total_denominator,
-                    CAST(AVG(nilai) AS numeric) as rata_nilai
+                    CASE 
+                        WHEN SUM(denominator) > 0 THEN ROUND(SUM(numerator) * 100.0 / SUM(denominator), 2)
+                        WHEN SUM(numerator) = 0 AND SUM(denominator) = 0 THEN NULL
+                        ELSE 0
+                    END as rekap_nilai
                 ')
                 ->groupBy(DB::raw('EXTRACT(MONTH FROM tanggal_laporan)'))
                 ->get()
@@ -370,7 +379,7 @@ class DashboardController extends Controller
         
         foreach (range(1, 12) as $m) {
             $rep = $reports->get($m);
-            $pencapaian = $rep ? round($rep->rata_nilai, 2) : 0;
+            $pencapaian = $rep ? round($rep->rekap_nilai, 2) : 0;
             
             $monthlyData[] = [
                 'bulan' => $m,

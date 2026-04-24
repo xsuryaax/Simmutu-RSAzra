@@ -50,7 +50,8 @@ trait DashboardChartTrait
                 l.indikator_id,
                 l.unit_id,
                 EXTRACT(MONTH FROM l.tanggal_laporan) AS bulan,
-                ROUND(CAST(AVG(l.nilai) AS numeric), 2) AS nilai
+                SUM(l.numerator) AS total_numerator,
+                SUM(l.denominator) AS total_denominator
             ')
             ->groupBy('l.indikator_id', 'l.unit_id', DB::raw('EXTRACT(MONTH FROM l.tanggal_laporan)'))
             ->get()
@@ -81,11 +82,27 @@ trait DashboardChartTrait
             $target = array_fill(0, 12, (float) $ind->target_indikator);
             $hasil  = array_fill(0, 12, null);
 
+            $monthlyNum = array_fill(0, 12, 0);
+            $monthlyDen = array_fill(0, 12, 0);
+            $hasData = array_fill(0, 12, false);
+
             foreach ($laporan->get($ind->id, collect()) as $row) {
                 $b = (int)$row->bulan - 1;
-                $hasil[$b] = $hasil[$b] === null
-                    ? (float) $row->nilai
-                    : round(($hasil[$b] + (float) $row->nilai) / 2, 2);
+                $monthlyNum[$b] += (float) $row->total_numerator;
+                $monthlyDen[$b] += (float) $row->total_denominator;
+                $hasData[$b] = true;
+            }
+
+            foreach (range(0, 11) as $b) {
+                if ($hasData[$b]) {
+                    if ($monthlyNum[$b] == 0 && $monthlyDen[$b] == 0) {
+                        $hasil[$b] = null;
+                    } else {
+                        $hasil[$b] = $monthlyDen[$b] > 0 
+                            ? round(($monthlyNum[$b] / $monthlyDen[$b]) * 100, 2)
+                            : 0;
+                    }
+                }
             }
 
             return [
@@ -126,13 +143,27 @@ trait DashboardChartTrait
 
         $result = $indikators->map(function ($ind) use ($laporan) {
             $target = array_fill(0, 12, (float) $ind->target_indikator);
-            $hasil  = array_fill(0, 12, null);
+            $monthlyNum = array_fill(0, 12, 0);
+            $monthlyDen = array_fill(0, 12, 0);
+            $hasData = array_fill(0, 12, false);
 
             foreach ($laporan->get($ind->id, collect()) as $row) {
                 $b = (int)$row->bulan - 1;
-                $hasil[$b] = $hasil[$b] === null
-                    ? (float) $row->nilai
-                    : round(($hasil[$b] + (float) $row->nilai) / 2, 2);
+                $monthlyNum[$b] += (float) $row->total_numerator;
+                $monthlyDen[$b] += (float) $row->total_denominator;
+                $hasData[$b] = true;
+            }
+
+            foreach (range(0, 11) as $b) {
+                if ($hasData[$b]) {
+                    if ($monthlyNum[$b] == 0 && $monthlyDen[$b] == 0) {
+                        $hasil[$b] = null;
+                    } else {
+                        $hasil[$b] = $monthlyDen[$b] > 0 
+                            ? round(($monthlyNum[$b] / $monthlyDen[$b]) * 100, 2)
+                            : 0;
+                    }
+                }
             }
 
             return [
@@ -179,7 +210,14 @@ trait DashboardChartTrait
                             ->where('unit_id', $ind->unit_id);
 
             foreach ($rows as $row) {
-                $hasil[(int)$row->bulan - 1] = (float) $row->nilai;
+                $b = (int)$row->bulan - 1;
+                if ($row->total_numerator == 0 && $row->total_denominator == 0) {
+                    $hasil[$b] = null;
+                } else {
+                    $hasil[$b] = $row->total_denominator > 0 
+                        ? round(($row->total_numerator / $row->total_denominator) * 100, 2)
+                        : 0;
+                }
             }
 
             return [
@@ -224,7 +262,8 @@ trait DashboardChartTrait
             ->selectRaw('
                 l.spm_id,
                 EXTRACT(MONTH FROM l.tanggal_laporan) AS bulan,
-                ROUND(CAST(AVG(l.nilai) AS numeric), 2) AS nilai
+                SUM(l.numerator) AS total_numerator,
+                SUM(l.denominator) AS total_denominator
             ')
             ->groupBy('l.spm_id', DB::raw('EXTRACT(MONTH FROM l.tanggal_laporan)'))
             ->get()
@@ -235,7 +274,14 @@ trait DashboardChartTrait
             $hasil  = array_fill(0, 12, null);
 
             foreach ($laporan->get($spm->id, collect()) as $row) {
-                $hasil[(int)$row->bulan - 1] = (float) $row->nilai;
+                $b = (int)$row->bulan - 1;
+                if ($row->total_numerator == 0 && $row->total_denominator == 0) {
+                    $hasil[$b] = null;
+                } else {
+                    $hasil[$b] = $row->total_denominator > 0 
+                        ? round(($row->total_numerator / $row->total_denominator) * 100, 2)
+                        : 0;
+                }
             }
 
             return [

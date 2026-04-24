@@ -139,7 +139,9 @@
                                 <h6 class="fw-bold mb-0 text-dark" id="mdIndikatorTitleBody">—</h6>
                             </div>
                             <div class="btn-group btn-group-sm shadow-sm" role="group" id="mdQuarterGroup">
-                                <button class="btn btn-primary active md-btn-quarter" data-q="Tahun">Tahun / All</button>
+                                <button class="btn btn-primary active md-btn-quarter" data-q="Tahun">All</button>
+                                <button class="btn btn-light md-btn-quarter border" data-q="S1">S1</button>
+                                <button class="btn btn-light md-btn-quarter border" data-q="S2">S2</button>
                                 <button class="btn btn-light md-btn-quarter border" data-q="Q1">Q1</button>
                                 <button class="btn btn-light md-btn-quarter border" data-q="Q2">Q2</button>
                                 <button class="btn btn-light md-btn-quarter border" data-q="Q3">Q3</button>

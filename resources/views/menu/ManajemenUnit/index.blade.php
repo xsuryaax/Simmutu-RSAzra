@@ -13,18 +13,14 @@
         <div class="row">
             <div class="col-6 col-lg-4 col-md-6">
                 <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                                <h6 class="text-muted font-semibold">
-                                    Total Unit
-                                </h6>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-muted font-bold small mb-1">Total Unit</h6>
                                 <h6 class="font-extrabold mb-0">{{ $totalUnit }}</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon purple mb-2">
-                                    <i class="bi bi-buildings"></i>
-                                </div>
+                            <div class="stats-icon purple" style="width: 3rem; height: 3rem;">
+                                <i class="bi bi-buildings" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -32,16 +28,14 @@
             </div>
             <div class="col-6 col-lg-4 col-md-6">
                 <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                                <h6 class="text-muted font-semibold">Unit Aktif</h6>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-muted font-bold small mb-1">Unit Aktif</h6>
                                 <h6 class="font-extrabold mb-0">{{ $unitAktif }}</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon green mb-2">
-                                    <i class="bi bi-building-check"></i>
-                                </div>
+                            <div class="stats-icon green" style="width: 3rem; height: 3rem;">
+                                <i class="bi bi-building-check" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -49,16 +43,14 @@
             </div>
             <div class="col-6 col-lg-4 col-md-6">
                 <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                                <h6 class="text-muted font-semibold">Unit Tidak Aktif</h6>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-muted font-bold small mb-1">Unit Tidak Aktif</h6>
                                 <h6 class="font-extrabold mb-0">{{ $unitNonAktif }}</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon red mb-2">
-                                    <i class="bi bi-building-x"></i>
-                                </div>
+                            <div class="stats-icon red" style="width: 3rem; height: 3rem;">
+                                <i class="bi bi-building-x" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -145,7 +137,7 @@
                     </div>
                     <div class="card-body">
 
-                        <table class="table table-striped" id="table1">
+                        <table class="table table-striped table-sm" id="table1">
                                 <thead>
                                     <tr>
                                         <th>No</th>

@@ -197,7 +197,7 @@ class LaporanSpmController extends Controller
             ->select(
                 'l.spm_id',
                 'l.unit_id',
-                DB::raw('ROUND(AVG(l.nilai),2) as nilai_rekap'),
+                DB::raw('ROUND(SUM(l.numerator) * 100.0 / NULLIF(SUM(l.denominator), 0), 2) as nilai_rekap'),
                 DB::raw('SUM(l.denominator) as denominator')
             )
             ->groupBy('l.spm_id', 'l.unit_id')

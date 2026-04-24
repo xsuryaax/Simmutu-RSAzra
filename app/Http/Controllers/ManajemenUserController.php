@@ -9,28 +9,34 @@ use Illuminate\Http\Request;
 class ManajemenUserController extends Controller
 {
     // Display list of users
-    public function index()
+    public function index(Request $request)
     {
+        $selectedUnit = $request->get('unit_id');
+        
         $roles = DB::table('tbl_role')->orderBy('id', 'ASC')->get();
 
         $units = DB::table('tbl_unit')->where('status_unit', 'aktif')->orderBy('nama_unit')->get();
 
-        $users = DB::table('users')
+        $query = DB::table('users')
             ->leftJoin('tbl_role', 'users.role_id', '=', 'tbl_role.id')
             ->leftJoin('tbl_unit', 'users.unit_id', '=', 'tbl_unit.id')
             ->select(
                 'users.*',
                 'tbl_role.nama_role',
                 'tbl_unit.nama_unit'
-            )
-            ->orderBy('users.id', 'ASC')
-            ->get();
+            );
+
+        if ($selectedUnit) {
+            $query->where('users.unit_id', $selectedUnit);
+        }
+
+        $users = $query->orderBy('users.id', 'ASC')->get();
 
         $totalUser = DB::table('users')->count();
         $totalAktif = DB::table('users')->where('status_user', 'aktif')->count();
         $totalNonaktif = $totalUser - $totalAktif;
 
-        return view('menu.ManajemenUser.index', compact('users', 'roles', 'units', 'totalUser', 'totalAktif', 'totalNonaktif'));
+        return view('menu.ManajemenUser.index', compact('users', 'roles', 'units', 'totalUser', 'totalAktif', 'totalNonaktif', 'selectedUnit'));
     }
 
     // Store new user

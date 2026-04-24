@@ -13,7 +13,7 @@
     const config = window.DashboardChartConfig || {};
     const CHART_URL   = config.chartUrl;
     const MONTHS_ALL  = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-    const QUARTER_MAP = { Tahun:[0,12], Q1:[0,3], Q2:[3,6], Q3:[6,9], Q4:[9,12] };
+    const QUARTER_MAP = { Tahun:[0,12], Q1:[0,3], Q2:[3,6], Q3:[6,9], Q4:[9,12], S1:[0,6], S2:[6,12] };
 
     // ─────────────────────────────────────────────────────────
     // HELPERS
@@ -469,7 +469,7 @@
                         label: 'Standar',
                         data: target,
                         borderColor: '#2c7be5',
-                        backgroundColor: 'transparent',
+                        backgroundColor: currentChartType === 'bar' ? '#2c7be588' : 'transparent',
                         borderWidth: 2,
                         tension: 0.35,
                         pointRadius: 0,
@@ -671,7 +671,7 @@
                         label: 'Standar',
                         data: target,
                         borderColor: '#2c7be5',
-                        backgroundColor: 'transparent',
+                        backgroundColor: currentChartType === 'bar' ? '#2c7be588' : 'transparent',
                         borderWidth: 2,
                         tension: 0.35,
                         pointRadius: 0,
@@ -780,7 +780,7 @@
                         label: 'Standar',
                         data: target,
                         borderColor: '#2c7be5',
-                        backgroundColor: 'transparent',
+                        backgroundColor: currentChartType === 'bar' ? '#2c7be588' : 'transparent',
                         borderWidth: 2,
                         tension: 0.35,
                         pointRadius: 0,
@@ -965,13 +965,15 @@
 
                 if (m.pencapaian !== null) {
                     totalPencapaian += parseFloat(m.pencapaian);
+                    totalNum += parseFloat(m.numerator);
+                    totalDen += parseFloat(m.denominator);
                     validMonths++;
                 }
             });
 
-            // Add Summary Row for Quarter
+            // Add Summary Row for filter (Quarter/Semester)
             if (currentModalQuarter !== 'Tahun') {
-                const avgPencapaian = validMonths > 0 ? (totalPencapaian / 3) : 0; // Divided by 3 months in a quarter
+                const avgPencapaian = totalDen > 0 ? (totalNum / totalDen * 100) : 0;
                 const target = parseFloat(data.meta.target_indikator);
                 let avgAchieved = false;
                 if (data.meta.arah_target === 'lebih_kecil') {
@@ -983,10 +985,12 @@
                 const avgColorClass = avgAchieved ? 'text-success' : 'text-danger';
                 const avgLabel = avgAchieved ? 'Tercapai' : 'Tidak Tercapai';
                 const avgPencapaianVal = Number(avgPencapaian).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + '%';
+                
+                const periodLabel = currentModalQuarter.startsWith('S') ? 'Semester' : 'Kuartal';
 
                 tbodyBulanan.innerHTML += `
                     <tr class="table-secondary">
-                        <td colspan="3" class="fw-bold text-center py-2">Rata-rata ${currentModalQuarter} (${avgLabel}):</td>
+                        <td colspan="3" class="fw-bold text-center py-2">Rekap ${periodLabel} ${currentModalQuarter} (${avgLabel}):</td>
                         <td class="fw-bold py-2 text-center border-start border-light ${avgColorClass}">${avgPencapaianVal}</td>
                     </tr>
                 `;
@@ -1059,7 +1063,7 @@
                             label: 'Standar',
                             data: activeTargetArray,
                             borderColor: '#2c7be5',
-                            backgroundColor: 'transparent',
+                            backgroundColor: currentChartType === 'bar' ? '#2c7be588' : 'transparent',
                             borderWidth: 2,
                             tension: 0.35,
                             pointRadius: 0,

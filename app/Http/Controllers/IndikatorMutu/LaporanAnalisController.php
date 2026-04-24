@@ -239,8 +239,8 @@ class LaporanAnalisController extends Controller
             ->select(
                 'l.indikator_id',
                 'l.unit_id',
-                DB::raw('ROUND(AVG(l.nilai),2) as nilai_rekap'),
-                DB::raw('ROUND(AVG(l.nilai_validator),2) as nilai_validator'),
+                DB::raw('ROUND(SUM(l.numerator) * 100.0 / NULLIF(SUM(l.denominator), 0), 2) as nilai_rekap'),
+                DB::raw('ROUND(AVG(l.nilai_validator), 2) as nilai_validator'), // Assuming validator is still simple AVG for now, or check if it needs SUM too
                 DB::raw('MAX(l.status_laporan) as status_laporan'),
                 DB::raw('SUM(l.denominator) as denominator')
             )
@@ -418,13 +418,16 @@ class LaporanAnalisController extends Controller
         $startBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->startOfMonth();
         $endBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->endOfMonth();
 
-        $rataAnalis = DB::table('tbl_laporan_dan_analis')
+        $stats = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $request->indikator_id)
             ->where('unit_id', $unitId)
             ->whereBetween('tanggal_laporan', [$startBulan, $endBulan])
-            ->avg('nilai');
+            ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+            ->first();
 
-        $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
+        $rataAnalis = ($stats && $stats->total_den > 0) 
+            ? round(($stats->total_num / $stats->total_den) * 100, 2) 
+            : null;
 
         // Hitung status berdasarkan rata-rata semua analis bulan ini vs validator
         $statusFinal = $this->indikatorService->hitungStatusValidasi($rataAnalis, $rataValidator);
@@ -581,13 +584,16 @@ class LaporanAnalisController extends Controller
         $startBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->startOfMonth();
         $endBulan = Carbon::create($tahunLaporan, $bulanLaporan, 1)->endOfMonth();
 
-        $rataAnalis = DB::table('tbl_laporan_dan_analis')
+        $stats = DB::table('tbl_laporan_dan_analis')
             ->where('indikator_id', $data->indikator_id)
             ->where('unit_id', $unitId)
             ->whereBetween('tanggal_laporan', [$startBulan, $endBulan])
-            ->avg('nilai');
+            ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+            ->first();
 
-        $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
+        $rataAnalis = ($stats && $stats->total_den > 0) 
+            ? round(($stats->total_num / $stats->total_den) * 100, 2) 
+            : null;
 
         $rataValidator = $this->getRataValidator(
             $data->indikator_id,
@@ -622,13 +628,16 @@ class LaporanAnalisController extends Controller
         $start = $validationMonth->copy()->startOfMonth();
         $end = $validationMonth->copy()->endOfMonth();
 
-        $rata = DB::table('tbl_laporan_validator')
+        $stats = DB::table('tbl_laporan_validator')
             ->where('indikator_id', $indikatorId)
             ->where('unit_id', $unitId)
             ->whereBetween('tanggal_laporan', [$start, $end])
-            ->avg('nilai_validator');
+            ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+            ->first();
 
-        return $rata !== null ? round($rata, 2) : null;
+        return ($stats && $stats->total_den > 0) 
+            ? round(($stats->total_num / $stats->total_den) * 100, 2) 
+            : null;
     }
 
     private function bolehInputLaporan($periode, $tanggalLaporan, $unitId)

@@ -249,7 +249,7 @@ class ValidatorDataController extends Controller
             ->select(
                 'l.indikator_id',
                 'l.unit_id',
-                DB::raw('ROUND(AVG(l.nilai_validator),2) as nilai_rekap'),
+                DB::raw('ROUND(SUM(l.numerator) * 100.0 / NULLIF(SUM(l.denominator), 0), 2) as nilai_rekap'),
                 DB::raw('SUM(l.denominator) as denominator')
             )
             ->groupBy('l.indikator_id', 'l.unit_id')
@@ -398,23 +398,29 @@ class ValidatorDataController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Hitung ulang rata-rata validator bulan pertama (null/N/A diabaikan SQL AVG)
-            $rataValidator = DB::table('tbl_laporan_validator')
+            // Hitung ulang rata-rata validator bulan pertama
+            $statsV = DB::table('tbl_laporan_validator')
                 ->where('indikator_id', $request->indikator_id)
                 ->where('unit_id', $unitId)
                 ->whereBetween('tanggal_laporan', [$start, $end])
-                ->avg('nilai_validator');
+                ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+                ->first();
 
-            $rataValidator = $rataValidator !== null ? round($rataValidator, 2) : null;
+            $rataValidator = ($statsV && $statsV->total_den > 0) 
+                ? round(($statsV->total_num / $statsV->total_den) * 100, 2) 
+                : null;
 
             // Ambil rata-rata nilai analis bulan pertama sebagai acuan status validasi
-            $rataAnalis = DB::table('tbl_laporan_dan_analis')
+            $statsA = DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $request->indikator_id)
                 ->where('unit_id', $unitId)
                 ->whereBetween('tanggal_laporan', [$start, $end])
-                ->avg('nilai');
+                ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+                ->first();
 
-            $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
+            $rataAnalis = ($statsA && $statsA->total_den > 0) 
+                ? round(($statsA->total_num / $statsA->total_den) * 100, 2) 
+                : null;
 
             // Hitung status validasi: valid jika rata analis >= 90% dari rata validator
             $statusFinal = $this->indikatorService->hitungStatusValidasi($rataAnalis, $rataValidator);
@@ -589,23 +595,29 @@ class ValidatorDataController extends Controller
 
             DB::table('tbl_laporan_validator')->where('id', $id)->update($updateData);
 
-            // Hitung ulang rata-rata validator bulan pertama (null/N/A diabaikan SQL AVG)
-            $rataValidator = DB::table('tbl_laporan_validator')
+            // Hitung ulang rata-rata validator bulan pertama
+            $statsV = DB::table('tbl_laporan_validator')
                 ->where('indikator_id', $data->indikator_id)
                 ->where('unit_id', $data->unit_id)
                 ->whereBetween('tanggal_laporan', [$start, $end])
-                ->avg('nilai_validator');
+                ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+                ->first();
 
-            $rataValidator = $rataValidator !== null ? round($rataValidator, 2) : null;
+            $rataValidator = ($statsV && $statsV->total_den > 0) 
+                ? round(($statsV->total_num / $statsV->total_den) * 100, 2) 
+                : null;
 
             // Ambil rata-rata nilai analis bulan pertama sebagai acuan status validasi
-            $rataAnalis = DB::table('tbl_laporan_dan_analis')
+            $statsA = DB::table('tbl_laporan_dan_analis')
                 ->where('indikator_id', $data->indikator_id)
                 ->where('unit_id', $data->unit_id)
                 ->whereBetween('tanggal_laporan', [$start, $end])
-                ->avg('nilai');
+                ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
+                ->first();
 
-            $rataAnalis = $rataAnalis !== null ? round($rataAnalis, 2) : null;
+            $rataAnalis = ($statsA && $statsA->total_den > 0) 
+                ? round(($statsA->total_num / $statsA->total_den) * 100, 2) 
+                : null;
 
             // Hitung status validasi: valid jika rata analis >= 90% dari rata validator
             $statusFinal = $this->indikatorService->hitungStatusValidasi($rataAnalis, $rataValidator);

@@ -44,18 +44,6 @@
                 <div class="col">
                     <form id="filterForm" method="GET" action="{{ url()->current() }}"
                         class="row g-3 align-items-end">
-                        <div class="col-md-3">
-                            <label class="filter-label">Tahun</label>
-                            <select name="tahun" class="form-select" onchange="filterForm.submit()">
-                                @foreach ($tahunAktif as $t)
-                                    <option value="{{ $t }}"
-                                        {{ $tahun == $t ? 'selected' : '' }}>
-                                        {{ $t }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         @if (in_array(auth()->user()->unit_id, [1, 2]))
                             <div class="col-md-3">
                                 <label class="filter-label">Unit</label>
@@ -70,6 +58,17 @@
                                 </select>
                             </div>
                         @endif
+                        <div class="col-md-3">
+                            <label class="filter-label">Tahun</label>
+                            <select name="tahun" class="form-select" onchange="filterForm.submit()">
+                                @foreach ($tahunAktif as $t)
+                                    <option value="{{ $t }}"
+                                        {{ $tahun == $t ? 'selected' : '' }}>
+                                        {{ $t }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
                         <div class="col-md-3">
                             <label class="filter-label">Bulan</label>

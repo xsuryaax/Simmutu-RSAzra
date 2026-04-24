@@ -181,7 +181,10 @@ class AnalisaSpmController extends Controller
             ->whereBetween('tanggal_laporan', ["$tahun-01-01", "$tahun-12-31"])
             ->selectRaw('
                 EXTRACT(MONTH FROM tanggal_laporan) as bulan,
-                ROUND(CAST(AVG(nilai) AS numeric), 2) as nilai
+                CASE 
+                    WHEN SUM(denominator) > 0 THEN ROUND(SUM(numerator) * 100.0 / SUM(denominator), 2)
+                    ELSE NULL
+                END as nilai
             ')
             ->groupByRaw('EXTRACT(MONTH FROM tanggal_laporan)')
             ->orderBy('bulan')

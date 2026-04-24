@@ -12,17 +12,6 @@
             <div class="row align-items-end">
                 <div class="col">
                     <form method="GET" action="{{ route('master-indikator.index') }}" class="row g-3 align-items-end">
-                        <div class="col-md-2">
-                            <label class="filter-label">Tahun Periode</label>
-                            <select name="periode_id" class="form-select" onchange="this.form.submit()">
-                                @foreach ($periodes as $p)
-                                    <option value="{{ $p->id }}" {{ $periodeId == $p->id ? 'selected' : '' }}>
-                                        {{ $p->tahun }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         @php $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]); @endphp
                         @if ($isAdminMutu)
                             <div class="col-md-4">
@@ -37,6 +26,16 @@
                                 </select>
                             </div>
                         @endif
+                        <div class="col-md-2">
+                            <label class="filter-label">Tahun Periode</label>
+                            <select name="periode_id" class="form-select" onchange="this.form.submit()">
+                                @foreach ($periodes as $p)
+                                    <option value="{{ $p->id }}" {{ $periodeId == $p->id ? 'selected' : '' }}>
+                                        {{ $p->tahun }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
                     </form>
                 </div>
                 <div class="col-auto pb-2">

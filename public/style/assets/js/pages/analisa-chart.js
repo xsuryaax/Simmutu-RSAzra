@@ -13,6 +13,8 @@ function getIndicatorColors(category, type = 'line') {
         color = '#198754'; // Green
     } else if (cat.includes('unit') || cat.includes('prioritas unit')) {
         color = '#6c757d'; // Gray
+    } else if (cat.includes('spm')) {
+        color = '#fd7e14'; // Orange for SPM
     }
     
     return {
@@ -146,8 +148,9 @@ function renderChart(targetData = [], realisasiData = []) {
             },
             scales: {
                 y: {
-                    beginAtZero: false,
+                    beginAtZero: true,
                     ticks: {
+                        stepSize: 10,
                         callback: value => value + "%"
                     }
                 },

@@ -70,13 +70,13 @@
                                             <th style="min-width: 350px;">SPM</th>
                                             <th class="text-center">UNIT</th>
                                             <th class="text-center">ANALISA</th>
-                                            <th class="text-center">RENCANA TINDAK LANJUT</th>
+                                            <th class="text-center">RENCANA</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($spms as $i => $ind)
-                                            <tr data-id="{{ $ind->id }}" 
-                                                onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($ind->nama_unit ?? '-') }}', 'SPM', '{{ $ind->unit_id }}')" 
+                                            <tr data-id="{{ $ind->id }}"
+                                                onclick="loadChart({{ $ind->id }}, '{{ addslashes($ind->nama_spm) }}', '{{ addslashes($ind->nama_unit ?? '-') }}', 'SPM', '{{ $ind->unit_id }}')"
                                                 style="cursor: pointer;">
                                                 <td class="text-center">{{ $i + 1 }}</td>
                                                 <td class="text-center" onclick="event.stopPropagation()">
@@ -214,29 +214,37 @@
             height: 20px;
             border: 1px solid #f0f2f4;
         }
+
         .chart-table {
             font-size: 11px;
             margin-bottom: 0;
         }
+
         .analyst-chart {
             height: 300px;
         }
-        .chart-table th, .chart-table td {
+
+        .chart-table th,
+        .chart-table td {
             padding: 2px 4px;
             white-space: nowrap;
         }
+
         .chart-table tr {
             line-height: 1.2;
         }
+
         .chart-legend {
             font-size: 12px;
             display: flex;
             align-items: center;
         }
+
         .legend-item {
             display: flex;
             align-items: center;
         }
+
         .legend-dot {
             width: 10px;
             height: 10px;
@@ -244,9 +252,12 @@
             display: inline-block;
             margin-right: 5px;
         }
+
+        .legend-dot.realisiasi,
         .legend-dot.realisasi {
-            background-color: #e63757;
+            background-color: #fd7e14;
         }
+
         .legend-dot.standar {
             background-color: #2c7be5;
         }

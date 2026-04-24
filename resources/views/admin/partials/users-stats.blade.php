@@ -4,17 +4,15 @@
         <a href="{{ route('pdsa.index') }}" class="text-decoration-none">
             <div class="card h-100" style="cursor: pointer">
                 <div class="card-body px-4 py-4-5">
-                    <div class="row">
-                        <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start">
-                            <div class="stats-icon bg-orange">
-                                <i class="bi bi-exclamation-triangle"></i>
-                            </div>
-                        </div>
-                        <div class="col-8 col-xxl-7">
-                            <h6 class="text-muted font-semibold mb-1 mt-2">Total PDSA Unit</h6>
-                            <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
-                        </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted font-bold small mb-1">Total PDSA Unit</h6>
+                        <h6 class="font-extrabold mb-0">{{ $pdsaTotal }}</h6>
                     </div>
+                    <div class="stats-icon bg-orange">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                </div>
                 </div>
             </div>
         </a>

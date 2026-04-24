@@ -12,18 +12,14 @@
         <div class="row">
             <div class="col-6 col-lg-4 col-md-6">
                 <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                                <h6 class="text-muted font-semibold">
-                                    Total User
-                                </h6>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-muted font-bold small mb-1">Total User</h6>
                                 <h6 class="font-extrabold mb-0">{{ $totalUser }}</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon blue mb-2">
-                                    <i class="bi bi-people-fill"></i>
-                                </div>
+                            <div class="stats-icon blue" style="width: 3rem; height: 3rem;">
+                                <i class="bi bi-people-fill" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -31,16 +27,14 @@
             </div>
             <div class="col-6 col-lg-4 col-md-6">
                 <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                                <h6 class="text-muted font-semibold">Total User Aktif</h6>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-muted font-bold small mb-1">Total User Aktif</h6>
                                 <h6 class="font-extrabold mb-0">{{ $totalAktif }}</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon green mb-2">
-                                    <i class="bi bi-person-check-fill"></i>
-                                </div>
+                            <div class="stats-icon green" style="width: 3rem; height: 3rem;">
+                                <i class="bi bi-person-check-fill" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -48,16 +42,14 @@
             </div>
             <div class="col-6 col-lg-4 col-md-6">
                 <div class="card">
-                    <div class="card-body px-4 py-4-5">
-                        <div class="row">
-                            <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7 justify-content-start">
-                                <h6 class="text-muted font-semibold">Total User Tidak Aktif</h6>
+                    <div class="card-body px-4 py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <h6 class="text-muted font-bold small mb-1">Total User Tidak Aktif</h6>
                                 <h6 class="font-extrabold mb-0">{{ $totalNonaktif }}</h6>
                             </div>
-                            <div class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 justify-content-end">
-                                <div class="stats-icon red mb-2">
-                                    <i class="bi bi-person-x-fill"></i>
-                                </div>
+                            <div class="stats-icon red" style="width: 3rem; height: 3rem;">
+                                <i class="bi bi-person-x-fill" style="font-size: 1.5rem;"></i>
                             </div>
                         </div>
                     </div>
@@ -71,14 +63,14 @@
                         <h4 class="card-title">Tambah User Baru</h4>
                     </div>
                     <div class="card-content">
-                        <div class="card-body">
+                        <div class="card-body py-1 px-4">
                             <form action="{{ route('manajemen-user.store') }}" method="POST">
                                 @csrf
                                 <div class="form-body">
                                     <div class="row">
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="nama_lengkap">Nama Lengkap <span
+                                                <label for="nama_lengkap" class="small fw-bold">Nama Lengkap <span
                                                         class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="nama_lengkap"
@@ -91,7 +83,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="nip">NIP <span class="text-danger">*</span></label>
+                                                <label for="nip" class="small fw-bold">NIP <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="nip"
                                                         placeholder="Masukkan NIP" id="nip" required />
@@ -103,7 +95,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="username">Username <span class="text-danger">*</span></label>
+                                                <label for="username" class="small fw-bold">Username <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="username"
                                                         placeholder="Masukkan username" id="username" required />
@@ -115,7 +107,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="email">Email <span class="text-danger">*</span></label>
+                                                <label for="email" class="small fw-bold">Email <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="email"
                                                         placeholder="Masukkan alamat email" id="email" required />
@@ -127,7 +119,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="password">Password <span class="text-danger">*</span></label>
+                                                <label for="password" class="small fw-bold">Password <span class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="password" class="form-control" name="password"
                                                         placeholder="Masukkan password" id="password" required />
@@ -139,7 +131,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="password_confirmation">Konfirmasi Password <span
+                                                <label for="password_confirmation" class="small fw-bold">Konfirmasi Password <span
                                                         class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <input type="password" class="form-control" name="password_confirmation"
@@ -153,7 +145,7 @@
 
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label for="unit">Unit / Organisasi <span
+                                                <label for="unit" class="small fw-bold">Unit / Organisasi <span
                                                         class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <fieldset class="form-group">
@@ -170,7 +162,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label for="role">Role / Jabatan <span
+                                                <label for="role" class="small fw-bold">Role / Jabatan <span
                                                         class="text-danger">*</span></label>
                                                 <div class="position-relative">
                                                     <fieldset class="form-group">
@@ -188,7 +180,7 @@
 
                                         <div class="col-12">
                                             <div class="form-group">
-                                                <label for="profesi">Profesi</label>
+                                                <label for="profesi" class="small fw-bold">Profesi</label>
                                                 <div class="position-relative">
                                                     <fieldset class="form-group">
                                                         <select class="form-select" id="profesi" name="profesi">
@@ -202,7 +194,7 @@
                                         </div>
                                         <div class="col-12">
                                             <div class="form-group has-icon-left">
-                                                <label for="atasan_langsung">Atasan Langsung</label>
+                                                <label for="atasan_langsung" class="small fw-bold">Atasan Langsung</label>
                                                 <div class="position-relative">
                                                     <input type="text" class="form-control" name="atasan_langsung"
                                                         placeholder="Masukkan Nama Atasan" id="atasan_langsung" />
@@ -217,7 +209,7 @@
                                                 <div class="checkbox mt-2">
                                                     <input type="checkbox" id="status_user" name="status_user"
                                                         value="aktif" class="form-check-input" />
-                                                    <label for="status_user">User Aktif</label>
+                                                    <label for="status_user" class="small fw-bold">User Aktif</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -238,12 +230,26 @@
             </div>
             <div class="col-md-8 col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title">Daftar User</h5>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <form action="" method="GET" class="d-flex align-items-center">
+                                <select name="unit_id" class="form-select" onchange="this.form.submit()"
+                                    style="min-width: 200px;">
+                                    <option value="">Semua Unit</option>
+                                    @foreach ($units as $u)
+                                        <option value="{{ $u->id }}"
+                                            {{ ($selectedUnit ?? '') == $u->id ? 'selected' : '' }}>
+                                            {{ $u->nama_unit }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </div>
+                        <div id="table-search-header"></div>
                     </div>
                     <div class="card-body">
 
-                        <table class="table table-striped" id="table1">
+                        <table class="table table-striped table-sm" id="table1">
                                 <thead>
                                     <tr>
                                         <th>NO</th>
@@ -448,6 +454,22 @@
             // Tampilkan modal
             new bootstrap.Modal(document.getElementById('modalEditUser')).show();
         }
+
+        // Move search bar to header
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const searchContainer = document.querySelector('.dt-search-container');
+                const headerPlaceholder = document.getElementById('table-search-header');
+                if (searchContainer && headerPlaceholder) {
+                    headerPlaceholder.appendChild(searchContainer);
+                }
+                // Hide the empty control bar if it remains
+                const emptyControl = document.querySelector('.table-custom-controls');
+                if (emptyControl && !emptyControl.innerText.trim()) {
+                    emptyControl.style.display = 'none';
+                }
+            }, 300);
+        });
     </script>
 
 @endpush

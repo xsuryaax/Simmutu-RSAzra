@@ -10,7 +10,7 @@
 
 <div class="row mt-4">
     <div class="col-12">
-        <div class="p-4 rounded-top border-bottom shadow-sm">
+        <div class="p-4 border-bottom">
             {{-- ── Header Title Row ── --}}
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="d-flex align-items-center">
@@ -66,6 +66,8 @@
                     {{-- Filter Quarter --}}
                     <div class="btn-group btn-group-sm p-1 rounded border shadow-sm" role="group" aria-label="Filter Kuartal">
                         <button class="btn btn-sm btn-primary active btn-quarter" data-q="Tahun" aria-pressed="true">All</button>
+                        <button class="btn btn-sm btn-light btn-quarter" data-q="S1" aria-pressed="false">S1</button>
+                        <button class="btn btn-sm btn-light btn-quarter" data-q="S2" aria-pressed="false">S2</button>
                         <button class="btn btn-sm btn-light btn-quarter" data-q="Q1" aria-pressed="false">Q1</button>
                         <button class="btn btn-sm btn-light btn-quarter" data-q="Q2" aria-pressed="false">Q2</button>
                         <button class="btn btn-sm btn-light btn-quarter" data-q="Q3" aria-pressed="false">Q3</button>
