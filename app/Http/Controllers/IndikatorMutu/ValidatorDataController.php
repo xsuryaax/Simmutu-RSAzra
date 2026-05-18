@@ -58,7 +58,7 @@ class ValidatorDataController extends Controller
         if (!$request->has('bulan')) {
             $bulan = $filters['bulan'] ?? null;
             $tahun = $filters['tahun'] ?? null;
-            
+
             if (!$bulan || !$tahun) {
                 if ($availableMonths->isNotEmpty()) {
                     $firstAvailable = $availableMonths->first();
@@ -70,8 +70,8 @@ class ValidatorDataController extends Controller
                 }
             }
         } else {
-            $bulan = (int)$request->bulan;
-            $tahun = (int)$request->tahun;
+            $bulan = (int) $request->bulan;
+            $tahun = (int) $request->tahun;
         }
 
         $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
@@ -101,7 +101,7 @@ class ValidatorDataController extends Controller
             'kategori' => $kategoriIndikator
         ];
         session(['simmutu_filters' => $filters]);
-    
+
 
         $start = Carbon::create($tahun, $bulan, 1)->startOfMonth();
         $end = Carbon::create($tahun, $bulan, 1)->endOfMonth();
@@ -110,7 +110,7 @@ class ValidatorDataController extends Controller
             ? $request->kategori_indikator
             : null;
         $indikators = $this->indikatorService->getIndikator($user, $kategoriIndikator);
-        
+
         // Removed restrictive monthly filters to allow all active indicators for the period to show up
         // $indikators = $indikators->filter(function($ind) use ($bulan, $tahun) {
         //     $entry = Carbon::parse($ind->entry_date);
@@ -134,7 +134,7 @@ class ValidatorDataController extends Controller
         $periodeStart = Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth();
         $periodeEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
         $nowStart = now()->startOfMonth();
-        
+
         // Logical default start
         $defaultStart = $periodeStart;
 
@@ -207,8 +207,8 @@ class ValidatorDataController extends Controller
             'tahun' => $tahun,
             'kalenderData' => $kalenderData,
             'selectedIndikator' => $selectedIndikator,
-            'selectedIndikatorId' => (int)$selectedIndikatorId,
-            'selectedUnitId' => (int)$selectedUnitId,
+            'selectedIndikatorId' => (int) $selectedIndikatorId,
+            'selectedUnitId' => (int) $selectedUnitId,
             'units' => $units,
             'availableMonths' => $availableMonths,
             'isAdminMutu' => in_array($user->unit_id, [1, 2]),
@@ -291,7 +291,7 @@ class ValidatorDataController extends Controller
         }
 
         $unitId = $request->unit_id ?: ($indikatorFull->unit_id ?? auth()->user()->unit_id);
-        
+
         $request->merge(['unit_id' => $unitId]);
 
 
@@ -406,8 +406,8 @@ class ValidatorDataController extends Controller
                 ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
                 ->first();
 
-            $rataValidator = ($statsV && $statsV->total_den > 0) 
-                ? round(($statsV->total_num / $statsV->total_den) * 100, 2) 
+            $rataValidator = ($statsV && $statsV->total_den > 0)
+                ? round(($statsV->total_num / $statsV->total_den) * 100, 2)
                 : null;
 
             // Ambil rata-rata nilai analis bulan pertama sebagai acuan status validasi
@@ -418,8 +418,8 @@ class ValidatorDataController extends Controller
                 ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
                 ->first();
 
-            $rataAnalis = ($statsA && $statsA->total_den > 0) 
-                ? round(($statsA->total_num / $statsA->total_den) * 100, 2) 
+            $rataAnalis = ($statsA && $statsA->total_den > 0)
+                ? round(($statsA->total_num / $statsA->total_den) * 100, 2)
                 : null;
 
             // Hitung status validasi: valid jika rata analis >= 90% dari rata validator
@@ -603,8 +603,8 @@ class ValidatorDataController extends Controller
                 ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
                 ->first();
 
-            $rataValidator = ($statsV && $statsV->total_den > 0) 
-                ? round(($statsV->total_num / $statsV->total_den) * 100, 2) 
+            $rataValidator = ($statsV && $statsV->total_den > 0)
+                ? round(($statsV->total_num / $statsV->total_den) * 100, 2)
                 : null;
 
             // Ambil rata-rata nilai analis bulan pertama sebagai acuan status validasi
@@ -615,8 +615,8 @@ class ValidatorDataController extends Controller
                 ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
                 ->first();
 
-            $rataAnalis = ($statsA && $statsA->total_den > 0) 
-                ? round(($statsA->total_num / $statsA->total_den) * 100, 2) 
+            $rataAnalis = ($statsA && $statsA->total_den > 0)
+                ? round(($statsA->total_num / $statsA->total_den) * 100, 2)
                 : null;
 
             // Hitung status validasi: valid jika rata analis >= 90% dari rata validator
@@ -648,7 +648,8 @@ class ValidatorDataController extends Controller
     private function getAvailableValidationMonths($user)
     {
         $periode = $this->indikatorService->getPeriodeAktif();
-        if (!$periode) return collect();
+        if (!$periode)
+            return collect();
 
         $start = Carbon::parse($periode->tanggal_mulai)->startOfMonth();
         $end = Carbon::parse($periode->tanggal_selesai)->endOfMonth();
@@ -685,7 +686,7 @@ class ValidatorDataController extends Controller
         $months = collect();
         $current = $effectiveStart->copy();
         while ($current->lte($end)) {
-            $months->push((object)[
+            $months->push((object) [
                 'bulan' => $current->month,
                 'tahun' => $current->year,
                 'nama' => $current->translatedFormat('F')

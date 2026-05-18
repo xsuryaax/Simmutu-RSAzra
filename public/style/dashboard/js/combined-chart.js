@@ -32,6 +32,13 @@
         return { chartColor, bgColor };
     }
 
+    // Safely convert PHP data (could be object, string, null) to a proper JS array
+    function toArray(val) {
+        if (Array.isArray(val)) return val;
+        if (val && typeof val === 'object') return Object.values(val);
+        return [];
+    }
+
     let currentType    = 'imn';
     let currentUnit    = '';
     let currentQuarter = 'Tahun';
@@ -107,7 +114,10 @@
                 const xPos = x.getPixelForValue(i);
                 if (isNaN(xPos)) return;
                 
-                const label = (value !== null && value !== undefined) ? Math.round(value) + '%' : '-';
+                const labelValue = (value !== null && value !== undefined) ? parseFloat(value) : null;
+                const label = (labelValue !== null) 
+                    ? (Number.isInteger(labelValue) ? labelValue : labelValue.toFixed(2)) + '%' 
+                    : '-';
                 const textWidth = ctx.measureText(label).width;
                 const totalWidth = (dotRadius * 2) + spacing + textWidth;
                 
@@ -330,6 +340,7 @@
             const end = Math.min(chunkIndex + chunkSize, indikators.length);
             for (let i = chunkIndex; i < end; i++) {
                 const ind = indikators[i];
+                ind.uniqueKey = ind.uniqueKey || `${ind.id}-${i}`;
                 const card = createCard(ind);
                 grid.appendChild(card);
                 observer.observe(card);
@@ -346,7 +357,7 @@
     function createCard(ind) {
         const wrapper = document.createElement('div');
         wrapper.className = 'chart-card';
-        wrapper.id = `card-${ind.id}`;
+        wrapper.id = `card-${ind.uniqueKey}`;
         
         // Store data for lazy loading
         wrapper.dataset.indicatorId = ind.id;
@@ -396,7 +407,7 @@
                 </div>
             </div>
             <div class="chart-card-body">
-                <canvas id="canvas-${ind.id}"></canvas>
+                <canvas id="canvas-${ind.uniqueKey}"></canvas>
             </div>`;
         return wrapper;
     }
@@ -434,19 +445,19 @@
     };
 
     function renderMiniChart(ind) {
-        const ctx = document.getElementById(`canvas-${ind.id}`);
+        const ctx = document.getElementById(`canvas-${ind.uniqueKey}`);
         if (!ctx) return;
 
         const [start, end] = QUARTER_MAP[currentQuarter] || [0, 12];
         const labels = MONTHS_ALL.slice(start, end);
-        const hasil  = (ind.hasil ?? []).slice(start, end);
-        const target = (ind.target ?? []).slice(start, end);
+        const hasil  = toArray(ind.hasil).slice(start, end);
+        const target = toArray(ind.target).slice(start, end);
 
-        if (chartInstances[ind.id]) chartInstances[ind.id].destroy();
+        if (chartInstances[ind.uniqueKey]) chartInstances[ind.uniqueKey].destroy();
 
         const { chartColor, bgColor } = getIndicatorColors(currentType, currentChartType);
 
-        chartInstances[ind.id] = new Chart(ctx, {
+        chartInstances[ind.uniqueKey] = new Chart(ctx, {
             type: currentChartType,
             data: {
                 labels,
@@ -490,7 +501,11 @@
                         mode: 'index',
                         intersect: false,
                         callbacks: {
-                            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y}%`
+                            label: (ctx) => {
+                                const val = ctx.parsed.y;
+                                const formatted = (Number.isInteger(val) ? val : val.toFixed(2));
+                                return ` ${ctx.dataset.label}: ${formatted}%`;
+                            }
                         }
                     }
                 },
@@ -508,7 +523,8 @@
                             padding: 8,
                             callback: function(v) {
                                 if (v === parseFloat(ind.target_value)) {
-                                    return (ind.arah_target === 'lebih_kecil' ? '≤' : '≥') + v + '%';
+                                    const formattedTarget = Number.isInteger(v) ? v : v.toFixed(2);
+                                    return (ind.arah_target === 'lebih_kecil' ? '≤' : '≥') + formattedTarget + '%';
                                 }
                                 return v + '%';
                             }
@@ -546,7 +562,7 @@
         if (!json) return;
         
         (json.indikators ?? []).forEach(ind => {
-            const card = document.getElementById(`card-${ind.id}`);
+            const card = document.getElementById(`card-${ind.uniqueKey}`);
             // Only rebuild if it was already lazily loaded
             if (card && card.classList.contains('loaded')) {
                 renderMiniChart(ind);
@@ -643,8 +659,8 @@
     async function generateHighResImage(canvas, ind, isBatch = false) {
         const [start, end] = QUARTER_MAP[currentQuarter] || [0, 12];
         const labels = MONTHS_ALL.slice(start, end);
-        const hasil  = (ind.hasil ?? []).slice(start, end);
-        const target = (ind.target ?? []).slice(start, end);
+        const hasil  = toArray(ind.hasil).slice(start, end);
+        const target = toArray(ind.target).slice(start, end);
 
         // Reduced for better "non-zoomed" look on A4
         const fontSize = isBatch ? 14 : 16;
@@ -698,7 +714,8 @@
                             padding: isBatch ? 5 : 8,
                             callback: function(v) {
                                 if (v === parseFloat(ind.target_value)) {
-                                    return (ind.arah_target === 'lebih_kecil' ? '≤' : '≥') + v + '%';
+                                    const formattedTarget = Number.isInteger(v) ? v : v.toFixed(2);
+                                    return (ind.arah_target === 'lebih_kecil' ? '≤' : '≥') + formattedTarget + '%';
                                 }
                                 return v + '%';
                             }
@@ -754,8 +771,8 @@
 
         const [start, end] = QUARTER_MAP[currentQuarter] || [0, 12];
         const labels = MONTHS_ALL.slice(start, end);
-        const hasil  = (ind.hasil ?? []).slice(start, end);
-        const target = (ind.target ?? []).slice(start, end);
+        const hasil  = toArray(ind.hasil).slice(start, end);
+        const target = toArray(ind.target).slice(start, end);
 
         // Render to hidden canvas at high resolution
         const tempChart = new Chart(tempCanvas, {
@@ -807,7 +824,8 @@
                             padding: 15,
                             callback: function(v) {
                                 if (v === parseFloat(ind.target_value)) {
-                                    return (ind.arah_target === 'lebih_kecil' ? '≤' : '≥') + v + '%';
+                                    const formattedTarget = Number.isInteger(v) ? v : v.toFixed(2);
+                                    return (ind.arah_target === 'lebih_kecil' ? '≤' : '≥') + formattedTarget + '%';
                                 }
                                 return v + '%';
                             }
@@ -928,8 +946,8 @@
             // Slice Monthly Table and Chart Data based on currentModalQuarter
             const [startMonth, endMonth] = QUARTER_MAP[currentModalQuarter] || [0, 12];
             const activeMonths = MONTHS_ALL.slice(startMonth, endMonth);
-            const activeMonthlyData = data.monthly.slice(startMonth, endMonth);
-            const activeHasilData = data.hasil.slice(startMonth, endMonth);
+            const activeMonthlyData = toArray(data.monthly).slice(startMonth, endMonth);
+            const activeHasilData = toArray(data.hasil).slice(startMonth, endMonth);
             const activeTargetArray = arrayFill(0, endMonth - startMonth, parseFloat(data.meta.target_indikator));
             
             // Populate Monthly Table

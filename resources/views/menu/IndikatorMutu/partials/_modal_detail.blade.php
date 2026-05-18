@@ -55,8 +55,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-semibold text-dark">File Laporan</label>
                     <p class="form-control-plaintext">
-                        <a href="#" id="detail_file_link" target="_blank"
-                            class="btn btn-sm btn-outline-primary">
+                        <a href="#" id="detail_file_link" target="_blank" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-file-earmark-arrow-down"></i> Lihat File
                         </a>
                     </p>
@@ -65,12 +64,12 @@
 
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                @if($isAdminMutu || (isset($isValidatorPage) && $isValidatorPage))
-                     <button type="button" class="btn btn-warning" onclick="openEditModal()">
+                @if ($isAdminMutu || (isset($isValidatorPage) && $isValidatorPage))
+                    <button type="button" class="btn btn-warning" onclick="openEditModal()">
                         <i class="bi bi-pencil"></i> Edit
                     </button>
                 @elseif(isset($isAnalisPage) && $isAnalisPage)
-                     <button type="button" class="btn btn-warning" onclick="openEditModal()">
+                    <button type="button" class="btn btn-warning" onclick="openEditModal()">
                         <i class="bi bi-pencil"></i> Edit
                     </button>
                 @endif

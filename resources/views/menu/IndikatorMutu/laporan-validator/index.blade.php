@@ -4,7 +4,7 @@
 
 @php
     use Carbon\Carbon;
-    
+
     $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
     $periodeMulai = Carbon::parse($periode->tanggal_mulai);
     $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
@@ -19,8 +19,7 @@
         <div class="table-filter-section mb-4">
             <div class="row align-items-end">
                 <div class="col">
-                    <form id="filterForm" method="GET" action="{{ url()->current() }}"
-                        class="row g-3 align-items-end">
+                    <form id="filterForm" method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
                         @if (in_array(auth()->user()->unit_id, [1, 2]))
                             <div class="col-md-3">
                                 <label class="filter-label">Unit</label>
@@ -45,8 +44,7 @@
                                     {{ ($kategoriIndikator ?? '') == 'prioritas unit' ? 'selected' : '' }}>
                                     Prioritas Unit
                                 </option>
-                                <option value="nasional"
-                                    {{ ($kategoriIndikator ?? '') == 'nasional' ? 'selected' : '' }}>
+                                <option value="nasional" {{ ($kategoriIndikator ?? '') == 'nasional' ? 'selected' : '' }}>
                                     Nasional
                                 </option>
                                 <option value="prioritas rs"
@@ -56,22 +54,23 @@
                             </select>
                         </div>
 
-                        @if($availableMonths->count() > 1)
-                        <div class="col-md-3">
-                            <label class="filter-label">Bulan</label>
-                            <select name="bulan" class="form-select"
-                                onchange="document.getElementById('filterForm').submit()">
-                                @forelse ($availableMonths as $m)
-                                    <option value="{{ $m->bulan }}"
-                                        {{ (int) request('bulan', $bulan) == $m->bulan && (int) request('tahun', $tahun) == $m->tahun ? 'selected' : '' }}>
-                                        {{ $m->nama }}
-                                    </option>
-                                @empty
-                                    <option value="">-- Tidak ada data --</option>
-                                @endforelse
-                            </select>
-                            <input type="hidden" name="tahun" id="tahun_hidden" value="{{ request('tahun', $tahun) }}">
-                        </div>
+                        @if ($availableMonths->count() > 1)
+                            <div class="col-md-3">
+                                <label class="filter-label">Bulan</label>
+                                <select name="bulan" class="form-select"
+                                    onchange="document.getElementById('filterForm').submit()">
+                                    @forelse ($availableMonths as $m)
+                                        <option value="{{ $m->bulan }}"
+                                            {{ (int) request('bulan', $bulan) == $m->bulan && (int) request('tahun', $tahun) == $m->tahun ? 'selected' : '' }}>
+                                            {{ $m->nama }}
+                                        </option>
+                                    @empty
+                                        <option value="">-- Tidak ada data --</option>
+                                    @endforelse
+                                </select>
+                                <input type="hidden" name="tahun" id="tahun_hidden"
+                                    value="{{ request('tahun', $tahun) }}">
+                            </div>
                         @else
                             <input type="hidden" name="bulan" value="{{ $bulan }}">
                             <input type="hidden" name="tahun" value="{{ $tahun }}">
@@ -113,8 +112,7 @@
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = data_get($rekapBulanan, "$key.nilai_rekap");
                                                 $nilaiDenom = data_get($rekapBulanan, "$key.denominator");
-                                                $isSelected =
-                                                    $selectedIndikatorId == $indikator->id;
+                                                $isSelected = $selectedIndikatorId == $indikator->id;
 
                                                 $colColor = '';
                                                 $filterKategori = strtolower(request('kategori_indikator'));
@@ -139,16 +137,17 @@
                                                 }
                                             @endphp
 
-                                            <tr onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }})" 
-                                                class="{{ $isSelected ? 'table-active' : '' }}"
-                                                style="cursor: pointer;"
+                                            <tr onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }})"
+                                                class="{{ $isSelected ? 'table-active' : '' }}" style="cursor: pointer;"
                                                 data-indikator-id="{{ $indikator->id }}"
                                                 data-unit-id="{{ $indikator->unit_id }}">
                                                 <td class="text-center">{{ $loop->iteration }}</td>
                                                 <td class="text-center" onclick="event.stopPropagation()">
-                                                    <a href="javascript:void(0)" onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }}); event.stopPropagation();"
+                                                    <a href="javascript:void(0)"
+                                                        onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }}); event.stopPropagation();"
                                                         title="Lihat Kalender" class="text-decoration-none">
-                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
+                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}"
+                                                            style="font-size: 1.25rem;"></i>
                                                     </a>
                                                 </td>
                                                 <td class="{{ $colColor }} fw-semibold">
@@ -229,7 +228,7 @@
                 <div id="calendar-container" class="col-12 col-xl-auto calendar-column-fixed px-2">
                     @include('menu.IndikatorMutu.partials._kalender', [
                         'isValidatorPage' => true,
-                        'noWrapper' => true
+                        'noWrapper' => true,
                     ])
                 </div>
             </div>
@@ -245,7 +244,8 @@
                     <div class="modal-header border-0">
                         <div>
                             <h5 class="modal-title text-success fw-semibold">+ Tambah Data Laporan</h5>
-                            <small class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
+                            <small
+                                class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -305,7 +305,8 @@
                             <h5 class="modal-title text-warning fw-semibold">
                                 <i class="bi bi-pencil"></i> Edit Laporan
                             </h5>
-                            <small class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
+                            <small
+                                class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -488,46 +489,47 @@
             if (modalUnitId) modalUnitId.value = unitId || '';
 
             fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                container.innerHTML = html;
-                container.style.opacity = '1';
-                
-                // Update URL without reload
-                window.history.pushState({}, '', url);
-
-                // Update highlights
-                document.querySelectorAll('tr[onclick^="loadCalendar"]').forEach(tr => {
-                    tr.classList.remove('table-active');
-                    const icon = tr.querySelector('i.bi-calendar-check-fill');
-                    if (icon) {
-                        icon.classList.replace('bi-calendar-check-fill', 'bi-calendar-check');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                });
+                })
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    container.style.opacity = '1';
 
-                const selectedRow = document.querySelector(`tr[data-indikator-id="${id}"][data-unit-id="${unitId}"]`);
-                if (selectedRow) {
-                    selectedRow.classList.add('table-active');
-                    const icon = selectedRow.querySelector('i.bi-calendar-check');
-                    if (icon) {
-                        icon.classList.replace('bi-calendar-check', 'bi-calendar-check-fill');
-                    }
-                    
-                    const namaIndikator = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
-                    document.querySelectorAll('.modal_dynamic_name').forEach(el => {
-                        el.textContent = namaIndikator;
+                    // Update URL without reload
+                    window.history.pushState({}, '', url);
+
+                    // Update highlights
+                    document.querySelectorAll('tr[onclick^="loadCalendar"]').forEach(tr => {
+                        tr.classList.remove('table-active');
+                        const icon = tr.querySelector('i.bi-calendar-check-fill');
+                        if (icon) {
+                            icon.classList.replace('bi-calendar-check-fill', 'bi-calendar-check');
+                        }
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                container.style.opacity = '1';
-                window.location.href = url.href; // Fallback
-            });
+
+                    const selectedRow = document.querySelector(
+                        `tr[data-indikator-id="${id}"][data-unit-id="${unitId}"]`);
+                    if (selectedRow) {
+                        selectedRow.classList.add('table-active');
+                        const icon = selectedRow.querySelector('i.bi-calendar-check');
+                        if (icon) {
+                            icon.classList.replace('bi-calendar-check', 'bi-calendar-check-fill');
+                        }
+
+                        const namaIndikator = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
+                        document.querySelectorAll('.modal_dynamic_name').forEach(el => {
+                            el.textContent = namaIndikator;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    container.style.opacity = '1';
+                    window.location.href = url.href; // Fallback
+                });
         }
     </script>
 
@@ -538,7 +540,7 @@
             // Kita asumsikan availableMonths sudah mengandung tahun yang benar
             // Namun karena kita hanya kirim bulan ke route, kita butuh cara mencocokkan tahun.
             // Cara terbaik adalah menyimpan data tahun di attribuut option.
-            @php 
+            @php
                 $monthYearMap = $availableMonths->mapWithKeys(fn($m) => [$m->bulan => $m->tahun]);
             @endphp
             const map = @json($monthYearMap);
@@ -548,5 +550,4 @@
             }
         });
     </script>
-
 @endpush

@@ -29,7 +29,8 @@ function formatNumber(value) {
     if (value === null || value === undefined || value === "-") {
         return "-";
     }
-    return Math.round(parseFloat(value));
+    let num = parseFloat(value);
+    return Number.isInteger(num) ? num : num.toFixed(2);
 }
 
 // Untuk nilai di titik chart — 2 desimal hanya jika tidak bulat

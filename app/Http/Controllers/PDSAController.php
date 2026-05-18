@@ -16,6 +16,11 @@ class PDSAController extends Controller
     {
         $user = Auth::user();
 
+        $tahunList = DB::table('tbl_laporan_dan_analis')
+            ->selectRaw('DISTINCT EXTRACT(YEAR FROM tanggal_laporan) as tahun')
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
         if (in_array($user->unit_id, [1, 2])) {
 
             $units = DB::table('tbl_unit')
@@ -108,11 +113,6 @@ AND
                 ->orderBy('quarter', 'desc')
                 ->get();
 
-            $tahunList = DB::table('tbl_laporan_dan_analis')
-                ->selectRaw('DISTINCT EXTRACT(YEAR FROM tanggal_laporan) as tahun')
-                ->orderBy('tahun', 'desc')
-                ->pluck('tahun');
-
             return view('menu.IndikatorMutu.pdsa.index', [
                 'data' => $data,
                 'pdsaList' => collect(),
@@ -123,6 +123,7 @@ AND
             ]);
         }
 
+        $filterTahun = request('tahun');
         $pdsaList = DB::table('tbl_pdsa_assignments as a')
             ->leftJoin('tbl_indikator as i', 'a.indikator_id', '=', 'i.id')
             ->select(
@@ -133,6 +134,9 @@ AND
                 'i.nama_indikator'
             )
             ->where('a.unit_id', $user->unit_id)
+            ->when($filterTahun, function($query) use ($filterTahun) {
+                $query->where('a.tahun', $filterTahun);
+            })
             ->whereIn('a.status_pdsa', ['assigned', 'revised', 'submitted', 'approved'])
             ->orderBy('a.tahun', 'desc')
             ->get();
@@ -140,7 +144,8 @@ AND
         return view('menu.IndikatorMutu.pdsa.index', [
             'data' => collect(),
             'pdsaList' => $pdsaList,
-            'pdsaTotal' => $pdsaList->count()
+            'pdsaTotal' => $pdsaList->count(),
+            'tahunList' => $tahunList,
         ]);
     }
 

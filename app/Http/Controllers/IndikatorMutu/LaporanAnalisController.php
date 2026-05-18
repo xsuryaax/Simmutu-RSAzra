@@ -35,13 +35,13 @@ class LaporanAnalisController extends Controller
         // Cari tanggal laporan paling awal untuk unit ini di periode aktif
         $earliestReport = DB::table('tbl_laporan_dan_analis')
             ->whereBetween('tanggal_laporan', [$periodStart->startOfMonth(), $periodEnd->endOfMonth()]);
-        
+
         if (!in_array($user->unit_id, [1, 2])) {
             $earliestReport->where('unit_id', $user->unit_id);
         }
-        
+
         $earliestDate = $earliestReport->min('tanggal_laporan');
-        
+
         // Logical Start Date: Yang lebih awal antara laporan pertama atau hari ini
         $nowStart = $now->copy()->startOfMonth();
         if ($nowStart->gt($periodEnd)) {
@@ -58,7 +58,7 @@ class LaporanAnalisController extends Controller
                 $effectiveStart = $eDate;
             }
         }
-    
+
 
         // Reset filters if coming from a different page (not from same path, not AJAX, and no explicit filters)
         $prevPath = parse_url(url()->previous(), PHP_URL_PATH);
@@ -73,7 +73,7 @@ class LaporanAnalisController extends Controller
         if (!$request->has('bulan')) {
             $bulan = $filters['bulan'] ?? null;
             $tahun = $filters['tahun'] ?? null;
-            
+
             if (!$bulan || !$tahun) {
                 if ($now->between($periodStart, $periodEnd)) {
                     $bulan = $now->month;
@@ -87,8 +87,8 @@ class LaporanAnalisController extends Controller
                 }
             }
         } else {
-            $bulan = (int)$request->bulan;
-            $tahun = (int)$request->tahun;
+            $bulan = (int) $request->bulan;
+            $tahun = (int) $request->tahun;
         }
 
         $unitIdFilter = $request->unit_id ?? ($filters['unit_id'] ?? null);
@@ -126,7 +126,7 @@ class LaporanAnalisController extends Controller
         }
 
         $indikators = $this->indikatorService->getIndikator($unitFilterUser, $kategoriIndikator);
-        
+
         // Cari entry date paling awal dari semua indikator unit ini untuk batas dropdown
         $earliestEntry = $indikators->min('entry_date');
         if ($earliestEntry) {
@@ -157,6 +157,25 @@ class LaporanAnalisController extends Controller
             }
         }
 
+        // Global Validator Data
+        $periodeAktif = $this->indikatorService->getPeriodeAktif();
+        $globalValidatorData = collect();
+        if ($periodeAktif) {
+            $pStart = Carbon::parse($periodeAktif->tanggal_mulai)->startOfMonth();
+            $pEnd = Carbon::parse($periodeAktif->tanggal_selesai)->endOfMonth();
+
+            $globalValidatorData = DB::table('tbl_laporan_dan_analis')
+                ->select('indikator_id', 'unit_id', 
+                    DB::raw('MAX(nilai_validator) as validator_score'), 
+                    DB::raw('MAX(status_laporan) as validator_status')
+                )
+                ->whereNotNull('nilai_validator')
+                ->whereBetween('tanggal_laporan', [$pStart, $pEnd])
+                ->groupBy('indikator_id', 'unit_id')
+                ->get()
+                ->keyBy(fn($item) => $item->indikator_id . '-' . $item->unit_id);
+        }
+
         $startOfMonth = Carbon::create($tahun, $bulan, 1);
         $kalenderData = [
             'daysInMonth' => $startOfMonth->daysInMonth,
@@ -178,7 +197,6 @@ class LaporanAnalisController extends Controller
                     ->whereYear('tanggal_laporan', $tahun)
                     ->where('unit_id', $calendarUnitId);
 
-
                 $kalenderData['dataPengisian'] = $query->get()
                     ->keyBy(function ($item) {
                         return Carbon::parse($item->tanggal_laporan)->format('Y-m-d');
@@ -194,14 +212,15 @@ class LaporanAnalisController extends Controller
         $viewData = [
             'indikators' => $indikators,
             'rekapBulanan' => $rekapBulanan,
+            'globalValidatorData' => $globalValidatorData,
             'periode' => $periodeAktif,
             'kategoriIndikatorList' => $kategoriIndikatorList,
             'bulan' => $bulan,
             'tahun' => $tahun,
             'kalenderData' => $kalenderData,
             'selectedIndikator' => $selectedIndikator,
-            'selectedIndikatorId' => (int)$selectedIndikatorId,
-            'selectedUnitId' => (int)$selectedUnitId,
+            'selectedIndikatorId' => (int) $selectedIndikatorId,
+            'selectedUnitId' => (int) $selectedUnitId,
             'effectiveStart' => $effectiveStart,
             'units' => $units,
             'isAdminMutu' => in_array($user->unit_id, [1, 2]),
@@ -240,7 +259,7 @@ class LaporanAnalisController extends Controller
                 'l.indikator_id',
                 'l.unit_id',
                 DB::raw('ROUND(SUM(l.numerator) * 100.0 / NULLIF(SUM(l.denominator), 0), 2) as nilai_rekap'),
-                DB::raw('ROUND(AVG(l.nilai_validator), 2) as nilai_validator'), // Assuming validator is still simple AVG for now, or check if it needs SUM too
+                DB::raw('ROUND(AVG(l.nilai_validator), 2) as nilai_validator'),
                 DB::raw('MAX(l.status_laporan) as status_laporan'),
                 DB::raw('SUM(l.denominator) as denominator')
             )
@@ -263,25 +282,23 @@ class LaporanAnalisController extends Controller
             ->keyBy(fn($item) => $item->indikator_id . '-' . $item->unit_id);
 
         $periodeStart = Carbon::parse($periode->tanggal_mulai)->startOfMonth();
-        $periodeEnd = Carbon::parse($periode->tanggal_selesai)->endOfMonth();
-        $now = now()->startOfMonth();
         $defaultStart = $periodeStart;
 
         $rekap = $results->map(function ($r) use ($firstReports, $defaultStart) {
-                $r->denominator = (int) $r->denominator;
+            $r->denominator = (int) $r->denominator;
 
-                // Ambil info bulan validasi untuk ditampilkan di view
-                $key = $r->indikator_id . '-' . $r->unit_id;
-                $vMonth = isset($firstReports[$key]) 
-                    ? Carbon::parse($firstReports[$key]->first_report)->startOfMonth() 
-                    : $defaultStart;
+            // Ambil info bulan validasi untuk ditampilkan di view
+            $key = $r->indikator_id . '-' . $r->unit_id;
+            $vMonth = isset($firstReports[$key])
+                ? Carbon::parse($firstReports[$key]->first_report)->startOfMonth()
+                : $defaultStart;
 
-                $r->validation_month_name = $vMonth->translatedFormat('F Y');
-                $r->validation_month = $vMonth->month;
-                $r->validation_year = $vMonth->year;
-                
-                return $r;
-            })
+            $r->validation_month_name = $vMonth->translatedFormat('F Y');
+            $r->validation_month = $vMonth->month;
+            $r->validation_year = $vMonth->year;
+
+            return $r;
+        })
             ->keyBy(fn($r) => $r->indikator_id . '-' . $r->unit_id);
 
         return $rekap;
@@ -300,7 +317,7 @@ class LaporanAnalisController extends Controller
         }
 
         $unitId = $request->unit_id ?: ($indikatorFull->unit_id ?? auth()->user()->unit_id);
-        
+
         $request->merge(['unit_id' => $unitId]);
 
         $request->validate([
@@ -425,8 +442,8 @@ class LaporanAnalisController extends Controller
             ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
             ->first();
 
-        $rataAnalis = ($stats && $stats->total_den > 0) 
-            ? round(($stats->total_num / $stats->total_den) * 100, 2) 
+        $rataAnalis = ($stats && $stats->total_den > 0)
+            ? round(($stats->total_num / $stats->total_den) * 100, 2)
             : null;
 
         // Hitung status berdasarkan rata-rata semua analis bulan ini vs validator
@@ -591,8 +608,8 @@ class LaporanAnalisController extends Controller
             ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
             ->first();
 
-        $rataAnalis = ($stats && $stats->total_den > 0) 
-            ? round(($stats->total_num / $stats->total_den) * 100, 2) 
+        $rataAnalis = ($stats && $stats->total_den > 0)
+            ? round(($stats->total_num / $stats->total_den) * 100, 2)
             : null;
 
         $rataValidator = $this->getRataValidator(
@@ -635,8 +652,8 @@ class LaporanAnalisController extends Controller
             ->selectRaw('SUM(numerator) as total_num, SUM(denominator) as total_den')
             ->first();
 
-        return ($stats && $stats->total_den > 0) 
-            ? round(($stats->total_num / $stats->total_den) * 100, 2) 
+        return ($stats && $stats->total_den > 0)
+            ? round(($stats->total_num / $stats->total_den) * 100, 2)
             : null;
     }
 

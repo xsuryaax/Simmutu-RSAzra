@@ -19,11 +19,14 @@
         </div>
 
         <div class="page-header-right d-flex align-items-center gap-3">
-            <span class="user-name-text d-none d-lg-inline fw-bold" style="color: #25396f; font-size: 1.1rem;">👋 Hallo, {{ Auth::user()->nama_lengkap }}</span>
+            <span class="user-name-text d-none d-lg-inline fw-bold" style="color: #25396f; font-size: 1.1rem;">👋 Hi,
+                {{ Auth::user()->unit->nama_unit ?? 'Sistem' }}</span>
             <form method="POST" action="/logout" id="logout-form" class="m-0">
                 @csrf
-                <button type="submit" class="btn btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm border-0 text-white" style="background-color: #007774;">
-                    <i class="bi bi-box-arrow-right"></i> 
+                <button type="submit"
+                    class="btn btn-sm d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm border-0 text-white"
+                    style="background-color: #007774;">
+                    <i class="bi bi-box-arrow-right"></i>
                     <span class="fw-bold">Keluar</span>
                 </button>
             </form>

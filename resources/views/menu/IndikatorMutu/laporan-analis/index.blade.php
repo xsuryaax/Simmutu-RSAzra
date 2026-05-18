@@ -4,7 +4,7 @@
 
 @php
     use Carbon\Carbon;
-    
+
     $isAdminMutu = in_array(auth()->user()->unit_id, [1, 2]);
     $periodeMulai = Carbon::parse($periode->tanggal_mulai);
     $periodeSelesai = Carbon::parse($periode->tanggal_selesai);
@@ -19,8 +19,7 @@
         <div class="table-filter-section mb-4">
             <div class="row align-items-end">
                 <div class="col">
-                    <form id="filterForm" method="GET" action="{{ url()->current() }}"
-                        class="row g-3 align-items-end">
+                    <form id="filterForm" method="GET" action="{{ url()->current() }}" class="row g-3 align-items-end">
                         @if (in_array(auth()->user()->unit_id, [1, 2]))
                             <div class="col-md-3">
                                 <label class="filter-label">Unit</label>
@@ -45,8 +44,7 @@
                                     {{ ($kategoriIndikator ?? '') == 'prioritas unit' ? 'selected' : '' }}>
                                     Prioritas Unit
                                 </option>
-                                <option value="nasional"
-                                    {{ ($kategoriIndikator ?? '') == 'nasional' ? 'selected' : '' }}>
+                                <option value="nasional" {{ ($kategoriIndikator ?? '') == 'nasional' ? 'selected' : '' }}>
                                     Nasional
                                 </option>
                                 <option value="prioritas rs"
@@ -60,8 +58,7 @@
                             <label class="filter-label">Tahun</label>
                             <select name="tahun" class="form-select" onchange="filterForm.submit()">
                                 @foreach ($tahunAktif as $t)
-                                    <option value="{{ $t }}"
-                                        {{ $tahun == $t ? 'selected' : '' }}>
+                                    <option value="{{ $t }}" {{ $tahun == $t ? 'selected' : '' }}>
                                         {{ $t }}
                                     </option>
                                 @endforeach
@@ -78,8 +75,7 @@
                             @endphp
                             <select name="bulan" class="form-select" onchange="filterForm.submit()">
                                 @for ($b = $bulanMulai; $b <= $bulanSelesai; $b++)
-                                    <option value="{{ $b }}"
-                                        {{ $bulan == $b ? 'selected' : '' }}>
+                                    <option value="{{ $b }}" {{ $bulan == $b ? 'selected' : '' }}>
                                         {{ Carbon::create()->month($b)->translatedFormat('F') }}
                                     </option>
                                 @endfor
@@ -128,8 +124,7 @@
                                                 $key = $indikator->id . '-' . $indikator->unit_id;
                                                 $nilaiRekap = data_get($rekapBulanan, "$key.nilai_rekap");
                                                 $nilaiDenom = data_get($rekapBulanan, "$key.denominator");
-                                                $isSelected =
-                                                    $selectedIndikatorId == $indikator->id;
+                                                $isSelected = $selectedIndikatorId == $indikator->id;
 
                                                 $colColor = '';
                                                 $filterKategori = strtolower(request('kategori_indikator'));
@@ -154,16 +149,17 @@
                                                 }
                                             @endphp
 
-                                            <tr onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }})" 
-                                                class="{{ $isSelected ? 'table-active' : '' }}"
-                                                style="cursor: pointer;"
+                                            <tr onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }})"
+                                                class="{{ $isSelected ? 'table-active' : '' }}" style="cursor: pointer;"
                                                 data-indikator-id="{{ $indikator->id }}"
                                                 data-unit-id="{{ $indikator->unit_id }}">
                                                 <td class="text-center">{{ $loop->iteration }}</td>
                                                 <td class="text-center" onclick="event.stopPropagation()">
-                                                    <a href="javascript:void(0)" onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }}); event.stopPropagation();"
+                                                    <a href="javascript:void(0)"
+                                                        onclick="loadCalendar({{ $indikator->id }}, {{ $indikator->unit_id }}); event.stopPropagation();"
                                                         title="Lihat Kalender" class="text-decoration-none">
-                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}" style="font-size: 1.25rem;"></i>
+                                                        <i class="{{ $isSelected ? 'bi bi-calendar-check-fill text-primary' : 'bi bi-calendar-check text-primary' }}"
+                                                            style="font-size: 1.25rem;"></i>
                                                     </a>
                                                 </td>
                                                 <td class="{{ $colColor }} fw-semibold">
@@ -215,7 +211,7 @@
                                                         <span>N/A</span>
                                                     @else
                                                         <span>
-                                                            {{ fmod($nilaiRekap, 1) == 0 ? number_format($nilaiRekap, 0) : number_format($nilaiRekap, 1) }}%
+                                                            {{ (float) $nilaiRekap }}%
                                                         </span>
                                                     @endif
 
@@ -223,21 +219,18 @@
 
                                                 {{-- VALIDATOR --}}
                                                 <td class="text-center">
-                                                    @php 
+                                                    @php
                                                         $rekapItem = $rekapBulanan[$key] ?? null;
-                                                        $nilaiValidator = $rekapItem->nilai_validator ?? null; 
-                                                        $vMonthName = $rekapItem->validation_month_name ?? '';
-                                                        $isDifferentMonth = ($rekapItem->validation_month ?? null) != $bulan || ($rekapItem->validation_year ?? null) != $tahun;
+                                                        $valItem = $globalValidatorData[$key] ?? null;
+                                                        $nilaiValidator = $valItem->validator_score ?? null;
                                                     @endphp
-                                                    
+
                                                     @if ($nilaiValidator === null)
                                                         <span>-</span>
-                                                    @elseif(($rekapItem->denominator ?? 1) == 0)
-                                                        <span class="badge bg-secondary">N/A</span>
                                                     @else
                                                         <div class="d-flex flex-column align-items-center">
                                                             <span class="fw-semibold">
-                                                                {{ fmod($nilaiValidator, 1) == 0 ? number_format($nilaiValidator, 0) : number_format($nilaiValidator, 1) }}%
+                                                                {{ (float) $nilaiValidator }}%
                                                             </span>
                                                         </div>
                                                     @endif
@@ -245,11 +238,9 @@
 
                                                 {{-- STATUS VALIDASI --}}
                                                 <td class="text-center">
-                                                    @php $statusLaporan = $rekapItem->status_laporan ?? null; @endphp
+                                                    @php $statusLaporan = $valItem->validator_status ?? null; @endphp
                                                     @if ($statusLaporan === null)
                                                         <span>-</span>
-                                                    @elseif(($rekapItem->denominator ?? 1) == 0)
-                                                        <span class="badge bg-secondary">N/A</span>
                                                     @else
                                                         <span
                                                             class="badge bg-{{ $statusLaporan === 'valid' ? 'success' : 'danger' }} bg-opacity-75">
@@ -267,14 +258,17 @@
                                                     @else
                                                         @php
                                                             $tercapai = false;
+                                                            $n = (float) $nilaiRekap;
+                                                            $t = (float) $indikator->target_indikator;
+                                                            $tMin = (float) $indikator->target_min;
+                                                            $tMax = (float) $indikator->target_max;
+
                                                             if ($indikator->arah_target == 'lebih_besar') {
-                                                                $tercapai = $nilaiRekap >= $indikator->target_indikator;
+                                                                $tercapai = $n >= $t;
                                                             } elseif ($indikator->arah_target == 'lebih_kecil') {
-                                                                $tercapai = $nilaiRekap <= $indikator->target_indikator;
+                                                                $tercapai = $n <= $t;
                                                             } elseif ($indikator->arah_target == 'range') {
-                                                                $tercapai =
-                                                                    $nilaiRekap >= $indikator->target_min &&
-                                                                    $nilaiRekap <= $indikator->target_max;
+                                                                $tercapai = $n >= $tMin && $n <= $tMax;
                                                             }
                                                         @endphp
                                                         <span
@@ -296,7 +290,7 @@
                 <div id="calendar-container" class="col-12 col-xl-auto calendar-column-fixed px-2">
                     @include('menu.IndikatorMutu.partials._kalender', [
                         'isValidatorPage' => false,
-                        'noWrapper' => true
+                        'noWrapper' => true,
                     ])
                 </div>
 
@@ -311,7 +305,8 @@
                     <div class="modal-header border-0">
                         <div>
                             <h5 class="modal-title text-success fw-semibold">+ Tambah Data Laporan</h5>
-                            <small class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
+                            <small
+                                class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -322,7 +317,8 @@
                         <div class="modal-body">
                             <input type="hidden" name="indikator_id" id="modal_indikator_id"
                                 value="{{ $selectedIndikator->id ?? '' }}">
-                            <input type="hidden" name="unit_id" id="modal_unit_id" value="{{ $selectedIndikator->unit_id ?? '' }}">
+                            <input type="hidden" name="unit_id" id="modal_unit_id"
+                                value="{{ $selectedIndikator->unit_id ?? '' }}">
                             <input type="hidden" name="bulan" value="{{ request('bulan', $periodeMulai->month) }}">
                             <input type="hidden" name="tahun" value="{{ request('tahun', $periodeMulai->year) }}">
                             <input type="hidden" name="kategori_indikator" value="{{ request('kategori_indikator') }}">
@@ -373,7 +369,8 @@
                             <h5 class="modal-title text-warning fw-semibold">
                                 <i class="bi bi-pencil"></i> Edit Laporan
                             </h5>
-                            <small class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
+                            <small
+                                class="text-muted modal_dynamic_name">{{ $selectedIndikator->nama_indikator ?? '' }}</small>
                         </div>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -545,48 +542,47 @@
             document.getElementById('modal_unit_id').value = unitId || '';
 
             fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                container.innerHTML = html;
-                container.style.opacity = '1';
-                
-                // Update URL without reload
-                window.history.pushState({}, '', url);
-
-                // Update highlights
-                document.querySelectorAll('tr[onclick^="loadCalendar"]').forEach(tr => {
-                    tr.classList.remove('table-active');
-                    const icon = tr.querySelector('i.bi-calendar-check-fill');
-                    if (icon) {
-                        icon.classList.replace('bi-calendar-check-fill', 'bi-calendar-check');
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
-                });
+                })
+                .then(response => response.text())
+                .then(html => {
+                    container.innerHTML = html;
+                    container.style.opacity = '1';
 
-                const selectedRow = document.querySelector(`tr[data-indikator-id="${id}"][data-unit-id="${unitId}"]`);
-                if (selectedRow) {
-                    selectedRow.classList.add('table-active');
-                    const icon = selectedRow.querySelector('i.bi-calendar-check');
-                    if (icon) {
-                        icon.classList.replace('bi-calendar-check', 'bi-calendar-check-fill');
-                    }
-                    
-                    const namaIndikator = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
-                    document.querySelectorAll('.modal_dynamic_name').forEach(el => {
-                        el.textContent = namaIndikator;
+                    // Update URL without reload
+                    window.history.pushState({}, '', url);
+
+                    // Update highlights
+                    document.querySelectorAll('tr[onclick^="loadCalendar"]').forEach(tr => {
+                        tr.classList.remove('table-active');
+                        const icon = tr.querySelector('i.bi-calendar-check-fill');
+                        if (icon) {
+                            icon.classList.replace('bi-calendar-check-fill', 'bi-calendar-check');
+                        }
                     });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                container.style.opacity = '1';
-                window.location.href = url.href; // Fallback
-            });
+
+                    const selectedRow = document.querySelector(
+                        `tr[data-indikator-id="${id}"][data-unit-id="${unitId}"]`);
+                    if (selectedRow) {
+                        selectedRow.classList.add('table-active');
+                        const icon = selectedRow.querySelector('i.bi-calendar-check');
+                        if (icon) {
+                            icon.classList.replace('bi-calendar-check', 'bi-calendar-check-fill');
+                        }
+
+                        const namaIndikator = selectedRow.querySelector('td:nth-child(3)').textContent.trim();
+                        document.querySelectorAll('.modal_dynamic_name').forEach(el => {
+                            el.textContent = namaIndikator;
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    container.style.opacity = '1';
+                    window.location.href = url.href; // Fallback
+                });
         }
     </script>
-
-
 @endpush
